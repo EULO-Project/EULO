@@ -1,0 +1,26 @@
+# /etc/conf.d/eulod: config file for /etc/init.d/eulod
+
+# Config file location
+#BITCOIND_CONFIGFILE="/etc/eulo/eulo.conf"
+
+# What directory to write pidfile to?  (created and owned by $BITCOIND_USER)
+#BITCOIND_PIDDIR="/var/run/eulod"
+
+# What filename to give the pidfile
+#BITCOIND_PIDFILE="${BITCOIND_PIDDIR}/eulod.pid"
+
+# Where to write eulod data (be mindful that the blockchain is large)
+#BITCOIND_DATADIR="/var/lib/eulod"
+
+# User and group to own eulod process
+#BITCOIND_USER="eulo"
+#BITCOIND_GROUP="eulo"
+
+# Path to eulod executable
+#BITCOIND_BIN="/usr/bin/eulod"
+
+# Nice value to run eulod under
+#BITCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+BITCOIND_OPTS=""

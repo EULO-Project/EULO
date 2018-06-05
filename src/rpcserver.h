@@ -96,7 +96,7 @@ public:
 };
 
 /**
- * PIVX RPC command dispatcher.
+ * EULO RPC command dispatcher.
  */
 class CRPCTable
 {

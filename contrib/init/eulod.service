@@ -1,0 +1,26 @@
+[Unit]
+Description=EULO's distributed currency daemon
+After=network.target
+
+[Service]
+User=eulo
+Group=eulo
+
+Type=forking
+PIDFile=/var/lib/eulod/eulod.pid
+
+ExecStart=/usr/bin/eulod -daemon -pid=/var/lib/eulod/eulod.pid \
+          -conf=/etc/eulo/eulo.conf -datadir=/var/lib/eulod
+
+ExecStop=-/usr/bin/eulo-cli -conf=/etc/eulo/eulo.conf \
+         -datadir=/var/lib/eulod stop
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

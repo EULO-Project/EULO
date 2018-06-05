@@ -1,10 +1,10 @@
 Sample configuration files for:
 
-SystemD: pivxd.service
-Upstart: pivxd.conf
-OpenRC:  pivxd.openrc
-         pivxd.openrcconf
-CentOS:  pivxd.init
+SystemD: eulod.service
+Upstart: eulod.conf
+OpenRC:  eulod.openrc
+         eulod.openrcconf
+CentOS:  eulod.init
 
 have been made available to assist packagers in creating node packages here.
 
