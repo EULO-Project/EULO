@@ -20,6 +20,7 @@
 #include "crypto/sph_jh.h"
 #include "crypto/sph_keccak.h"
 #include "crypto/sph_skein.h"
+#include "crypto/cryptonight.h"
 
 #include <iomanip>
 #include <openssl/sha.h>
@@ -353,6 +354,26 @@ inline uint256 HashQuark(const T1 pbegin, const T1 pend)
         sph_jh512_close(&ctx_jh, static_cast<void*>(&hash[8]));
     }
     return hash[8].trim256();
+}
+
+
+/* ----------- CryptoNight Hash ------------------------------------------------ */
+template <typename T1>
+inline uint256 HashCryptoNight(const T1 pbegin, const T1 pend)
+{
+    uint512 hash;
+
+    static unsigned char pblank[1];
+
+    struct cryptonight_ctx *ctx = (struct cryptonight_ctx*) _mm_malloc(sizeof(struct cryptonight_ctx), 16);
+    ctx->memory = (uint8_t *) _mm_malloc(MEMORY * 2, 16);
+    
+    cryptonight_hash_ctx((pbegin == pend ? pblank : static_cast<const void*>(&pbegin[0])), (pend - pbegin) * sizeof(pbegin[0]), static_cast<void*>(&hash), ctx);
+    
+    _mm_free(ctx->memory);
+    _mm_free(ctx);
+
+    return hash.trim256();
 }
 
 void scrypt_hash(const char* pass, unsigned int pLen, const char* salt, unsigned int sLen, char* output, unsigned int N, unsigned int r, unsigned int p, unsigned int dkLen);

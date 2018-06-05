@@ -770,7 +770,11 @@ void InterruptTorControl()
 void StopTorControl()
 {
     if (gBase) {
-        torControlThread.join();
+#if BOOST_VERSION >= 105000
+        torControlThread.try_join_for(boost::chrono::seconds(1));
+#else
+        torControlThread.timed_join(boost::posix_time::seconds(1));
+#endif
         event_base_free(gBase);
         gBase = 0;
     }
