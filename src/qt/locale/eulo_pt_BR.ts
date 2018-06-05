@@ -3153,6 +3153,10 @@ https://www.transifex.com/eulo-project/eulo-project-translations</translation>
     </message>
     <message>
         <source>The PIVX Core developers</source>
+        <translation>Os desenvolvedores do PIVX Core</translation>
+    </message>
+    <message>
+        <source>The EULO Core developers</source>
         <translation>Os desenvolvedores do EULO Core</translation>
     </message>
     <message>
@@ -3867,6 +3871,10 @@ https://www.transifex.com/eulo-project/eulo-project-translations</translation>
     <message>
         <source>Copyright (C) 2014-%i The Dash Core Developers</source>
         <translation>Todos os direitos reservados (C) 2014-%i aos Desenvolvedores do Dash Core</translation>
+    </message>
+    <message>
+        <source>Copyright (C) 2015-%i The PIVX Core Developers</source>
+        <translation>Todos os direitos reservados (C) 2015-%i aos Desenvolvedores do PIVX Core</translation>
     </message>
     <message>
         <source>Copyright (C) 2015-%i The EULO Core Developers</source>

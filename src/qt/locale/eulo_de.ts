@@ -3622,6 +3622,10 @@ Bitte haben Sie Geduld...</translation>
     </message>
     <message>
         <source>The PIVX Core developers</source>
+        <translation>Die PIVX Core Entwickler</translation>
+    </message>
+    <message>
+        <source>The EULO Core developers</source>
         <translation>Die EULO Core Entwickler</translation>
     </message>
     <message>

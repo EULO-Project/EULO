@@ -3623,6 +3623,10 @@ Please be patient...</source>
     </message>
     <message>
         <source>The PIVX Core developers</source>
+        <translation>PIVX Core разработчици</translation>
+    </message>
+    <message>
+        <source>The EULO Core developers</source>
         <translation>EULO Core разработчици</translation>
     </message>
     <message>

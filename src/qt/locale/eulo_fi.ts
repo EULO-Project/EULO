@@ -2242,6 +2242,10 @@ Please check the address and try again.</source>
     </message>
     <message>
         <source>The PIVX Core developers</source>
+        <translation>PIVX core kehittäjät</translation>
+    </message>
+    <message>
+        <source>The EULO Core developers</source>
         <translation>EULO core kehittäjät</translation>
     </message>
     <message>

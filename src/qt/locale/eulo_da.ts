@@ -3193,6 +3193,10 @@ https://www.transifex.com/eulo-project/eulo-project-translations</translation>
     </message>
     <message>
         <source>The PIVX Core developers</source>
+        <translation>PIVX "core" udviklerne</translation>
+    </message>
+    <message>
+        <source>The EULO Core developers</source>
         <translation>EULO "core" udviklerne</translation>
     </message>
     <message>
@@ -4112,6 +4116,10 @@ For eksempel: alertnotify=Echo %% | mail - s "EULO ALARM!" e-mail@administrator.
     <message>
         <source>Copyright (C) 2014-%i The Dash Core Developers</source>
         <translation>Copyright (C) 2014-%i The Dash Core Developers </translation>
+    </message>
+    <message>
+        <source>Copyright (C) 2015-%i The PIVX Core Developers</source>
+        <translation>Copyright (C) 2015-%i The PIVX Core Developers</translation>
     </message>
     <message>
         <source>Copyright (C) 2015-%i The EULO Core Developers</source>

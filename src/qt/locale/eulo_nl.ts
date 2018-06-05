@@ -3615,6 +3615,10 @@ Wees alsjeblieft geduldig...</translation>
     </message>
     <message>
         <source>The PIVX Core developers</source>
+        <translation>De PIVX Kernontwikkelaars</translation>
+    </message>
+    <message>
+        <source>The EULO Core developers</source>
         <translation>De EULO Kernontwikkelaars</translation>
     </message>
     <message>
@@ -4629,6 +4633,10 @@ bijvoorbeeld: alertnotify = echo %%s | mail -s "EULO Alert" admin@foo.com
     <message>
         <source>Copyright (C) 2014-%i The Dash Core Developers</source>
         <translation>Copyright (C) 2014-%i The Dash Kernontwikkelaars</translation>
+    </message>
+    <message>
+        <source>Copyright (C) 2015-%i The PIVX Core Developers</source>
+        <translation>Copyright (C) 2015-%i The PIVX Kernontwikkelaars</translation>
     </message>
     <message>
         <source>Copyright (C) 2015-%i The EULO Core Developers</source>
