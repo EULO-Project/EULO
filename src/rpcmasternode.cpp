@@ -176,6 +176,7 @@ UniValue masternode(const UniValue& params, bool fHelp)
         // forward params but skip command
         for (unsigned int i = 1; i < params.size(); i++) {
             newParams.push_back(params[i]);
+        }
         return masternodeconnect(newParams, fHelp);
     }
 
