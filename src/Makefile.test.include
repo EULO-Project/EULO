@@ -115,8 +115,9 @@ eulo_test_clean : FORCE
 	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_eulo_OBJECTS) $(TEST_BINARY)
 
 check-local:
-if EMBEDDED_UNIVALUE
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C secp256k1 check
+if EMBEDDED_UNIVALUE
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C univalue check
 endif
 
 %.json.h: %.json
