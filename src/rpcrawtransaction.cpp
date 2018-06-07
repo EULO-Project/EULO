@@ -15,8 +15,8 @@
 #include "rpcserver.h"
 #include "script/script.h"
 #include "script/sign.h"
-#include "swifttx.h"
 #include "script/standard.h"
+#include "swifttx.h"
 #include "uint256.h"
 #include "utilmoneystr.h"
 #ifdef ENABLE_WALLET

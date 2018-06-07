@@ -68,7 +68,7 @@ void RPCTypeCheck(const UniValue& params,
 
 /**
  * Check for expected keys/value types in an Object.
- * Use like: RPCTypeCheck(object, boost::assign::map_list_of("name", str_type)("value", int_type));
+ * Use like: RPCTypeCheckObj(object, boost::assign::map_list_of("name", str_type)("value", int_type));
  */
 void RPCTypeCheckObj(const UniValue& o,
                      const std::map<std::string, UniValue::VType>& typesExpected, bool fAllowNull = false);
@@ -111,7 +111,7 @@ public:
     /**
      * Execute a method.
      * @param method   Method to execute
-     * @param params   UniValue of arguments (JSON objects)
+     * @param params   UniValue Array of arguments (JSON objects)
      * @returns Result of the call.
      * @throws an exception (UniValue) when an error happens.
      */
@@ -247,6 +247,7 @@ extern UniValue getrawmempool(const UniValue& params, bool fHelp);
 extern UniValue getblockhash(const UniValue& params, bool fHelp);
 extern UniValue getblock(const UniValue& params, bool fHelp);
 extern UniValue getblockheader(const UniValue& params, bool fHelp);
+extern UniValue getfeeinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxoutsetinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxout(const UniValue& params, bool fHelp);
 extern UniValue verifychain(const UniValue& params, bool fHelp);
