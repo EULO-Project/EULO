@@ -436,6 +436,8 @@ void PrivacyDialog::sendzULO()
 
     // Clear zulo selector in case it was used
     ZUloControlDialog::listSelectedMints.clear();
+    ui->labelzPivSelected_int->setText(QString("0"));
+    ui->labelQuantitySelected_int->setText(QString("0"));
 
     // Some statistics for entertainment
     QString strStats = "";
