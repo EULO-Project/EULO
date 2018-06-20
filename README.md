@@ -22,19 +22,20 @@ More information at [eulo.org](http://www.eulo.org) Visit our ANN thread at [Bit
 <tr><td>Premine</td><td>60,000 ULO*</td></tr>
 </table>
 
-*60,000 ULO Premine was burned in block [279917](http://www.presstab.pw/phpexplorer/EULO/block.php?blockhash=206d9cfe859798a0b0898ab00d7300be94de0f5469bb446cecb41c3e173a57e0)
-
 ### Reward Distribution
 
 <table>
 <th colspan=4>PoW Phase</th>
 <tr><th>Block Height</th><th>Reward Amount</th><th>Notes</th><th>Duration (Days)</th></tr>
 <tr><td>1</td><td>60,000 ULO</td><td>Initial Premine</td><td>0 Days</td></tr>
-<tr><td>2-151200</td><td>250 ULO</td><td rowspan=2>Open Mining</td><td rowspan=2> Approx 180 Days</td></tr>
-<tr><td>151201-259200</td><td>50 ULO</td></tr>
+<tr><td>2-263520</td><td>100 ULO</td><td rowspan=5>Open Mining</td><td rowspan=5> Approx 5 Years</td></tr>
+<tr><td>263521-1051200</td><td>95 ULO</td></tr>
+<tr><td>1051201-1576800</td><td>90 ULO</td></tr>
+<tr><td>1576801-2102400</td><td>85 ULO</td></tr>
+<tr><td>2102401-2628000</td><td>80 ULO</td></tr>
 <tr><th colspan=4>PoS Phase</th></tr>
 <tr><th>Block Height</th><th colspan=3>Reward Amount</th></tr>
-<tr><td>259201-Infinite</td><td colspan=3>Variable based on SeeSaw Reward Mechanism</td></tr>
+<tr><td>2628001-Infinite</td><td colspan=3>Variable based on SeeSaw Reward Mechanism</td></tr>
 </table>
 
 ### PoW Rewards Breakdown
@@ -50,14 +51,13 @@ More information at [eulo.org](http://www.eulo.org) Visit our ANN thread at [Bit
 
 <table>
 <th>Phase</th><th>Block Height</th><th>Reward</th><th>Masternodes & Stakers</th><th>Budget</th>
-<tr><td>Phase 1</td><td>259201-302399</td><td>50 ULO</td><td>90% (45 ULO)</td><td>10% (5 ULO)</td></tr>
-<tr><td>Phase 2</td><td>302400-345599</td><td>45 ULO</td><td>90% (40.5 ULO)</td><td>10% (4.5 ULO)</td></tr>
-<tr><td>Phase 3</td><td>345600-388799</td><td>40 ULO</td><td>90% (36 ULO)</td><td>10% (4 ULO)</td></tr>
-<tr><td>Phase 4</td><td>388800-431999</td><td>35 ULO</td><td>90% (31.5 ULO)</td><td>10% (3.5 ULO)</td></tr>
-<tr><td>Phase 5</td><td>432000-475199</td><td>30 ULO</td><td>90% (27 ULO)</td><td>10% (3 ULO)</td></tr>
-<tr><td>Phase 6</td><td>475200-518399</td><td>25 ULO</td><td>90% (22.5 ULO)</td><td>10% (2.5 ULO)</td></tr>
-<tr><td>Phase 7</td><td>518400-561599</td><td>20 ULO</td><td>90% (18 ULO)</td><td>10% (2 ULO)</td></tr>
-<tr><td>Phase 8</td><td>561600-604799</td><td>15 ULO</td><td>90% (13.5 ULO)</td><td>10% (1.5 ULO)</td></tr>
-<tr><td>Phase 9</td><td>604800-647999</td><td>10 ULO</td><td>90% (9 ULO)</td><td>10% (1 ULO)</td></tr>
-<tr><td>Phase X</td><td>648000-Infinite</td><td>5 ULO</td><td>90% (4.5 ULO)</td><td>10% (0.5 ULO)</td></tr>
+<tr><td>Phase 1</td><td>2628001-2671199</td><td>80 ULO</td><td>90% (72 ULO)</td><td>10% (8 ULO)</td></tr>
+<tr><td>Phase 2</td><td>2671200-2714399</td><td>72 ULO</td><td>90% (64.8 ULO)</td><td>10% (7.2 ULO)</td></tr>
+<tr><td>Phase 3</td><td>2714400-2757599</td><td>64 ULO</td><td>90% (57.6 ULO)</td><td>10% (6.4 ULO)</td></tr>
+<tr><td>Phase 4</td><td>2757600-2800799</td><td>56 ULO</td><td>90% (50.4 ULO)</td><td>10% (5.6 ULO)</td></tr>
+<tr><td>Phase 5</td><td>2800800-2843999</td><td>48 ULO</td><td>90% (43.2 ULO)</td><td>10% (4.8 ULO)</td></tr>
+<tr><td>Phase 6</td><td>2844000-2887199</td><td>40 ULO</td><td>90% (36 ULO)</td><td>10% (4.0 ULO)</td></tr>
+<tr><td>Phase 7</td><td>2887200-2930399</td><td>32 ULO</td><td>90% (28.8 ULO)</td><td>10% (3.2 ULO)</td></tr>
+<tr><td>Phase 8</td><td>2930400-2973599</td><td>24 ULO</td><td>90% (21.6 ULO)</td><td>10% (2.4 ULO)</td></tr>
+<tr><td>Phase X</td><td>2973600-Infinite</td><td>16 ULO</td><td>90% (14.4 ULO)</td><td>10% (1.6 ULO)</td></tr>
 </table>
