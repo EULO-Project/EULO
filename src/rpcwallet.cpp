@@ -21,7 +21,6 @@
 #include <stdint.h>
 
 #include "libzerocoin/Coin.h"
-
 #include "spork.h"
 #include <boost/assign/list_of.hpp>
 
