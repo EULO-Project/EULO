@@ -57,6 +57,10 @@
     <qresource prefix="/css">
         <file alias="default">res/css/default.css</file>
     </qresource>
+	<qresource prefix="/qml">
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+	</qresource>
     <qresource prefix="/images">
         <file alias="about">res/images/about.png</file>
         <file alias="eulo_logo_horizontal">res/images/eulo_logo_horizontal.png</file>

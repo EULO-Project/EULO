@@ -546,9 +546,8 @@ int main(int argc, char* argv[])
 
     //QML Environment
     QQmlApplicationEngine engine;
-    CursorPosProvider mousePosProvider;
-    engine.rootContext()->setContextProperty("mousePosition", &mousePosProvider);
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    //engine.rootContext()->setContextProperty("mousePosition", &mousePosProvider);
+    engine.load(QUrl(QStringLiteral(":/qml/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
 
