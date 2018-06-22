@@ -518,9 +518,44 @@ WId BitcoinApplication::getMainWinId() const
 }
 
 #ifndef BITCOIN_QT_TEST
+
+
+#include <QQmlApplicationEngine>
+#include <QFont>
+#include <QQuickWindow>
+#include <QQmlContext>
+#include <QQuickStyle>
+
 int main(int argc, char* argv[])
 {
     SetupEnvironment();
+
+
+    ///0.QML Section
+
+    QGuiApplication app2(argc, argv);
+
+    //QML Style
+    QQuickStyle::setStyle("Material");
+
+
+    //Font Style Family and Format
+    QFont font("Microsoft Yahei");
+    app2.setFont(font);
+
+
+    //QML Environment
+    QQmlApplicationEngine engine;
+    CursorPosProvider mousePosProvider;
+    engine.rootContext()->setContextProperty("mousePosition", &mousePosProvider);
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    if (engine.rootObjects().isEmpty())
+        return -1;
+
+
+
+
+
 
     /// 1. Parse command-line options. These take precedence over anything else.
     // Command-line options take precedence:
