@@ -29,6 +29,7 @@ BITCOIN_CONFIG_INCLUDES=-I$(builddir)/config
 BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) $(CRYPTO_CFLAGS) $(SSL_CFLAGS)
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
+BITCOIN_INCLUDES += -I$(srcdir)/lz4/lib
 BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
@@ -40,8 +41,12 @@ LIBBITCOIN_CRYPTO=crypto/libbitcoin_crypto.a
 LIBBITCOIN_ZEROCOIN=libzerocoin/libbitcoin_zerocoin.a
 LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
+LIBLZ4=lz4/lib/liblz4.a
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
+
+$(LIBLZ4): $(wildcard lz4/lib/*) 
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
@@ -124,6 +129,7 @@ BITCOIN_CORE_H = \
   keystore.h \
   leveldbwrapper.h \
   limitedmap.h \
+  lz4io.h \
   main.h \
   masternode.h \
   masternode-payments.h \
@@ -196,6 +202,7 @@ libbitcoin_server_a_SOURCES = \
   checkpoints.cpp \
   init.cpp \
   leveldbwrapper.cpp \
+  lz4io.cpp \
   main.cpp \
   merkleblock.cpp \
   miner.cpp \
@@ -399,7 +406,8 @@ eulod_LDADD = \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
-  $(LIBSECP256K1)
+  $(LIBSECP256K1) \
+  $(LIBLZ4)
 
 if ENABLE_ZMQ
 eulod_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
@@ -507,6 +515,7 @@ EXTRA_DIST = leveldb
 clean-local:
 	-$(MAKE) -C leveldb clean
 	-$(MAKE) -C secp256k1 clean
+	-$(MAKE) -C lz4 clean
 	-$(MAKE) -C univalue clean
 	rm -f leveldb/*/*.gcno leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
