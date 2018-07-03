@@ -33,8 +33,8 @@ More information at [eulo.org](http://www.eulo.org) Visit our ANN thread at [Bit
 ### PoW Rewards Breakdown
 
 <table>
-<th>Block Height</th><th>Masternodes</th><th>Miner</th><th>Budget</th>
-<tr><td>2-43200</td><td>10% (1 ULO)</td><td>90% (9 ULO)</td><td>N/A</td></tr>
+<th>Block Height</th><th>Reward</th><th>Masternodes</th><th>Miner</th><th>Budget</th>
+<tr><td>2-43200</td><td>10 ULO</td><td>10% (1 ULO)</td><td>90% (9 ULO)</td><td>N/A</td></tr>
 </table>
 
 ### PoS Rewards Breakdown
