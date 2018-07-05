@@ -2184,27 +2184,29 @@ int64_t GetBlockValue(int nHeight)
         nSubsidy = 1000000000 * COIN;
     } else if (nHeight < Params().LAST_POW_BLOCK() && nHeight > 0) {
         nSubsidy = 10 * 1 * COIN;
-    } else if (nHeight <= 1036799 && nHeight >= Params().LAST_POW_BLOCK()) {
+    } else if (nHeight <= 259199 && nHeight >= Params().LAST_POW_BLOCK()) {
+        nSubsidy = 1 * 1 * COIN;
+    } else if (nHeight <= 1295999 && nHeight >= 259200) {
         nSubsidy = 130 * 0.90 * COIN;
-    } else if (nHeight <= 2073599 && nHeight >= 1036800) {
+    } else if (nHeight <= 2332799 && nHeight >= 1296000) {
         nSubsidy = 125 * 0.90 * COIN;
-    } else if (nHeight <= 3110399 && nHeight >= 2073600) {
+    } else if (nHeight <= 3369599 && nHeight >= 2332800) {
         nSubsidy = 120 * 0.90 * COIN;
-    } else if (nHeight <= 4147199 && nHeight >= 3110400) {
+    } else if (nHeight <= 4406399 && nHeight >= 3369600) {
         nSubsidy = 115 * 0.90 * COIN;
-    } else if (nHeight <= 5183999 && nHeight >= 4147200) {
+    } else if (nHeight <= 5443199 && nHeight >= 4406400) {
         nSubsidy = 110 * 0.90 * COIN;
-    } else if (nHeight <= 6220799 && nHeight >= 5184000) {
+    } else if (nHeight <= 6479999 && nHeight >= 5443200) {
         nSubsidy = 105 * 0.90 * COIN;
-    } else if (nHeight <= 7257599 && nHeight >= 6220800) {
+    } else if (nHeight <= 7516799 && nHeight >= 6480000) {
         nSubsidy = 100 * 0.90 * COIN;
-    } else if (nHeight <= 8294399 && nHeight >= 7257600) {
+    } else if (nHeight <= 8553599 && nHeight >= 7516800) {
         nSubsidy = 95 * 0.90 * COIN;
-    } else if (nHeight <= 9331199 && nHeight >= 8294400) {
+    } else if (nHeight <= 9590399 && nHeight >= 8553600) {
         nSubsidy = 90 * 0.90 * COIN;
-    } else if (nHeight <= 10367999 && nHeight >= 9331200) {
+    } else if (nHeight <= 10627199 && nHeight >= 9590400) {
         nSubsidy = 85 * 0.90 * COIN;
-    } else if (nHeight >= 10368000) {
+    } else if (nHeight >= 10627200) {
         nSubsidy = 50 * 0.90 * COIN;
     } else {
         nSubsidy = 0 * COIN;
