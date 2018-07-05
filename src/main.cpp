@@ -5792,7 +5792,25 @@ void static ProcessGetData(CNode* pfrom)
                     if (!ReadBlockFromDisk(block, (*mi).second))
                         assert(!"cannot load block from disk");
                     if (inv.type == MSG_BLOCK)
-                        pfrom->PushMessage("block", block);
+                        if (fEnableLz4Block) {
+                            CDataStream blockStream(SER_NETWORK, PROTOCOL_VERSION);
+                            std::string blockString;
+                        
+                            unsigned int blockSize;
+                            
+                            blockStream << block;
+                            blockString = blockStream.str();
+                            blockSize = blockStream.size();
+                            blockStream.clear();
+                            
+                            std::vector<unsigned char> vCompress;
+                            LZ4IO_Compress(blockString, blockSize, vCompress);
+
+                            blockStream.write((const char *) vCompress.data(), vCompress.size());
+                            pfrom->PushMessage("block", blockStream);
+                        } else {
+                            pfrom->PushMessage("block", block);
+                        }
                     else // MSG_FILTERED_BLOCK)
                     {
                         LOCK(pfrom->cs_filter);
@@ -6546,6 +6564,24 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
     {
         CBlock block;
+        std::string blockString = vRecv.str();
+        unsigned int version = (blockString[0] | (blockString[1] << 8) | (blockString[2] << 16) | (blockString[3] << 24));
+        
+        if (LZ4IO_MAGICNUMBER == version)
+        {
+            unsigned int blockSize;
+            std::vector<unsigned char> vDecompress;
+
+            blockSize = vRecv.size();
+            LZ4IO_Decompress(blockString, blockSize, vDecompress);
+            if (vDecompress.size())
+            {
+                vRecv.clear();
+                vRecv.write((const char*) vDecompress.data(), vDecompress.size());
+            } else {
+                return error("lz4 block decompress size = %u, fEnableLz4Block = %u", vDecompress.size(), fEnableLz4Block);
+            }
+        }
         vRecv >> block;
         uint256 hashBlock = block.GetHash();
         CInv inv(MSG_BLOCK, hashBlock);
