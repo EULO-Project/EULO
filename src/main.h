@@ -166,6 +166,8 @@ extern CBlockIndex* pindexBestHeader;
 /** Minimum disk space required - used in CheckDiskSpace() */
 static const uint64_t nMinDiskSpace = 52428800;
 
+
+
 /** Register a wallet to receive updates from core */
 void RegisterValidationInterface(CValidationInterface* pwalletIn);
 /** Unregister a wallet from core */
@@ -635,6 +637,8 @@ bool ReconsiderBlock(CValidationState& state, CBlockIndex* pindex);
 
 /** The currently-connected chain of blocks. */
 extern CChain chainActive;
+
+
 
 /** Global variable that points to the active CCoinsView (protected by cs_main) */
 extern CCoinsViewCache* pcoinsTip;

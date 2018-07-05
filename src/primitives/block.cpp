@@ -6,13 +6,20 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "primitives/block.h"
-
 #include "hash.h"
 #include "script/standard.h"
 #include "script/sign.h"
 #include "tinyformat.h"
 #include "utilstrencodings.h"
 #include "util.h"
+
+
+
+
+uint256 CTmpBlockParams::GetHash() const
+{
+    return HashCryptoNight(BEGIN(ori_hash), END(prev_hash));
+}
 
 uint256 CBlockHeader::GetHash() const
 {
@@ -21,6 +28,7 @@ uint256 CBlockHeader::GetHash() const
 
     return HashCryptoNight(BEGIN(nVersion), END(nAccumulatorCheckpoint));
 }
+
 
 uint256 CBlock::BuildMerkleTree(bool* fMutated) const
 {

@@ -12,6 +12,7 @@
 #include "serialize.h"
 #include "uint256.h"
 
+
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
 static const unsigned int MAX_BLOCK_SIZE_CURRENT = 2000000;
 static const unsigned int MAX_BLOCK_SIZE_LEGACY = 1000000;
@@ -23,6 +24,51 @@ static const unsigned int MAX_BLOCK_SIZE_LEGACY = 1000000;
  * in the block is a special one that creates a new coin owned by the creator
  * of the block.
  */
+
+//bool IsPOSPhase();
+
+class CTmpBlockParams
+{
+public:
+
+    uint256 ori_hash;
+    unsigned int nNonce;
+    uint160 payee;
+    uint256 prev_hash;
+
+    CTmpBlockParams()
+    {
+        SetNull();
+    }
+
+    ADD_SERIALIZE_METHODS;
+
+
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+        READWRITE(ori_hash);
+        READWRITE(nNonce);
+        READWRITE(payee);
+        READWRITE(prev_hash);
+    }
+
+
+
+    uint256 GetHash() const;
+
+
+    void SetNull()
+    {
+        ori_hash = 0;
+        nNonce = 0;
+        payee = 0;
+        prev_hash = 0;
+    }
+
+
+
+};
+
 class CBlockHeader
 {
 public:
@@ -35,6 +81,10 @@ public:
     uint32_t nBits;
     uint32_t nNonce;
     uint256 nAccumulatorCheckpoint;
+    uint32_t nBits2;  //For POW in POS phase
+
+
+    bool isPOSPhase = false;
 
     CBlockHeader()
     {
@@ -56,6 +106,11 @@ public:
         //zerocoin active, header changes to include accumulator checksum
         if(nVersion > 3)
             READWRITE(nAccumulatorCheckpoint);
+
+        if(isPOSPhase)
+            READWRITE(nBits2);
+
+
     }
 
     void SetNull()
@@ -67,11 +122,19 @@ public:
         nBits = 0;
         nNonce = 0;
         nAccumulatorCheckpoint = 0;
+        nBits2 = 0;
+
     }
+
 
     bool IsNull() const
     {
         return (nBits == 0);
+    }
+
+    bool IsNull2() const
+    {
+        return (nBits2 == 0);
     }
 
     uint256 GetHash() const;
@@ -136,6 +199,8 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         block.nAccumulatorCheckpoint = nAccumulatorCheckpoint;
+        block.nBits2 = nBits2;
+
         return block;
     }
 

@@ -1481,6 +1481,7 @@ void ThreadMessageHandler()
     SetThreadPriority(THREAD_PRIORITY_BELOW_NORMAL);
     while (true) {
         vector<CNode*> vNodesCopy;
+
         {
             LOCK(cs_vNodes);
             vNodesCopy = vNodes;
@@ -1503,12 +1504,15 @@ void ThreadMessageHandler()
             // Receive messages
             {
                 TRY_LOCK(pnode->cs_vRecvMsg, lockRecv);
-                if (lockRecv) {
+                if (lockRecv)
+                {
                     if (!g_signals.ProcessMessages(pnode))
                         pnode->CloseSocketDisconnect();
 
-                    if (pnode->nSendSize < SendBufferSize()) {
-                        if (!pnode->vRecvGetData.empty() || (!pnode->vRecvMsg.empty() && pnode->vRecvMsg[0].complete())) {
+                    if (pnode->nSendSize < SendBufferSize())
+                    {
+                        if (!pnode->vRecvGetData.empty() || (!pnode->vRecvMsg.empty() && pnode->vRecvMsg[0].complete()))
+                        {
                             fSleep = false;
                         }
                     }
