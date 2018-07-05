@@ -6585,9 +6585,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         blockheader.nNonce = tmpBlockParams.nNonce; //Parse nNonce
         blockheader.nBits = blockheader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.
+
+
+
+
         if (!CheckProofOfWork(blockheader.GetHash(), blockheader.nBits2)) return true;
         else
-            tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),tmpBlockParams)); //mapTmpBlock is a mapping between ori_hash and CTmpBlockParams
+            tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),std::pair<CTmpBlockParams,int64_t>(tmpBlockParams,GetTime()))); //mapTmpBlock is a mapping between ori_hash and CTmpBlockParams
 
        // LOCK(cs_vNodes); // Will this Lock create a dead lock with LOCK(cs_main) above, or is it unnecessary?
         BOOST_FOREACH (CNode* pnode, vNodes)

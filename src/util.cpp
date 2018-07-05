@@ -509,8 +509,14 @@ boost::filesystem::path GetMasternodeConfigFile()
 void ReadConfigFile(map<string, string>& mapSettingsRet,
     map<string, vector<string> >& mapMultiSettingsRet)
 {
+
+    LogPrintf("In ReadConfigFile\n");
+
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good()) {
+
+        LogPrintf("No eulo.conf,creating!\n");
+
         // Create empty eulo.conf if it does not exist
         FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
         if (configFile != NULL)

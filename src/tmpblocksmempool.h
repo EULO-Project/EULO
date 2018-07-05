@@ -12,7 +12,7 @@ public:
     TmpBlocksMempool();
 
 
-    std::map<uint256, CTmpBlockParams> mapTmpBlock;
+    std::map<uint256, std::pair<CTmpBlockParams,int64_t>> mapTmpBlock;
 
 
     bool HaveTmpBlock(const uint256& ori_hash_) const;
