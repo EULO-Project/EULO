@@ -104,7 +104,7 @@ public:
         pchMessageStart[3] = 0xe5;
         vAlertPubKey = ParseHex("0490e0480bf864eece4ddca8787bb1a74f823361e7e9e931e67385b6976600a98637e2f2eb32568035266789c44e0471443bbe27efd6673284e53d4f16272566f9");
         nDefaultPort = 58802;
-        bnProofOfWorkLimit = ~uint256(0) >> 20; // EULO starting difficulty is 1 / 2^12
+        bnProofOfWorkLimit = ~uint256(0) >> 8; // ULO starting difficulty is 1 / 2^12
         nSubsidyHalvingInterval = 210000;
         nMaxReorganizationDepth = 100;
         nEnforceBlockUpgradeMajority = 750;
@@ -115,7 +115,7 @@ public:
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
         nMaturity = 100;
         nMasternodeCountDrift = 20;
-        nMaxMoneyOut = 232043901 * COIN;
+        nMaxMoneyOut = 235269500 * COIN;
 
         /** Height or Time Based Activations **/
         nLastPOWBlock = 2592000;
@@ -138,32 +138,32 @@ public:
          *     CTxOut(nValue=50.00000000, scriptPubKey=0xA9037BAC7050C479B121CF)
          *   vMerkleTree: e0028e
          */
-        const char* pszTimestamp = "U.S. News & World Report Jan 28 2016 With His Absence, Trump Dominates Another Debate";
+        const char* pszTimestamp = "President Trump bans deals in Venezuela's crypto-currency, 19 March 2018, BBC NEWS.";
         CMutableTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
-        txNew.vin[0].scriptSig = CScript() << 486604799 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
+        txNew.vin[0].scriptSig = CScript() << 521142256 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         txNew.vout[0].nValue = 250 * COIN;
-        txNew.vout[0].scriptPubKey = CScript() << ParseHex("04c10e83b2703ccf322f7dbd62dd5855ac7c10bd055814ce121ba32607d573b8810c02c0582aed05b4deb9c4b77b26d92428c61256cd42774babea0a073b2ed0c9") << OP_CHECKSIG;
+        txNew.vout[0].scriptPubKey = CScript() << ParseHex("045ae4d4f02577391b20229d5a934fb579ab31defb2b2edc8b14401f640eb20eae7a6e127f6e3b4230f6d62b03e77ce8467bfcee2f239f3e9bdb6f364dcdd11a49") << OP_CHECKSIG;
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime = 1454124731;
-        genesis.nBits = 0x1e0ffff0;
-        genesis.nNonce = 2402015;
+        genesis.nTime = 1521556903;
+        genesis.nBits = 0x1f0ffff0;
+        genesis.nNonce = 975;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x0000041e482b9b9691d98eefb48473405c0b8ec31b76df3797c74a78680ef818"));
-        assert(genesis.hashMerkleRoot == uint256("0x1b2ef6e2f28be914103a277377ae7729dcd125dfeb8bf97bd5964ba72b6dc39b"));
+        assert(hashGenesisBlock == uint256("0x000d9ebc3a2b0189ea258e85e504b80255530f7465bf7108fd9bded50d4fbe03"));
+        assert(genesis.hashMerkleRoot == uint256("0x1191ca8dfc8228272bb6f6fb9a7b14ba19c33f5fa7f07d8d5c700457ca988a3d"));
 
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo.seed.fuzzbawls.pw"));     // Primary DNS Seeder from Fuzzbawls
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo.seed2.fuzzbawls.pw"));    // Secondary DNS Seeder from Fuzzbawls
-        vSeeds.push_back(CDNSSeedData("coin-server.com", "coin-server.com"));         // Single node address
-        vSeeds.push_back(CDNSSeedData("s3v3nh4cks.ddns.net", "s3v3nh4cks.ddns.net")); // Single node address
-        vSeeds.push_back(CDNSSeedData("178.254.23.111", "178.254.23.111"));           // Single node address
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 30);
+        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));    // Secondary DNS Seeder from Fuzzbawls
+        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));         // Single node address
+        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200")); // Single node address
+        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // Single node address
+
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 68);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 13);
         base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 212);
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x02)(0x2D)(0x25)(0x33).convert_to_container<std::vector<unsigned char> >();
@@ -183,9 +183,9 @@ public:
         fHeadersFirstSyncingActive = false;
 
         nPoolMaxTransactions = 3;
-        strSporkKey = "04B433E6598390C992F4F022F20D3B4CBBE691652EE7C48243B81701CBDB7CC7D7BF0EE09E154E6FCBF2043D65AF4E9E97B89B5DBAF830D83B9B7F469A6C45A717";
-        strObfuscationPoolDummyAddress = "D87q2gC9j6nNrnzCsg4aY6bHMLsT9nUhEw";
-        nStartMasternodePayments = 1403728576; //Wed, 25 Jun 2014 20:36:16 GMT
+        strSporkKey = "04f868526d10d4a734e155853f76b4a8be21b941a6891dfbd0f0a5889adf7fcb052d843acddd2af776f6834b71e6c53778eabcecc357a9578ae70d276257fd8b80";
+        strObfuscationPoolDummyAddress = "UXJdBngPh9maq59nbyazqptD8qacGJb7ak";
+        nStartMasternodePayments = 1514768399; //Wed, 25 Jun 2018 8:59:59 GMT
 
         /** Zerocoin */
         zerocoinModulus = "b024c540851a3461c17a8da2b39752f5b6f59cd753c0de054a8b2f8b19c2729ef5c5fc99ebc4507d7926934fac50219ff55639316c1e278f4972188ea8bc3bae"
@@ -236,9 +236,9 @@ public:
         nMaturity = 15;
         nMasternodeCountDrift = 4;
         nModifierUpdateBlock = 51197; //approx Mon, 17 Apr 2017 04:00:00 GMT
-        nMaxMoneyOut = 43199500 * COIN;
+        nMaxMoneyOut = 235269500 * COIN;
         nZerocoinStartHeight = 201576;
-        nZerocoinStartTime = 1501776000;
+        nZerocoinStartTime = 1550037281;
         nBlockEnforceSerialRange = 1; //Enforce serial range starting this block
         nBlockRecalculateAccumulators = 9908000; //Trigger a recalculation of accumulators
         nBlockFirstFraudulent = 9891737; //First block that bad serials emerged
@@ -246,20 +246,21 @@ public:
         nBlockEnforceInvalidUTXO = 9902850; //Start enforcing the invalid UTXO's
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nTime = 1454124731;
-        genesis.nNonce = 2402015;
+        genesis.nTime = 1521556903;
+        genesis.nNonce = 975;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x0000041e482b9b9691d98eefb48473405c0b8ec31b76df3797c74a78680ef818"));
+        assert(hashGenesisBlock == uint256("0x000d9ebc3a2b0189ea258e85e504b80255530f7465bf7108fd9bded50d4fbe03"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo-testnet.seed.fuzzbawls.pw"));
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo-testnet.seed2.fuzzbawls.pw"));
-        vSeeds.push_back(CDNSSeedData("s3v3nh4cks.ddns.net", "s3v3nh4cks.ddns.net"));
-        vSeeds.push_back(CDNSSeedData("88.198.192.110", "88.198.192.110"));
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 139); // Testnet eulo addresses start with 'x' or 'y'
+//        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Single node address
+//        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Single node address
+//        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Single node address
+//        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // Single node address
+
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 130); // Testnet eulo addresses start with 'x' or 'y'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);  // Testnet eulo script addresses start with '8' or '9'
         base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 239);     // Testnet private keys start with '9' or 'c' (Bitcoin defaults)
         // Testnet eulo BIP32 pubkeys start with 'DRKV'
@@ -279,8 +280,8 @@ public:
         fTestnetToBeDeprecatedFieldRPC = true;
 
         nPoolMaxTransactions = 2;
-        strSporkKey = "04348C2F50F90267E64FACC65BFDC9D0EB147D090872FB97ABAE92E9A36E6CA60983E28E741F8E7277B11A7479B626AC115BA31463AC48178A5075C5A9319D4A38";
-        strObfuscationPoolDummyAddress = "y57cqfGRkekRyDRNeJiLtYVEbvhXrNbmox";
+        strSporkKey = "042a5bab8709d72839c05e72a6396b69608a164abe94eeccdc311a9e0dd8fc8e3a13d75bcd2ffa6077ffea53319fa0e60ac0ba0bc6b392f7f296f0164d6ff08250";
+        strObfuscationPoolDummyAddress = "uTxyz1tQzBkZrJaZgFQ9TXn2TxsSQQcoQ8";
         nStartMasternodePayments = 1420837558; //Fri, 09 Jan 2015 21:05:58 GMT
         nBudget_Fee_Confirmations = 3; // Number of confirmations for the finalization fee. We have to make this very short
                                        // here because we only have a 8 block finalization window on testnet
@@ -303,10 +304,10 @@ public:
         networkID = CBaseChainParams::REGTEST;
         strNetworkID = "regtest";
         strNetworkID = "regtest";
-        pchMessageStart[0] = 0xa1;
-        pchMessageStart[1] = 0xcf;
-        pchMessageStart[2] = 0x7e;
-        pchMessageStart[3] = 0xac;
+        pchMessageStart[0] = 0xef;
+        pchMessageStart[1] = 0xec;
+        pchMessageStart[2] = 0xf5;
+        pchMessageStart[3] = 0xc5;
         nSubsidyHalvingInterval = 150;
         nEnforceBlockUpgradeMajority = 750;
         nRejectBlockOutdatedMajority = 950;
@@ -315,13 +316,13 @@ public:
         nTargetTimespan = 24 * 60 * 60; // Eulo: 1 day
         nTargetSpacing = 1 * 60;        // Eulo: 1 minutes
         bnProofOfWorkLimit = ~uint256(0) >> 1;
-        genesis.nTime = 1454124731;
-        genesis.nBits = 0x207fffff;
-        genesis.nNonce = 12345;
+        genesis.nTime = 1521556903;
+        genesis.nBits = 0x200fffff;
+        genesis.nNonce = 37;
 
         hashGenesisBlock = genesis.GetHash();
         nDefaultPort = 58806;
-        assert(hashGenesisBlock == uint256("0x4f023a2120d9127b21bbad01724fdb79b519f593f2a85b60d3d79160ec5f29df"));
+        assert(hashGenesisBlock == uint256("0x03a2c87ee628b378d002f9c77c3f452a8cbc9e0b7757a22ff0c7e476fed955c7"));
 
         vFixedSeeds.clear(); //! Testnet mode doesn't have any fixed seeds.
         vSeeds.clear();      //! Testnet mode doesn't have any DNS seeds.
