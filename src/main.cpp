@@ -14,6 +14,7 @@
 #include "checkpoints.h"
 #include "checkqueue.h"
 #include "init.h"
+#include "lz4io.h"
 #include "kernel.h"
 #include "masternode-budget.h"
 #include "masternode-payments.h"
