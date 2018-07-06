@@ -88,8 +88,14 @@ void UpdateTime(CBlockHeader* pblock, const CBlockIndex* pindexPrev)
     pblock->nTime = std::max(pindexPrev->GetMedianTimePast() + 1, GetAdjustedTime());
 
     // Updating time can change work required on testnet:
-    if (Params().AllowMinDifficultyBlocks())
-        pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
+    if (Params().AllowMinDifficultyBlocks()) {
+        if (pindexPrev.nHeight <= Params().LAST_POW_BLOCK()) {
+            pblock->nBits = GetNextPowWorkRequired(pindexPrev, pblock);
+        } else {
+            pblock->nBits = GetNextPosWorkRequired(pindexPrev, pblock);
+            pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
+        }
+    }
 }
 
 CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, bool fProofOfStake)

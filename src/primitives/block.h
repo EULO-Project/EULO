@@ -43,7 +43,6 @@ public:
 
     ADD_SERIALIZE_METHODS;
 
-
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(ori_hash);
@@ -52,10 +51,7 @@ public:
         READWRITE(prev_hash);
     }
 
-
-
     uint256 GetHash() const;
-
 
     void SetNull()
     {
@@ -64,9 +60,6 @@ public:
         payee = 0;
         prev_hash = 0;
     }
-
-
-
 };
 
 class CBlockHeader
@@ -199,7 +192,7 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         block.nAccumulatorCheckpoint = nAccumulatorCheckpoint;
-        block.nBits2 = nBits2;
+        block.nBits2        = nBits2;
 
         return block;
     }

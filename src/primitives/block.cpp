@@ -13,9 +13,6 @@
 #include "utilstrencodings.h"
 #include "util.h"
 
-
-
-
 uint256 CTmpBlockParams::GetHash() const
 {
     return HashCryptoNight(BEGIN(ori_hash), END(prev_hash));
