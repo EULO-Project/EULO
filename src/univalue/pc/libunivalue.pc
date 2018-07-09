@@ -1,4 +1,4 @@
-prefix=/mingw32
+prefix=/home/uvei-ubuntu/WORKSPACE/ulo/EULO/depends/x86_64-pc-linux-gnu
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
