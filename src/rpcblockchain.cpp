@@ -305,6 +305,25 @@ static std::string ValueToString(CAmount nValue, bool AllowNegative = false)
     return std::string("<span>") + Str + "</span>";
 }
 
+static std::string ValueToString2(CAmount nValue, bool AllowNegative = false)
+{
+    if (nValue < 0 && !AllowNegative)
+        return "unknown";
+
+    double value  = nValue/100000000;
+
+    std::string Str = std::to_string(value);
+
+
+    if (AllowNegative && nValue > 0)
+        Str = '+' + Str;
+    else if(AllowNegative && nValue < 0)
+        Str = '-' + Str;
+
+
+    return  Str;
+}
+
 string FormatScript2(const CScript& script)
 {
     string ret;
@@ -354,6 +373,19 @@ static std::string ScriptToString(const CScript& Script, bool Long = false, bool
             return makeHRef(Address.ToString());
     } else
         return Long ? "<pre>" + FormatScript2(Script) + "</pre>" : "Non-standard script";
+}
+
+static std::string ScriptToString2(const CScript& Script, bool Long = false, bool Highlight = false)
+{
+    if (Script.empty())
+        return "unknown";
+
+    CTxDestination Dest;
+    CBitcoinAddress Address;
+    if (ExtractDestination(Script, Dest) && Address.Set(Dest)) {
+            return Address.ToString();
+    } else
+        return Long ? FormatScript2(Script): "Non-standard script";
 }
 
 static std::string TimeToString(uint64_t Time)
@@ -436,7 +468,8 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
             OutAddresses,
             OutAmounts,
             "",
-            ""};
+            ""
+    };
 
     int n = sizeof(List) / sizeof(std::string) - 2;
 
@@ -449,7 +482,58 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
     return makeHTMLTableRow(List + 1, n - 1);
 }
 
+static UniValue TxToRow2(const CTransaction& tx, const CScript& Highlight = CScript(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
+{
+    UniValue info(UniValue::VOBJ);
+    UniValue from_array(UniValue::VARR);
+    UniValue to_array(UniValue::VARR);
 
+    int64_t Delta = 0;
+    for (unsigned int j = 0; j < tx.vin.size(); j++) {
+        std::string InAmounts, InAddresses;
+        if (tx.IsCoinBase()) {
+            InAmounts = ValueToString2(tx.GetValueOut());
+            InAddresses = "coinbase";
+        } else {
+            CTxOut PrevOut = getPrevOut2(tx.vin[j].prevout);
+            InAmounts = ValueToString2(PrevOut.nValue);
+            InAddresses = ScriptToString2(PrevOut.scriptPubKey, false, PrevOut.scriptPubKey == Highlight).c_str();
+            if (PrevOut.scriptPubKey == Highlight)
+                Delta -= PrevOut.nValue;
+        }
+
+
+        UniValue from_item(UniValue::VOBJ);
+        from_item.push_back(Pair(InAddresses,InAmounts));
+
+        from_array.push_back(from_item);
+
+    }
+    for (unsigned int j = 0; j < tx.vout.size(); j++) {
+
+        std::string  OutAmounts, OutAddresses;
+
+
+        CTxOut Out = tx.vout[j];
+        OutAmounts = ValueToString2(Out.nValue);
+        OutAddresses = ScriptToString2(Out.scriptPubKey, false, Out.scriptPubKey == Highlight);
+        if (Out.scriptPubKey == Highlight)
+            Delta += Out.nValue;
+
+        UniValue to_item(UniValue::VOBJ);
+        to_item.push_back(Pair(OutAddresses,OutAmounts));
+
+        to_array.push_back(to_item);
+    }
+
+
+
+    info.push_back(Pair("txid", tx.GetHash().GetHex()));
+    info.push_back(Pair("from_array",from_array ));
+    info.push_back(Pair("to_array",to_array ));
+
+    return info;
+}
 
 std::string getexplorerBlockHash2(int64_t Height)
 {
@@ -518,11 +602,10 @@ UniValue BlocksToString(int64_t from,int64_t to)
         UniValue info(UniValue::VOBJ);
         info.push_back(Pair("Timestamp", TimeToString(block.nTime)));
         info.push_back(Pair("Transactions", itostr(block.vtx.size())));
-        info.push_back(Pair("Value", ValueToString(OutVolume + Fees + Generated)));
+        info.push_back(Pair("Value", ValueToString2(OutVolume + Fees + Generated)));
         info.push_back(Pair("Difficulty", strprintf("%.4f", GetDifficulty(pBlock))));
 
-
-        res.push_back(Pair("Height", info));
+        res.push_back(Pair(itostr(i), info));
     }
 
 
@@ -534,10 +617,15 @@ UniValue BlocksToString(int64_t from,int64_t to)
 
 
 
-std::string BlockToString2(CBlockIndex* pBlock)
+UniValue BlockToString2(CBlockIndex* pBlock)
 {
+
+
     if (!pBlock)
         return "";
+
+    UniValue info(UniValue::VOBJ);
+    UniValue tx_array(UniValue::VARR);
 
     CBlock block;
     ReadBlockFromDisk(block, pBlock);
@@ -553,7 +641,7 @@ std::string BlockToString2(CBlockIndex* pBlock)
     std::string TxContent = table + makeHTMLTableRow(TxLabels, sizeof(TxLabels) / sizeof(std::string));
     for (unsigned int i = 0; i < block.vtx.size(); i++) {
         const CTransaction& tx = block.vtx[i];
-        TxContent += TxToRow(tx);
+        tx_array.push_back( TxToRow2(tx) );
 
         CAmount In = getTxIn(tx);
         CAmount Out = tx.GetValueOut();
@@ -606,44 +694,24 @@ std::string BlockToString2(CBlockIndex* pBlock)
         };
 
 
+    info.push_back(Pair("height",itostr(pBlock->nHeight)));
+    info.push_back(Pair("size",itostr(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION))));
+    info.push_back(Pair("tx_num",itostr(block.vtx.size())));
+    info.push_back(Pair("value_out",ValueToString2(OutVolume)));
+    info.push_back(Pair("fees",ValueToString2(Fees)));
+    info.push_back(Pair("generated",ValueToString2(Generated)));
+    info.push_back(Pair("timestamp",TimeToString(block.nTime)));
+    info.push_back(Pair("difficulty",strprintf("%.4f", GetDifficulty(pBlock))));
+    info.push_back(Pair("bits",utostr(block.nBits)));
+    info.push_back(Pair("nonce",utostr(block.nNonce)));
+    info.push_back(Pair("version",itostr(block.nVersion)));
+    info.push_back(Pair("hash",block.GetHash().GetHex()));
+    info.push_back(Pair("merkle_root",block.hashMerkleRoot.GetHex()));
+    info.push_back(Pair("tx_array",tx_array));
 
-    std::string BlockContent = makeHTMLTable(BlockContentCells, sizeof(BlockContentCells) / (2 * sizeof(std::string)), 2);
 
-    std::string Content;
-    Content += "<h2><a class=\"nav\" href=";
-    Content += itostr(pBlock->nHeight - 1);
-    Content += ">◄&nbsp;</a>";
-    Content += "Block";
-    Content += " ";
-    Content += itostr(pBlock->nHeight);
-    Content += "<a class=\"nav\" href=";
-    Content += itostr(pBlock->nHeight + 1);
-    Content += ">&nbsp;►</a></h2>";
-    Content += BlockContent;
-    Content += "</br>";
-    /*
-    if (block.nHeight > getThirdHardforkBlock())
-    {
-        std::vector<std::string> votes[2];
-        for (int i = 0; i < 2; i++)
-        {
-            for (unsigned int j = 0; j < block.vvotes[i].size(); j++)
-            {
-                votes[i].push_back(block.vvotes[i][j].hash.ToString() + ':' + itostr(block.vvotes[i][j].n));
-            }
-        }
-        Content += "<h3>" + "Votes +" + "</h3>";
-        Content += makeHTMLTable(&votes[1][0], votes[1].size(), 1);
-        Content += "</br>";
-        Content += "<h3>" + "Votes -" + "</h3>";
-        Content += makeHTMLTable(&votes[0][0], votes[0].size(), 1);
-        Content += "</br>";
-    }
-    */
-    Content += "<h2>Transactions</h2>";
-    Content += TxContent;
 
-    return Content;
+    return info;
 }
 
 
@@ -672,11 +740,7 @@ UniValue getblockhashexplorer(const UniValue& params, bool fHelp)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block not found");
 
 
-    std::string block_str = BlockToString2((CBlockIndex*)block_index);
-
-
-    result.push_back(Pair("height", (int)nHeight));
-    result.push_back(Pair("block_str", block_str));
+    result = BlockToString2((CBlockIndex*)block_index);
 
 
     return result;
@@ -690,10 +754,13 @@ void getNextIn2(const COutPoint& Out, uint256& Hash, unsigned int& n)
     //    paddressmap->ReadNextIn(Out, Hash, n);
 }
 
-std::string TxToString2(uint256 BlockHash, const CTransaction& tx)
+UniValue TxToString2(uint256 BlockHash, const CTransaction& tx)
 {
     CAmount Input = 0;
     CAmount Output = tx.GetValueOut();
+    UniValue info(UniValue::VOBJ);
+    UniValue in_txes(UniValue::VOBJ);
+    UniValue out_txes(UniValue::VOBJ);
 
     std::string InputsContentCells[] = {"#", "Taken from", "Address", "Amount"};
     std::string InputsContent = makeHTMLTableRow(InputsContentCells, sizeof(InputsContentCells) / sizeof(std::string));
@@ -708,6 +775,14 @@ std::string TxToString2(uint256 BlockHash, const CTransaction& tx)
                 "-",
                 ValueToString(Output)};
         InputsContent += makeHTMLTableRow(InputsContentCells, sizeof(InputsContentCells) / sizeof(std::string));
+
+        UniValue tx(UniValue::VOBJ);
+        tx.push_back(Pair("from","coinbase"));
+        tx.push_back(Pair("number",0));
+        tx.push_back(Pair("address","-"));
+        tx.push_back(Pair("amount",ValueToString2(Output)));
+        in_txes.push_back(Pair("0",tx));
+
     } else
         for (unsigned int i = 0; i < tx.vin.size(); i++) {
             COutPoint Out = tx.vin[i].prevout;
@@ -723,6 +798,13 @@ std::string TxToString2(uint256 BlockHash, const CTransaction& tx)
                     ScriptToString(PrevOut.scriptPubKey, true),
                     ValueToString(PrevOut.nValue)};
             InputsContent += makeHTMLTableRow(InputsContentCells, sizeof(InputsContentCells) / sizeof(std::string));
+
+            UniValue tx(UniValue::VOBJ);
+            tx.push_back(Pair("from",Out.hash.GetHex()));
+            tx.push_back(Pair("number",itostr(Out.n)));
+            tx.push_back(Pair("address",ScriptToString2(PrevOut.scriptPubKey, true)));
+            tx.push_back(Pair("amount",ValueToString2(PrevOut.nValue)));
+            in_txes.push_back(Pair(itostr(i),tx));
         }
 
     uint256 TxHash = tx.GetHash();
@@ -739,6 +821,14 @@ std::string TxToString2(uint256 BlockHash, const CTransaction& tx)
                 ScriptToString(Out.scriptPubKey, true),
                 ValueToString(Out.nValue)};
         OutputsContent += makeHTMLTableRow(OutputsContentCells, sizeof(OutputsContentCells) / sizeof(std::string));
+
+
+
+        UniValue tx(UniValue::VOBJ);
+        tx.push_back(Pair("redeemed_in",(HashNext == uint256S("0")) ? (fAddrIndex ? "no" : "unknown") : makeHRef(HashNext.GetHex()) + ":" + itostr(nNext) ));
+        tx.push_back(Pair("address",ScriptToString2(Out.scriptPubKey, true)));
+        tx.push_back(Pair("amount",ValueToString2(Out.nValue)));
+        out_txes.push_back(Pair(itostr(i),tx));
     }
 
     InputsContent = table + InputsContent + "</table>";
@@ -757,25 +847,43 @@ std::string TxToString2(uint256 BlockHash, const CTransaction& tx)
             "Hash", "<pre>" + Hash + "</pre>",
         };
 
+    info.push_back(Pair("size",itostr(GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION))));
+    info.push_back(Pair("input",tx.IsCoinBase() ? "-" : ValueToString2(Input)));
+    info.push_back(Pair("output",ValueToString2(Output)));
+    info.push_back(Pair("fees",tx.IsCoinBase() ? "-" : ValueToString2(Input - Output)));
+    info.push_back(Pair("hash",Hash));
+
+    info.push_back(Pair("out_txes",out_txes));
+    info.push_back(Pair("in_txes",in_txes));
+
+
     // std::map<uint256, CBlockIndex*>::iterator iter = mapBlockIndex.find(BlockHash);
     BlockMap::iterator iter = mapBlockIndex.find(BlockHash);
+    bool height_time_parsed = false;
     if (iter != mapBlockIndex.end()) {
         CBlockIndex* pIndex = iter->second;
-        Labels[0 * 2 + 1] = makeHRef(itostr(pIndex->nHeight));
-        Labels[5 * 2 + 1] = TimeToString(pIndex->nTime);
+       // Labels[0 * 2 + 1] = makeHRef(itostr(pIndex->nHeight));
+       // Labels[5 * 2 + 1] = TimeToString(pIndex->nTime);
+        height_time_parsed = true;
+        info.pushKV("height",itostr(pIndex->nHeight));
+        info.pushKV("timestamp",TimeToString(pIndex->nTime));
     }
 
-    std::string Content;
-    Content += "<h2>Transaction&nbsp;<span>" + Hash + "</span></h2>";
-    Content += makeHTMLTable(Labels, sizeof(Labels) / (2 * sizeof(std::string)), 2);
-    Content += "</br>";
-    Content += "<h3>Inputs</h3>";
-    Content += InputsContent;
-    Content += "</br>";
-    Content += "<h3>Outputs</h3>";
-    Content += OutputsContent;
+    if(!height_time_parsed){
+        info.pushKV("height","");
+        info.pushKV("timestamp","");
+    }
+//    std::string Content;
+//    Content += "<h2>Transaction&nbsp;<span>" + Hash + "</span></h2>";
+//    Content += makeHTMLTable(Labels, sizeof(Labels) / (2 * sizeof(std::string)), 2);
+//    Content += "</br>";
+//    Content += "<h3>Inputs</h3>";
+//    Content += InputsContent;
+//    Content += "</br>";
+//    Content += "<h3>Outputs</h3>";
+//    Content += OutputsContent;
 
-    return Content;
+    return info;
 }
 
 
@@ -799,9 +907,9 @@ UniValue gettxexplorer(const UniValue& params, bool fHelp)
 
     CTransaction tx;
     uint256 hashBlock = 0;
-    std::string tx_str;
+   // std::string tx_str;
     if (GetTransaction(hash, tx, hashBlock, true)) {
-        tx_str = TxToString2(hashBlock, tx);
+        result = TxToString2(hashBlock, tx);
     }
     else
     {
@@ -810,8 +918,8 @@ UniValue gettxexplorer(const UniValue& params, bool fHelp)
 
 
 
-    result.push_back(Pair("txid", strHash));
-    result.push_back(Pair("tx_str", tx_str));
+//    result.push_back(Pair("txid", strHash));
+//    result.push_back(Pair("tx_str", tx_str));
 
 
     return result;
@@ -888,12 +996,10 @@ UniValue getblocksinfoexplorer(const UniValue& params, bool fHelp)
 
     int64_t from = (int64_t)(params[0].get_int());
 
-    throw JSONRPCError(RPC_INVALID_PARAMETER, "2222");
 
 
     int64_t to = (int64_t)(params[1].get_int());
 
-    throw JSONRPCError(RPC_INVALID_PARAMETER, "1111");
 
     if (from < 0 || from > chainActive.Height())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block from out of range");
@@ -942,10 +1048,8 @@ UniValue getqueryexplorer(const UniValue& params, bool fHelp)
         if(block_index == nullptr)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Block not found");
 
-        std::string block_str = BlockToString2((CBlockIndex*)block_index);
-
-        result.push_back(Pair("hash",strHash));
-        result.push_back(Pair("block_str", block_str));
+        result = BlockToString2((CBlockIndex*)block_index);
+        result.push_back(Pair("type","block"));
         return result;
 
     }
@@ -958,20 +1062,19 @@ UniValue getqueryexplorer(const UniValue& params, bool fHelp)
     // std::map<uint256, CBlockIndex*>::iterator iter = mapBlockIndex.find(hash);
     BlockMap::iterator iter = mapBlockIndex.find(hash);
     if (iter != mapBlockIndex.end()) {
-        std::string block_str = BlockToString2(iter->second);
-        result.push_back(Pair("hash",strHash));
-        result.push_back(Pair("block_str", block_str));
+        result = BlockToString2(iter->second);
+        result.push_back(Pair("type","block"));
         return result;
     }
 
     // If the query is neither an integer nor a block hash, assume a transaction hash
     CTransaction tx;
     uint256 hashBlock = 0;
-    std::string tx_str;
+   // std::string tx_str;
     if (GetTransaction(hash, tx, hashBlock, true)) {
-        tx_str = TxToString2(hashBlock, tx);
-        result.push_back(Pair("hash",strHash));
-        result.push_back(Pair("tx_str", tx_str));
+        result = TxToString2(hashBlock, tx);
+        result.push_back(Pair("type","transaction"));
+//        result.push_back(Pair("tx_str", tx_str));
         return result;
     }
 
@@ -985,6 +1088,8 @@ UniValue getqueryexplorer(const UniValue& params, bool fHelp)
         address_str = AddressToString2(Address);
         if (!address_str.empty())
         {
+            result.push_back(Pair("type","address"));
+
             result.push_back(Pair("hash",strHash));
             result.push_back(Pair("address_str", address_str));
             return result;
