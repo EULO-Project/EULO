@@ -87,41 +87,6 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
     return bnNew.GetCompact();
 }
 
-unsigned int GetNextPosWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
-{
-    int64_t PastBlocksMin = 24;
-    
-    if (pindexLast == NULL || pindexLast->nHeight == 0 || pindexLast->nHeight < PastBlocksMin || 
-        (pindexLast->nHeight + 1 >= Params().Zerocoin_StartHeight() && pindexLast->nHeight <= Params().Zerocoin_StartHeight() + PastBlocksMin)) {
-        return Params().ProofOfWorkLimit().GetCompact();
-    }
-    
-    uint256 bnTargetLimit = (~uint256(0) >> 24);
-    int64_t nTargetSpacing = 60;
-    int64_t nTargetTimespan = 60 * 40;
-
-    int64_t nActualSpacing = 0;
-    if (pindexLast->nHeight != 0)
-        nActualSpacing = pindexLast->GetBlockTime() - pindexLast->pprev->GetBlockTime();
-
-    if (nActualSpacing < 0)
-        nActualSpacing = 1;
-
-    // ppcoin: target change every block
-    // ppcoin: retarget with exponential moving toward target spacing
-    uint256 bnNew;
-    bnNew.SetCompact(pindexLast->nBits);
-
-    int64_t nInterval = nTargetTimespan / nTargetSpacing;
-    bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
-    bnNew /= ((nInterval + 1) * nTargetSpacing);
-
-    if (bnNew <= 0 || bnNew > bnTargetLimit)
-        bnNew = bnTargetLimit;
-
-    return bnNew.GetCompact();
-}
-
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
 {
     /* current difficulty formula, pivx - DarkGravity v3, written by Evan Duffield - evan@dashpay.io */

@@ -6569,19 +6569,36 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
     {
         LOCK(cs_main); //Is this Lock appropriate?
 
+        CBlock block;
+        CBlockIndex *pindexCurrent;
         CTmpBlockParams tmpBlockParams;
         vRecv >> tmpBlockParams;
+
+        pindexCurrent = chainActive.Tip();
 
         if(tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) return true; //Check if it is in pool already
 
         if(chainActive.Height() <= Params().LAST_POW_BLOCK()) return true; //Check if in POS phase
 
-        if(chainActive.Tip()->GetBlockHash() != tmpBlockParams.ori_hash) return true; //Check if matches the last block hash in activechain
+        if(pindexCurrent->GetBlockHash() != tmpBlockParams.ori_hash) return true; //Check if matches the last block hash in activechain
+        
+        if(!ReadBlockFromDisk(block, pindexCurrent) || !block.IsProofOfStake())
+            return true;
+        
+        //
+        int nExtraNonce = 0;
+        //
+        
+        CMutableTransaction txCoinbase(block.vtx[0]);
+        txCoinbase.vin[0].scriptSig = (CScript() << pindexCurrent->nHeight << CScriptNum(nExtraNonce)) + COINBASE_FLAGS;
+        assert(txCoinbase.vin[0].scriptSig.size() <= 100);
 
+        //  coinbase out.
 
-        CBlockHeader blockheader = chainActive.Tip()->GetBlockHeader(); //Get block header of the last block in activechain
+        block.vtx[0] = txCoinbase;
+        block.hashMerkleRoot = block.BuildMerkleTree();
 
-        blockheader.isPOSPhase = true;
+        CBlockHeader blockheader = block.GetBlockHeader(); //Get block header of the last block in activechain
 
         blockheader.nNonce = tmpBlockParams.nNonce; //Parse nNonce
         blockheader.nBits = blockheader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.

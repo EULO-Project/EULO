@@ -76,9 +76,6 @@ public:
     uint256 nAccumulatorCheckpoint;
     uint32_t nBits2;  //For POW in POS phase
 
-
-    bool isPOSPhase = false;
-
     CBlockHeader()
     {
         SetNull();
@@ -100,10 +97,8 @@ public:
         if(nVersion > 3)
             READWRITE(nAccumulatorCheckpoint);
 
-        if(isPOSPhase)
+        if(nVersion > 2)
             READWRITE(nBits2);
-
-
     }
 
     void SetNull()
@@ -116,7 +111,6 @@ public:
         nNonce = 0;
         nAccumulatorCheckpoint = 0;
         nBits2 = 0;
-
     }
 
 

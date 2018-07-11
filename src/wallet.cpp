@@ -2687,6 +2687,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     //Masternode payment
     FillBlockPayee(txNew, nMinFee, true);
 
+    //  Pow reward in Pos.
+    unsigned int voutsize = txNew.vout.size();
+    txNew.vout.resize(voutsize + 1);
+    txNew.vout[voutsize].scriptPubKey = NULL;
+    txNew.vout[voutsize].nValue = 0;
+
+    //subtract pow payment from the stake reward.
+    txNew.vout[0].nValue -= 0;
+
     // Sign
     int nIn = 0;
     BOOST_FOREACH (const CWalletTx* pcoin, vwtxPrev) {
