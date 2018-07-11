@@ -7,9 +7,9 @@ TmpBlocksMempool::TmpBlocksMempool()
 }
 
 
-bool TmpBlocksMempool::HaveTmpBlock(const uint256& ori_hash_) const
+bool TmpBlocksMempool::HaveTmpBlock(const uint256& hash) const
 {
-    std::map<uint256, std::pair<CTmpBlockParams,int64_t>>::const_iterator it = mapTmpBlock.find(ori_hash_);
+    std::map<uint256, std::pair<CTmpBlockParams,int64_t>>::const_iterator it = mapTmpBlock.find(hash);
     return (it != mapTmpBlock.end());
 }
 

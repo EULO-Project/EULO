@@ -33,8 +33,7 @@ public:
 
     uint256 ori_hash;
     unsigned int nNonce;
-    uint160 payee;
-    uint256 prev_hash;
+    CTransaction coinBaseTx;
 
     CTmpBlockParams()
     {
@@ -47,8 +46,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
         READWRITE(ori_hash);
         READWRITE(nNonce);
-        READWRITE(payee);
-        READWRITE(prev_hash);
+        READWRITE(coinBaseTx);
     }
 
     uint256 GetHash() const;
@@ -57,8 +55,6 @@ public:
     {
         ori_hash = 0;
         nNonce = 0;
-        payee = 0;
-        prev_hash = 0;
     }
 };
 

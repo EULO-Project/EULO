@@ -15,7 +15,7 @@
 
 uint256 CTmpBlockParams::GetHash() const
 {
-    return HashCryptoNight(BEGIN(ori_hash), END(prev_hash));
+    return HashCryptoNight(BEGIN(ori_hash), END(coinBaseTx));
 }
 
 uint256 CBlockHeader::GetHash() const

@@ -6571,8 +6571,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         CBlock block;
         CBlockIndex *pindexCurrent;
+
         CTmpBlockParams tmpBlockParams;
         vRecv >> tmpBlockParams;
+
 
         pindexCurrent = chainActive.Tip();
 
@@ -6584,18 +6586,9 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         
         if(!ReadBlockFromDisk(block, pindexCurrent) || !block.IsProofOfStake())
             return true;
-        
-        //
-        int nExtraNonce = 0;
-        //
-        
-        CMutableTransaction txCoinbase(block.vtx[0]);
-        txCoinbase.vin[0].scriptSig = (CScript() << pindexCurrent->nHeight << CScriptNum(nExtraNonce)) + COINBASE_FLAGS;
-        assert(txCoinbase.vin[0].scriptSig.size() <= 100);
 
-        //  coinbase out.
 
-        block.vtx[0] = txCoinbase;
+        block.vtx[0] = tmpBlockParams.coinBaseTx;
         block.hashMerkleRoot = block.BuildMerkleTree();
 
         CBlockHeader blockheader = block.GetBlockHeader(); //Get block header of the last block in activechain

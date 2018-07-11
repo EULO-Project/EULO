@@ -15,7 +15,7 @@ public:
     std::map<uint256, std::pair<CTmpBlockParams,int64_t>> mapTmpBlock;
 
 
-    bool HaveTmpBlock(const uint256& ori_hash_) const;
+    bool HaveTmpBlock(const uint256& hash) const;
 
 
 private:
