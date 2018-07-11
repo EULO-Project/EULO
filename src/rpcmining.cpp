@@ -646,19 +646,37 @@ UniValue submitblock(const UniValue& params, bool fHelp)
     }
 
     CValidationState state;
-    submitblock_StateCatcher sc(block.GetHash());
-    RegisterValidationInterface(&sc);
-    bool fAccepted = ProcessNewBlock(state, NULL, &block);
-    UnregisterValidationInterface(&sc);
-    if (fBlockPresent) {
-        if (fAccepted && !sc.found)
-            return "duplicate-inconclusive";
-        return "duplicate";
-    }
-    if (fAccepted) {
-        if (!sc.found)
-            return "inconclusive";
-        state = sc.state;
+    if (chainActive.Height() < Params().LAST_POW_BLOCK()) {
+        submitblock_StateCatcher sc(block.GetHash());
+        RegisterValidationInterface(&sc);
+        bool fAccepted = ProcessNewBlock(state, NULL, &block);
+        UnregisterValidationInterface(&sc);
+        if (fBlockPresent) {
+            if (fAccepted && !sc.found)
+                return "duplicate-inconclusive";
+            return "duplicate";
+        }
+        if (fAccepted) {
+            if (!sc.found)
+                return "inconclusive";
+            state = sc.state;
+        }
+    } else {
+        CTmpBlockParams tmpBlockParams;
+
+        CBlockIndex *pindexCurrent = chainActive.Tip();
+        
+        CBlockHeader blockHeader = block.GetBlockHeader();
+
+        if (blockHeader.hashPrevBlock == pindexCurrent->GetBlockHeader().hashPrevBlock && 
+            blockHeader.nBits == pindexCurrent->GetBlockHeader().nBits2)
+        {
+            tmpBlockParams.ori_hash = *pindexCurrent->phashBlock;
+            tmpBlockParams.nNonce = blockHeader.nNonce;
+            tmpBlockParams.coinBaseTx = block.vtx[0];
+
+            ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
+        }
     }
     return BIP22ValidationResult(state);
 }

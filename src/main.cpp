@@ -4890,6 +4890,17 @@ void CBlockIndex::BuildSkip()
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
+bool ProcessNewTmpBlockParam(const CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader)
+{
+    if(CheckProofOfWork(blockHeader.GetHash(), blockHeader.nBits) && !tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) {
+        tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),std::pair<CTmpBlockParams,int64_t>(tmpBlockParams,GetTime())));
+        BOOST_FOREACH (CNode* pnode, vNodes)
+            pnode->PushMessage("tmpblock", tmpBlockParams);
+    }
+
+    return true;
+}
+
 bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, CDiskBlockPos* dbp)
 {
     // Preliminary checks
@@ -6587,29 +6598,15 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         if(!ReadBlockFromDisk(block, pindexCurrent) || !block.IsProofOfStake())
             return true;
 
-
         block.vtx[0] = tmpBlockParams.coinBaseTx;
         block.hashMerkleRoot = block.BuildMerkleTree();
 
-        CBlockHeader blockheader = block.GetBlockHeader(); //Get block header of the last block in activechain
+        CBlockHeader blockHeader = block.GetBlockHeader(); //Get block header of the last block in activechain
 
+        blockHeader.nNonce = tmpBlockParams.nNonce; //Parse nNonce
+        blockHeader.nBits = blockHeader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.
 
-
-        blockheader.nNonce = tmpBlockParams.nNonce; //Parse nNonce
-        blockheader.nBits = blockheader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.
-
-        //
-
-
-        if (!CheckProofOfWork(blockheader.GetHash(), blockheader.nBits2)) return true;
-        else
-            tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),std::pair<CTmpBlockParams,int64_t>(tmpBlockParams,GetTime()))); //mapTmpBlock is a mapping between ori_hash and CTmpBlockParams
-
-       // LOCK(cs_vNodes); // Will this Lock create a dead lock with LOCK(cs_main) above, or is it unnecessary?
-        BOOST_FOREACH (CNode* pnode, vNodes)
-                pnode->PushMessage("tmpblock", tmpBlockParams);// Relay Message to all nodes connected, Possible Message storm here!
-
-
+        ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
     }
 
 

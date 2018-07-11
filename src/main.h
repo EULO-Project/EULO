@@ -182,6 +182,8 @@ void RegisterNodeSignals(CNodeSignals& nodeSignals);
 /** Unregister a network node */
 void UnregisterNodeSignals(CNodeSignals& nodeSignals);
 
+bool ProcessNewTmpBlockParam(const CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader);
+
 /** 
  * Process an incoming block. This only returns after the best known valid
  * block is made active. Note that it does not, however, guarantee that the
