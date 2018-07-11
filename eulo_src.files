@@ -1,3 +1,4 @@
+confdefs.h
 src/accumulatormap.cpp
 src/accumulatormap.h
 src/accumulators.cpp
@@ -293,7 +294,6 @@ src/obfuscation-relay.cpp
 src/obfuscation-relay.h
 src/obfuscation.cpp
 src/obfuscation.h
-src/obj/build.h
 src/pow.cpp
 src/pow.h
 src/primitives/block.cpp
@@ -486,7 +486,6 @@ src/secp256k1/src/group.h
 src/secp256k1/src/group_impl.h
 src/secp256k1/src/java/org_bitcoin_NativeSecp256k1.c
 src/secp256k1/src/java/org_bitcoin_NativeSecp256k1.h
-src/secp256k1/src/libsecp256k1-config.h
 src/secp256k1/src/num.h
 src/secp256k1/src/num_gmp.h
 src/secp256k1/src/num_gmp_impl.h

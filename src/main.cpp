@@ -6600,10 +6600,12 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         CBlockHeader blockheader = block.GetBlockHeader(); //Get block header of the last block in activechain
 
+
+
         blockheader.nNonce = tmpBlockParams.nNonce; //Parse nNonce
         blockheader.nBits = blockheader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.
 
-
+        //
 
 
         if (!CheckProofOfWork(blockheader.GetHash(), blockheader.nBits2)) return true;

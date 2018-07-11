@@ -17,6 +17,7 @@
 
 #include <stdint.h>
 #include <univalue.h>
+#include <string>
 
 using namespace std;
 
@@ -254,6 +255,894 @@ UniValue getblockhash(const UniValue& params, bool fHelp)
     return pblockindex->GetBlockHash().GetHex();
 }
 
+//------------------cpoy from blockexplorer.cpp
+inline std::string utostr(unsigned int n)
+{
+    return strprintf("%u", n);
+}
+
+static std::string makeHRef(const std::string& Str)
+{
+    return "<a href=\"" + Str + "\">" + Str + "</a>";
+}
+
+CTxOut getPrevOut2(const COutPoint& out)
+{
+    CTransaction tx;
+    uint256 hashBlock;
+    if (GetTransaction(out.hash, tx, hashBlock, true))
+        return tx.vout[out.n];
+    return CTxOut();
+}
+
+static CAmount getTxIn(const CTransaction& tx)
+{
+    if (tx.IsCoinBase())
+        return 0;
+
+    CAmount Sum = 0;
+    for (unsigned int i = 0; i < tx.vin.size(); i++)
+        Sum += getPrevOut2(tx.vin[i].prevout).nValue;
+    return Sum;
+}
+
+static std::string ValueToString(CAmount nValue, bool AllowNegative = false)
+{
+    if (nValue < 0 && !AllowNegative)
+        return "<span>unknown</span>";
+
+    double value  = nValue/100000000;
+
+    std::string Str = std::to_string(value);
+
+
+    if (AllowNegative && nValue > 0)
+        Str = '+' + Str;
+    else if(AllowNegative && nValue < 0)
+        Str = '-' + Str;
+
+
+    return std::string("<span>") + Str + "</span>";
+}
+
+static std::string ValueToString2(CAmount nValue, bool AllowNegative = false)
+{
+    if (nValue < 0 && !AllowNegative)
+        return "unknown";
+
+    double value  = nValue/100000000;
+
+    std::string Str = std::to_string(value);
+
+
+    if (AllowNegative && nValue > 0)
+        Str = '+' + Str;
+    else if(AllowNegative && nValue < 0)
+        Str = '-' + Str;
+
+
+    return  Str;
+}
+
+string FormatScript2(const CScript& script)
+{
+    string ret;
+    CScript::const_iterator it = script.begin();
+    opcodetype op;
+    while (it != script.end()) {
+        CScript::const_iterator it2 = it;
+        vector<unsigned char> vch;
+        if (script.GetOp2(it, op, &vch)) {
+            if (op == OP_0) {
+                ret += "0 ";
+                continue;
+            } else if ((op >= OP_1 && op <= OP_16) || op == OP_1NEGATE) {
+                ret += strprintf("%i ", op - OP_1NEGATE - 1);
+                continue;
+            } else if (op >= OP_NOP && op <= OP_CHECKMULTISIGVERIFY) {
+                string str(GetOpName(op));
+                if (str.substr(0, 3) == string("OP_")) {
+                    ret += str.substr(3, string::npos) + " ";
+                    continue;
+                }
+            }
+            if (vch.size() > 0) {
+                ret += strprintf("0x%x 0x%x ", HexStr(it2, it - vch.size()), HexStr(it - vch.size(), it));
+            } else {
+                ret += strprintf("0x%x", HexStr(it2, it));
+            }
+            continue;
+        }
+        ret += strprintf("0x%x ", HexStr(it2, script.end()));
+        break;
+    }
+    return ret.substr(0, ret.size() - 1);
+}
+
+static std::string ScriptToString(const CScript& Script, bool Long = false, bool Highlight = false)
+{
+    if (Script.empty())
+        return "unknown";
+
+    CTxDestination Dest;
+    CBitcoinAddress Address;
+    if (ExtractDestination(Script, Dest) && Address.Set(Dest)) {
+        if (Highlight)
+            return "<span class=\"addr\">" + Address.ToString() + "</span>";
+        else
+            return makeHRef(Address.ToString());
+    } else
+        return Long ? "<pre>" + FormatScript2(Script) + "</pre>" : "Non-standard script";
+}
+
+static std::string ScriptToString2(const CScript& Script, bool Long = false, bool Highlight = false)
+{
+    if (Script.empty())
+        return "unknown";
+
+    CTxDestination Dest;
+    CBitcoinAddress Address;
+    if (ExtractDestination(Script, Dest) && Address.Set(Dest)) {
+            return Address.ToString();
+    } else
+        return Long ? FormatScript2(Script): "Non-standard script";
+}
+
+static std::string TimeToString(uint64_t Time)
+{
+    time_t t;
+    tm* local;
+    char buf[128]= {0};
+
+    t = (long int)Time;
+
+    local = localtime(&t);
+    strftime(buf, 64, "%Y-%m-%d %H:%M:%S", local);
+
+    return buf;
+}
+
+static std::string makeHTMLTableRow(const std::string* pCells, int n)
+{
+    std::string Result = "<tr>";
+    for (int i = 0; i < n; i++) {
+        Result += "<td class=\"d" + utostr(i) + "\">";
+        Result += pCells[i];
+        Result += "</td>";
+    }
+    Result += "</tr>";
+    return Result;
+}
+
+static const char* table = "<table>";
+
+static std::string makeHTMLTable(const std::string* pCells, int nRows, int nColumns)
+{
+    std::string Table = table;
+    for (int i = 0; i < nRows; i++)
+        Table += makeHTMLTableRow(pCells + i * nColumns, nColumns);
+    Table += "</table>";
+    return Table;
+}
+
+
+
+static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CScript(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
+{
+    std::string InAmounts, InAddresses, OutAmounts, OutAddresses;
+    int64_t Delta = 0;
+    for (unsigned int j = 0; j < tx.vin.size(); j++) {
+        if (tx.IsCoinBase()) {
+            InAmounts += ValueToString(tx.GetValueOut());
+            InAddresses += "coinbase";
+        } else {
+            CTxOut PrevOut = getPrevOut2(tx.vin[j].prevout);
+            InAmounts += ValueToString(PrevOut.nValue);
+            InAddresses += ScriptToString(PrevOut.scriptPubKey, false, PrevOut.scriptPubKey == Highlight).c_str();
+            if (PrevOut.scriptPubKey == Highlight)
+                Delta -= PrevOut.nValue;
+        }
+        if (j + 1 != tx.vin.size()) {
+            InAmounts += "<br/>";
+            InAddresses += "<br/>";
+        }
+    }
+    for (unsigned int j = 0; j < tx.vout.size(); j++) {
+        CTxOut Out = tx.vout[j];
+        OutAmounts += ValueToString(Out.nValue);
+        OutAddresses += ScriptToString(Out.scriptPubKey, false, Out.scriptPubKey == Highlight);
+        if (Out.scriptPubKey == Highlight)
+            Delta += Out.nValue;
+        if (j + 1 != tx.vout.size()) {
+            OutAmounts += "<br/>";
+            OutAddresses += "<br/>";
+        }
+    }
+
+    std::string List[8] =
+        {
+            Prepend,
+            makeHRef(tx.GetHash().GetHex()),
+            InAddresses,
+            InAmounts,
+            OutAddresses,
+            OutAmounts,
+            "",
+            ""
+    };
+
+    int n = sizeof(List) / sizeof(std::string) - 2;
+
+    if (!Highlight.empty()) {
+        List[n++] = std::string("<font color=\"") + ((Delta > 0) ? "green" : "red") + "\">" + ValueToString(Delta, true) + "</font>";
+        *pSum += Delta;
+        List[n++] = ValueToString(*pSum);
+        return makeHTMLTableRow(List, n);
+    }
+    return makeHTMLTableRow(List + 1, n - 1);
+}
+
+static UniValue TxToRow2(const CTransaction& tx, const CScript& Highlight = CScript(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
+{
+    UniValue info(UniValue::VOBJ);
+    UniValue from_array(UniValue::VARR);
+    UniValue to_array(UniValue::VARR);
+
+    int64_t Delta = 0;
+    for (unsigned int j = 0; j < tx.vin.size(); j++) {
+        std::string InAmounts, InAddresses;
+        if (tx.IsCoinBase()) {
+            InAmounts = ValueToString2(tx.GetValueOut());
+            InAddresses = "coinbase";
+        } else {
+            CTxOut PrevOut = getPrevOut2(tx.vin[j].prevout);
+            InAmounts = ValueToString2(PrevOut.nValue);
+            InAddresses = ScriptToString2(PrevOut.scriptPubKey, false, PrevOut.scriptPubKey == Highlight).c_str();
+            if (PrevOut.scriptPubKey == Highlight)
+                Delta -= PrevOut.nValue;
+        }
+
+
+        UniValue from_item(UniValue::VOBJ);
+        from_item.push_back(Pair(InAddresses,InAmounts));
+
+        from_array.push_back(from_item);
+
+    }
+    for (unsigned int j = 0; j < tx.vout.size(); j++) {
+
+        std::string  OutAmounts, OutAddresses;
+
+
+        CTxOut Out = tx.vout[j];
+        OutAmounts = ValueToString2(Out.nValue);
+        OutAddresses = ScriptToString2(Out.scriptPubKey, false, Out.scriptPubKey == Highlight);
+        if (Out.scriptPubKey == Highlight)
+            Delta += Out.nValue;
+
+        UniValue to_item(UniValue::VOBJ);
+        to_item.push_back(Pair(OutAddresses,OutAmounts));
+
+        to_array.push_back(to_item);
+    }
+
+
+
+    info.push_back(Pair("txid", tx.GetHash().GetHex()));
+    info.push_back(Pair("from_array",from_array ));
+    info.push_back(Pair("to_array",to_array ));
+
+    return info;
+}
+
+std::string getexplorerBlockHash2(int64_t Height)
+{
+    std::string genesisblockhash = "0000041e482b9b9691d98eefb48473405c0b8ec31b76df3797c74a78680ef818";
+    CBlockIndex* pindexBest = mapBlockIndex[chainActive.Tip()->GetBlockHash()];
+    if ((Height < 0) || (Height > pindexBest->nHeight)) {
+        return genesisblockhash;
+    }
+
+    CBlock block;
+    CBlockIndex* pblockindex = mapBlockIndex[chainActive.Tip()->GetBlockHash()];
+    while (pblockindex->nHeight > Height)
+        pblockindex = pblockindex->pprev;
+    return pblockindex->GetBlockHash().GetHex(); // pblockindex->phashBlock->GetHex();
+}
+
+
+const CBlockIndex* getexplorerBlockIndex2(int64_t height)
+{
+    std::string hex = getexplorerBlockHash2(height);
+    uint256 hash = uint256S(hex);
+    return mapBlockIndex[hash];
+}
+
+UniValue BlocksToString(int64_t from,int64_t to)
+{
+    UniValue res(UniValue::VOBJ);
+
+    for(int64_t i = from ;i <= to;i++)
+    {
+        const CBlockIndex* pBlock = getexplorerBlockIndex2(i);
+
+        if(pBlock == nullptr)
+            continue;
+
+
+        CBlock block;
+        ReadBlockFromDisk(block, pBlock);
+
+        CAmount Fees = 0;
+        CAmount OutVolume = 0;
+        CAmount Reward = 0;
+
+        for (unsigned int i = 0; i < block.vtx.size(); i++) {
+            const CTransaction& tx = block.vtx[i];
+
+            CAmount In = getTxIn(tx);
+            CAmount Out = tx.GetValueOut();
+            if (tx.IsCoinBase())
+                Reward += Out;
+            else if (In < 0)
+                Fees = -Params().MaxMoneyOut();
+            else {
+                Fees += In - Out;
+                OutVolume += Out;
+            }
+        }
+
+        CAmount Generated;
+        if (pBlock->nHeight == 0)
+            Generated = OutVolume;
+        else
+            Generated = GetBlockValue(pBlock->nHeight - 1);
+
+
+        UniValue info(UniValue::VOBJ);
+        info.push_back(Pair("Timestamp", TimeToString(block.nTime)));
+        info.push_back(Pair("Transactions", itostr(block.vtx.size())));
+        info.push_back(Pair("Value", ValueToString2(OutVolume + Fees + Generated)));
+        info.push_back(Pair("Difficulty", strprintf("%.4f", GetDifficulty(pBlock))));
+
+        res.push_back(Pair(itostr(i), info));
+    }
+
+
+    return res;
+}
+
+
+
+
+
+
+UniValue BlockToString2(CBlockIndex* pBlock)
+{
+
+
+    if (!pBlock)
+        return "";
+
+    UniValue info(UniValue::VOBJ);
+    UniValue tx_array(UniValue::VARR);
+
+    CBlock block;
+    ReadBlockFromDisk(block, pBlock);
+
+
+
+    CAmount Fees = 0;
+    CAmount OutVolume = 0;
+    CAmount Reward = 0;
+
+    std::string TxLabels[] = {"Hash", "From", "Amount", "To", "Amount"};
+
+    std::string TxContent = table + makeHTMLTableRow(TxLabels, sizeof(TxLabels) / sizeof(std::string));
+    for (unsigned int i = 0; i < block.vtx.size(); i++) {
+        const CTransaction& tx = block.vtx[i];
+        tx_array.push_back( TxToRow2(tx) );
+
+        CAmount In = getTxIn(tx);
+        CAmount Out = tx.GetValueOut();
+        if (tx.IsCoinBase())
+            Reward += Out;
+        else if (In < 0)
+            Fees = -Params().MaxMoneyOut();
+        else {
+            Fees += In - Out;
+            OutVolume += Out;
+        }
+    }
+    TxContent += "</table>";
+
+//
+
+
+    CAmount Generated;
+    if (pBlock->nHeight == 0)
+        Generated = OutVolume;
+    else
+        Generated = GetBlockValue(pBlock->nHeight - 1);
+
+
+
+
+
+//    return TimeToString(block.nTime);
+//    return strprintf("%.4f", GetDifficulty(pBlock));
+
+
+
+    std::string BlockContentCells[] =
+        {
+            "Height", itostr(pBlock->nHeight),
+            "Size", itostr(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)),
+            "Number of Transactions", itostr(block.vtx.size()),
+            "Value Out", ValueToString(OutVolume),
+            "Fees", ValueToString(Fees),
+            "Generated", ValueToString(Generated),
+            "Timestamp", TimeToString(block.nTime),
+            "Difficulty", strprintf("%.4f", GetDifficulty(pBlock)),
+            "Bits", utostr(block.nBits),
+            "Nonce", utostr(block.nNonce),
+            "Version", itostr(block.nVersion),
+            "Hash", "<pre>" + block.GetHash().GetHex() + "</pre>",
+            "Merkle Root", "<pre>" + block.hashMerkleRoot.GetHex() + "</pre>",
+//             _("Hash Whole Block"), "<pre>" + block.hashWholeBlock.GetHex() + "</pre>"
+//             _("Miner Signature"), "<pre>" + block.MinerSignature.ToString() + "</pre>"
+        };
+
+
+    info.push_back(Pair("height",itostr(pBlock->nHeight)));
+    info.push_back(Pair("size",itostr(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION))));
+    info.push_back(Pair("tx_num",itostr(block.vtx.size())));
+    info.push_back(Pair("value_out",ValueToString2(OutVolume)));
+    info.push_back(Pair("fees",ValueToString2(Fees)));
+    info.push_back(Pair("generated",ValueToString2(Generated)));
+    info.push_back(Pair("timestamp",TimeToString(block.nTime)));
+    info.push_back(Pair("difficulty",strprintf("%.4f", GetDifficulty(pBlock))));
+    info.push_back(Pair("bits",utostr(block.nBits)));
+    info.push_back(Pair("nonce",utostr(block.nNonce)));
+    info.push_back(Pair("version",itostr(block.nVersion)));
+    info.push_back(Pair("hash",block.GetHash().GetHex()));
+    info.push_back(Pair("merkle_root",block.hashMerkleRoot.GetHex()));
+    info.push_back(Pair("tx_array",tx_array));
+
+
+
+    return info;
+}
+
+
+UniValue getblockhashexplorer(const UniValue& params, bool fHelp)
+{
+    UniValue result(UniValue::VOBJ);
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getblockhashexplorer index\n"
+            "\nReturns hash of block in best-block-chain at index provided.\n"
+            "\nArguments:\n"
+            "1. index         (numeric, required) The block index\n"
+            "\nResult:\n"
+            "\"hash\"         (string) The block hash\n"
+            "\nExamples:\n" +
+            HelpExampleCli("getblockhashexplorer", "1000") + HelpExampleRpc("getblockhashexplorer", "1000"));
+
+    int64_t nHeight = (int64_t)(params[0].get_int());
+    if (nHeight < 0 || nHeight > chainActive.Height())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+
+    const CBlockIndex* block_index = getexplorerBlockIndex2(nHeight);
+
+    if(block_index == nullptr)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block not found");
+
+
+    result = BlockToString2((CBlockIndex*)block_index);
+
+
+    return result;
+}
+
+void getNextIn2(const COutPoint& Out, uint256& Hash, unsigned int& n)
+{
+    // Hash = 0;
+    // n = 0;
+    // if (paddressmap)
+    //    paddressmap->ReadNextIn(Out, Hash, n);
+}
+
+UniValue TxToString2(uint256 BlockHash, const CTransaction& tx)
+{
+    CAmount Input = 0;
+    CAmount Output = tx.GetValueOut();
+    UniValue info(UniValue::VOBJ);
+    UniValue in_txes(UniValue::VOBJ);
+    UniValue out_txes(UniValue::VOBJ);
+
+    std::string InputsContentCells[] = {"#", "Taken from", "Address", "Amount"};
+    std::string InputsContent = makeHTMLTableRow(InputsContentCells, sizeof(InputsContentCells) / sizeof(std::string));
+    std::string OutputsContentCells[] = {"#", "Redeemed in", "Address", "Amount"};
+    std::string OutputsContent = makeHTMLTableRow(OutputsContentCells, sizeof(OutputsContentCells) / sizeof(std::string));
+
+    if (tx.IsCoinBase()) {
+        std::string InputsContentCells[] =
+            {
+                "0",
+                "coinbase",
+                "-",
+                ValueToString(Output)};
+        InputsContent += makeHTMLTableRow(InputsContentCells, sizeof(InputsContentCells) / sizeof(std::string));
+
+        UniValue tx(UniValue::VOBJ);
+        tx.push_back(Pair("from","coinbase"));
+        tx.push_back(Pair("number",0));
+        tx.push_back(Pair("address","-"));
+        tx.push_back(Pair("amount",ValueToString2(Output)));
+        in_txes.push_back(Pair("0",tx));
+
+    } else
+        for (unsigned int i = 0; i < tx.vin.size(); i++) {
+            COutPoint Out = tx.vin[i].prevout;
+            CTxOut PrevOut = getPrevOut2(tx.vin[i].prevout);
+            if (PrevOut.nValue < 0)
+                Input = -Params().MaxMoneyOut();
+            else
+                Input += PrevOut.nValue;
+            std::string InputsContentCells[] =
+                {
+                    itostr(i),
+                    "<span>" + makeHRef(Out.hash.GetHex()) + ":" + itostr(Out.n) + "</span>",
+                    ScriptToString(PrevOut.scriptPubKey, true),
+                    ValueToString(PrevOut.nValue)};
+            InputsContent += makeHTMLTableRow(InputsContentCells, sizeof(InputsContentCells) / sizeof(std::string));
+
+            UniValue tx(UniValue::VOBJ);
+            tx.push_back(Pair("from",Out.hash.GetHex()));
+            tx.push_back(Pair("number",itostr(Out.n)));
+            tx.push_back(Pair("address",ScriptToString2(PrevOut.scriptPubKey, true)));
+            tx.push_back(Pair("amount",ValueToString2(PrevOut.nValue)));
+            in_txes.push_back(Pair(itostr(i),tx));
+        }
+
+    uint256 TxHash = tx.GetHash();
+    for (unsigned int i = 0; i < tx.vout.size(); i++) {
+        const CTxOut& Out = tx.vout[i];
+        uint256 HashNext = uint256S("0");
+        unsigned int nNext = 0;
+        bool fAddrIndex = false;
+        getNextIn2(COutPoint(TxHash, i), HashNext, nNext);
+        std::string OutputsContentCells[] =
+            {
+                itostr(i),
+                (HashNext == uint256S("0")) ? (fAddrIndex ? "no" : "unknown") : "<span>" + makeHRef(HashNext.GetHex()) + ":" + itostr(nNext) + "</span>",
+                ScriptToString(Out.scriptPubKey, true),
+                ValueToString(Out.nValue)};
+        OutputsContent += makeHTMLTableRow(OutputsContentCells, sizeof(OutputsContentCells) / sizeof(std::string));
+
+
+
+        UniValue tx(UniValue::VOBJ);
+        tx.push_back(Pair("redeemed_in",(HashNext == uint256S("0")) ? (fAddrIndex ? "no" : "unknown") : makeHRef(HashNext.GetHex()) + ":" + itostr(nNext) ));
+        tx.push_back(Pair("address",ScriptToString2(Out.scriptPubKey, true)));
+        tx.push_back(Pair("amount",ValueToString2(Out.nValue)));
+        out_txes.push_back(Pair(itostr(i),tx));
+    }
+
+    InputsContent = table + InputsContent + "</table>";
+    OutputsContent = table + OutputsContent + "</table>";
+
+    std::string Hash = TxHash.GetHex();
+
+    std::string Labels[] =
+        {
+            "In Block", "",
+            "Size", itostr(GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION)),
+            "Input", tx.IsCoinBase() ? "-" : ValueToString(Input),
+            "Output", ValueToString(Output),
+            "Fees", tx.IsCoinBase() ? "-" : ValueToString(Input - Output),
+            "Timestamp", "",
+            "Hash", "<pre>" + Hash + "</pre>",
+        };
+
+    info.push_back(Pair("size",itostr(GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION))));
+    info.push_back(Pair("input",tx.IsCoinBase() ? "-" : ValueToString2(Input)));
+    info.push_back(Pair("output",ValueToString2(Output)));
+    info.push_back(Pair("fees",tx.IsCoinBase() ? "-" : ValueToString2(Input - Output)));
+    info.push_back(Pair("hash",Hash));
+
+    info.push_back(Pair("out_txes",out_txes));
+    info.push_back(Pair("in_txes",in_txes));
+
+
+    // std::map<uint256, CBlockIndex*>::iterator iter = mapBlockIndex.find(BlockHash);
+    BlockMap::iterator iter = mapBlockIndex.find(BlockHash);
+    bool height_time_parsed = false;
+    if (iter != mapBlockIndex.end()) {
+        CBlockIndex* pIndex = iter->second;
+       // Labels[0 * 2 + 1] = makeHRef(itostr(pIndex->nHeight));
+       // Labels[5 * 2 + 1] = TimeToString(pIndex->nTime);
+        height_time_parsed = true;
+        info.pushKV("height",itostr(pIndex->nHeight));
+        info.pushKV("timestamp",TimeToString(pIndex->nTime));
+    }
+
+    if(!height_time_parsed){
+        info.pushKV("height","");
+        info.pushKV("timestamp","");
+    }
+//    std::string Content;
+//    Content += "<h2>Transaction&nbsp;<span>" + Hash + "</span></h2>";
+//    Content += makeHTMLTable(Labels, sizeof(Labels) / (2 * sizeof(std::string)), 2);
+//    Content += "</br>";
+//    Content += "<h3>Inputs</h3>";
+//    Content += InputsContent;
+//    Content += "</br>";
+//    Content += "<h3>Outputs</h3>";
+//    Content += OutputsContent;
+
+    return info;
+}
+
+
+UniValue gettxexplorer(const UniValue& params, bool fHelp)
+{
+    UniValue result(UniValue::VOBJ);
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "gettxexplorer txid\n"
+            "\nReturns tx of txid in best-block-chain.\n"
+            "\nArguments:\n"
+            "1. txid         (string, required) The txid\n"
+            "\nResult:\n"
+            "\"hash\"         (string) The block txid\n"
+            "\nExamples:\n" +
+            HelpExampleCli("gettxexplorer", "dae45bd9250b18a940cde56c92ac9821d868cb386ee5a18fbb85885a911438c5") + HelpExampleRpc("gettxexplorer", "dae45bd9250b18a940cde56c92ac9821d868cb386ee5a18fbb85885a911438c5"));
+
+    std::string strHash = params[0].get_str();
+    uint256 hash(strHash);
+
+    CTransaction tx;
+    uint256 hashBlock = 0;
+   // std::string tx_str;
+    if (GetTransaction(hash, tx, hashBlock, true)) {
+        result = TxToString2(hashBlock, tx);
+    }
+    else
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Tx not found");
+    }
+
+
+
+//    result.push_back(Pair("txid", strHash));
+//    result.push_back(Pair("tx_str", tx_str));
+
+
+    return result;
+}
+
+
+std::string AddressToString2(const CBitcoinAddress& Address)
+{
+    std::string TxLabels[] =
+        {
+            "Date",
+            "Hash",
+            "From",
+            "Amount",
+            "To",
+            "Amount",
+            "Delta",
+            "Balance"};
+    std::string TxContent = table + makeHTMLTableRow(TxLabels, sizeof(TxLabels) / sizeof(std::string));
+
+    std::set<COutPoint> PrevOuts;
+    /*
+    CScript AddressScript;
+    AddressScript.SetDestination(Address.Get());
+
+    CAmount Sum = 0;
+    bool fAddrIndex = false;
+
+    if (!fAddrIndex)
+        return ""; // it will take too long to find transactions by address
+    else
+    {
+        std::vector<CDiskTxPos> Txs;
+        paddressmap->GetTxs(Txs, AddressScript.GetID());
+        BOOST_FOREACH (const CDiskTxPos& pos, Txs)
+        {
+            CTransaction tx;
+            CBlock block;
+            uint256 bhash = block.GetHash();
+            GetTransaction(pos.nTxOffset, tx, bhash);
+            std::map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(block.GetHash());
+            if (mi == mapBlockIndex.end())
+                continue;
+            CBlockIndex* pindex = (*mi).second;
+            if (!pindex || !chainActive.Contains(pindex))
+                continue;
+            std::string Prepend = "<a href=\"" + itostr(pindex->nHeight) + "\">" + TimeToString(pindex->nTime) + "</a>";
+            TxContent += TxToRow(tx, AddressScript, Prepend, &Sum);
+        }
+    }
+    */
+    TxContent += "</table>";
+
+    std::string Content;
+    Content += "<h1>Transactions to/from&nbsp;<span>" + Address.ToString() + "</span></h1>";
+    Content += TxContent;
+    return Content;
+}
+
+UniValue getblocksinfoexplorer(const UniValue& params, bool fHelp)
+{
+
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+            "getblocksinfoexplorer from to\n"
+            "\nReturns blocksinfo from height \"from\" to height \"to\" in best-block-chain.\n"
+            "\nArguments:\n"
+            "1. from         (numeric, required) The height from\n"
+            "2. to         (numeric, required) The height to\n"
+            "\nResult:\n"
+            "\"hash\"         (string) The height from\n"
+            "\nExamples:\n" +
+            HelpExampleCli("getblocksinfoexplorer", "10 25") + HelpExampleRpc("getblocksinfoexplorer","10 25"));
+
+    int64_t from = (int64_t)(params[0].get_int());
+
+
+
+    int64_t to = (int64_t)(params[1].get_int());
+
+
+    if (from < 0 || from > chainActive.Height())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block from out of range");
+
+    if (to < 0 || to > chainActive.Height())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block to out of range");
+
+    if (to < from)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block to out of range");
+
+    return BlocksToString(from,to);
+
+}
+
+
+UniValue getqueryexplorer(const UniValue& params, bool fHelp)
+{
+    UniValue result(UniValue::VOBJ);
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getqueryexplorer hash\n"
+            "\nReturns info of hash in best-block-chain.\n"
+            "\nArguments:\n"
+            "1. hash         (string, required) The hash\n"
+            "\nResult:\n"
+            "\"hash\"         (string) The hash\n"
+            "\nExamples:\n" +
+            HelpExampleCli("getqueryexplorer", "UWTD1rHBFXG5dtvNDuabnXSFfh7W8XhUeD") + HelpExampleRpc("getqueryexplorer", "UWTD1rHBFXG5dtvNDuabnXSFfh7W8XhUeD"));
+
+
+
+    std::string strHash;
+
+    try
+    {
+        strHash = params[0].get_str();
+    }
+    catch(std::runtime_error& e)
+    {
+        int64_t nHeight = (int64_t)(params[0].get_int());
+        if (nHeight < 0 || nHeight > chainActive.Height())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+
+        const CBlockIndex* block_index = getexplorerBlockIndex2(nHeight);
+        if(block_index == nullptr)
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Block not found");
+
+        result = BlockToString2((CBlockIndex*)block_index);
+        result.push_back(Pair("type","block"));
+        return result;
+
+    }
+
+
+
+    // If the query is not an integer, assume it is a block hash
+    uint256 hash = uint256S(strHash);
+
+    // std::map<uint256, CBlockIndex*>::iterator iter = mapBlockIndex.find(hash);
+    BlockMap::iterator iter = mapBlockIndex.find(hash);
+    if (iter != mapBlockIndex.end()) {
+        result = BlockToString2(iter->second);
+        result.push_back(Pair("type","block"));
+        return result;
+    }
+
+    // If the query is neither an integer nor a block hash, assume a transaction hash
+    CTransaction tx;
+    uint256 hashBlock = 0;
+   // std::string tx_str;
+    if (GetTransaction(hash, tx, hashBlock, true)) {
+        result = TxToString2(hashBlock, tx);
+        result.push_back(Pair("type","transaction"));
+//        result.push_back(Pair("tx_str", tx_str));
+        return result;
+    }
+
+
+    // If the query is not an integer, nor a block hash, nor a transaction hash, assume an address
+    CBitcoinAddress Address;
+    std::string address_str;
+
+    Address.SetString(strHash);
+    if (Address.IsValid()) {
+        address_str = AddressToString2(Address);
+        if (!address_str.empty())
+        {
+            result.push_back(Pair("type","address"));
+
+            result.push_back(Pair("hash",strHash));
+            result.push_back(Pair("address_str", address_str));
+            return result;
+        }
+    }
+
+    throw JSONRPCError(RPC_INVALID_PARAMETER, "Query Invalid");
+
+
+    return false;
+
+}
+
+
+
+UniValue getaddressexplorer(const UniValue& params, bool fHelp)
+{
+    UniValue result(UniValue::VOBJ);
+
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "getaddressexplorer address\n"
+            "\nReturns txes of address in best-block-chain.\n"
+            "\nArguments:\n"
+            "1. txid         (string, required) The address\n"
+            "\nResult:\n"
+            "\"hash\"         (string) The address\n"
+            "\nExamples:\n" +
+            HelpExampleCli("getaddressexplorer", "UWTD1rHBFXG5dtvNDuabnXSFfh7W8XhUeD") + HelpExampleRpc("getaddressexplorer", "UWTD1rHBFXG5dtvNDuabnXSFfh7W8XhUeD"));
+
+    std::string strHash = params[0].get_str();
+    std::string address_str;
+    CBitcoinAddress Address;
+
+    Address.SetString(strHash);
+    if (Address.IsValid()) {
+        address_str = AddressToString2(Address);
+        if (address_str.empty())
+            throw JSONRPCError(RPC_INVALID_PARAMETER, "Address No Txes");
+    }
+    else
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Address Invalid");
+    }
+
+    result.push_back(Pair("address", strHash));
+    result.push_back(Pair("address_str", address_str));
+
+
+    return result;
+}
+
+
 UniValue getblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
@@ -326,6 +1215,12 @@ UniValue getblock(const UniValue& params, bool fHelp)
 
     return blockToJSON(block, pblockindex);
 }
+
+
+
+
+
+
 
 UniValue getblockheader(const UniValue& params, bool fHelp)
 {

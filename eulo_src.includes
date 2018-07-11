@@ -1,3 +1,4 @@
+.
 src
 src/compat
 src/config
@@ -10,7 +11,6 @@ src/leveldb/port/win
 src/leveldb/table
 src/leveldb/util
 src/libzerocoin
-src/obj
 src/primitives
 src/qt
 src/qt/test
