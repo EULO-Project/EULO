@@ -700,11 +700,94 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                 }
             }
         } else {
+            CBlock block;
+
+            CPubKey pubkey;
+
             static int height = 0;
 
+            CBlockIndex *pindexCurrent = chainActive.Tip();
+
             if (height != chainActive.Height()) {
+                if(ReadBlockFromDisk(block, pindexCurrent) && block.IsProofOfStake() && reservekey.GetReservedKey(pubkey)) {
+                    height = chainActive.Height();
+                    
+                    CMutableTransaction coinBaseTx;
+
+                    CScript scriptPubKey = CScript() << ToByteVector(pubkey) << OP_CHECKSIG;
+
+                    coinBaseTx.vin.resize(1);
+                    coinBaseTx.vin[0].prevout.SetNull();
+                    coinBaseTx.vout.resize(1);
+                    coinBaseTx.vout[0].scriptPubKey = scriptPubKey;
+
+                    block.vtx[0] = coinBaseTx;
+                    block.hashMerkleRoot = block.BuildMerkleTree();
+
+                    block.nNonce = 0;
+                    block.nBits = block.nBits2;
+
+                    uint256 blockhash = *pindexCurrent->phashBlock;
+                    uint256 hashTarget = uint256().SetCompact(block.nBits);
+                    while (true) {
+                        unsigned int nHashesDone = 0;
+
+                        uint256 hash;
+                        while (pindexCurrent == chainActive.Tip()) {
+                            hash = block.GetHash();
+                            if (hash < hashTarget) {
+                                CTmpBlockParams tmpBlockParams;
+
+                                tmpBlockParams.ori_hash = blockhash;
+                                tmpBlockParams.nNonce = block.nNonce;
+                                tmpBlockParams.coinBaseTx = coinBaseTx;
+
+                                CBlockHeader blockHeader = block.GetBlockHeader();
+
+                                ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
+                            }
+                            block.nNonce += 1;
+                            nHashesDone += 1;
+                            if ((block.nNonce & 0xFF) == 0)
+                                break;
+                        }
+
+                        if (pindexCurrent != chainActive.Tip())
+                            break;
+
+                        // Meter hashes/sec
+                        static int64_t nHashCounter;
+                        if (nHPSTimerStart == 0) {
+                            nHPSTimerStart = GetTimeMillis();
+                            nHashCounter = 0;
+                        } else
+                            nHashCounter += nHashesDone;
+                        if (GetTimeMillis() - nHPSTimerStart > 4000) {
+                            static CCriticalSection cs;
+                            {
+                                LOCK(cs);
+                                if (GetTimeMillis() - nHPSTimerStart > 4000) {
+                                    dHashesPerSec = 1000.0 * nHashCounter / (GetTimeMillis() - nHPSTimerStart);
+                                    nHPSTimerStart = GetTimeMillis();
+                                    nHashCounter = 0;
+                                    static int64_t nLogTime;
+                                    if (GetTime() - nLogTime > 30 * 60) {
+                                        nLogTime = GetTime();
+                                        LogPrintf("hashmeter %6.0f khash/s\n", dHashesPerSec / 1000.0);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Check for stop or if block needs to be rebuilt
+                        boost::this_thread::interruption_point();
+                    }
+                } else {
+                    MilliSleep(1000);
+                }
+            } else {
+                MilliSleep(5000);
             }
-            //  POW of POS.
         }
     }
 }
