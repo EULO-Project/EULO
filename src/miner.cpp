@@ -727,6 +727,9 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                     block.nNonce = 0;
                     block.nBits = block.nBits2;
 
+                    int64_t nStart = GetTime();
+                    unsigned int nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
+
                     uint256 blockhash = *pindexCurrent->phashBlock;
                     uint256 hashTarget = uint256().SetCompact(block.nBits);
                     while (true) {
@@ -751,9 +754,6 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                             if ((block.nNonce & 0xFF) == 0)
                                 break;
                         }
-
-                        if (pindexCurrent != chainActive.Tip())
-                            break;
 
                         // Meter hashes/sec
                         static int64_t nHashCounter;
@@ -784,11 +784,11 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                         // Regtest mode doesn't require peers
                         if (vNodes.empty() && Params().MiningRequiresPeers())
                             break;
-                        if (pblock->nNonce >= 0xffff0000)
+                        if (block.nNonce >= 0xffff0000)
                             break;
                         if (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 60)
                             break;
-                        if (pindexPrev != chainActive.Tip())
+                        if (pindexCurrent != chainActive.Tip())
                             break;
                     }
                 } else {

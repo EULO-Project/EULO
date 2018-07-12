@@ -23,8 +23,6 @@ enum DiffMode {
 
 unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock);
 
-unsigned int GetNextPosWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock);
-
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock);
 
 /** Check whether a block hash satisfies the proof-of-work requirement specified by nBits */
