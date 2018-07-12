@@ -678,6 +678,7 @@ UniValue submitblock(const UniValue& params, bool fHelp)
             ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
         }
     }
+
     return BIP22ValidationResult(state);
 }
 
