@@ -291,7 +291,7 @@ static std::string ValueToString(CAmount nValue, bool AllowNegative = false)
     if (nValue < 0 && !AllowNegative)
         return "<span>unknown</span>";
 
-    double value  = nValue/100000000;
+    double value  = nValue*1.0/100000000;
 
     std::string Str = std::to_string(value);
 
@@ -310,7 +310,7 @@ static std::string ValueToString2(CAmount nValue, bool AllowNegative = false)
     if (nValue < 0 && !AllowNegative)
         return "unknown";
 
-    double value  = nValue/100000000;
+    double value  = nValue*1.0/100000000;
 
     std::string Str = std::to_string(value);
 
