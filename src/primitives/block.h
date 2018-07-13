@@ -31,6 +31,7 @@ class CTmpBlockParams
 {
 public:
 
+    uint256 blockheader_hash;
     uint256 ori_hash;
     unsigned int nNonce;
     CTransaction coinBaseTx;
@@ -44,6 +45,7 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion) {
+
         READWRITE(ori_hash);
         READWRITE(nNonce);
         READWRITE(coinBaseTx);
@@ -53,6 +55,7 @@ public:
 
     void SetNull()
     {
+        blockheader_hash= 0;
         ori_hash = 0;
         nNonce = 0;
     }
