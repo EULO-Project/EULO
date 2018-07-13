@@ -39,7 +39,7 @@ More information at [eulo.org](http://www.eulo.org) Visit our ANN thread at [Bit
 
 ### PoS Rewards Breakdown
 
-<table>
+<table style="font-size: 15px;">
 <th>Phase</th><th>Block Height</th><th>Reward</th><th>Masternodes & Stakers</th><th>Miner</th><th>Budget</th>
 <tr><td>Phase 0</td><td>1440-259199</td><td>10 ULO</td><td>80% (8 ULO)</td><td>20% (2 ULO)</td><td>N/A</td></tr>
 <tr><td>Phase 1</td><td>259200-1295999</td><td>1300 ULO</td><td>76% (988 ULO)</td><td>19% (247 ULO)</td><td>5% (65 ULO)</td></tr>
