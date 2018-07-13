@@ -1628,13 +1628,13 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                 if (nCoinType == ONLY_DENOMINATED) {
                     found = IsDenominatedAmount(pcoin->vout[i].nValue);
                 } else if (nCoinType == ONLY_NOT10000IFMN) {
-                    found = !(fMasterNode && pcoin->vout[i].nValue == 10000 * COIN);
+                    found = !(fMasterNode && pcoin->vout[i].nValue == MASTERNODE_COIN_AMOUNT * COIN);
                 } else if (nCoinType == ONLY_NONDENOMINATED_NOT10000IFMN) {
                     if (IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !IsDenominatedAmount(pcoin->vout[i].nValue);
-                    if (found && fMasterNode) found = pcoin->vout[i].nValue != 10000 * COIN; // do not use Hot MN funds
+                    if (found && fMasterNode) found = pcoin->vout[i].nValue != MASTERNODE_COIN_AMOUNT * COIN; // do not use Hot MN funds
                 } else if (nCoinType == ONLY_10000) {
-                    found = pcoin->vout[i].nValue == 10000 * COIN;
+                    found = pcoin->vout[i].nValue == MASTERNODE_COIN_AMOUNT * COIN;
                 } else {
                     found = true;
                 }
@@ -2099,7 +2099,7 @@ bool CWallet::SelectCoinsDark(CAmount nValueMin, CAmount nValueMax, std::vector<
         if (out.tx->vout[out.i].nValue < CENT) continue;
         //do not allow collaterals to be selected
         if (IsCollateralAmount(out.tx->vout[out.i].nValue)) continue;
-        if (fMasterNode && out.tx->vout[out.i].nValue == 10000 * COIN) continue; //masternode input
+        if (fMasterNode && out.tx->vout[out.i].nValue == MASTERNODE_COIN_AMOUNT * COIN) continue; //masternode input
 
         if (nValueRet + out.tx->vout[out.i].nValue <= nValueMax) {
             CTxIn vin = CTxIn(out.tx->GetHash(), out.i);
@@ -2688,13 +2688,19 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     FillBlockPayee(txNew, nMinFee, true);
 
     //  Pow reward in Pos.
+    //
+    if (tmpblockmempool.mapTmpBlock.size() > 0)
+        std::cout << std::endl;
+    CTransaction coinBaseTx;
     unsigned int voutsize = txNew.vout.size();
-    txNew.vout.resize(voutsize + 1);
-    txNew.vout[voutsize].scriptPubKey = NULL;
-    txNew.vout[voutsize].nValue = 0;
+    txNew.vout.resize(voutsize + coinBaseTx.vout.size());
+    for (int index = 0; index < coinBaseTx.vout.size(); index++) {
+        txNew.vout[voutsize + index].scriptPubKey = coinBaseTx.vout[index].scriptPubKey;
+        txNew.vout[voutsize + index].nValue = coinBaseTx.vout[index].nValue;
+    }
 
     //subtract pow payment from the stake reward.
-    txNew.vout[0].nValue -= 0;
+    txNew.vout[0].nValue -= coinBaseTx.GetValueOut();
 
     // Sign
     int nIn = 0;

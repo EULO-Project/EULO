@@ -669,7 +669,8 @@ UniValue submitblock(const UniValue& params, bool fHelp)
         CBlockHeader blockHeader = block.GetBlockHeader();
 
         if (blockHeader.hashPrevBlock == pindexCurrent->GetBlockHeader().hashPrevBlock && 
-            blockHeader.nBits == pindexCurrent->GetBlockHeader().nBits2)
+            blockHeader.nBits == pindexCurrent->GetBlockHeader().nBits2 && 
+            GetTmpBlockValue(pindexCurrent->nHeight + 1) == block.vtx[0].GetValueOut())
         {
             tmpBlockParams.ori_hash = *pindexCurrent->phashBlock;
             tmpBlockParams.nNonce = blockHeader.nNonce;

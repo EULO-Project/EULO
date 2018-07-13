@@ -93,8 +93,8 @@ public:
         if(nVersion > 3)
             READWRITE(nAccumulatorCheckpoint);
 
-        if(nVersion > 2)
-            READWRITE(nBits2);
+//        if(nVersion > 2)
+//            READWRITE(nBits2);
     }
 
     void SetNull()

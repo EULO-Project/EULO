@@ -2193,7 +2193,7 @@ int64_t GetTmpBlockValue(int nHeight)
         nSubsidy *= 0.4;
     } else if (nHeight >= 6480000) {
         nSubsidy *= 0.5;
-    } else
+    } else {
         nSubsidy = 0;
     }
 
@@ -2273,7 +2273,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
                 nMasternodeCount = mnodeman.size();
         }
 
-        int64_t mNodeCoins = nMasternodeCount * 10000 * COIN;
+        int64_t mNodeCoins = nMasternodeCount * MASTERNODE_COIN_AMOUNT * COIN;
 
         // Use this log to compare the masternode count for different clients
         LogPrintf("Adjusting seesaw at height %d with %d masternodes (without drift: %d) at %ld\n", nHeight, nMasternodeCount, nMasternodeCount - Params().MasternodeCountDrift(), GetTime());
@@ -5002,6 +5002,7 @@ bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, CDis
         if (pwalletMain->fCombineDust)
             pwalletMain->AutoCombineDust();
     }
+    tmpblockmempool.mapTmpBlock.clear();
 
     LogPrintf("%s : ACCEPTED in %ld milliseconds with size=%d\n", __func__, GetTimeMillis() - nStartTime,
               pblock->GetSerializeSize(SER_DISK, CLIENT_VERSION));
@@ -6613,7 +6614,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         if(chainActive.Height() <= Params().LAST_POW_BLOCK()) return true; //Check if in POS phase
 
-        if(pindexCurrent->GetBlockHash() != tmpBlockParams.ori_hash) return true; //Check if matches the last block hash in activechain
+        if(pindexCurrent->GetBlockHash() != tmpBlockParams.ori_hash || 
+            GetTmpBlockValue(chainActive.Height() + 1) != tmpBlockParams.coinBaseTx.GetValueOut()) return true; //Check if matches the last block hash in activechain
         
         if(!ReadBlockFromDisk(block, pindexCurrent) || !block.IsProofOfStake())
             return true;

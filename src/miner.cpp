@@ -720,6 +720,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                     coinBaseTx.vin[0].prevout.SetNull();
                     coinBaseTx.vout.resize(1);
                     coinBaseTx.vout[0].scriptPubKey = scriptPubKey;
+                    coinBaseTx.vout[0].nValue = GetTmpBlockValue(height + 1);
 
                     block.vtx[0] = coinBaseTx;
                     block.hashMerkleRoot = block.BuildMerkleTree();
