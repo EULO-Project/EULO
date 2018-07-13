@@ -42,7 +42,7 @@ More information at [eulo.org](http://www.eulo.org) Visit our ANN thread at [Bit
 <table>
 <th>Phase</th><th>Block Height</th><th>Reward</th><th>Masternodes & Stakers</th><th>Miner</th><th>Budget</th>
 <tr><td><font size="5">Phase 0</font></td><td>1440-259199</td><td>10 ULO</td><td>80% (8 ULO)</td><td>20% (2 ULO)</td><td>N/A</td></tr>
-<tr><td>Phase 1</td><td>259200-1295999</td><td>1300 ULO</td><td>76% (988 ULO)</td><td>19% (247 ULO)</td><td>5% (65 ULO)</td></tr>
+<tr><td>Phase 1</td><td><font size="5">259200-1295999</font></td><td>1300 ULO</td><td>76% (988 ULO)</td><td>19% (247 ULO)</td><td>5% (65 ULO)</td></tr>
 <tr><td>Phase 2</td><td>1296000-2332799</td><td>1250 ULO</td><td>66.5% (831.25 ULO)</td><td>28.5% (356.25 ULO)</td><td>5% (62.5 ULO)</td></tr>
 <tr><td>Phase 3</td><td>2332800-3369599</td><td>1200 ULO</td><td>66.5% (798 ULO)</td><td>28.5% (342 ULO)</td><td>5% (60 ULO)</td></tr>
 <tr><td>Phase 4</td><td>3369600-4406399</td><td>1150 ULO</td><td>57% (655.5 ULO)</td><td>38% (437 ULO)</td><td>5% (57.5 ULO)</td></tr>
