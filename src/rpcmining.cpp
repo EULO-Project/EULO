@@ -675,6 +675,7 @@ UniValue submitblock(const UniValue& params, bool fHelp)
             tmpBlockParams.ori_hash = *pindexCurrent->phashBlock;
             tmpBlockParams.nNonce = blockHeader.nNonce;
             tmpBlockParams.coinBaseTx = block.vtx[0];
+            tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
 
             ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
         }

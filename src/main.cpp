@@ -6628,6 +6628,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         blockHeader.nNonce = tmpBlockParams.nNonce; //Parse nNonce
         blockHeader.nBits = blockHeader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.
 
+        tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
+
         ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
     }
 

@@ -748,6 +748,9 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
 
                                 CBlockHeader blockHeader = block.GetBlockHeader();
 
+                                tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
+
+
                                 ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
                             }
                             block.nNonce += 1;
