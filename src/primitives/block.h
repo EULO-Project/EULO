@@ -30,11 +30,10 @@ static const unsigned int MAX_BLOCK_SIZE_LEGACY = 1000000;
 class CTmpBlockParams
 {
 public:
-
-    uint256 blockheader_hash;
     uint256 ori_hash;
     unsigned int nNonce;
     CTransaction coinBaseTx;
+    uint256 blockheader_hash;
 
     CTmpBlockParams()
     {

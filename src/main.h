@@ -182,7 +182,9 @@ void RegisterNodeSignals(CNodeSignals& nodeSignals);
 /** Unregister a network node */
 void UnregisterNodeSignals(CNodeSignals& nodeSignals);
 
-bool ProcessNewTmpBlockParam(const CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader);
+bool GetBestTmpBlockCoinBaseTx(CTransaction &coinBaseTx);
+
+bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader);
 
 /** 
  * Process an incoming block. This only returns after the best known valid
@@ -247,7 +249,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL, bool fAlreadyChecked = false);
 CAmount GetBlockValue(int nHeight);
-CAmount GetTmpBlockValue(int nHeight);
+CAmount GetTmpBlockValue(int nHeight, bool bCheckCoinBaseTx = false);
 
 /** Create a new block index entry for a given block hash */
 CBlockIndex* InsertBlockIndex(uint256 hash);

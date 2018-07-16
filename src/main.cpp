@@ -2178,7 +2178,7 @@ double ConvertBitsToDouble(unsigned int nBits)
     return dDiff;
 }
 
-int64_t GetTmpBlockValue(int nHeight)
+int64_t GetTmpBlockValue(int nHeight, bool bCheckCoinBaseTx)
 {
     int64_t nSubsidy = 0;
 
@@ -2194,6 +2194,10 @@ int64_t GetTmpBlockValue(int nHeight)
     } else if (nHeight >= 6480000) {
         nSubsidy *= 0.5;
     } else {
+        nSubsidy = 0;
+    }
+
+    if (bCheckCoinBaseTx && 0 == tmpblockmempool.mapTmpBlock.size()) {
         nSubsidy = 0;
     }
 
@@ -2252,17 +2256,9 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
             return 0;
     }
 
-    if (nHeight < 259200 && nHeight > 0) {
+    if (nHeight <= Params().LAST_POW_BLOCK() && nHeight > 0) {
         ret = blockValue / 10;
-    } else if (nHeight < 1036800 && nHeight >= 259200) {
-        ret = blockValue / (95 / 20);
-    } else if (nHeight < 1555200 && nHeight >= 1036800) {
-        ret = blockValue / (95 / 35);
-    } else if (nHeight < 2073600 && nHeight >= 1555200) {
-        ret = blockValue / (95 / 50);
-    } else if (nHeight < Params().LAST_POW_BLOCK() && nHeight >= 2073600) {
-        ret = blockValue / (95 / 60);
-    } else if (nHeight >= Params().LAST_POW_BLOCK()) {
+    } else if (nHeight > Params().LAST_POW_BLOCK()) {
         int64_t nMoneySupply = chainActive.Tip()->nMoneySupply;
 
         //if a mn count is inserted into the function we are looking for a specific result for a masternode count
@@ -4910,9 +4906,34 @@ void CBlockIndex::BuildSkip()
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
-bool ProcessNewTmpBlockParam(const CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader)
+bool GetBestTmpBlockCoinBaseTx(CTransaction &coinBaseTx)
+{
+    uint256 blockParamHash;
+    uint256 blockHeaderHash;
+
+    if (tmpblockmempool.mapTmpBlock.size() > 0) {
+        std::map<uint256, std::pair<CTmpBlockParams,int64_t>>::const_iterator it = tmpblockmempool.mapTmpBlock.begin();
+        blockParamHash = it->first;
+        blockHeaderHash = it->second.first.blockheader_hash;
+        for (it++; it != tmpblockmempool.mapTmpBlock.end(); it++)
+        {
+            if (it->second.first.blockheader_hash < blockHeaderHash)
+            {
+                blockParamHash = it->first;
+                blockHeaderHash = it->second.first.blockheader_hash;
+            }
+        }
+
+        coinBaseTx = tmpblockmempool.mapTmpBlock.find(blockParamHash)->second.first.coinBaseTx;
+    }
+
+    return true;
+}
+
+bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader)
 {
     if(CheckProofOfWork(blockHeader.GetHash(), blockHeader.nBits) && !tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) {
+        tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
         tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),std::pair<CTmpBlockParams,int64_t>(tmpBlockParams,GetTime())));
         BOOST_FOREACH (CNode* pnode, vNodes)
             pnode->PushMessage("tmpblock", tmpBlockParams);
@@ -6607,15 +6628,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         CTmpBlockParams tmpBlockParams;
         vRecv >> tmpBlockParams;
 
-
         pindexCurrent = chainActive.Tip();
 
         if(tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) return true; //Check if it is in pool already
 
-        if(chainActive.Height() <= Params().LAST_POW_BLOCK()) return true; //Check if in POS phase
+        if(pindexCurrent->nHeight <= Params().LAST_POW_BLOCK()) return true; //Check if in POS phase
 
-        if(pindexCurrent->GetBlockHash() != tmpBlockParams.ori_hash || 
-            GetTmpBlockValue(chainActive.Height() + 1) != tmpBlockParams.coinBaseTx.GetValueOut()) return true; //Check if matches the last block hash in activechain
+        if(*pindexCurrent->phashBlock != tmpBlockParams.ori_hash || 
+            GetTmpBlockValue(pindexCurrent->nHeight) != tmpBlockParams.coinBaseTx.GetValueOut()) return true; //Check if matches the last block hash in activechain
         
         if(!ReadBlockFromDisk(block, pindexCurrent) || !block.IsProofOfStake())
             return true;
@@ -6627,8 +6647,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         blockHeader.nNonce = tmpBlockParams.nNonce; //Parse nNonce
         blockHeader.nBits = blockHeader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.
-
-        tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
 
         ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
     }

@@ -2653,9 +2653,14 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     // Calculate reward
     CAmount nReward;
+    CTransaction coinBaseTx;
+    GetBestTmpBlockCoinBaseTx(coinBaseTx);
     const CBlockIndex* pIndex0 = chainActive.Tip();
     nReward = GetBlockValue(pIndex0->nHeight);
     nCredit += nReward;
+
+    if (coinBaseTx.vout.size() > 0)
+        nReward -= coinBaseTx.GetValueOut();
 
     CAmount nMinFee = 0;
     while (true) {
@@ -2688,19 +2693,14 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     FillBlockPayee(txNew, nMinFee, true);
 
     //  Pow reward in Pos.
-    //
-    if (tmpblockmempool.mapTmpBlock.size() > 0)
-        std::cout << std::endl;
-    CTransaction coinBaseTx;
-    unsigned int voutsize = txNew.vout.size();
-    txNew.vout.resize(voutsize + coinBaseTx.vout.size());
-    for (int index = 0; index < coinBaseTx.vout.size(); index++) {
-        txNew.vout[voutsize + index].scriptPubKey = coinBaseTx.vout[index].scriptPubKey;
-        txNew.vout[voutsize + index].nValue = coinBaseTx.vout[index].nValue;
+    if (coinBaseTx.vout.size() > 0) {
+        unsigned int voutsize = txNew.vout.size();
+        txNew.vout.resize(voutsize + coinBaseTx.vout.size());
+        for (int index = 0; index < coinBaseTx.vout.size(); index++) {
+            txNew.vout[voutsize + index].scriptPubKey = coinBaseTx.vout[index].scriptPubKey;
+            txNew.vout[voutsize + index].nValue = coinBaseTx.vout[index].nValue;
+        }
     }
-
-    //subtract pow payment from the stake reward.
-    txNew.vout[0].nValue -= coinBaseTx.GetValueOut();
 
     // Sign
     int nIn = 0;

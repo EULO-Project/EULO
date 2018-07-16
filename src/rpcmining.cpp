@@ -670,12 +670,11 @@ UniValue submitblock(const UniValue& params, bool fHelp)
 
         if (blockHeader.hashPrevBlock == pindexCurrent->GetBlockHeader().hashPrevBlock && 
             blockHeader.nBits == pindexCurrent->GetBlockHeader().nBits2 && 
-            GetTmpBlockValue(pindexCurrent->nHeight + 1) == block.vtx[0].GetValueOut())
+            GetTmpBlockValue(pindexCurrent->nHeight) == block.vtx[0].GetValueOut())
         {
             tmpBlockParams.ori_hash = *pindexCurrent->phashBlock;
             tmpBlockParams.nNonce = blockHeader.nNonce;
             tmpBlockParams.coinBaseTx = block.vtx[0];
-            tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
 
             ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
         }

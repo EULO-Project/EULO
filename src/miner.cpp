@@ -565,7 +565,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
     }
 
     while (fGenerateBitcoins || fProofOfStake) {
-        if (chainActive.Height() + 1 <= Params().LAST_POW_BLOCK() || fProofOfStake) {
+        if (chainActive.Height() < Params().LAST_POW_BLOCK() || fProofOfStake) {
             if (fProofOfStake) {
                 if (chainActive.Tip()->nHeight < Params().LAST_POW_BLOCK()) {
                     MilliSleep(5000);
@@ -708,9 +708,9 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
 
             CBlockIndex *pindexCurrent = chainActive.Tip();
 
-            if (height != chainActive.Height()) {
+            if (height != pindexCurrent->nHeight) {
                 if(ReadBlockFromDisk(block, pindexCurrent) && block.IsProofOfStake() && reservekey.GetReservedKey(pubkey)) {
-                    height = chainActive.Height();
+                    height = pindexCurrent->nHeight;
                     
                     CMutableTransaction coinBaseTx;
 
@@ -720,7 +720,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                     coinBaseTx.vin[0].prevout.SetNull();
                     coinBaseTx.vout.resize(1);
                     coinBaseTx.vout[0].scriptPubKey = scriptPubKey;
-                    coinBaseTx.vout[0].nValue = GetTmpBlockValue(height + 1);
+                    coinBaseTx.vout[0].nValue = GetTmpBlockValue(height);
 
                     block.vtx[0] = coinBaseTx;
                     block.hashMerkleRoot = block.BuildMerkleTree();
@@ -747,9 +747,6 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                                 tmpBlockParams.coinBaseTx = coinBaseTx;
 
                                 CBlockHeader blockHeader = block.GetBlockHeader();
-
-                                tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
-
 
                                 ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
                             }
