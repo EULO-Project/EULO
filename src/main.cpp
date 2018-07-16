@@ -2197,8 +2197,12 @@ int64_t GetTmpBlockValue(int nHeight, bool bCheckCoinBaseTx)
         nSubsidy = 0;
     }
 
-    if (bCheckCoinBaseTx && 0 == tmpblockmempool.mapTmpBlock.size()) {
-        nSubsidy = 0;
+    {
+        LOCK(cs_main);
+        
+        if (bCheckCoinBaseTx && 0 == tmpblockmempool.mapTmpBlock.size()) {
+            nSubsidy = 0;
+        }
     }
 
     return nSubsidy;
@@ -4911,6 +4915,7 @@ bool GetBestTmpBlockCoinBaseTx(CTransaction &coinBaseTx)
     uint256 blockParamHash;
     uint256 blockHeaderHash;
 
+    LOCK(cs_main);
     if (tmpblockmempool.mapTmpBlock.size() > 0) {
         std::map<uint256, std::pair<CTmpBlockParams,int64_t>>::const_iterator it = tmpblockmempool.mapTmpBlock.begin();
         blockParamHash = it->first;
@@ -4932,6 +4937,8 @@ bool GetBestTmpBlockCoinBaseTx(CTransaction &coinBaseTx)
 
 bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader)
 {
+    LOCK(cs_main);
+
     if(CheckProofOfWork(blockHeader.GetHash(), blockHeader.nBits) && !tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) {
         tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
         tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),std::pair<CTmpBlockParams,int64_t>(tmpBlockParams,GetTime())));
@@ -5023,7 +5030,11 @@ bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, CDis
         if (pwalletMain->fCombineDust)
             pwalletMain->AutoCombineDust();
     }
-    tmpblockmempool.mapTmpBlock.clear();
+
+    {    
+        LOCK(cs_main);
+        tmpblockmempool.mapTmpBlock.clear();
+    }
 
     LogPrintf("%s : ACCEPTED in %ld milliseconds with size=%d\n", __func__, GetTimeMillis() - nStartTime,
               pblock->GetSerializeSize(SER_DISK, CLIENT_VERSION));

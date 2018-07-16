@@ -2696,7 +2696,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     if (coinBaseTx.vout.size() > 0) {
         unsigned int voutsize = txNew.vout.size();
         txNew.vout.resize(voutsize + coinBaseTx.vout.size());
-        for (int index = 0; index < coinBaseTx.vout.size(); index++) {
+        for (size_t index = 0; index < coinBaseTx.vout.size(); index++) {
             txNew.vout[voutsize + index].scriptPubKey = coinBaseTx.vout[index].scriptPubKey;
             txNew.vout[voutsize + index].nValue = coinBaseTx.vout[index].nValue;
         }
