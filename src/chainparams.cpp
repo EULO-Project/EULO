@@ -111,8 +111,8 @@ public:
         nRejectBlockOutdatedMajority = 950;
         nToCheckBlockUpgradeMajority = 1000;
         nMinerThreads = 0;
-        nTargetTimespan = 1 * 20; // EULO: 1 day
-        nTargetSpacing = 1 * 20;  // EULO: 1 minute
+        nTargetTimespan = 1 * 60; // EULO: 1 day
+        nTargetSpacing = 1 * 60;  // EULO: 1 minute
         nMaturity = 100;
         nMasternodeCountDrift = 20;
         nMaxMoneyOut = 21148191990 * COIN;
