@@ -2178,7 +2178,7 @@ double ConvertBitsToDouble(unsigned int nBits)
     return dDiff;
 }
 
-int64_t GetTmpBlockValue(int nHeight, bool bCheckCoinBaseTx)
+int64_t GetTmpBlockValue(int nHeight)
 {
     int64_t nSubsidy = 0;
 
@@ -2195,14 +2195,6 @@ int64_t GetTmpBlockValue(int nHeight, bool bCheckCoinBaseTx)
         nSubsidy *= 0.5;
     } else {
         nSubsidy = 0;
-    }
-
-    {
-        LOCK(cs_main);
-        
-        if (bCheckCoinBaseTx && 0 == tmpblockmempool.mapTmpBlock.size()) {
-            nSubsidy = 0;
-        }
     }
 
     return nSubsidy;
@@ -3528,8 +3520,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     //PoW phase redistributed fees to miner. PoS stage destroys fees.
     CAmount nExpectedMint = GetBlockValue(pindex->pprev->nHeight);
-    if (block.IsProofOfWork())
-        nExpectedMint += nFees;
+
+    nExpectedMint += nFees;
 
     if (!IsBlockValueValid(block, nExpectedMint, pindex->nMint)) {
         return state.DoS(100,
@@ -4910,7 +4902,7 @@ void CBlockIndex::BuildSkip()
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
-bool GetBestTmpBlockCoinBaseTx(CTransaction &coinBaseTx)
+bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce)
 {
     uint256 blockParamHash;
     uint256 blockHeaderHash;
@@ -4929,6 +4921,7 @@ bool GetBestTmpBlockCoinBaseTx(CTransaction &coinBaseTx)
             }
         }
 
+        nNonce = tmpblockmempool.mapTmpBlock.find(blockParamHash)->second.first.nNonce;
         coinBaseTx = tmpblockmempool.mapTmpBlock.find(blockParamHash)->second.first.coinBaseTx;
     }
 

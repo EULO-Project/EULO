@@ -487,7 +487,7 @@ void CBudgetManager::CheckAndRemove()
 
 }
 
-void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees, bool fProofOfStake)
+void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount blockValue, CAmount nFees, bool fProofOfStake)
 {
     LOCK(cs);
 
@@ -513,7 +513,7 @@ void CBudgetManager::FillBlockPayee(CMutableTransaction& txNew, CAmount nFees, b
         ++it;
     }
 
-    CAmount blockValue = GetBlockValue(pindexPrev->nHeight) + nFees;
+    blockValue += nFees;
 
     if (fProofOfStake) {
         if (nHighestCount > 0) {
