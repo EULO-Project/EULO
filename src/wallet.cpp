@@ -2654,44 +2654,48 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     // Calculate reward
     CAmount nReward;
     CTransaction coinBaseTx;
-    GetBestTmpBlockCoinBaseTx(coinBaseTx);
     const CBlockIndex* pIndex0 = chainActive.Tip();
     nReward = GetBlockValue(pIndex0->nHeight);
     nCredit += nReward;
 
-    if (coinBaseTx.vout.size() > 0)
-        nReward -= coinBaseTx.GetValueOut();
+    {
+        LOCK(cs_main);
+        
+        GetBestTmpBlockCoinBaseTx(coinBaseTx);
+        if (coinBaseTx.vout.size() > 0)
+            nReward -= coinBaseTx.GetValueOut();
 
-    CAmount nMinFee = 0;
-    while (true) {
-        // Set output amount
-        if (txNew.vout.size() == 3) {
-            txNew.vout[1].nValue = ((nCredit - nMinFee) / 2 / CENT) * CENT;
-            txNew.vout[2].nValue = nCredit - nMinFee - txNew.vout[1].nValue;
-        } else
-            txNew.vout[1].nValue = nCredit - nMinFee;
+        CAmount nMinFee = 0;
+        while (true) {
+            // Set output amount
+            if (txNew.vout.size() == 3) {
+                txNew.vout[1].nValue = ((nCredit - nMinFee) / 2 / CENT) * CENT;
+                txNew.vout[2].nValue = nCredit - nMinFee - txNew.vout[1].nValue;
+            } else
+                txNew.vout[1].nValue = nCredit - nMinFee;
 
-        // Limit size
-        unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
-        if (nBytes >= DEFAULT_BLOCK_MAX_SIZE / 5)
-            return error("CreateCoinStake : exceeded coinstake size limit");
+            // Limit size
+            unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
+            if (nBytes >= DEFAULT_BLOCK_MAX_SIZE / 5)
+                return error("CreateCoinStake : exceeded coinstake size limit");
 
-        CAmount nFeeNeeded = GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
+            CAmount nFeeNeeded = GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
 
-        // Check enough fee is paid
-        if (nMinFee < nFeeNeeded) {
-            nMinFee = nFeeNeeded;
-            continue; // try signing again
-        } else {
-            if (fDebug)
-                LogPrintf("CreateCoinStake : fee for coinstake %s\n", FormatMoney(nMinFee).c_str());
-            break;
+            // Check enough fee is paid
+            if (nMinFee < nFeeNeeded) {
+                nMinFee = nFeeNeeded;
+                continue; // try signing again
+            } else {
+                if (fDebug)
+                    LogPrintf("CreateCoinStake : fee for coinstake %s\n", FormatMoney(nMinFee).c_str());
+                break;
+            }
         }
+
+        //Masternode payment
+        FillBlockPayee(txNew, nMinFee, true);
     }
-
-    //Masternode payment
-    FillBlockPayee(txNew, nMinFee, true);
-
+    
     //  Pow reward in Pos.
     if (coinBaseTx.vout.size() > 0) {
         unsigned int voutsize = txNew.vout.size();

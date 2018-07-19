@@ -118,7 +118,7 @@ public:
         nMaxMoneyOut = 21148191990 * COIN;
 
         /** Height or Time Based Activations **/
-        nLastPOWBlock = 1439;
+        nLastPOWBlock = 239;
         nModifierUpdateBlock = 615800;
         nZerocoinStartHeight = 863787;
         nZerocoinStartTime = 1508214600; // October 17, 2017 4:30:00 AM
@@ -158,10 +158,10 @@ public:
         assert(genesis.hashMerkleRoot == uint256("0x1191ca8dfc8228272bb6f6fb9a7b14ba19c33f5fa7f07d8d5c700457ca988a3d"));
 
 
-        //vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));    // Secondary DNS Seeder from Fuzzbawls
-        //vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));         // Single node address
-        //vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200")); // Single node address
-        //vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // Single node address
+        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));    // Secondary DNS Seeder from Fuzzbawls
+        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));         // Single node address
+        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200")); // Single node address
+        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // Single node address
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 68);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 13);

@@ -6667,7 +6667,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
     }
 
-
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
     {
         CBlock block;

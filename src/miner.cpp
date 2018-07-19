@@ -546,7 +546,7 @@ bool fGenerateBitcoins = false;
 
 void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
 {
-    LogPrintf("EULOMiner started\n");
+    LogPrintf("EULO %s Miner started\n", fProofOfStake ? "POS" : "POW");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
     RenameThread("eulo-miner");
 
@@ -567,12 +567,16 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
     while (fGenerateBitcoins || fProofOfStake) {
         if (chainActive.Height() < Params().LAST_POW_BLOCK() || fProofOfStake) {
             if (fProofOfStake) {
+                std::cout << "Height " << chainActive.Tip()->nHeight << ", last POW is " << Params().LAST_POW_BLOCK() << std::endl;
                 if (chainActive.Tip()->nHeight < Params().LAST_POW_BLOCK()) {
                     MilliSleep(5000);
                     continue;
                 }
 
-                while (chainActive.Tip()->nTime < 1471482000 || vNodes.empty() || pwallet->IsLocked() || !fMintableCoins || nReserveBalance >= pwallet->GetBalance() || !masternodeSync.IsSynced()) {
+                while (vNodes.empty() || pwallet->IsLocked() || !fMintableCoins || nReserveBalance >= pwallet->GetBalance() || !masternodeSync.IsSynced()) {
+                    std::cout << "While " << vNodes.empty() << ", " << 
+                        pwallet->IsLocked() << ", " <<  !fMintableCoins << ", " << (nReserveBalance >= pwallet->GetBalance()) << ", " << 
+                        !masternodeSync.IsSynced() << std::endl;
                     nLastCoinStakeSearchInterval = 0;
                     MilliSleep(5000);
                     if (!fGenerateBitcoins && !fProofOfStake)
