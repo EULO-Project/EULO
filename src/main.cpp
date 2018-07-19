@@ -4933,7 +4933,7 @@ bool GetBestTmpBlockCoinBaseTx(CTransaction &coinBaseTx)
 
         CTmpBlockParams *tmpbp = &(tmpblockmempool.mapTmpBlock.find(blockParamHash)->second.first);
 
-        LogPrintf("%s : Find tmpblock in tmpblockmempool hash:\n%s\nNonce:\n%d\n", __func__, tmpbp->ori_hash, tmpbp->nNonce);
+        LogPrintf("%s : Find tmpblock in tmpblockmempool hash:\n%s\nNonce:\n%d\n", __func__, tmpbp->ori_hash.GetHex(), tmpbp->nNonce);
 
     }
 
