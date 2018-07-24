@@ -3507,9 +3507,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nMoneySupply = nMoneySupplyPrev + nValueOut - nValueIn;
     pindex->nMint = pindex->nMoneySupply - nMoneySupplyPrev + nFees;
 
-    //    LogPrintf("XX69----------> ConnectBlock(): nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s zUloSpent: %s\n",
-    //              FormatMoney(nValueOut), FormatMoney(nValueIn),
-    //              FormatMoney(nFees), FormatMoney(pindex->nMint), FormatMoney(nAmountZerocoinSpent));
+        LogPrintf("XX69----------> ConnectBlock(): nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s zUloSpent: %s\n",
+                  FormatMoney(nValueOut), FormatMoney(nValueIn),
+                  FormatMoney(nFees), FormatMoney(pindex->nMint), FormatMoney(nAmountZerocoinSpent));
 
     if (!pblocktree->WriteBlockIndex(CDiskBlockIndex(pindex)))
         return error("Connect() : WriteBlockIndex for pindex failed");
@@ -4588,7 +4588,7 @@ bool CheckWork(const CBlock block, CBlockIndex* const pindexPrev)
 
     unsigned int nBitsRequired = GetNextWorkRequired(pindexPrev, &block);
 
-    if (block.IsProofOfWork() && (pindexPrev->nHeight + 1 <= 68589)) {
+    if (block.IsProofOfWork() && (pindexPrev->nHeight + 1 <= Params().LAST_POW_BLOCK())) {
         double n1 = ConvertBitsToDouble(block.nBits);
         double n2 = ConvertBitsToDouble(nBitsRequired);
 
@@ -4935,6 +4935,9 @@ bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader
     if(CheckProofOfWork(blockHeader.GetHash(), blockHeader.nBits) && !tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) {
         tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
         tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),std::pair<CTmpBlockParams,int64_t>(tmpBlockParams,GetTime())));
+        LogPrintf("New tmp block(%s): orig %s, nonce %lu, coinBase %s\n", 
+            tmpBlockParams.GetHash().GetHex(), tmpBlockParams.ori_hash.GetHex(), tmpBlockParams.nNonce, 
+            tmpBlockParams.coinBaseTx.ToString());
         BOOST_FOREACH (CNode* pnode, vNodes)
             pnode->PushMessage("tmpblock", tmpBlockParams);
     }
