@@ -1633,6 +1633,52 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue tmpblockstatus(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "tmpblockstatus \n"
+            "\nPermanently marks a block as invalid, as if it violated a consensus rule.\n"
+            "\nArguments:\n"
+            "\nResult:\n"
+            "\nExamples:\n" +
+            HelpExampleCli("tmpblockstatus","") + HelpExampleRpc("tmpblockstatus",""));
+
+    UniValue tmpblocks(UniValue::VARR);
+
+
+    {
+        LOCK(cs_main);
+        int64_t tmp_blocks_size = tmpblockmempool.mapTmpBlock.size();
+
+        UniValue size_obj(UniValue::VOBJ);
+        size_obj.push_back(Pair("size", tmp_blocks_size));
+        tmpblocks.push_back(size_obj);
+
+
+        for(uint i = 0;i<tmp_blocks_size;i++)
+        {
+            UniValue onetmpblock(UniValue::VOBJ);
+
+            CTmpBlockParams &tbp = tmpblockmempool.mapTmpBlock.at(i).first;
+            onetmpblock.push_back(Pair("time", (int64_t)(tmpblockmempool.mapTmpBlock.at(i).second)));
+            onetmpblock.push_back(Pair("ori_hash", tbp.ori_hash.GetHex()));
+            onetmpblock.push_back(Pair("nNonce", (int64_t)(tbp.nNonce)));
+            onetmpblock.push_back(Pair("coinBaseTxhash", (tbp.coinBaseTx.GetHash().GetHex())));
+            onetmpblock.push_back(Pair("coinBaseTxout", (int64_t)(tbp.coinBaseTx.GetValueOut())));
+            onetmpblock.push_back(Pair("blockheader_hash", tbp.blockheader_hash.GetHex()));
+
+            tmpblocks.push_back(onetmpblock);
+        }
+
+    }
+
+
+
+
+    return tmpblocks;
+}
+
 UniValue invalidateblock(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)

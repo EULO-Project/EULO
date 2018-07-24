@@ -27,6 +27,8 @@
 #include "sync.h"
 #include "tinyformat.h"
 #include "txmempool.h"
+#include "tmpblocksmempool.h"
+
 #include "uint256.h"
 #include "undo.h"
 
@@ -127,6 +129,7 @@ struct BlockHasher {
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CTxMemPool mempool;
+extern TmpBlocksMempool tmpblockmempool;
 typedef boost::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
 extern BlockMap mapBlockIndex;
 extern uint64_t nLastBlockTx;
@@ -553,7 +556,8 @@ public:
 class CValidationState
 {
 private:
-    enum mode_state {
+    enum mode_state
+    {
         MODE_VALID,   //! everything ok
         MODE_INVALID, //! network rule violation (DoS value may be set)
         MODE_ERROR,   //! run-time error
