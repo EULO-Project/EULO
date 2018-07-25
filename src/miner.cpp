@@ -617,7 +617,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
 
             //Stake miner main
             if (fProofOfStake) {
-                LogPrintf("CPUMiner : proof-of-stake block found %s \n", pblock->GetHash().ToString().c_str());
+                LogPrintf("CPU POS Miner : proof-of-stake block found %s \n", pblock->GetHash().ToString().c_str());
 
                 if (!pblock->SignBlock(*pwallet)) {
                     LogPrintf("BitcoinMiner(): Signing new block failed \n");
