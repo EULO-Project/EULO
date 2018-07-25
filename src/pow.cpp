@@ -26,7 +26,7 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
     uint256 PastDifficultyAverage;
     uint256 PastDifficultyAveragePrev;
 
-    if (pindexLast == NULL || pindexLast->nHeight == 0 || pindexLast->nHeight < PastBlocksMin || 
+    if (pindexLast == NULL || pindexLast->nHeight == 0 || pindexLast->nHeight < PastBlocksMin || pindexLast->nHeight == Params().LAST_POW_BLOCK() ||
         (pindexLast->nHeight + 1 >= Params().Zerocoin_StartHeight() && pindexLast->nHeight <= Params().Zerocoin_StartHeight() + PastBlocksMin)) {
         return Params().ProofOfWorkLimit().GetCompact();
     }
