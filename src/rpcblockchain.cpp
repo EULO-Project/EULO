@@ -730,6 +730,11 @@ UniValue BlockToString2(CBlockIndex* pBlock)
     info.push_back(Pair("generated",ValueToString2(Generated)));
     info.push_back(Pair("timestamp",TimeToString(block.nTime)));
     info.push_back(Pair("difficulty",strprintf("%.4f", GetDifficulty(pBlock))));
+    if(pBlock->nHeight>Params().LAST_POW_BLOCK())
+        info.push_back(Pair("difficulty2",strprintf("%.4f", GetDifficulty2(pBlock))));
+
+
+
     info.push_back(Pair("bits",utostr(block.nBits)));
     info.push_back(Pair("nonce",utostr(block.nNonce)));
     info.push_back(Pair("version",itostr(block.nVersion)));
