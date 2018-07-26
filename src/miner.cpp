@@ -452,9 +452,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         if (!fProofOfStake)
             UpdateTime(pblock, pindexPrev);
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
-        if (fProofOfStake)
-            pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
-        else
+        if (!fProofOfStake)
             pblock->nNonce = 0;
         uint256 nCheckpoint = 0;
         if(fZerocoinActive && !CalculateAccumulatorCheckpoint(nHeight, nCheckpoint)){
