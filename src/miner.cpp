@@ -574,9 +574,6 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                 }
 
                 while (vNodes.empty() || pwallet->IsLocked() || !fMintableCoins || (pwallet->GetBalance() > 0 && nReserveBalance >= pwallet->GetBalance()) || !masternodeSync.IsSynced()) {
-                    std::cout << "While " << vNodes.empty() << ", " << 
-                        pwallet->IsLocked() << ", " <<  !fMintableCoins << ", " << (nReserveBalance >= pwallet->GetBalance()) << ", " << 
-                        !masternodeSync.IsSynced() << std::endl;
                     nLastCoinStakeSearchInterval = 0;
                     // Do a separate 1 minute check here to ensure fMintableCoins is updated
                     if (!fMintableCoins) {
