@@ -14,7 +14,7 @@
 
 
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
-static const unsigned int MAX_BLOCK_SIZE_CURRENT = 2000000;
+static const unsigned int MAX_BLOCK_SIZE_CURRENT = 32000000;
 static const unsigned int MAX_BLOCK_SIZE_LEGACY = 1000000;
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
