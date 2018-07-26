@@ -17,6 +17,7 @@
 #include <set>
 
 extern double GetDifficulty(const CBlockIndex* blockindex = NULL);
+extern double GetDifficulty2(const CBlockIndex* blockindex = NULL);
 
 inline std::string utostr(unsigned int n)
 {
