@@ -1683,19 +1683,27 @@ UniValue tmpblockstatus(const UniValue& params, bool fHelp)
         size_obj.push_back(Pair("size", tmp_blocks_size));
         tmpblocks.push_back(size_obj);
 
+        std::map<uint256, std::pair<CTmpBlockParams,int64_t>>::iterator iter;
+
+                for(iter=tmpblockmempool.mapTmpBlock.begin(); iter!=tmpblockmempool.mapTmpBlock.end(); iter++)
+                 {
+                    UniValue onetmpblock(UniValue::VOBJ);
+
+                    CTmpBlockParams &tbp = iter.second.first;
+                    onetmpblock.push_back(Pair("time", (int64_t)(iter.second.second)));
+                    onetmpblock.push_back(Pair("ori_hash", tbp.ori_hash.GetHex()));
+                    onetmpblock.push_back(Pair("nNonce", (int64_t)(tbp.nNonce)));
+                    onetmpblock.push_back(Pair("coinBaseTxhash", (tbp.coinBaseTx.GetHash().GetHex())));
+                    onetmpblock.push_back(Pair("coinBaseTxout", (int64_t)(tbp.coinBaseTx.GetValueOut())));
+                    onetmpblock.push_back(Pair("blockheader_hash", tbp.blockheader_hash.GetHex()));
+
+                    tmpblocks.push_back(onetmpblock);
+
+                }
+
         for(uint i = 0;i<tmp_blocks_size;i++)
         {
-            UniValue onetmpblock(UniValue::VOBJ);
 
-            CTmpBlockParams &tbp = tmpblockmempool.mapTmpBlock[i].first;
-            onetmpblock.push_back(Pair("time", (int64_t)(tmpblockmempool.mapTmpBlock[i].second)));
-            onetmpblock.push_back(Pair("ori_hash", tbp.ori_hash.GetHex()));
-            onetmpblock.push_back(Pair("nNonce", (int64_t)(tbp.nNonce)));
-            onetmpblock.push_back(Pair("coinBaseTxhash", (tbp.coinBaseTx.GetHash().GetHex())));
-            onetmpblock.push_back(Pair("coinBaseTxout", (int64_t)(tbp.coinBaseTx.GetValueOut())));
-            onetmpblock.push_back(Pair("blockheader_hash", tbp.blockheader_hash.GetHex()));
-
-            tmpblocks.push_back(onetmpblock);
         }
 
     }
