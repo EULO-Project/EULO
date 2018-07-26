@@ -1689,8 +1689,8 @@ UniValue tmpblockstatus(const UniValue& params, bool fHelp)
                  {
                     UniValue onetmpblock(UniValue::VOBJ);
 
-                    CTmpBlockParams &tbp = iter.second.first;
-                    onetmpblock.push_back(Pair("time", (int64_t)(iter.second.second)));
+                    CTmpBlockParams &tbp = iter->second.first;
+                    onetmpblock.push_back(Pair("time", (int64_t)(iter->second.second)));
                     onetmpblock.push_back(Pair("ori_hash", tbp.ori_hash.GetHex()));
                     onetmpblock.push_back(Pair("nNonce", (int64_t)(tbp.nNonce)));
                     onetmpblock.push_back(Pair("coinBaseTxhash", (tbp.coinBaseTx.GetHash().GetHex())));
