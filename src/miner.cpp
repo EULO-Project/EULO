@@ -452,7 +452,10 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         if (!fProofOfStake)
             UpdateTime(pblock, pindexPrev);
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
-        pblock->nNonce = 0;
+        if (fProofOfStake)
+            pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
+        else
+            pblock->nNonce = 0;
         uint256 nCheckpoint = 0;
         if(fZerocoinActive && !CalculateAccumulatorCheckpoint(nHeight, nCheckpoint)){
             LogPrintf("%s: failed to get accumulator checkpoint\n", __func__);
