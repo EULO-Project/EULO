@@ -174,6 +174,7 @@ public:
     unsigned int nBits;
     unsigned int nNonce;
     uint256 nAccumulatorCheckpoint;
+    unsigned int nBits2;
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     uint32_t nSequenceId;
@@ -211,6 +212,7 @@ public:
         nBits = 0;
         nNonce = 0;
         nAccumulatorCheckpoint = 0;
+        nBits2 = 0;
         // Start supply of each denomination with 0s
         for (auto& denom : libzerocoin::zerocoinDenomList) {
             mapZerocoinSupply.insert(make_pair(denom, 0));
@@ -234,7 +236,8 @@ public:
         nNonce = block.nNonce;
         if(block.nVersion > 3)
             nAccumulatorCheckpoint = block.nAccumulatorCheckpoint;
-
+        nBits2 = block.nBits2;
+        
         //Proof of Stake
         bnChainTrust = uint256();
         nMint = 0;
@@ -286,6 +289,7 @@ public:
         block.nBits = nBits;
         block.nNonce = nNonce;
         block.nAccumulatorCheckpoint = nAccumulatorCheckpoint;
+        block.nBits2 = nBits2;
         return block;
     }
 
@@ -479,6 +483,8 @@ public:
         READWRITE(nNonce);
         if(this->nVersion > 3) {
             READWRITE(nAccumulatorCheckpoint);
+            if (IsProofOfStake())
+                READWRITE(nBits2);
             READWRITE(mapZerocoinSupply);
             READWRITE(vMintDenominationsInBlock);
         }
@@ -495,6 +501,7 @@ public:
         block.nBits = nBits;
         block.nNonce = nNonce;
         block.nAccumulatorCheckpoint = nAccumulatorCheckpoint;
+        block.nBits2 = nBits2;
         return block.GetHash();
     }
 

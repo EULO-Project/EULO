@@ -14,6 +14,16 @@
 #include "utilstrencodings.h"
 #include "util.h"
 
+uint256 CTmpBlockParams::GetHash() const
+{
+    std::string strNonceHash = HashCryptoNight(BEGIN(ori_hash), END(nNonce)).GetHex();
+    std::string strCoinBaseHash = coinBaseTx.GetHash().GetHex();
+
+    std::string strTmpBlockHash = strNonceHash + strCoinBaseHash;
+    
+    return  HashCryptoNight(strTmpBlockHash.begin(), strTmpBlockHash.end());
+}
+
 uint256 CBlockHeader::GetHash() const
 {
     if(nVersion < 4)

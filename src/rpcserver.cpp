@@ -93,7 +93,7 @@ static inline int64_t roundint64(double d)
 CAmount AmountFromValue(const UniValue& value)
 {
     double dAmount = value.get_real();
-    if (dAmount <= 0.0 || dAmount > 21000000.0)
+    if (dAmount <= 0.0 || dAmount > 21000000000.0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
     CAmount nAmount = roundint64(dAmount * COIN);
     if (!MoneyRange(nAmount))
@@ -281,6 +281,11 @@ static const CRPCCommand vRPCCommands[] =
         {"blockchain", "getblockcount", &getblockcount, true, false, false},
         {"blockchain", "getblock", &getblock, true, false, false},
         {"blockchain", "getblockhash", &getblockhash, true, false, false},
+        {"blockchain", "getblockhashexplorer", &getblockhashexplorer, true, false, false},
+        {"blockchain", "gettxexplorer", &gettxexplorer, true, false, false},
+        {"blockchain", "getaddressexplorer", &getaddressexplorer, true, false, false},
+        {"blockchain", "getblocksinfoexplorer", &getblocksinfoexplorer, true, false, false},
+        {"blockchain", "getqueryexplorer", &getqueryexplorer, true, false, false},
         {"blockchain", "getblockheader", &getblockheader, false, false, false},
         {"blockchain", "getchaintips", &getchaintips, true, false, false},
         {"blockchain", "getdifficulty", &getdifficulty, true, false, false},
@@ -290,6 +295,7 @@ static const CRPCCommand vRPCCommands[] =
         {"blockchain", "getrawmempool", &getrawmempool, true, false, false},
         {"blockchain", "gettxout", &gettxout, true, false, false},
         {"blockchain", "gettxoutsetinfo", &gettxoutsetinfo, true, false, false},
+        {"blockchain", "tmpblockstatus", &tmpblockstatus, true, true, false},
         {"blockchain", "invalidateblock", &invalidateblock, true, true, false},
         {"blockchain", "reconsiderblock", &reconsiderblock, true, true, false},
         {"blockchain", "verifychain", &verifychain, true, false, false},

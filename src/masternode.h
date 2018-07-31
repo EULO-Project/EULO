@@ -14,6 +14,7 @@
 #include "timedata.h"
 #include "util.h"
 
+#define MASTERNODE_COIN_AMOUNT 500000
 #define MASTERNODE_MIN_CONFIRMATIONS 15
 #define MASTERNODE_MIN_MNP_SECONDS (10 * 60)
 #define MASTERNODE_MIN_MNB_SECONDS (5 * 60)

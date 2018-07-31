@@ -27,6 +27,7 @@
 #include "sync.h"
 #include "tinyformat.h"
 #include "txmempool.h"
+#include "tmpblocksmempool.h"
 #include "uint256.h"
 #include "undo.h"
 
@@ -127,6 +128,7 @@ struct BlockHasher {
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CTxMemPool mempool;
+extern TmpBlocksMempool tmpblockmempool;
 typedef boost::unordered_map<uint256, CBlockIndex*, BlockHasher> BlockMap;
 extern BlockMap mapBlockIndex;
 extern uint64_t nLastBlockTx;
@@ -179,6 +181,10 @@ void SyncWithWallets(const CTransaction& tx, const CBlock* pblock = NULL);
 void RegisterNodeSignals(CNodeSignals& nodeSignals);
 /** Unregister a network node */
 void UnregisterNodeSignals(CNodeSignals& nodeSignals);
+
+bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce);
+
+bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader);
 
 /** 
  * Process an incoming block. This only returns after the best known valid
@@ -243,6 +249,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL, bool fAlreadyChecked = false);
 CAmount GetBlockValue(int nHeight);
+CAmount GetTmpBlockValue(int nHeight);
 
 /** Create a new block index entry for a given block hash */
 CBlockIndex* InsertBlockIndex(uint256 hash);
