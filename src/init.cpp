@@ -1702,7 +1702,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     }
 
     fEnableZeromint = GetBoolArg("-enablezeromint", true);
-    fEnableLz4Block = GetBoolArg("-enablelz4block", true);
+    fEnableLz4Block = GetBoolArg("-enablelz4block", false);
 
     nZeromintPercentage = GetArg("-zeromintpercentage", 10);
     if (nZeromintPercentage > 100) nZeromintPercentage = 100;

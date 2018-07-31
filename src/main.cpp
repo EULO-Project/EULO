@@ -5866,7 +5866,7 @@ void static ProcessGetData(CNode* pfrom)
                     CBlock block;
                     if (!ReadBlockFromDisk(block, (*mi).second))
                         assert(!"cannot load block from disk");
-                    if (inv.type == MSG_BLOCK)
+                    if (inv.type == MSG_BLOCK) {
                         if (fEnableLz4Block) {
                             CDataStream blockStream(SER_NETWORK, PROTOCOL_VERSION);
                             std::string blockString;
@@ -5886,6 +5886,7 @@ void static ProcessGetData(CNode* pfrom)
                         } else {
                             pfrom->PushMessage("block", block);
                         }
+                    }
                     else // MSG_FILTERED_BLOCK)
                     {
                         LOCK(pfrom->cs_filter);
