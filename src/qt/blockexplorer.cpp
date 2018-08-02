@@ -230,10 +230,9 @@ std::string BlockToString(CBlockIndex* pBlock)
 
     std::string BlockContent;
 
-    if(pBlock->nHeight<=Params().LAST_POW_BLOCK())
+    if(pBlock->nHeight <= Params().LAST_POW_BLOCK())
     {
         std::string BlockContentCells[] =
-
         {
             _("Height"), itostr(pBlock->nHeight),
             _("Size"), itostr(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)),
@@ -257,7 +256,6 @@ std::string BlockToString(CBlockIndex* pBlock)
     else
     {
         std::string BlockContentCells[] =
-
         {
             _("Height"), itostr(pBlock->nHeight),
             _("Size"), itostr(GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)),
@@ -279,9 +277,7 @@ std::string BlockToString(CBlockIndex* pBlock)
         BlockContent = makeHTMLTable(BlockContentCells, sizeof(BlockContentCells) / (2 * sizeof(std::string)), 2);
     }
 
-
-
-        std::string Content;
+    std::string Content;
     Content += "<h2><a class=\"nav\" href=";
     Content += itostr(pBlock->nHeight - 1);
     Content += ">◄&nbsp;</a>";

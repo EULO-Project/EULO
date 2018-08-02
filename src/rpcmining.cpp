@@ -469,40 +469,55 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         // TODO: Maybe recheck connections/IBD and (if something wrong) send an expires-immediately template to stop miners?
     }
 
-    // Update block
+    UniValue result(UniValue::VOBJ);
+
+    // Update block    
     static CBlockIndex* pindexPrev;
     static int64_t nStart;
     static CBlockTemplate* pblocktemplate;
-    if (pindexPrev != chainActive.Tip() ||
-        (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 5)) {
-        // Clear pindexPrev so future calls make a new block, despite any failures from here on
-        pindexPrev = NULL;
+    if (chainActive.Tip()->nHeight < Params().LAST_POW_BLOCK()) {
+        if (pindexPrev != chainActive.Tip() ||
+            (mempool.GetTransactionsUpdated() != nTransactionsUpdatedLast && GetTime() - nStart > 5)) {
+            // Clear pindexPrev so future calls make a new block, despite any failures from here on
+            pindexPrev = NULL;
 
-        // Store the chainActive.Tip() used before CreateNewBlock, to avoid races
-        nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
-        CBlockIndex* pindexPrevNew = chainActive.Tip();
-        nStart = GetTime();
+            // Store the chainActive.Tip() used before CreateNewBlock, to avoid races
+            nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
+            CBlockIndex* pindexPrevNew = chainActive.Tip();
+            nStart = GetTime();
 
-        // Create new block
-        if (pblocktemplate) {
-            delete pblocktemplate;
-            pblocktemplate = NULL;
+            // Create new block
+            if (pblocktemplate) {
+                delete pblocktemplate;
+                pblocktemplate = NULL;
+            }
+            CScript scriptDummy = CScript() << OP_TRUE;
+            pblocktemplate = CreateNewBlock(scriptDummy, pwalletMain, false);
+            if (!pblocktemplate)
+                throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
+
+            // Need to update only after we know CreateNewBlock succeeded
+            pindexPrev = pindexPrevNew;
         }
-        CScript scriptDummy = CScript() << OP_TRUE;
-        pblocktemplate = CreateNewBlock(scriptDummy, pwalletMain, false);
-        if (!pblocktemplate)
-            throw JSONRPCError(RPC_OUT_OF_MEMORY, "Out of memory");
-
-        // Need to update only after we know CreateNewBlock succeeded
-        pindexPrev = pindexPrevNew;
+    }
+    else if (chainActive.Tip()->nHeight >= Params().POW_Start_BLOCK_In_POS() - 1) {
+        if (pindexPrev != chainActive.Tip()) {
+            pindexPrev = chainActive.Tip();
+            pblocktemplate = CreateNewPowBlock(pindexPrev, pwalletMain);
+        }
+    } else {
+        return result;
     }
     CBlock* pblock = &pblocktemplate->block; // pointer for convenience
 
     // Update nTime
-    UpdateTime(pblock, pindexPrev);
+    if (pindexPrev->nHeight < Params().LAST_POW_BLOCK())
+        UpdateTime(pblock, pindexPrev);
     pblock->nNonce = 0;
 
-    UniValue aCaps(UniValue::VARR); aCaps.push_back("proposal");
+    UniValue aCaps(UniValue::VARR);
+
+    aCaps.push_back("proposal");
 
     UniValue transactions(UniValue::VARR);
     map<uint256, int64_t> setTxIndex;
@@ -537,7 +552,12 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     UniValue aux(UniValue::VOBJ);
     aux.push_back(Pair("flags", HexStr(COINBASE_FLAGS.begin(), COINBASE_FLAGS.end())));
 
-    uint256 hashTarget = uint256().SetCompact(pblock->nBits);
+    uint256 hashTarget;
+    if (pindexPrev->nHeight < Params().LAST_POW_BLOCK()) {
+        hashTarget = uint256().SetCompact(pblock->nBits);
+    } else {
+        hashTarget = uint256().SetCompact(pblock->nBits);
+    }
 
     static UniValue aMutable(UniValue::VARR);
     if (aMutable.empty()) {
@@ -548,7 +568,6 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
 
     UniValue aVotes(UniValue::VARR);
 
-    UniValue result(UniValue::VOBJ);
     result.push_back(Pair("capabilities", aCaps));
     result.push_back(Pair("version", pblock->nVersion));
     result.push_back(Pair("previousblockhash", pblock->hashPrevBlock.GetHex()));
@@ -565,7 +584,10 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     if (pblock->nVersion > 3)
         result.push_back(Pair("accumulator", pblock->nAccumulatorCheckpoint.GetHex()));
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
-    result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
+    if (pindexPrev->nHeight < Params().LAST_POW_BLOCK())
+        result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
+    else
+        result.push_back(Pair("bits", strprintf("%08x", pblock->nBits2)));
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight + 1)));
     result.push_back(Pair("votes", aVotes));
 
@@ -661,7 +683,7 @@ UniValue submitblock(const UniValue& params, bool fHelp)
                 return "inconclusive";
             state = sc.state;
         }
-    } else {
+    } else if (chainActive.Height() >= Params().POW_Start_BLOCK_In_POS() - 1) {
         CTmpBlockParams tmpBlockParams;
 
         CBlockIndex *pindexCurrent = chainActive.Tip();

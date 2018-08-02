@@ -733,8 +733,6 @@ UniValue BlockToString2(CBlockIndex* pBlock)
     if(pBlock->nHeight>Params().LAST_POW_BLOCK())
         info.push_back(Pair("difficulty2",strprintf("%.4f", GetDifficulty2(pBlock))));
 
-
-
     info.push_back(Pair("bits",utostr(block.nBits)));
     info.push_back(Pair("nonce",utostr(block.nNonce)));
     info.push_back(Pair("version",itostr(block.nVersion)));

@@ -118,7 +118,8 @@ public:
         nMaxMoneyOut = 21148191990 * COIN;
 
         /** Height or Time Based Activations **/
-        nLastPOWBlock = 139;
+        nLastPOWBlock = 239;
+        nPOWStartBlockInPOS = nLastPOWBlock + 1;
         nModifierUpdateBlock = 615800;
         nZerocoinStartHeight = 863787;
         nZerocoinStartTime = 1508214600; // October 17, 2017 4:30:00 AM
@@ -233,6 +234,7 @@ public:
         nTargetTimespan = 1 * 60; // EULO: 1 day
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
         nLastPOWBlock = 200;
+        nPOWStartBlockInPOS = 201;
         nMaturity = 15;
         nMasternodeCountDrift = 4;
         nModifierUpdateBlock = 51197; //approx Mon, 17 Apr 2017 04:00:00 GMT
