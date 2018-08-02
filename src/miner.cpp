@@ -471,6 +471,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             if (txNew.vout.size() > 1) {
                 pblock->payee = txNew.vout[1].scriptPubKey;
             }
+        } else {
+            //  fees to POS Miner.
+            pblock->vtx[1].vout[1].nValue += nFees;
         }
 
         nLastBlockTx = nBlockTx;

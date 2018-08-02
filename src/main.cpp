@@ -4904,13 +4904,16 @@ void CBlockIndex::BuildSkip()
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
-bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce)
+bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce, unsigned int& nCount)
 {
     uint256 blockParamHash;
     uint256 blockHeaderHash;
 
     LOCK(cs_main);
-    if (tmpblockmempool.mapTmpBlock.size() > 0) {
+    
+    nCount = tmpblockmempool.mapTmpBlock.size();
+    
+    if (nCount > 0) {
         std::map<uint256, std::pair<CTmpBlockParams,int64_t>>::const_iterator it = tmpblockmempool.mapTmpBlock.begin();
         blockParamHash = it->first;
         blockHeaderHash = it->second.first.blockheader_hash;

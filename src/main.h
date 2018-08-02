@@ -185,7 +185,7 @@ void RegisterNodeSignals(CNodeSignals& nodeSignals);
 /** Unregister a network node */
 void UnregisterNodeSignals(CNodeSignals& nodeSignals);
 
-bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce);
+bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce, unsigned int& nCount);
 
 bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader &blockHeader);
 
