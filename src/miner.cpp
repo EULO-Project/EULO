@@ -15,6 +15,7 @@
 #include "pow.h"
 #include "primitives/block.h"
 #include "primitives/transaction.h"
+#include "script/sign.h"
 #include "timedata.h"
 #include "util.h"
 #include "utilmoneystr.h"
@@ -187,6 +188,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
 
     // Create coinbase tx
     CMutableTransaction txNew;
+    CMutableTransaction txCoinStake;
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
     txNew.vout.resize(1);
@@ -204,7 +206,6 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         CBlockIndex* pindexPrev = chainActive.Tip();
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
         pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
-        CMutableTransaction txCoinStake;
         int64_t nSearchTime = pblock->nTime; // search to current time
         bool fStakeFound = false;
         if (nSearchTime >= nLastCoinStakeSearchTime) {
@@ -472,8 +473,26 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
                 pblock->payee = txNew.vout[1].scriptPubKey;
             }
         } else {
-            //  fees to POS Miner.
-            pblock->vtx[1].vout[1].nValue += nFees;
+            if (nFees > 0) {
+                bool  bUpdateCoinStake = true;
+
+                //  fees to POS Miner.
+                txCoinStake.vout[1].nValue += nFees;
+
+                // Sign
+                for (size_t nIn = 0; nIn < txCoinStake.vin.size(); nIn++) {
+                    const CWalletTx* pcoin = pwallet->GetWalletTx(txCoinStake.vin[nIn].prevout.hash);
+
+                    if (!SignSignature(*pwallet, *pcoin, txCoinStake, nIn)) {
+                        bUpdateCoinStake = false;
+                        LogPrintStr("CreateCoinStake : failed to re-sign coinstake");
+                    }
+                }
+
+                if (bUpdateCoinStake) {
+                    pblock->vtx[1] = CTransaction(txCoinStake);
+                }
+            }
         }
 
         nLastBlockTx = nBlockTx;
