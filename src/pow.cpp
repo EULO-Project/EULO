@@ -21,7 +21,7 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
     int64_t nActualTimespan = 0;
     int64_t LastBlockTime = 0;
     int64_t PastBlocksMin = 24;
-    int64_t PastBlocksMax = 240;
+    int64_t PastBlocksMax = 48;
     int64_t CountBlocks = 0;
     uint256 PastDifficultyAverage;
     uint256 PastDifficultyAveragePrev;
@@ -48,14 +48,13 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
         }
 
         if (BlockReading->nNonce) {
-            CountBlocks++;
-
             if (BlockReading->nHeight <= Params().LAST_POW_BLOCK()) {
                 PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (uint256().SetCompact(BlockReading->nBits))) / (CountBlocks + 1);
             } else {
                 PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (uint256().SetCompact(BlockReading->nBits2))) / (CountBlocks + 1);
             }
             PastDifficultyAveragePrev = PastDifficultyAverage;
+            CountBlocks++;
 
             nActualTimespan += (LastBlockTime - BlockReading->GetBlockTime());
             LastBlockTime = BlockReading->GetBlockTime();
