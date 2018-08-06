@@ -2181,7 +2181,9 @@ int64_t GetTmpBlockValue(int nHeight)
     nSubsidy = GetBlockValue(nHeight);
     if (nHeight <= Params().LAST_POW_BLOCK()) {
         nSubsidy = 0 * COIN;
-    } else if (nHeight <= 1295999 && nHeight > Params().LAST_POW_BLOCK()) {
+    } else if (nHeight <= Params().POW_Start_BLOCK_In_POS() - 2 && nHeight > Params().LAST_POW_BLOCK()) {
+        nSubsidy = 0 * COIN;
+    } else if (nHeight <= 1295999 && nHeight >= Params().POW_Start_BLOCK_In_POS() - 1) {
         nSubsidy *= 0.2;
     } else if (nHeight <= 3369599 && nHeight >= 1296000) {
         nSubsidy *= 0.3;
@@ -4898,13 +4900,16 @@ void CBlockIndex::BuildSkip()
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
-bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce)
+bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce, unsigned int& nCount)
 {
     uint256 blockParamHash;
     uint256 blockHeaderHash;
 
     LOCK(cs_main);
-    if (tmpblockmempool.mapTmpBlock.size() > 0) {
+    
+    nCount = tmpblockmempool.mapTmpBlock.size();
+    
+    if (nCount > 0) {
         std::map<uint256, std::pair<CTmpBlockParams,int64_t>>::const_iterator it = tmpblockmempool.mapTmpBlock.begin();
         blockParamHash = it->first;
         blockHeaderHash = it->second.first.blockheader_hash;
@@ -6652,7 +6657,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         if(tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) return true; //Check if it is in pool already
 
-        if(pindexCurrent->nHeight <= Params().LAST_POW_BLOCK()) return true; //Check if in POS phase
+        if(pindexCurrent->nHeight < Params().POW_Start_BLOCK_In_POS() - 1) return true; //Check if in POS phase
 
         if(*pindexCurrent->phashBlock != tmpBlockParams.ori_hash || 
             GetTmpBlockValue(pindexCurrent->nHeight) != tmpBlockParams.coinBaseTx.GetValueOut()) return true; //Check if matches the last block hash in activechain

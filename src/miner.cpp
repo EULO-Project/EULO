@@ -15,6 +15,7 @@
 #include "pow.h"
 #include "primitives/block.h"
 #include "primitives/transaction.h"
+#include "script/sign.h"
 #include "timedata.h"
 #include "util.h"
 #include "utilmoneystr.h"
@@ -90,13 +91,13 @@ void UpdateTime(CBlockHeader* pblock, const CBlockIndex* pindexPrev)
     // Updating time can change work required on testnet:
     if (Params().AllowMinDifficultyBlocks()) {
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
-        if (pindexPrev->nHeight >= Params().LAST_POW_BLOCK()) {
+        if (pindexPrev->nHeight >= Params().POW_Start_BLOCK_In_POS() - 1) {
             pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
         }
     }
 }
 
-CBlockTemplate* CreatePowBlock(CBlockIndex* pindexPrev, CWallet* pwallet)
+CBlockTemplate* CreateNewPowBlock(CBlockIndex* pindexPrev, CWallet* pwallet)
 {
     CPubKey pubkey;
     CReserveKey reservekey(pwallet);
@@ -118,11 +119,47 @@ CBlockTemplate* CreatePowBlock(CBlockIndex* pindexPrev, CWallet* pwallet)
 
     if (!pblock->IsProofOfStake())
         return NULL;
+
+    CAmount nTxFees = 0;
+
+    // Create coinbase tx
+    CMutableTransaction txNew;
+    txNew.vin.resize(1);
+    txNew.vin[0].prevout.SetNull();
+    txNew.vout.resize(1);
+    txNew.vout[0].scriptPubKey = scriptPubKey;
     
+    pblock->vtx[0] = txNew;
+
+    //  POW block coinbase don't contain masternode payment in POS phase.
+    pblock->payee.clear();
+
+    int nBlockSigOps = 100;
+
+    pblocktemplate->vTxFees.push_back(-1);
+//    pblocktemplate->vTxSigOps.push_back(-1);
+    {
+        LOCK2(cs_main, mempool.cs);
+
+        CCoinsViewCache view(pcoinsTip);
+
+        int index = 0;
+        for (const CTransaction tx : pblock->vtx) {
+            unsigned int nMaxBlockSigOps = MAX_BLOCK_SIGOPS_CURRENT;
+            unsigned int nTxSigOps = GetLegacySigOpCount(tx);
+            if (nBlockSigOps + nTxSigOps >= nMaxBlockSigOps)
+                continue;
+
+            nTxSigOps += GetP2SHSigOpCount(tx, view);
+            if (nBlockSigOps + nTxSigOps >= nMaxBlockSigOps)
+                continue;
+
+            pblocktemplate->vTxFees[index] = nTxFees;
+        }
+    }
 
     return pblocktemplate.release();
 }
-
 
 CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, bool fProofOfStake)
 {
@@ -150,6 +187,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
 
     // Create coinbase tx
     CMutableTransaction txNew;
+    CMutableTransaction txCoinStake;
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
     txNew.vout.resize(1);
@@ -167,7 +205,6 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         CBlockIndex* pindexPrev = chainActive.Tip();
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
         pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
-        CMutableTransaction txCoinStake;
         int64_t nSearchTime = pblock->nTime; // search to current time
         bool fStakeFound = false;
         if (nSearchTime >= nLastCoinStakeSearchTime) {
@@ -434,6 +471,27 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             if (txNew.vout.size() > 1) {
                 pblock->payee = txNew.vout[1].scriptPubKey;
             }
+        } else {
+            if (nFees > 0) {
+                bool  bUpdateCoinStake = true;
+
+                //  fees to POS Miner.
+                txCoinStake.vout[1].nValue += nFees;
+
+                // Sign
+                for (size_t nIn = 0; nIn < txCoinStake.vin.size(); nIn++) {
+                    const CWalletTx* pcoin = pwallet->GetWalletTx(txCoinStake.vin[nIn].prevout.hash);
+
+                    if (!SignSignature(*pwallet, *pcoin, txCoinStake, nIn)) {
+                        bUpdateCoinStake = false;
+                        LogPrintStr("CreateCoinStake : failed to re-sign coinstake");
+                    }
+                }
+
+                if (bUpdateCoinStake) {
+                    pblock->vtx[1] = CTransaction(txCoinStake);
+                }
+            }
         }
 
         nLastBlockTx = nBlockTx;
@@ -561,18 +619,18 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
 
 
     while (fGenerateBitcoins || fProofOfStake) {
-		if (chainActive.Height() < Params().LAST_POW_BLOCK() || fProofOfStake) {
-    	    if (fProofOfStake) {
-			    if ((GetTime() - nMintableLastCheck > 5 * 60)) // 5 minute check time
-		    	{
-		        	nMintableLastCheck = GetTime();
-			        fMintableCoins = pwallet->MintableCoins();
-			    }
+        if (chainActive.Height() < Params().LAST_POW_BLOCK() || fProofOfStake) {
+            if (fProofOfStake) {
+                if ((GetTime() - nMintableLastCheck > 5 * 60)) // 5 minute check time
+                {
+                    nMintableLastCheck = GetTime();
+                    fMintableCoins = pwallet->MintableCoins();
+                }
 
-	            if (chainActive.Tip()->nHeight < Params().LAST_POW_BLOCK()) {
-    	            MilliSleep(5000);
-        	        continue;
-            	}
+                if (chainActive.Tip()->nHeight < Params().LAST_POW_BLOCK()) {
+                    MilliSleep(5000);
+                    continue;
+                }
 
                 while (vNodes.empty() || pwallet->IsLocked() || !fMintableCoins || (pwallet->GetBalance() > 0 && nReserveBalance >= pwallet->GetBalance()) || !masternodeSync.IsSynced()) {
                     nLastCoinStakeSearchInterval = 0;
@@ -717,6 +775,12 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
             static int height = 0;
 
             CBlockIndex *pindexCurrent = chainActive.Tip();
+
+            //  In pos phase, pow miner wait the height.
+            if (pindexCurrent->nHeight < Params().POW_Start_BLOCK_In_POS() - 1) {
+                MilliSleep(5000);
+                continue;
+            }
 
             if (height != pindexCurrent->nHeight) {
                 if(ReadBlockFromDisk(block, pindexCurrent) && block.IsProofOfStake() && reservekey.GetReservedKey(pubkey)) {

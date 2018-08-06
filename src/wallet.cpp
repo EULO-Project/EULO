@@ -2654,6 +2654,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     // Calculate reward
     CAmount nReward;
     unsigned int nNonce;
+    unsigned int nCount;
     CTransaction coinBaseTx;
     const CBlockIndex* pIndex0 = chainActive.Tip();
     nReward = GetBlockValue(pIndex0->nHeight);
@@ -2661,7 +2662,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     {
         LOCK(cs_main);
     
-        GetBestTmpBlockParams(coinBaseTx, nNonce);
+        GetBestTmpBlockParams(coinBaseTx, nNonce, nCount);
     }
     
     if (coinBaseTx.vout.size() > 0)
@@ -2673,8 +2674,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     while (true) {
         // Set output amount
         if (txNew.vout.size() == 3) {
-            txNew.vout[1].nValue = ((nCredit - nMinFee) / 2 / CENT) * CENT;
-            txNew.vout[2].nValue = nCredit - nMinFee - txNew.vout[1].nValue;
+            txNew.vout[1].nValue = ((nCredit) / 2 / CENT) * CENT;
+            txNew.vout[2].nValue = nCredit - txNew.vout[1].nValue;
         } else
             txNew.vout[1].nValue = nCredit - nMinFee;
 
@@ -2708,6 +2709,24 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
             txNew.vout[voutsize + index].nValue = coinBaseTx.vout[index].nValue;
         }
         pblock->nNonce = nNonce;
+
+        bool fNegative;
+        bool fOverflow;
+        uint256 bnTarget;
+
+        int nTargetCount = 2;
+
+        //  Adjust POW difficulty with tmpblock count.
+        bnTarget.SetCompact(pblock->nBits2, &fNegative, &fOverflow);
+
+        bnTarget /= nCount;
+        bnTarget *= nTargetCount;
+
+        if (bnTarget > Params().ProofOfWorkLimit()) {
+            bnTarget = Params().ProofOfWorkLimit();
+        }
+        
+        pblock->nBits2 = bnTarget.GetCompact();
     }
 
     // Sign

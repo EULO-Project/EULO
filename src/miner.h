@@ -20,6 +20,7 @@ struct CBlockTemplate;
 /** Run the miner threads */
 void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads);
 /** Generate a new block, without valid proof-of-work */
+CBlockTemplate* CreateNewPowBlock(CBlockIndex* pindexPrev, CWallet* pwallet);
 CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, bool fProofOfStake);
 CBlockTemplate* CreateNewBlockWithKey(CReserveKey& reservekey, CWallet* pwallet, bool fProofOfStake);
 /** Modify the extranonce in a block */
