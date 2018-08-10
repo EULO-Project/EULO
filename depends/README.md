@@ -35,6 +35,14 @@ For macOS cross compilation:
 
     sudo apt-get install curl librsvg2-bin libtiff-tools bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python-setuptools
 
+For Win32/Win64 native msys2 compilation:
+
+    ./configure 
+
+    change BOOSTLIBDIR define to BOOSTLIBDIR=/mingw32/i686-w64-mingw32/lib or anywhere you put your libs
+    
+    change all "-fstack-protector-all" to "-fno-stack-protector"
+
 For Win32/Win64 cross compilation:
 
 - see [build-windows.md](../doc/build-windows.md#cross-compilation-for-ubuntu-and-windows-subsystem-for-linux)
