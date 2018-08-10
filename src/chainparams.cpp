@@ -104,7 +104,7 @@ public:
         pchMessageStart[3] = 0xe5;
         vAlertPubKey = ParseHex("0490e0480bf864eece4ddca8787bb1a74f823361e7e9e931e67385b6976600a98637e2f2eb32568035266789c44e0471443bbe27efd6673284e53d4f16272566f9");
         nDefaultPort = 58802;
-        bnProofOfWorkLimit = ~uint256(0) >> 20; // EULO starting difficulty is 1 / 2^12
+        bnProofOfWorkLimit = ~uint256(0) >> 20; // EULO starting difficulty is 1 / 2^20
         nSubsidyHalvingInterval = 210000;
         nMaxReorganizationDepth = 100;
         nEnforceBlockUpgradeMajority = 750;
@@ -120,11 +120,11 @@ public:
         /** Height or Time Based Activations **/
         nLastPOWBlock = 1439;
         nPOWStartBlockInPOS = 259200;
-        nModifierUpdateBlock = 615800;
-        nZerocoinStartHeight = 863787;
-        nZerocoinStartTime = 1508214600; // October 17, 2017 4:30:00 AM
+        nModifierUpdateBlock = 0;
+        nZerocoinStartHeight = 43200;
+        nZerocoinStartTime = 1533859200;    // August 10, 2018 08:00:00 AM
         nBlockEnforceSerialRange = 895400; //Enforce serial range starting this block
-        nBlockRecalculateAccumulators = 908000; //Trigger a recalculation of accumulators
+        nBlockRecalculateAccumulators = 86400; //Trigger a recalculation of accumulators
         nBlockFirstFraudulent = 891737; //First block that bad serials emerged
         nBlockLastGoodCheckpoint = 891730; //Last valid accumulator checkpoint
         nBlockEnforceInvalidUTXO = 902850; //Start enforcing the invalid UTXO's
@@ -139,30 +139,29 @@ public:
          *     CTxOut(nValue=50.00000000, scriptPubKey=0xA9037BAC7050C479B121CF)
          *   vMerkleTree: e0028e
          */
-        const char* pszTimestamp = "U.S. News & World Report Jan 28 2016 With His Absence, Trump Dominates Another Debate";
+        const char* pszTimestamp = "U.S. News & World Report Aug 10 2018 US migrants: Judge orders deportation plane turnaround";
         CMutableTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
-        txNew.vin[0].scriptSig = CScript() << 486604799 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
+        txNew.vin[0].scriptSig = CScript() << 503382015 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         txNew.vout[0].nValue = 250 * COIN;
         txNew.vout[0].scriptPubKey = CScript() << ParseHex("04c10e83b2703ccf322f7dbd62dd5855ac7c10bd055814ce121ba32607d573b8810c02c0582aed05b4deb9c4b77b26d92428c61256cd42774babea0a073b2ed0c9") << OP_CHECKSIG;
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime = 1454124731;
-        genesis.nBits = 0x1e0ffff0;
-        genesis.nNonce = 2402015;
+        genesis.nTime = 1533859200;
+        genesis.nBits = 0x1e00ffff;
+        genesis.nNonce = 1742924;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x0000041e482b9b9691d98eefb48473405c0b8ec31b76df3797c74a78680ef818"));
-        assert(genesis.hashMerkleRoot == uint256("0x1b2ef6e2f28be914103a277377ae7729dcd125dfeb8bf97bd5964ba72b6dc39b"));
+        assert(hashGenesisBlock == uint256("0x00000013ea705af4ed8b40a86250bc6d78b982c604eef80a908cec7f11abbdd1"));
+        assert(genesis.hashMerkleRoot == uint256("0x4df5d8d4db708df49c4f911a0946991d5a7628e2e93dfe22b76f9233a9492426"));
 
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo.seed.fuzzbawls.pw"));     // Primary DNS Seeder from Fuzzbawls
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo.seed2.fuzzbawls.pw"));    // Secondary DNS Seeder from Fuzzbawls
-        vSeeds.push_back(CDNSSeedData("coin-server.com", "coin-server.com"));         // Single node address
-        vSeeds.push_back(CDNSSeedData("s3v3nh4cks.ddns.net", "s3v3nh4cks.ddns.net")); // Single node address
-        vSeeds.push_back(CDNSSeedData("178.254.23.111", "178.254.23.111"));           // Single node address
+        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Single node address
+        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Single node address
+        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Single node address
+        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // Single node address
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 68);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 13);
@@ -172,7 +171,7 @@ public:
         // 	BIP44 coin type is from https://github.com/satoshilabs/slips/blob/master/slip-0044.md
         base58Prefixes[EXT_COIN_TYPE] = boost::assign::list_of(0x80)(0x00)(0x00)(0x77).convert_to_container<std::vector<unsigned char> >();
 
-//        convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
+        convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
 
         fMiningRequiresPeers = true;
         fAllowMinDifficultyBlocks = false;
@@ -233,13 +232,13 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 1 * 60; // EULO: 1 day
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
-        nLastPOWBlock = 200;
-        nPOWStartBlockInPOS = 201;
+        nLastPOWBlock = 1439;
+        nPOWStartBlockInPOS = 259200;
         nMaturity = 15;
         nMasternodeCountDrift = 4;
-        nModifierUpdateBlock = 51197; //approx Mon, 17 Apr 2017 04:00:00 GMT
-        nMaxMoneyOut = 235269500 * COIN;
-        nZerocoinStartHeight = 201576;
+        nModifierUpdateBlock = 0; //approx Mon, 17 Apr 2017 04:00:00 GMT
+        nMaxMoneyOut = 21148191990 * COIN;
+        nZerocoinStartHeight = 43200;
         nZerocoinStartTime = 1550037281;
         nBlockEnforceSerialRange = 1; //Enforce serial range starting this block
         nBlockRecalculateAccumulators = 9908000; //Trigger a recalculation of accumulators
@@ -248,20 +247,21 @@ public:
         nBlockEnforceInvalidUTXO = 9902850; //Start enforcing the invalid UTXO's
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nTime = 1521556903;
-        genesis.nNonce = 975;
+        genesis.nTime = 1533859200;
+        genesis.nNonce = 1742924;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x0000041e482b9b9691d98eefb48473405c0b8ec31b76df3797c74a78680ef818"));
+        assert(hashGenesisBlock == uint256("0x00000013ea705af4ed8b40a86250bc6d78b982c604eef80a908cec7f11abbdd1"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo-testnet.seed.fuzzbawls.pw"));
-        vSeeds.push_back(CDNSSeedData("fuzzbawls.pw", "eulo-testnet.seed2.fuzzbawls.pw"));
-        vSeeds.push_back(CDNSSeedData("s3v3nh4cks.ddns.net", "s3v3nh4cks.ddns.net"));
-        vSeeds.push_back(CDNSSeedData("88.198.192.110", "88.198.192.110"));
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 130); // Testnet eulo addresses start with 'x' or 'y'
+        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Single node address
+        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Single node address
+        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Single node address
+        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // Single node address
+
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 130); // Testnet ulo addresses start with 'u'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);  // Testnet eulo script addresses start with '8' or '9'
         base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 239);     // Testnet private keys start with '9' or 'c' (Bitcoin defaults)
         // Testnet eulo BIP32 pubkeys start with 'DRKV'
@@ -271,7 +271,7 @@ public:
         // Testnet eulo BIP44 coin type is '1' (All coin's testnet default)
         base58Prefixes[EXT_COIN_TYPE] = boost::assign::list_of(0x80)(0x00)(0x00)(0x01).convert_to_container<std::vector<unsigned char> >();
 
-//        convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
+        convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
 
         fMiningRequiresPeers = true;
         fAllowMinDifficultyBlocks = true;
@@ -317,13 +317,13 @@ public:
         nTargetTimespan = 24 * 60 * 60; // Eulo: 1 day
         nTargetSpacing = 1 * 60;        // Eulo: 1 minutes
         bnProofOfWorkLimit = ~uint256(0) >> 1;
-        genesis.nTime = 1521556903;
-        genesis.nBits = 0x200fffff;
-        genesis.nNonce = 37;
+        genesis.nTime = 1533859200;
+        genesis.nBits = 0x1f00ffff;
+        genesis.nNonce = 63193;
 
         hashGenesisBlock = genesis.GetHash();
         nDefaultPort = 58806;
-        assert(hashGenesisBlock == uint256("0x03a2c87ee628b378d002f9c77c3f452a8cbc9e0b7757a22ff0c7e476fed955c7"));
+        assert(hashGenesisBlock == uint256("0x000078a088b16a4d3b943f8f7fb18dbd4d612e32c03b7dc25f17d8399db07924"));
 
         vFixedSeeds.clear(); //! Testnet mode doesn't have any fixed seeds.
         vSeeds.clear();      //! Testnet mode doesn't have any DNS seeds.
