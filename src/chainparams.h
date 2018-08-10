@@ -111,12 +111,7 @@ public:
     int LAST_POW_BLOCK() const { return nLastPOWBlock; }
     int POW_Start_BLOCK_In_POS() const { return nPOWStartBlockInPOS; }
     int Zerocoin_StartHeight() const { return nZerocoinStartHeight; }
-    int Zerocoin_Block_EnforceSerialRange() const { return nBlockEnforceSerialRange; }
-    int Zerocoin_Block_RecalculateAccumulators() const { return nBlockRecalculateAccumulators; }
-    int Zerocoin_Block_FirstFraudulent() const { return nBlockFirstFraudulent; }
-    int Zerocoin_Block_LastGoodCheckpoint() const { return nBlockLastGoodCheckpoint; }
     int Zerocoin_StartTime() const { return nZerocoinStartTime; }
-    int Block_Enforce_Invalid() const { return nBlockEnforceInvalidUTXO; }
 
 protected:
     CChainParams() {}
@@ -169,12 +164,6 @@ protected:
     int64_t nBudget_Fee_Confirmations;
     int nZerocoinStartHeight;
     int nZerocoinStartTime;
-
-    int nBlockEnforceSerialRange;
-    int nBlockRecalculateAccumulators;
-    int nBlockFirstFraudulent;
-    int nBlockLastGoodCheckpoint;
-    int nBlockEnforceInvalidUTXO;
 };
 
 /**

@@ -2655,8 +2655,8 @@ bool CScriptCheck::operator()()
     return true;
 }
 
-CBitcoinAddress addressExp1("DQZzqnSR6PXxagep1byLiRg9ZurCZ5KieQ");
-CBitcoinAddress addressExp2("DTQYdnNqKuEHXyNeeYhPQGGGdqHbXYwjpj");
+CBitcoinAddress addressExp1("");
+CBitcoinAddress addressExp2("");
 
 map<COutPoint, COutPoint> mapInvalidOutPoints;
 map<CBigNum, CAmount> mapInvalidSerials;
@@ -2715,10 +2715,10 @@ void PopulateInvalidOutPointMap()
     nFilteredThroughBittrex = 0;
 
     //Calculate over the entire period between the first bad tx and the tip of the chain - or the point at which this becomes enforced
-    int nHeightLast = min(Params().Zerocoin_Block_RecalculateAccumulators() + 1, chainActive.Height());
+    int nHeightLast = min(0, chainActive.Height());
 
     map<COutPoint, int> mapValidMixed;
-    for (int i = Params().Zerocoin_Block_FirstFraudulent(); i < nHeightLast; i++) {
+    for (int i = 0; i < nHeightLast; i++) {
         CBlockIndex* pindex = chainActive[i];
         CBlock block;
         if (!ReadBlockFromDisk(block, pindex))
@@ -2795,14 +2795,14 @@ void PopulateInvalidOutPointMap()
             }
         }
 
-        if (pindex->nHeight > Params().Zerocoin_Block_RecalculateAccumulators())
+        if (pindex->nHeight > 0)
             fListPopulatedAfterLock = true;
     }
 }
 
 bool ValidOutPoint(const COutPoint out, int nHeight)
 {
-    bool isInvalid = nHeight >= Params().Block_Enforce_Invalid() && mapInvalidOutPoints.count(out);
+    bool isInvalid = mapInvalidOutPoints.count(out);
     return !isInvalid;
 }
 
@@ -3199,7 +3199,7 @@ bool RecalculateULOSupply(int nHeightStart)
         nSupplyPrev = pindex->nMoneySupply;
 
         // Add fraudulent funds to the supply and remove any recovered funds.
-        if (pindex->nHeight == Params().Zerocoin_Block_RecalculateAccumulators()) {
+        if (false) {
             PopulateInvalidOutPointMap();
             LogPrintf("%s : Original money supply=%s\n", __func__, FormatMoney(pindex->nMoneySupply));
 
@@ -3393,8 +3393,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                 // Make sure that the serial number is in valid range
                 if (!spend.HasValidSerial(Params().Zerocoin_Params())) {
                     string strError = strprintf("%s : txid=%s in block %d contains invalid serial %s\n", __func__, tx.GetHash().GetHex(), pindex->nHeight, spend.getCoinSerialNumber());
-                    if (pindex->nHeight >= Params().Zerocoin_Block_EnforceSerialRange())
-                        return state.DoS(100, error(strError.c_str()));
                     strError = "NOT ENFORCING : " + strError;
                     LogPrintf(strError.c_str());
                 }
@@ -3459,15 +3457,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     std::list<CZerocoinMint> listMints;
-    bool fFilterInvalid = pindex->nHeight >= Params().Zerocoin_Block_RecalculateAccumulators();
+    bool fFilterInvalid = false;
     BlockToZerocoinMintList(block, listMints, fFilterInvalid);
     std::list<libzerocoin::CoinDenomination> listSpends = ZerocoinSpendListFromBlock(block, fFilterInvalid);
-
-    if (pindex->nHeight == Params().Zerocoin_Block_RecalculateAccumulators() + 1) {
-        RecalculateZULOMinted();
-        RecalculateZULOSpent();
-        RecalculateULOSupply(Params().Zerocoin_StartHeight());
-    }
 
     // Initialize zerocoin supply to the supply from previous block
     if (pindex->pprev && pindex->pprev->GetBlockHeader().nVersion > 3) {
@@ -3532,32 +3524,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     if (!fVerifyingBlocks && pindex->nHeight >= Params().Zerocoin_StartHeight() && pindex->nHeight % 10 == 0) {
         uint256 nCheckpointCalculated = 0;
 
-        // if IDB, invalid outpoints must be calculated or else acc checkpoint will be incorrect
-        if (pindex->nHeight == Params().Zerocoin_Block_RecalculateAccumulators())
-            PopulateInvalidOutPointMap();
-
         if (!CalculateAccumulatorCheckpoint(pindex->nHeight, nCheckpointCalculated)) {
-            //Calculate list of checkpoints that may be missing due to deletion on block 809000, and rewinding back before 809000
-            int nStop = Params().Zerocoin_Block_RecalculateAccumulators() + 20;
-            if (pindex->nHeight < nStop && pindex->nHeight > Params().Zerocoin_Block_LastGoodCheckpoint()) {
-                LogPrintf("%s : Checkpoint not found for block %d, recalculating accumulators\n", __func__, pindex->nHeight);
-                CBlockIndex* pindexCheckpoint = chainActive[Params().Zerocoin_Block_LastGoodCheckpoint()];
-                list<uint256> listCheckpoints;
-                while (pindexCheckpoint->nHeight <= nStop) {
-                    if (!count(listCheckpoints.begin(), listCheckpoints.end(), pindexCheckpoint->nAccumulatorCheckpoint))
-                        listCheckpoints.emplace_back(pindexCheckpoint->nAccumulatorCheckpoint);
-
-                    pindexCheckpoint = chainActive.Next(pindexCheckpoint);
-                    if (!pindexCheckpoint)
-                        break;
-                }
-
-                string strError;
-                if (!ReindexAccumulators(listCheckpoints, strError) || !CalculateAccumulatorCheckpoint(pindex->nHeight, nCheckpointCalculated))
-                    return state.DoS(100, error("ConnectBlock() : failed to recalculate accumulator checkpoint"));
-            } else {
-                return state.DoS(100, error("ConnectBlock() : failed to calculate accumulator checkpoint"));
-            }
+            return state.DoS(100, error("ConnectBlock() : failed to calculate accumulator checkpoint"));
         }
 
         if (nCheckpointCalculated != block.nAccumulatorCheckpoint) {
@@ -3615,10 +3583,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTime4 = GetTimeMicros();
     nTimeCallbacks += nTime4 - nTime3;
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime4 - nTime3), nTimeCallbacks * 0.000001);
-
-    //Continue tracking possible movement of fraudulent funds until they are completely frozen
-    if (pindex->nHeight >= Params().Zerocoin_Block_FirstFraudulent() && pindex->nHeight <= Params().Zerocoin_Block_RecalculateAccumulators() + 1)
-        AddInvalidSpendsToMap(block);
 
     return true;
 }
@@ -4549,7 +4513,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
     bool fZerocoinActive = (block.GetBlockTime() > Params().Zerocoin_StartTime()) && (chainActive.Height() + 1 >= Params().Zerocoin_StartHeight());
     vector<CBigNum> vBlockSerials;
     for (const CTransaction& tx : block.vtx) {
-        if (!CheckTransaction(tx, fZerocoinActive, chainActive.Height() + 1 >= Params().Zerocoin_Block_EnforceSerialRange(), state))
+        if (!CheckTransaction(tx, fZerocoinActive, false, state))
             return error("CheckBlock() : CheckTransaction failed");
 
         // double check that there are no double spent zUlo spends in this block
