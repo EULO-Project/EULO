@@ -2707,7 +2707,7 @@ void AddInvalidSpendsToMap(const CBlock& block)
 
 // Populate global map (mapInvalidOutPoints) of invalid/fraudulent OutPoints that are banned from being used on the chain.
 CAmount nFilteredThroughBittrex = 0;
-bool fListPopulatedAfterLock = false;
+bool fListPopulatedAfterLock = true;
 void PopulateInvalidOutPointMap()
 {
     if (fListPopulatedAfterLock)
