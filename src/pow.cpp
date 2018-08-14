@@ -56,7 +56,11 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
             PastDifficultyAveragePrev = PastDifficultyAverage;
             CountBlocks++;
 
-            nActualTimespan += (LastBlockTime - BlockReading->GetBlockTime());
+            int64_t nActualSpacing = (LastBlockTime - BlockReading->GetBlockTime());
+            if (nActualSpacing < 0)
+                nActualSpacing = 1;
+
+            nActualTimespan += nActualSpacing;
             LastBlockTime = BlockReading->GetBlockTime();
         }
 
