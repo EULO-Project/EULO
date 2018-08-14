@@ -823,6 +823,9 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                                 CBlockHeader blockHeader = block.GetBlockHeader();
 
                                 ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
+
+                                // Remove key from key pool
+                                reservekey.KeepKey();
                             }
                             block.nNonce += 1;
                             nHashesDone += 1;
