@@ -94,6 +94,11 @@ AC_ARG_ENABLE([wallet],
   [enable_wallet=$enableval],
   [enable_wallet=yes])
 
+AC_ARG_ENABLE(pow-in-pos,
+    AS_HELP_STRING([--enable-tests],[compile pow in pos phase (default is yes)]),
+    [use_pow_in_pos=$enableval],
+    [use_pow_in_pos=yes])
+
 AC_ARG_WITH([miniupnpc],
   [AS_HELP_STRING([--with-miniupnpc],
   [enable UPNP (default is yes if libminiupnpc is found)])],
@@ -196,6 +201,10 @@ if test "x$CXXFLAGS_overridden" = "xno"; then
   CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter"
 fi
 CPPFLAGS="$CPPFLAGS -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS"
+
+if test x$use_pow_in_pos != xno; then
+    CPPFLAGS += " -DPOW_IN_POS_PHASE "
+fi
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],

@@ -782,6 +782,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                 continue;
             }
 
+#ifdef      POW_IN_POS_PHASE
             if (height != pindexCurrent->nHeight) {
                 if(ReadBlockFromDisk(block, pindexCurrent) && block.IsProofOfStake() && reservekey.GetReservedKey(pubkey)) {
                     height = pindexCurrent->nHeight;
@@ -873,8 +874,11 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                     MilliSleep(1000);
                 }
             } else {
+#endif
                 MilliSleep(5000);
+#ifdef      POW_IN_POS_PHASE
             }
+#endif
         }
     }
 }

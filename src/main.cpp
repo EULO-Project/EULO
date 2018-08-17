@@ -6609,7 +6609,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
     else if(strCommand == "tmpblock" && !fImporting && !fReindex )//Similar pre-conditions to branch block
     {
-        LOCK(cs_main); //Is this Lock appropriate?
+#ifdef  POW_IN_POS_PHASE
+        LOCK(cs_main);
 
         CBlock block;
         CBlockIndex *pindexCurrent;
@@ -6638,6 +6639,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         blockHeader.nBits = blockHeader.nBits2; //Replace nBits with nBits2 in POS pahse for Gethash checking.
 
         ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
+#endif
     }
 
     else if (strCommand == "block" && !fImporting && !fReindex) // Ignore blocks received while importing
