@@ -95,7 +95,7 @@ AC_ARG_ENABLE([wallet],
   [enable_wallet=yes])
 
 AC_ARG_ENABLE(pow-in-pos,
-    AS_HELP_STRING([--enable-tests],[compile pow in pos phase (default is yes)]),
+    AS_HELP_STRING([--enable-pow-in-pos],[compile pow in pos phase (default is yes)]),
     [use_pow_in_pos=$enableval],
     [use_pow_in_pos=yes])
 
