@@ -6,6 +6,8 @@
 
 #include "primitives/block.h"
 
+#ifdef  POW_IN_POS_PHASE
+
 class TmpBlocksMempool
 {
 public:
@@ -22,5 +24,7 @@ private:
 
 
 };
+
+#endif  //  POW_IN_POS_PHASE
 
 #endif // TMPBLOCKSMEMPOOL_H

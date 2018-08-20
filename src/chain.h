@@ -174,7 +174,9 @@ public:
     unsigned int nBits;
     unsigned int nNonce;
     uint256 nAccumulatorCheckpoint;
+#ifdef  POW_IN_POS_PHASE
     unsigned int nBits2;
+#endif
 
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     uint32_t nSequenceId;
@@ -212,7 +214,9 @@ public:
         nBits = 0;
         nNonce = 0;
         nAccumulatorCheckpoint = 0;
+#ifdef  POW_IN_POS_PHASE
         nBits2 = 0;
+#endif
         // Start supply of each denomination with 0s
         for (auto& denom : libzerocoin::zerocoinDenomList) {
             mapZerocoinSupply.insert(make_pair(denom, 0));
@@ -236,8 +240,9 @@ public:
         nNonce = block.nNonce;
         if(block.nVersion > 3)
             nAccumulatorCheckpoint = block.nAccumulatorCheckpoint;
+#ifdef  POW_IN_POS_PHASE
         nBits2 = block.nBits2;
-        
+#endif
         //Proof of Stake
         bnChainTrust = uint256();
         nMint = 0;
@@ -289,7 +294,9 @@ public:
         block.nBits = nBits;
         block.nNonce = nNonce;
         block.nAccumulatorCheckpoint = nAccumulatorCheckpoint;
+#ifdef  POW_IN_POS_PHASE
         block.nBits2 = nBits2;
+#endif
         return block;
     }
 
@@ -483,8 +490,10 @@ public:
         READWRITE(nNonce);
         if(this->nVersion > 3) {
             READWRITE(nAccumulatorCheckpoint);
+#ifdef  POW_IN_POS_PHASE
             if (IsProofOfStake())
                 READWRITE(nBits2);
+#endif
             READWRITE(mapZerocoinSupply);
             READWRITE(vMintDenominationsInBlock);
         }
@@ -501,7 +510,9 @@ public:
         block.nBits = nBits;
         block.nNonce = nNonce;
         block.nAccumulatorCheckpoint = nAccumulatorCheckpoint;
+#ifdef  POW_IN_POS_PHASE
         block.nBits2 = nBits2;
+#endif
         return block.GetHash();
     }
 

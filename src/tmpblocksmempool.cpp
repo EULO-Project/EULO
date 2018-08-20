@@ -1,6 +1,8 @@
 #include "tmpblocksmempool.h"
 #include "main.h"
 
+#ifdef  POW_IN_POS_PHASE
+
 TmpBlocksMempool::TmpBlocksMempool()
 {
 
@@ -13,4 +15,4 @@ bool TmpBlocksMempool::HaveTmpBlock(const uint256& hash) const
     return (it != mapTmpBlock.end());
 }
 
-
+#endif

@@ -501,10 +501,14 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         }
     }
     else if (chainActive.Tip()->nHeight >= Params().POW_Start_BLOCK_In_POS() - 1) {
+#ifdef  POW_IN_POS_PHASE
         if (pindexPrev != chainActive.Tip()) {
             pindexPrev = chainActive.Tip();
             pblocktemplate = CreateNewPowBlock(pindexPrev, pwalletMain);
         }
+#else
+        return result;
+#endif
     } else {
         return result;
     }
@@ -586,8 +590,10 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     if (pindexPrev->nHeight < Params().LAST_POW_BLOCK())
         result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
+#ifdef  POW_IN_POS_PHASE
     else
         result.push_back(Pair("bits", strprintf("%08x", pblock->nBits2)));
+#endif
     result.push_back(Pair("height", (int64_t)(pindexPrev->nHeight + 1)));
     result.push_back(Pair("votes", aVotes));
 
@@ -684,6 +690,7 @@ UniValue submitblock(const UniValue& params, bool fHelp)
             state = sc.state;
         }
     } else if (chainActive.Height() >= Params().POW_Start_BLOCK_In_POS() - 1) {
+#ifdef  POW_IN_POS_PHASE
         CTmpBlockParams tmpBlockParams;
 
         CBlockIndex *pindexCurrent = chainActive.Tip();
@@ -700,6 +707,7 @@ UniValue submitblock(const UniValue& params, bool fHelp)
 
             ProcessNewTmpBlockParam(tmpBlockParams, blockHeader);
         }
+#endif
     }
 
     return BIP22ValidationResult(state);

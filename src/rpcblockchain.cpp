@@ -52,6 +52,7 @@ double GetDifficulty(const CBlockIndex* blockindex)
     return dDiff;
 }
 
+#ifdef  POW_IN_POS_PHASE
 
 double GetDifficulty2(const CBlockIndex* blockindex)
 {
@@ -81,6 +82,7 @@ double GetDifficulty2(const CBlockIndex* blockindex)
     return dDiff;
 }
 
+#endif
 
 UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool txDetails = false)
 {
@@ -718,9 +720,10 @@ UniValue BlockToString2(CBlockIndex* pBlock)
     info.push_back(Pair("generated",ValueToString2(Generated)));
     info.push_back(Pair("timestamp",TimeToString(block.nTime)));
     info.push_back(Pair("difficulty",strprintf("%.4f", GetDifficulty(pBlock))));
+#ifdef  POW_IN_POS_PHASE
     if(pBlock->nHeight>Params().LAST_POW_BLOCK())
         info.push_back(Pair("difficulty2",strprintf("%.4f", GetDifficulty2(pBlock))));
-
+#endif
     info.push_back(Pair("bits",utostr(block.nBits)));
     info.push_back(Pair("nonce",utostr(block.nNonce)));
     info.push_back(Pair("version",itostr(block.nVersion)));
@@ -1633,6 +1636,8 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
+#ifdef  POW_IN_POS_PHASE
+
 UniValue tmpblockstatus(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
@@ -1675,6 +1680,8 @@ UniValue tmpblockstatus(const UniValue& params, bool fHelp)
 
     return tmpblocks;
 }
+
+#endif
 
 UniValue invalidateblock(const UniValue& params, bool fHelp)
 {

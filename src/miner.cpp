@@ -91,9 +91,11 @@ void UpdateTime(CBlockHeader* pblock, const CBlockIndex* pindexPrev)
     // Updating time can change work required on testnet:
     if (Params().AllowMinDifficultyBlocks()) {
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
+#ifdef  POW_IN_POS_PHASE
         if (pindexPrev->nHeight >= Params().POW_Start_BLOCK_In_POS() - 1) {
             pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
         }
+#endif
     }
 }
 
@@ -204,7 +206,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         pblock->nTime = GetAdjustedTime();
         CBlockIndex* pindexPrev = chainActive.Tip();
         pblock->nBits = GetNextWorkRequired(pindexPrev, pblock);
+#ifdef  POW_IN_POS_PHASE
         pblock->nBits2 = GetNextPowWorkRequired(pindexPrev, pblock);
+#endif
         int64_t nSearchTime = pblock->nTime; // search to current time
         bool fStakeFound = false;
         if (nSearchTime >= nLastCoinStakeSearchTime) {

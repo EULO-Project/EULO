@@ -24,6 +24,7 @@ static const unsigned int MAX_BLOCK_SIZE_LEGACY = 1000000;
  * of the block.
  */
 
+#ifdef  POW_IN_POS_PHASE
 class CTmpBlockParams
 {
 public:
@@ -56,6 +57,7 @@ public:
         nNonce = 0;
     }
 };
+#endif
 
 class CBlockHeader
 {
@@ -69,7 +71,9 @@ public:
     uint32_t nBits;
     uint32_t nNonce;
     uint256 nAccumulatorCheckpoint;
+#ifdef  POW_IN_POS_PHASE
     uint32_t nBits2;  //For POW in POS phase
+#endif
 
     CBlockHeader()
     {
@@ -92,8 +96,10 @@ public:
         if(nVersion > 3)
             READWRITE(nAccumulatorCheckpoint);
 
+#ifdef  POW_IN_POS_PHASE
         if(nVersion > 2)
             READWRITE(nBits2);
+#endif
     }
 
     void SetNull()
@@ -105,7 +111,9 @@ public:
         nBits = 0;
         nNonce = 0;
         nAccumulatorCheckpoint = 0;
+#ifdef  POW_IN_POS_PHASE
         nBits2 = 0;
+#endif
     }
 
     bool IsNull() const
@@ -113,10 +121,12 @@ public:
         return (nBits == 0);
     }
 
+#ifdef  POW_IN_POS_PHASE
     bool IsNull2() const
     {
         return (nBits2 == 0);
     }
+#endif
 
     uint256 GetHash() const;
 
@@ -180,8 +190,9 @@ public:
         block.nBits          = nBits;
         block.nNonce         = nNonce;
         block.nAccumulatorCheckpoint = nAccumulatorCheckpoint;
+#ifdef  POW_IN_POS_PHASE
         block.nBits2        = nBits2;
-
+#endif
         return block;
     }
 

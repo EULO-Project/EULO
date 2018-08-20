@@ -14,6 +14,8 @@
 #include "utilstrencodings.h"
 #include "util.h"
 
+#ifdef  POW_IN_POS_PHASE
+
 uint256 CTmpBlockParams::GetHash() const
 {
     std::string strNonceHash = HashCryptoNight(BEGIN(ori_hash), END(nNonce)).GetHex();
@@ -23,6 +25,8 @@ uint256 CTmpBlockParams::GetHash() const
     
     return  HashCryptoNight(strTmpBlockHash.begin(), strTmpBlockHash.end());
 }
+
+#endif
 
 uint256 CBlockHeader::GetHash() const
 {

@@ -15,6 +15,8 @@
 
 #include <math.h>
 
+#ifdef  POW_IN_POS_PHASE
+
 unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
 {
     const CBlockIndex* BlockReading = pindexLast;
@@ -90,6 +92,8 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
 
     return bnNew.GetCompact();
 }
+
+#endif  //  POW_IN_POS_PHASE
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock)
 {

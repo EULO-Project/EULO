@@ -2659,11 +2659,13 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     const CBlockIndex* pIndex0 = chainActive.Tip();
     nReward = GetBlockValue(pIndex0->nHeight);
 
+#ifdef  POW_IN_POS_PHASE
     {
         LOCK(cs_main);
     
         GetBestTmpBlockParams(coinBaseTx, nNonce, nCount);
     }
+#endif
     
     if (coinBaseTx.vout.size() > 0)
         nReward -= coinBaseTx.GetValueOut();
@@ -2700,6 +2702,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     //Masternode payment
     FillBlockPayee(txNew, nReward, nMinFee, true);
     
+#ifdef  POW_IN_POS_PHASE
     //  Pow reward in Pos.
     if (coinBaseTx.vout.size() > 0) {
         unsigned int voutsize = txNew.vout.size();
@@ -2728,6 +2731,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
         
         pblock->nBits2 = bnTarget.GetCompact();
     }
+#endif
 
     // Sign
     int nIn = 0;

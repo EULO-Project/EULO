@@ -264,7 +264,9 @@ std::string BlockToString(CBlockIndex* pBlock)
             _("Generated"), ValueToString(Generated),
             _("Timestamp"), TimeToString(block.nTime),
             _("Difficulty"), strprintf("%.4f", GetDifficulty(pBlock)),
+#ifdef  POW_IN_POS_PHASE
             _("Difficulty2"), strprintf("%.4f", GetDifficulty2(pBlock)),
+#endif
             _("Bits"), utostr(block.nBits),
             _("Nonce"), utostr(block.nNonce),
             _("Version"), itostr(block.nVersion),

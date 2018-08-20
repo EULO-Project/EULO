@@ -91,7 +91,12 @@ int64_t nReserveBalance = 0;
 CFeeRate minRelayTxFee = CFeeRate(10000);
 
 CTxMemPool mempool(::minRelayTxFee);
+
+#ifdef  POW_IN_POS_PHASE
+
 TmpBlocksMempool  tmpblockmempool;
+
+#endif
 
 struct COrphanTx {
     CTransaction tx;
@@ -4864,6 +4869,8 @@ void CBlockIndex::BuildSkip()
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
+#ifdef  POW_IN_POS_PHASE
+
 bool GetBestTmpBlockParams(CTransaction& coinBaseTx, unsigned int& nNonce, unsigned int& nCount)
 {
     uint256 blockParamHash;
@@ -4909,6 +4916,8 @@ bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader
 
     return true;
 }
+
+#endif
 
 bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, CDiskBlockPos* dbp)
 {
@@ -4992,10 +5001,12 @@ bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, CDis
             pwalletMain->AutoCombineDust();
     }
 
+#ifdef  POW_IN_POS_PHASE
     {    
         LOCK(cs_main);
         tmpblockmempool.mapTmpBlock.clear();
     }
+#endif
 
     LogPrintf("%s : ACCEPTED in %ld milliseconds with size=%d\n", __func__, GetTimeMillis() - nStartTime,
               pblock->GetSerializeSize(SER_DISK, CLIENT_VERSION));
