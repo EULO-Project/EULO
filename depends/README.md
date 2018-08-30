@@ -45,7 +45,69 @@ For Win32/Win64 native msys2 compilation:
 
 For Win32/Win64 cross compilation:
 
-- see [build-windows.md](../doc/build-windows.md#cross-compilation-for-ubuntu-and-windows-subsystem-for-linux)
+	sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git
+
+The first step is to install the mingw-w64 cross-compilation tool chain. 
+Due to different Ubuntu packages for each distribution and problems with the Xenial packages the steps for each are different.
+
+Common steps to install mingw32 cross compiler tool chain:
+
+	sudo apt install g++-mingw-w64-x86-64
+
+Ubuntu Trusty 14.04:
+
+	No further steps required
+
+Ubuntu Xenial 16.04 and Windows Subsystem for Linux 1,2:
+
+	sudo apt install software-properties-common
+	sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu zesty universe"
+	sudo apt update
+	sudo apt upgrade
+	sudo update-alternatives --config x86_64-w64-mingw32-g++ # Set the default mingw32 g++ compiler option to posix.
+
+Ubuntu Zesty 17.04 2:
+
+	sudo update-alternatives --config x86_64-w64-mingw32-g++ # Set the default mingw32 g++ compiler option to posix.
+
+checkout sourece code:
+
+	git clone https://github.com/bitcoin/bitcoin.git
+
+build steps:
+
+	PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
+	cd depends
+	make HOST=x86_64-w64-mingw32 #参见https://github.com/bitcoin/bitcoin/blob/master/depends/README.md
+	cd ..
+	./autogen.sh # not required when building from tarball
+	CONFIG_SITE=$PWD/depends/x86_64-w64-mingw32/share/config.site ./configure --prefix=/
+	make
+
+
+To build executables for Windows 32-bit, install the following dependencies:
+
+	sudo apt install g++-mingw-w64-i686 mingw-w64-i686-dev
+
+For Ubuntu Xenial 16.04, Ubuntu Zesty 17.04 and Windows Subsystem for Linux 2:
+
+	sudo update-alternatives --config i686-w64-mingw32-g++  # Set the default mingw32 g++ compiler option to posix.
+
+checkout:
+
+	git clone https://github.com/bitcoin/bitcoin.git
+
+build steps:
+
+	PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
+	cd depends
+
+	make HOST=i686-w64-mingw32
+	cd ..
+	./autogen.sh # not required when building from tarball
+	CONFIG_SITE=$PWD/depends/i686-w64-mingw32/share/config.site ./configure --prefix=/
+	make
+
 
 For linux (including i386, ARM) cross compilation:
 
