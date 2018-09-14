@@ -106,7 +106,7 @@ UniValue getinfo(const UniValue& params, bool fHelp)
     obj.push_back(Pair("proxy", (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : string())));
     obj.push_back(Pair("difficulty", (double)GetDifficulty()));
 #ifdef  POW_IN_POS_PHASE
-    if (chainActive.Height() > Params().LAST_POW_BLOCK())
+    if (chainActive.Height() >= Params().POW_Start_BLOCK_In_POS())
         obj.push_back(Pair("difficulty2", (double)GetDifficulty2()));
 #endif
 
