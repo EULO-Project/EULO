@@ -1180,7 +1180,7 @@
               <widget class="QLabel" name="labelzULOPercent">
                <property name="toolTip">
                 <string>Current percentage of zULO.
-If AutoMint is enabled this percentage will settle around the configured AutoMint percentage (default = 10%)</string>
+If AutoMint is enabled this percentage will settle around the configured AutoMint percentage (default = 1%)</string>
                </property>
                <property name="text">
                 <string>0 %</string>

@@ -1819,8 +1819,8 @@ https://www.transifex.com/eulo-project/eulo-project-translations</translation>
         <translation>&amp;UPnp를 사용하여 포트 매핑</translation>
     </message>
     <message>
-        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 10%)</source>
-        <translation>ULO수신시 자동변환 zULO 퍼센트 (최소값:10%)</translation>
+        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 1%)</source>
+        <translation>ULO수신시 자동변환 zULO 퍼센트 (최소값:1%)</translation>
     </message>
     <message>
         <source>Percentage of autominted zULO</source>
@@ -5339,8 +5339,8 @@ rpcpassword=%s
         <translation>JSON-RPC 연결 비밀번호</translation>
     </message>
     <message>
-        <source>Percentage of automatically minted Zerocoin  (10-100, default: %u)</source>
-        <translation>자동 생성 제로코인 퍼센트 (10-100, 기본값: %u)</translation>
+        <source>Percentage of automatically minted Zerocoin  (1-100, default: %u)</source>
+        <translation>자동 생성 제로코인 퍼센트 (1-100, 기본값: %u)</translation>
     </message>
     <message>
         <source>Preparing for resync...</source>

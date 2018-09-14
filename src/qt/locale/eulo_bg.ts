@@ -1723,8 +1723,8 @@ https://www.transifex.com/eulo-project/eulo-project-translations</source>
 https://www.transifex.com/eulo-project/eulo-project-translations</translation>
     </message>
     <message>
-        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 10%)</source>
-        <translation>Процент от входящите ULO, който автоматично да се конвертира в zULO посредтвом Zerocoin Протокола (мин: 10%)</translation>
+        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 1%)</source>
+        <translation>Процент от входящите ULO, който автоматично да се конвертира в zULO посредтвом Zerocoin Протокола (мин: 1%)</translation>
     </message>
     <message>
         <source>Percentage of autominted zULO</source>
@@ -4435,8 +4435,8 @@ Please be patient...</source>
         <translation>Не е намерен съвместим Мастърноуд.</translation>
     </message>
     <message>
-        <source>Percentage of automatically minted Zerocoin  (10-100, default: %u)</source>
-        <translation>Процент автоматично изсечени Zerocoin (10-100, по подразбиране: %u)</translation>
+        <source>Percentage of automatically minted Zerocoin  (1-100, default: %u)</source>
+        <translation>Процент автоматично изсечени Zerocoin (1-100, по подразбиране: %u)</translation>
     </message>
     <message>
         <source>Server private key (default: %s)</source>

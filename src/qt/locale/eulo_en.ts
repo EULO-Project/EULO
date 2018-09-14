@@ -2419,7 +2419,7 @@ https://www.transifex.com/eulo-project/eulo-project-translations</source>
     </message>
     <message>
         <location line="-133"/>
-        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 10%)</source>
+        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 1%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2717,7 +2717,7 @@ https://www.transifex.com/eulo-project/eulo-project-translations</source>
     <message>
         <location line="+7"/>
         <source>Current percentage of zULO.
-If AutoMint is enabled this percentage will settle around the configured AutoMint percentage (default = 10%)</source>
+If AutoMint is enabled this percentage will settle around the configured AutoMint percentage (default = 1%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2808,7 +2808,7 @@ Immature: confirmed, but less than 3 mints of the same denomination after it was
     <message>
         <location line="+93"/>
         <source>Current percentage of zULO.
-If AutoMint is enabled this percentage will settle around the configured AutoMint percentage (default = 10%).
+If AutoMint is enabled this percentage will settle around the configured AutoMint percentage (default = 1%).
 </source>
         <translation type="unfinished"></translation>
     </message>

@@ -1695,8 +1695,8 @@ https://www.transifex.com/eulo-project/eulo-project-translations</translation>
         <translation>Карта порта, использующего &amp;UPnP</translation>
     </message>
     <message>
-        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 10%)</source>
-        <translation>Процент приходящих ULO, которые автоматически конвертируются в zULO благодаря Zerocoin протоколу (min: 10%)</translation>
+        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 1%)</source>
+        <translation>Процент приходящих ULO, которые автоматически конвертируются в zULO благодаря Zerocoin протоколу (min: 1%)</translation>
     </message>
     <message>
         <source>Percentage of autominted zULO</source>

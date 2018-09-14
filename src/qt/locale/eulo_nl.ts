@@ -1714,8 +1714,8 @@ https://www.transifex.com/eulo-project/eulo-project-translations</translation>
         <translation>Map poort gebruikt &amp;UPnP</translation>
     </message>
     <message>
-        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 10%)</source>
-        <translation>Percentage inkomende ULO die automatisch wordt omgezet naar zULO via Zerocoin Protocol (min: 10%)</translation>
+        <source>Percentage of incoming ULO which get automatically converted to zULO via Zerocoin Protocol (min: 1%)</source>
+        <translation>Percentage inkomende ULO die automatisch wordt omgezet naar zULO via Zerocoin Protocol (min: 1%)</translation>
     </message>
     <message>
         <source>Percentage of autominted zULO</source>
@@ -5147,8 +5147,8 @@ bijvoorbeeld: alertnotify = echo %%s | mail -s "EULO Alert" admin@foo.com
         <translation>Wachtwoord voor JSON-RPC connecties</translation>
     </message>
     <message>
-        <source>Percentage of automatically minted Zerocoin  (10-100, default: %u)</source>
-        <translation>Percentage automatisch geminte Zerocoin (10-100, standaard: %u)</translation>
+        <source>Percentage of automatically minted Zerocoin  (1-100, default: %u)</source>
+        <translation>Percentage automatisch geminte Zerocoin (1-100, standaard: %u)</translation>
     </message>
     <message>
         <source>Prepend debug output with timestamp (default: %u)</source>
