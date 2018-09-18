@@ -437,6 +437,118 @@ AX_GCC_FUNC_ATTRIBUTE([visibility])
 AX_GCC_FUNC_ATTRIBUTE([dllexport])
 AX_GCC_FUNC_ATTRIBUTE([dllimport])
 
+#
+function ethcontractlibs()
+{
+gmp_lib=
+boost_lib=
+thread_api=
+system_name=
+ccache_path=
+c_compiler=$CC
+cxx_compiler=$CXX
+if [[ "x$version_type" = "xlinux" ]]; then
+  system_name="-DCMAKE_SYSTEM_NAME=Linux"
+  echo "prefix $prefix"
+  if [[ "x$prefix" = "x$ac_default_prefix" ]]; then
+    echo "configure with --prefix parameter"
+    exit 1
+  fi
+elif [[ "x$version_type" = "xwindows" ]]; then
+  system_name="-DCMAKE_SYSTEM_NAME=Windows"
+  thread_api="-DBoost_THREADAPI=win32"
+else
+  echo "not supported: $version_type"
+  exit 1
+fi
+
+if [[ "x$use_ccache" = "xyes" ]]; then
+  c_compiler=`echo $CC | awk '{print $2}'`
+  cxx_compiler=`echo $CXX | awk '{print $2}'`
+
+  ccache_compiler=`which ccache`
+  if [[ "x$ccache_compiler" != "x" ]]; then
+    ccache_path=`dirname $ccache_compiler`
+  fi
+fi
+
+gmp_lib="-DGMP_INCLUDE_DIR='$prefix/include' -DGMP_LIBRARY='$prefix/lib'"
+boost_lib="-DBOOST_INCLUDEDIR='$prefix/include' -DBOOST_LIBRARYDIR='$prefix/lib' -DBoost_USE_STATIC_LIBS=ON $thread_api -DBoost_USE_MULTITHREADED=ON"
+
+if [[ "x$ccache_path" != "x" ]]; then
+  replace_path=`echo $ccache_path | sed 's/\//\\\\\//g'`
+  PATH=`echo $PATH | sed 's/'${replace_path}:'//g'`
+fi
+
+cd src/
+
+#ethash
+cd ethash/
+make -f ethash.makefile distclean
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib .
+if [[ $? -ne 0 ]]; then
+  echo "configure ethash fail"
+  exit 1
+fi
+cd ../
+
+#jsoncpp
+cd jsoncpp/
+make -f jsoncpp.makefile distclean
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS="" .
+if [[ $? -ne 0 ]]; then
+  echo "configure jsoncpp fail"
+  exit 1
+fi
+cd ../
+
+#libff
+cd libff/
+make -f libff.makefile distclean
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS="" $gmp_lib .
+if [[ $? -ne 0 ]]; then
+  echo "configure libff fail"
+  exit 1
+fi
+cd ../
+
+#snappy
+cd snappy/
+make -f snappy.makefile distclean
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS="" .
+if [[ $? -ne 0 ]]; then
+  echo "configure snappy fail"
+  exit 1
+fi
+cd ../
+
+#contract
+cd contract
+make -f contract.makefile distclean
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib .
+if [[ $? -ne 0 ]]; then
+  echo "configure contract fail"
+  exit 1
+fi
+cd ../
+
+#contract_api
+cd contract_api
+make -f contract_api.makefile distclean
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib .
+if [[ $? -ne 0 ]]; then
+  echo "configure contract_api fail"
+  exit 1
+fi
+cd ../
+
+if [[ "x$ccache_path" != "x" ]]; then
+  PATH=$ccache_path:$PATH
+fi
+
+cd ../
+}
+
 if test x$use_glibc_compat != xno; then
 
   #__fdelt_chk's params and return type have changed from long unsigned int to long int.
@@ -595,6 +707,7 @@ if test x$use_boost = xyes; then
 dnl Check for boost libs
 AX_BOOST_BASE
 AX_BOOST_SYSTEM
+AX_BOOST_LOG
 AX_BOOST_FILESYSTEM
 AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_THREAD
@@ -672,7 +785,7 @@ fi
 
 if test x$use_boost = xyes; then
 
-BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_PROGRAM_OPTIONS_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB"
+BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_PROGRAM_OPTIONS_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB $BOOST_LOG_LIB"
 
 dnl Boost >= 1.50 uses sleep_for rather than the now-deprecated sleep, however
 dnl it was broken from 1.50 to 1.52 when backed by nanosleep. Use sleep_for if
@@ -802,10 +915,10 @@ else
 fi
 
 AC_CHECK_LIB([crypto],[RAND_egd],[],[
-  AC_ARG_WITH([libressl],
-    [AS_HELP_STRING([--with-libressl],[Build with system LibreSSL (default is no; DANGEROUS; NOT SUPPORTED)])],
-    [AC_MSG_WARN([Detected LibreSSL: This is NOT supported, and may break consensus compatibility!])],
-    [AC_MSG_ERROR([Detected LibreSSL: This is NOT supported, and may break consensus compatibility!])]
+  AC_ARG_WITH([unsupported-ssl],
+    [AS_HELP_STRING([--with-unsupported-ssl],[Build with system SSL (default is no; DANGEROUS; NOT SUPPORTED; You should use OpenSSL 1.0)])],
+    [AC_MSG_WARN([Detected unsupported SSL version: This is NOT supported, and may break consensus compatibility! Use '--with-unsupported-ssl' if you don't care])],
+    [AC_MSG_ERROR([Detected unsupported SSL version: This is NOT supported, and may break consensus compatibility! Use '--with-unsupported-ssl' if you don't care])]
   )
 ])
 
@@ -1074,7 +1187,7 @@ if test x$system_univalue = xno; then
   AC_CONFIG_SUBDIRS([src/univalue])
 fi
 
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic"
+ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-module-recovery --enable-experimental --enable-module-ecdh"
 AC_CONFIG_SUBDIRS([src/secp256k1])
 
 AC_OUTPUT
@@ -1089,6 +1202,8 @@ case $host in
      chmod 755 libtool
    ;;
 esac
+
+ethcontractlibs
 
 echo
 echo "Options used to compile and link:"

@@ -41,6 +41,7 @@
 #include <vector>
 
 #include "libzerocoin/CoinSpend.h"
+#include "contract_api/contractcomponent.h"
 
 #include <boost/unordered_map.hpp>
 
@@ -128,6 +129,8 @@ struct BlockHasher {
 extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CTxMemPool mempool;
+
+extern CContractComponent contractComponent;
 
 #ifdef  POW_IN_POS_PHASE
 extern TmpBlocksMempool tmpblockmempool;

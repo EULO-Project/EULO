@@ -238,6 +238,70 @@ unsigned int CTransaction::CalculateModifiedSize(unsigned int nTxSize) const
     return nTxSize;
 }
 
+///////////////////////////////////////////////////////////// //eulo-vm
+bool CTransaction::HasCreateOrCall() const
+{
+    //  FixMe:  IsEnabled means the contract enabled or not.
+    bool IsEnabled = false;
+
+    if (!IsEnabled)
+    {
+        return false;
+    }
+    for (const CTxOut &v : vout)
+    {
+        if (v.scriptPubKey.HasOpCreate() || v.scriptPubKey.HasOpCall())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::HasOpSpend() const
+{
+    bool IsEnabled =  false;
+
+    if (!IsEnabled)
+    {
+        return false;
+    }
+    for (const CTxIn &i : vin)
+    {
+        if (i.scriptSig.HasOpSpend())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CTransaction::CheckSenderScript(const CCoinsViewCache &view) const
+{
+
+    bool IsEnabled =  chainActive.Tip()->IsContractEnabled();
+
+    if (!IsEnabled)
+    {
+        return false;
+    }
+
+
+
+    //FixMe: Is this correct:vout[vin[0].prevout.n]?
+
+    CScript script = view.AccessCoins(vin[0].prevout.hash)->vout[vin[0].prevout.n].scriptPubKey;
+    // CScript script = view.AccessCoin(vin[0].prevout).out.scriptPubKey;
+
+
+    if (!script.IsPayToPubkeyHash() && !script.IsPayToPubkey())
+    {
+        return false;
+    }
+    return true;
+}
+/////////////////////////////////////////////////////////////
+
 std::string CTransaction::ToString() const
 {
     std::string str;

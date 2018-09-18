@@ -59,6 +59,16 @@ public:
 };
 #endif
 
+/** EULO CONTRACT VERSION */
+static const int32_t VERSIONBITS_EULO_CONTRACT = 30;
+
+enum VM_STATE_ROOT
+{
+    RET_VM_STATE_OK = 1,
+    RET_CONTRACT_UNENBALE = 0,
+    RET_VM_STATE_ERR = -1,
+};
+
 class CBlockHeader
 {
 public:
@@ -195,6 +205,8 @@ public:
 #endif
         return block;
     }
+
+    VM_STATE_ROOT GetVMState(uint256 &hashStateRoot, uint256 &hashUTXORoot) const;
 
     // ppcoin: two types of block: proof-of-work or proof-of-stake
     bool IsProofOfStake() const

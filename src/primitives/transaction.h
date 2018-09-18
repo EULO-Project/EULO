@@ -13,8 +13,10 @@
 #include "uint256.h"
 
 #include <list>
+#include <memory>
 
 class CTransaction;
+class CCoinsViewCache;
 
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
@@ -257,6 +259,14 @@ public:
     // Compute modified tx size for priority calculation (optionally given tx size)
     unsigned int CalculateModifiedSize(unsigned int nTxSize=0) const;
 
+    //////////////////////////////////////// //eulo-evm
+    bool HasCreateOrCall() const;
+
+    bool HasOpSpend() const;
+
+    bool CheckSenderScript(const CCoinsViewCache& view) const ;
+    ////////////////////////////////////////
+
     bool IsZerocoinSpend() const
     {
         return (vin.size() > 0 && vin[0].prevout.IsNull() && vin[0].scriptSig[0] == OP_ZEROCOINSPEND);
@@ -286,6 +296,13 @@ public:
     bool IsCoinBase() const
     {
         return (vin.size() == 1 && vin[0].prevout.IsNull() && !ContainsZerocoins());
+    }
+
+    bool IsCoinBase2() const
+    {
+        //FixMe: What?
+       // return (vin.size() == 2 && vin[0].prevout.IsNull() && vin[1].prevout.IsNull());
+        return true;
     }
 
     bool IsCoinStake() const

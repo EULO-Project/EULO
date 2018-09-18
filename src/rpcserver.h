@@ -262,6 +262,7 @@ extern UniValue getfeeinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxoutsetinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxout(const UniValue& params, bool fHelp);
 extern UniValue verifychain(const UniValue& params, bool fHelp);
+extern UniValue callcontract(const UniValue& params, bool fHelp);
 extern UniValue getchaintips(const UniValue& params, bool fHelp);
 
 extern UniValue tmpblockstatus(const UniValue& params, bool fHelp);

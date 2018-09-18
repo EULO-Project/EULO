@@ -300,6 +300,12 @@ public:
         return block;
     }
 
+    bool IsContractEnabled() const
+    {
+      //FixMe:  return (nVersion & (((uint32_t)1) << VERSIONBITS_SBTC_CONTRACT));
+        return true;
+    }
+
     int64_t GetZerocoinSupply() const
     {
         int64_t nTotal = 0;

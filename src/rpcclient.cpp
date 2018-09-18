@@ -95,6 +95,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"importaddress", 2},
         {"verifychain", 0},
         {"verifychain", 1},
+        {"callcontract", 3},
+
         {"keypoolrefill", 0},
         {"getrawmempool", 0},
         {"estimatefee", 0},

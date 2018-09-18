@@ -30,6 +30,12 @@ BITCOIN_INCLUDES=-I$(builddir) -I$(builddir)/obj $(BOOST_CPPFLAGS) $(LEVELDB_CPP
 
 BITCOIN_INCLUDES += -I$(srcdir)/secp256k1/include
 BITCOIN_INCLUDES += -I$(srcdir)/lz4/lib
+BITCOIN_INCLUDES += -I$(srcdir)/contract_api
+BITCOIN_INCLUDES += -I$(srcdir)/contract
+BITCOIN_INCLUDES += -I$(srcdir)/ethash/include
+BITCOIN_INCLUDES += -I$(srcdir)/jsoncpp/include
+
+
 BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBBITCOIN_SERVER=libbitcoin_server.a
@@ -42,12 +48,44 @@ LIBBITCOIN_ZEROCOIN=libzerocoin/libbitcoin_zerocoin.a
 LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBLZ4=lz4/lib/liblz4.a
+LIBCRYPTOPP=cryptopp/libcryptopp.a
+LIBETHASH=ethash/lib/ethash/libethash.a
+LIBCONTRACT=contract/libcontract.a
+LIBCONTRACT_API=contract_api/libcontract_api.a
+LIBJSONCPP=jsoncpp/src/lib_json/libjsoncpp.a
+LIBSCRYPT=libscrypt/libscrypt.a
+LIBSNAPPY=snappy/libsnappy.a
+LIBFF=libff/libff/libff.a
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
 
-$(LIBLZ4): $(wildcard lz4/lib/*) 
+$(LIBLZ4): $(wildcard lz4/lib/*.[ch]) 
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F) CC="$(CC)" 
+
+$(LIBCRYPTOPP): $(wildcard cryptopp/*.cpp cryptopp/*.h) 
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) -f GNUmakefile $(@F) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
+
+$(LIBETHASH): $(wildcard ethash/lib/ethash/*.[ch] ethash/lib/ethash/*.[ch]pp) 
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)
+
+$(LIBCONTRACT):
+	$(AM_V_at)$(MAKE)  $(AM_MAKEFLAGS)  -C contract/  
+
+$(LIBCONTRACT_API):
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C contract_api/
+
+$(LIBJSONCPP): $(wildcard jsoncpp/src/lib_json/*.cpp jsoncpp/src/lib_json/*.h) 
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C jsoncpp/
+
+$(LIBSCRYPT): $(wildcard libscrypt/*.[ch]) 
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F) CC="$(CC)"
+ 
+$(LIBSNAPPY): $(wildcard snappy/*.h snappy/*.cc) 
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) 
+
+$(LIBFF): $(wildcard libff/libff/common/* libff/libff/common/*/* libff/libff/algebra/*/*/*) 
+	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
@@ -119,8 +157,6 @@ BITCOIN_CORE_H = \
   obfuscation.h \
   obfuscation-relay.h \
   db.h \
-  eccryptoverify.h \
-  ecwrapper.h \
   hash.h \
   init.h \
   kernel.h \
@@ -347,8 +383,6 @@ libbitcoin_common_a_SOURCES = \
   primitives/zerocoin.cpp \
   core_read.cpp \
   core_write.cpp \
-  eccryptoverify.cpp \
-  ecwrapper.cpp \
   hash.cpp \
   key.cpp \
   keystore.cpp \
@@ -407,10 +441,12 @@ eulod_LDADD = \
   $(LIBBITCOIN_ZEROCOIN) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO) \
+  $(LIBCONTRACT_API) \
+  $(LIBCONTRACT) \
   $(LIBLEVELDB) \
   $(LIBMEMENV) \
   $(LIBSECP256K1) \
-  $(LIBLZ4)
+  $(LIBLZ4) 
 
 if ENABLE_ZMQ
 eulod_LDADD += $(LIBBITCOIN_ZMQ) $(ZMQ_LIBS)
@@ -426,7 +462,7 @@ if TARGET_WINDOWS
 eulod_SOURCES += eulod-res.rc
 endif
 
-eulod_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
+eulod_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(LIBCRYPTOPP) $(LIBJSONCPP) $(LIBETHASH) $(LIBSCRYPT) $(LIBSNAPPY) $(LIBFF) -lgmp
 eulod_CPPFLAGS = $(BITCOIN_INCLUDES)
 eulod_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
@@ -479,8 +515,6 @@ libbitcoinconsensus_la_SOURCES = \
   crypto/sha256.cpp \
   crypto/sha512.cpp \
   crypto/ripemd160.cpp \
-  eccryptoverify.cpp \
-  ecwrapper.cpp \
   hash.cpp \
   pubkey.cpp \
   script/script.cpp \
@@ -494,9 +528,9 @@ if GLIBC_BACK_COMPAT
   libbitcoinconsensus_la_SOURCES += compat/glibcxx_compat.cpp
 endif
 
-libbitcoinconsensus_la_LDFLAGS = -no-undefined $(RELDFLAGS)
-libbitcoinconsensus_la_LIBADD = $(CRYPTO_LIBS) $(BOOST_LIBS)
-libbitcoinconsensus_la_CPPFLAGS = $(CRYPTO_CFLAGS) -I$(builddir)/obj -DBUILD_BITCOIN_INTERNAL
+libbitcoinconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
+libbitcoinconsensus_la_LIBADD = $(LIBSECP256K1) $(BOOST_LIBS)
+libbitcoinconsensus_la_CPPFLAGS = -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL
 if USE_LIBSECP256K1
 libbitcoinconsensus_la_LIBADD += secp256k1/libsecp256k1.la
 endif
@@ -520,6 +554,7 @@ clean-local:
 	-$(MAKE) -C secp256k1 clean
 	-$(MAKE) -C lz4 clean
 	-$(MAKE) -C univalue clean
+	-$(MAKE) -C cryptopp clean
 	rm -f leveldb/*/*.gcno leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
 

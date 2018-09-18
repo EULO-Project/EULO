@@ -80,10 +80,12 @@ static const Checkpoints::CCheckpointData dataRegtest = {
 libzerocoin::ZerocoinParams* CChainParams::Zerocoin_Params() const
 {
     assert(this);
-    static CBigNum bnTrustedModulus(zerocoinModulus);
-    static libzerocoin::ZerocoinParams ZCParams = libzerocoin::ZerocoinParams(bnTrustedModulus);
+    static CBigNum bnHexModulus = 0;
+    if (!bnHexModulus)
+        bnHexModulus.SetHex(zerocoinModulus);
+    static libzerocoin::ZerocoinParams ZCParamsHex = libzerocoin::ZerocoinParams(bnHexModulus);
 
-    return &ZCParams;
+    return &ZCParamsHex;
 }
 
 class CMainParams : public CChainParams
@@ -128,11 +130,11 @@ public:
          * Build the genesis block. Note that the output of the genesis coinbase cannot
          * be spent as it did not originally exist in the database.
          *
-         * CBlock(hash=00000ffd590b14, ver=1, hashPrevBlock=00000000000000, hashMerkleRoot=e0028e, nTime=1390095618, nBits=1e0ffff0, nNonce=28917698, vtx=1)
-         *   CTransaction(hash=e0028e, ver=1, vin.size=1, vout.size=1, nLockTime=0)
-         *     CTxIn(COutPoint(000000, -1), coinbase 04ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73)
-         *     CTxOut(nValue=50.00000000, scriptPubKey=0xA9037BAC7050C479B121CF)
-         *   vMerkleTree: e0028e
+         * CBlock(hash=00000013ea705a, ver=1, hashPrevBlock=00000000000000, hashMerkleRoot=4df5d8, nTime=1533859200, nBits=1e00ffff, nNonce=1742924, vtx=1)
+         *   CTransaction(hash=4df5d8, ver=1, vin.size=1, vout.size=1, nLockTime=0)
+         *     CTxIn(COutPoint(000000, -1), coinbase 04ffff001e01044c5b552e532e204e657773202620576f726c64205265706f7274204175672031302032303138205553206d696772616e74733a204a75646765206f7264657273206465706f72746174696f6e20706c616e65207475726e61726f756e64)
+         *     CTxOut(nValue=250.00000000, scriptPubKey=0xC9D02E3B070AEAAB4B7742)
+         *   vMerkleTree: 4df5d8
          */
         const char* pszTimestamp = "U.S. News & World Report Aug 10 2018 US migrants: Judge orders deportation plane turnaround";
         CMutableTransaction txNew;

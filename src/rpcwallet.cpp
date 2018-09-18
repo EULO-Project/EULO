@@ -2732,8 +2732,9 @@ UniValue importzerocoins(const UniValue& params, bool fHelp)
             HelpExampleCli("importzerocoins", "\'[{\"d\":100,\"p\":\"mypubcoin\",\"s\":\"myserial\",\"r\":\"randomness_hex\",\"t\":\"mytxid\",\"h\":104923, \"u\":false},{\"d\":5,...}]\'") +
                 HelpExampleRpc("importzerocoins", "[{\"d\":100,\"p\":\"mypubcoin\",\"s\":\"myserial\",\"r\":\"randomness_hex\",\"t\":\"mytxid\",\"h\":104923, \"u\":false},{\"d\":5,...}]"));
 
-    if(pwalletMain->IsLocked())
-        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    EnsureWalletIsUnlocked();
 
     RPCTypeCheck(params, list_of(UniValue::VARR)(UniValue::VOBJ));
     UniValue arrMints = params[0].get_array();
@@ -2753,9 +2754,12 @@ UniValue importzerocoins(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, d must be positive");
 
         libzerocoin::CoinDenomination denom = libzerocoin::IntToZerocoinDenomination(d);
-        CBigNum bnValue = CBigNum(find_value(o, "p").get_str());
-        CBigNum bnSerial = CBigNum(find_value(o, "s").get_str());
-        CBigNum bnRandom = CBigNum(find_value(o, "r").get_str());
+        CBigNum bnValue = 0;
+        bnValue.SetHex(find_value(o, "p").get_str());
+        CBigNum bnSerial = 0;
+        bnSerial.SetHex(find_value(o, "s").get_str());
+        CBigNum bnRandom = 0;
+        bnRandom.SetHex(find_value(o, "r").get_str());
         uint256 txid(find_value(o, "t").get_str());
 
         int nHeight = find_value(o, "h").get_int();

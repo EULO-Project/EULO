@@ -2616,8 +2616,11 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
             if (whichType == TX_PUBKEYHASH) // pay to address type
             {
                 //convert to pay to public key type
+                CKeyID keyID;
+                keyID = CKeyID(uint160(vSolutions[0]));
+
                 CKey key;
-                if (!keystore.GetKey(uint160(vSolutions[0]), key)) {
+                if (!keystore.GetKey(keyID, key)) {
                     if (fDebug && GetBoolArg("-printcoinstake", false))
                         LogPrintf("CreateCoinStake : failed to get key for kernel type=%d\n", whichType);
                     break; // unable to find corresponding public key

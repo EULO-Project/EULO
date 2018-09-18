@@ -92,6 +92,8 @@ CFeeRate minRelayTxFee = CFeeRate(10000);
 
 CTxMemPool mempool(::minRelayTxFee);
 
+CContractComponent contractComponent;
+
 #ifdef  POW_IN_POS_PHASE
 
 TmpBlocksMempool  tmpblockmempool;
@@ -1465,6 +1467,16 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
         return state.DoS(100, error("CheckTransaction() : size limits failed"),
                          REJECT_INVALID, "bad-txns-oversize");
 
+    /////////////////////////////////////////////////////////// // eulo-vm
+    //FixMe: Make sure these judges are aright
+    bool enablecontract = false;
+    CBlockIndex * pBlockIndex = chainActive.Tip();
+    if(pBlockIndex && pBlockIndex->IsContractEnabled())
+    {
+        enablecontract = true;
+    }
+    ///////////////////////////////////////////////////////////
+
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
     int nZCSpendCount = 0;
@@ -1482,6 +1494,25 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
         if (!MoneyRange(nValueOut))
             return state.DoS(100, error("CheckTransaction() : txout total out of range"),
                              REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+
+        /////////////////////////////////////////////////////////// // eulo-vm
+        //FixMe: Make sure these judges are aright
+
+        if (txout.scriptPubKey.HasOpCall() || txout.scriptPubKey.HasOpCreate())
+        {
+            if (!enablecontract)
+            {
+                return state.DoS(100, false, REJECT_INVALID, "not arrive to the contract height,refuse");
+            }
+            std::vector<std::vector<unsigned char>> vSolutions;
+            txnouttype whichType;
+            if (!Solver(txout.scriptPubKey, whichType, vSolutions, true))
+            {
+                return state.DoS(100, false, REJECT_INVALID, "bad-txns-contract-nonstandard");
+            }
+        }
+        ///////////////////////////////////////////////////////////
+
         if (fZerocoinActive && txout.IsZerocoinMint()) {
             if(!CheckZerocoinMint(tx.GetHash(), txout, state, false))
                 return state.DoS(100, error("CheckTransaction() : invalid zerocoin mint"));
@@ -1530,10 +1561,23 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
         if(tx.vin.size() < 1 || static_cast<int>(tx.vin.size()) > Params().Zerocoin_MaxSpendsPerTransaction())
             return state.DoS(10, error("CheckTransaction() : Zerocoin Spend has more than allowed txin's"), REJECT_INVALID, "bad-zerocoinspend");
     } else {
-        BOOST_FOREACH (const CTxIn& txin, tx.vin)
+        BOOST_FOREACH (const CTxIn& txin, tx.vin){
+
             if (txin.prevout.IsNull() && (fZerocoinActive && !txin.scriptSig.IsZerocoinSpend()))
                 return state.DoS(10, error("CheckTransaction() : prevout is null"),
                     REJECT_INVALID, "bad-txns-prevout-null");
+
+            /////////////////////////////////////////////////////////// // eulo-vm
+            //FixMe: Make sure these judges are aright
+            if (txin.scriptSig.HasOpSpend())
+            {
+                if (!enablecontract)
+                {
+                    return state.DoS(100, false, REJECT_INVALID, "not arrive to the contract height,refuse");
+                }
+            }
+        }
+            ///////////////////////////////////////////////////////////
     }
 
     return true;
@@ -2607,10 +2651,10 @@ void static InvalidChainFound(CBlockIndex* pindexNew)
 
     LogPrintf("InvalidChainFound: invalid block=%s  height=%d  log2_work=%.8g  date=%s\n",
               pindexNew->GetBlockHash().ToString(), pindexNew->nHeight,
-              log(pindexNew->nChainWork.getdouble()) / log(2.0), DateTimeStrFormat("%Y-%m-%d %H:%M:%S",
+              std::log(pindexNew->nChainWork.getdouble()) / std::log(2.0), DateTimeStrFormat("%Y-%m-%d %H:%M:%S",
                                                                pindexNew->GetBlockTime()));
     LogPrintf("InvalidChainFound:  current best=%s  height=%d  log2_work=%.8g  date=%s\n",
-              chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), log(chainActive.Tip()->nChainWork.getdouble()) / log(2.0),
+              chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), std::log(chainActive.Tip()->nChainWork.getdouble()) / std::log(2.0),
               DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()));
     CheckForkWarningConditions();
 }
@@ -3674,7 +3718,7 @@ void static UpdateTip(CBlockIndex* pindexNew)
     mempool.AddTransactionsUpdated(1);
 
     LogPrintf("UpdateTip: new best=%s  height=%d  log2_work=%.8g  tx=%lu  date=%s progress=%f  cache=%u\n",
-        chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), log(chainActive.Tip()->nChainWork.getdouble()) / log(2.0), (unsigned long)chainActive.Tip()->nChainTx,
+        chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), std::log(chainActive.Tip()->nChainWork.getdouble()) / std::log(2.0), (unsigned long)chainActive.Tip()->nChainTx,
         DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()),
         Checkpoints::GuessVerificationProgress(chainActive.Tip()), (unsigned int)pcoinsTip->GetCacheSize());
 

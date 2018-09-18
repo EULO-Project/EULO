@@ -254,6 +254,36 @@ bool CScript::IsZerocoinMint() const
         this->at(0) == OP_ZEROCOINMINT);
 }
 
+///////////////////////////////////////////////////////// //eulo-vm
+//FixMe: Are these hard coded numbers should be adjusted as we changed some
+//       OP_CODEs from eulo code because of conflicts between Zerocoin system and Contract system.
+bool CScript::IsPayToPubkey() const
+{
+    if (this->size() == 35 && (*this)[0] == 33 && (*this)[34] == OP_CHECKSIG
+        && ((*this)[1] == 0x02 || (*this)[1] == 0x03))
+    {
+        return true;
+    }
+    if (this->size() == 67 && (*this)[0] == 65 && (*this)[66] == OP_CHECKSIG
+        && (*this)[1] == 0x04)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool CScript::IsPayToPubkeyHash() const
+{
+    // Extra-fast test for pay-to-pubkeyhash CScripts:
+    return (this->size() == 25 &&
+            (*this)[0] == OP_DUP &&
+            (*this)[1] == OP_HASH160 &&
+            (*this)[2] == 0x14 &&
+            (*this)[23] == OP_EQUALVERIFY &&
+            (*this)[24] == OP_CHECKSIG);
+}
+/////////////////////////////////////////////////////////
+
 bool CScript::IsZerocoinSpend() const
 {
     return (this->size() > 0 &&

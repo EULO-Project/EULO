@@ -8,6 +8,8 @@
 #include "base58.h"
 #include "checkpoints.h"
 #include "clientversion.h"
+#include "contractconfig.h"
+
 #include "main.h"
 #include "rpcserver.h"
 #include "sync.h"
@@ -1407,6 +1409,89 @@ UniValue verifychain(const UniValue& params, bool fHelp)
     return CVerifyDB().VerifyDB(pcoinsTip, nCheckLevel, nCheckDepth);
 }
 
+
+UniValue callcontract(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled =  [&]()->bool{
+        if(chainActive.Tip()== nullptr) return false;
+        return chainActive.Tip()->IsContractEnabled();
+    }();
+    if (!IsEnabled)
+    {
+         throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+    }
+
+    if (fHelp || params.size() < 2)
+        throw std::runtime_error(
+                "callcontract \"address\" \"data\" ( address )\n"
+                        "\nArgument:\n"
+                        "1. \"address\"          (string, required) The account address\n"
+                        "2. \"data\"             (string, required) The data hex string\n"
+                        "3. address              (string, optional) The sender address hex string\n"
+                        "4. gasLimit  (numeric or string, optional) gasLimit, default: " +
+                i64tostr(DEFAULT_GAS_LIMIT_OP_SEND) + "\n"
+                //                        "4. gasLimit             (string, optional) The gas limit for executing the contract\n"
+        );
+
+    LOCK(cs_main);
+
+    std::string strAddr = params[0].get_str();
+    std::string data = params[1].get_str();
+
+    if (!IsHex(data))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+    if (strAddr.size() != 40 || !IsHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    //FixMe: Uncomment me, just to compile successfully.
+//    GET_CONTRACT_INTERFACE(ifContractObj);
+
+//    if (!ifContractObj->AddressInUse(strAddr))
+//        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
+    string sender = "";
+    if (params.size() == 3)
+    {
+        CBitcoinAddress btcSenderAddress(params[2].get_str());
+        if (btcSenderAddress.IsValid())
+        {
+            CKeyID keyid;
+            btcSenderAddress.GetKeyID(keyid);
+
+            sender = HexStr(valtype(keyid.begin(), keyid.end()));
+        } else
+        {
+            sender = params[2].get_str();
+        }
+    }
+    uint64_t gasLimit = 0;
+    if (params.size() == 4)
+    {
+        //        gasLimit = params[3].get_int();
+        if (params[3].isNum())
+        {
+            gasLimit = params[3].get_int64();
+        } else if (params[3].isStr())
+        {
+            gasLimit = atoi64(params[3].get_str());
+        } else
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasLimit is not (numeric or string)");
+        }
+
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("address", strAddr));
+
+    //FixMe: Uncomment me, just to compile successfully.
+  //  ifContractObj->RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
+
+    return result;
+}
+
+
 UniValue getblockchaininfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
@@ -1898,7 +1983,10 @@ UniValue findserial(const UniValue& params, bool fHelp)
             HelpExampleCli("findserial", "\"serial\"") + HelpExampleRpc("findserial", "\"serial\""));
 
     std::string strSerial = params[0].get_str();
-    CBigNum bnSerial(strSerial);
+    CBigNum bnSerial = 0;
+    bnSerial.SetHex(strSerial);
+    if (!bnSerial)
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid serial");
 
     uint256 txid = 0;
     bool fSuccess = zerocoinDB->ReadCoinSpend(bnSerial, txid);
