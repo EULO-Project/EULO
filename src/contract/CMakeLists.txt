@@ -26,6 +26,10 @@ set(Boost_USE_MULTITHREADED ON)
 
 set(UTILS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/utils")
 
+if(WIN32)
+add_definitions(-DWIN32)
+endif()
+
 # Features:
 option(VMTRACE "Enable VM tracing" OFF)
 option(EVM_OPTIMIZE "Enable VM optimizations (can distort tracing)" ON)
@@ -82,8 +86,11 @@ target_link_libraries(contract devcore devcrypto)
 
 
 
-
+if(WIN32)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -fvisibility=hidden")
+else()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -fPIC -fvisibility=hidden")
+endif()
 
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 

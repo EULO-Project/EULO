@@ -4,7 +4,7 @@ INCLUDEDIR   ?= $(PREFIX)/include
 MAKE_DIR     ?= install -d
 INSTALL_DATA ?= install
 
-CC?=gcc
+#CC?=gcc
 CFLAGS?=$(CFLAGS_EXTRA) -D_FORTIFY_SOURCE=2 -fPIC
 LDFLAGS?=$(LDFLAGS_EXTRA) -Wl,-soname,libscrypt.so.0 -Wl,--version-script=libscrypt.version
 CFLAGS_EXTRA?=-Wl,-rpath=. -O2 -Wall -g -fstack-protector-all
