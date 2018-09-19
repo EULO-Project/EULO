@@ -555,6 +555,13 @@ clean-local:
 	-$(MAKE) -C secp256k1 clean
 	-$(MAKE) -C lz4 clean
 	-$(MAKE) -C univalue clean
+	-$(MAKE) -C contract clean
+	-$(MAKE) -C contract_api clean
+	-$(MAKE) -C ethash clean
+	-$(MAKE) -C jsoncpp clean
+	-$(MAKE) -C libff clean
+	-$(MAKE) -C libscrypt clean
+	-$(MAKE) -C snappy clean
 	-$(MAKE) -C cryptopp clean
 	rm -f leveldb/*/*.gcno leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
