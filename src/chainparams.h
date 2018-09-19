@@ -109,6 +109,7 @@ public:
     /** Height or Time Based Activations **/
     int ModifierUpgradeBlock() const { return nModifierUpdateBlock; }
     int LAST_POW_BLOCK() const { return nLastPOWBlock; }
+    int Contract_StartHeight() const { return nContractStartHeight; }
     int POW_Start_BLOCK_In_POS() const { return nPOWStartBlockInPOS; }
     int Zerocoin_StartHeight() const { return nZerocoinStartHeight; }
     int Zerocoin_StartTime() const { return nZerocoinStartTime; }
@@ -130,6 +131,7 @@ protected:
     int64_t nTargetTimespan;
     int64_t nTargetSpacing;
     int nLastPOWBlock;
+    int nContractStartHeight;
     int nPOWStartBlockInPOS;
     int nMasternodeCountDrift;
     int nMaturity;

@@ -180,12 +180,15 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
 
     // Make sure to create the correct block version after zerocoin is enabled
     bool fZerocoinActive = (GetAdjustedTime() >= Params().Zerocoin_StartTime()) && (chainActive.Height() + 1 >= Params().Zerocoin_StartHeight());
+    bool fContractActive = (chainActive.Height() + 1 >= Params().Contract_StartHeight());
     if (chainActive.Height() + 1 <= Params().LAST_POW_BLOCK()) {
         pblock->nVersion = 2;
     } else if (!fZerocoinActive)
         pblock->nVersion = 3;
-    else
+    else if (!fContractActive)
         pblock->nVersion = 4;
+    else
+        pblock->nVersion = 5;
 
     // Create coinbase tx
     CMutableTransaction txNew;
