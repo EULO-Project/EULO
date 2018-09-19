@@ -480,7 +480,7 @@ if [[ "x$ccache_path" != "x" ]]; then
   PATH=`echo $PATH | sed 's/'${replace_path}:'//g'`
 fi
 
-cd src/
+cd $prefix/../../src/
 
 #ethash
 cd ethash/
