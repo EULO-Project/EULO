@@ -1,15 +1,12 @@
 sudo: required
 dist: trusty
 os: linux
-language: minimal
+language: generic
 cache:
   directories:
   - depends/built
   - depends/sdk-sources
   - $HOME/.ccache
-stages:
-  - lint
-  - test
 env:
   global:
     - MAKEJOBS=-j3
@@ -84,10 +81,3 @@ jobs:
       before_script:
         - git fetch --unshallow
       script:
-        - contrib/devtools/git-subtree-check.sh src/univalue
-        # Remove this comment and the `#` from the following two lines when we merge proper subtree implementations for secp256k1 and leveldb
-        #- contrib/devtools/git-subtree-check.sh src/secp256k1
-        #- contrib/devtools/git-subtree-check.sh src/leveldb
-        - contrib/devtools/check-doc.py
-        - contrib/devtools/logprint-scanner.py
-        - if [ "$TRAVIS_EVENT_TYPE" = "pull_request" ]; then contrib/devtools/lint-whitespace.sh; fi
