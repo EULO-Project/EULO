@@ -2532,7 +2532,17 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     CScript scriptEmpty;
     scriptEmpty.clear();
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
+    if (pblock->nVersion > 4)
+    {
+        uint256 utxoRoot;
+	uint256	stateRoot;
 
+        contractComponent.GetState(stateRoot, utxoRoot);
+
+        CScript contract = CScript() << ParseHex(stateRoot.GetHex().c_str()) << ParseHex(utxoRoot.GetHex().c_str()) << OP_VM_STATE;
+
+        txNew.vout.push_back(CTxOut(0, contract));
+    }
     // Choose coins to use
     CAmount nBalance = GetBalance();
 
