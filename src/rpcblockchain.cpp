@@ -1444,11 +1444,6 @@ UniValue callcontract(const UniValue& params, bool fHelp)
     if (strAddr.size() != 40 || !IsHex(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
 
-    //FixMe: Uncomment me, just to compile successfully.
-//    GET_CONTRACT_INTERFACE(ifContractObj);
-
-//    if (!ifContractObj->AddressInUse(strAddr))
-//        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
 
     CBlockIndex * pBlockIndex = chainActive.Tip();
     if (pBlockIndex->nHeight < Params().Contract_StartHeight())
@@ -1492,8 +1487,6 @@ UniValue callcontract(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("address", strAddr));
 
-    //FixMe: Uncomment me, just to compile successfully.
-  //  ifContractObj->RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
     contractComponent.RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
 
     return result;

@@ -115,16 +115,16 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 1 * 60; // EULO: 1 minute
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
-        nMaturity = 100;
+        nMaturity = 20;
         nMasternodeCountDrift = 20;
         nMaxMoneyOut = 21148191990 * COIN;
 
         /** Height or Time Based Activations **/
-        nLastPOWBlock = 1439;
-        nContractStartHeight = 2439;
+        nLastPOWBlock = 240;
+        nContractStartHeight = 310;
         nPOWStartBlockInPOS = 259200;
         nModifierUpdateBlock = 0;
-        nZerocoinStartHeight = 43200;
+        nZerocoinStartHeight = 300;
         nZerocoinStartTime = 1533859200;    // August 10, 2018 08:00:00 AM
 
         /**

@@ -302,7 +302,6 @@ public:
 
     bool IsContractEnabled() const
     {
-      //FixMe:  return (nVersion & (((uint32_t)1) << VERSIONBITS_SBTC_CONTRACT));
         return (nVersion > 4);
     }
 

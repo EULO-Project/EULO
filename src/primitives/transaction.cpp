@@ -242,12 +242,14 @@ unsigned int CTransaction::CalculateModifiedSize(unsigned int nTxSize) const
 bool CTransaction::HasCreateOrCall() const
 {
     //  FixMe:  IsEnabled means the contract enabled or not.
-//    bool IsEnabled = false;
+
+//    bool IsEnabled =  chainActive.Tip()->IsContractEnabled();
 
 //    if (!IsEnabled)
 //    {
 //        return false;
 //    }
+
     for (const CTxOut &v : vout)
     {
         if (v.scriptPubKey.HasOpCreate() || v.scriptPubKey.HasOpCall())
@@ -260,12 +262,13 @@ bool CTransaction::HasCreateOrCall() const
 
 bool CTransaction::HasOpSpend() const
 {
-    bool IsEnabled =  false;
+//    bool IsEnabled =  chainActive.Tip()->IsContractEnabled();
 
-    if (!IsEnabled)
-    {
-        return false;
-    }
+//    if (!IsEnabled)
+//    {
+//        return false;
+//    }
+
     for (const CTxIn &i : vin)
     {
         if (i.scriptSig.HasOpSpend())

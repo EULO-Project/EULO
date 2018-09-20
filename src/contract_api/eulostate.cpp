@@ -103,9 +103,9 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
             LogPrintStr("EuloState::execute commit"); //eulo debug
             eulo::commit(cacheUTXO, stateUTXO, m_cache);
             cacheUTXO.clear();
-            //  FixMe: force removeEmptyAccounts true
+            //  FixMe: force removeEmptyAccounts false, is used to control EmptyAccounts in vmstate.
             //  bool removeEmptyAccounts = _envInfo.number() >= _sealEngine.chainParams().u256Param("EIP158ForkBlock");
-            bool removeEmptyAccounts = true;
+            bool removeEmptyAccounts = false;
             commit(removeEmptyAccounts ? State::CommitBehaviour::RemoveEmptyAccounts
                                        : State::CommitBehaviour::KeepEmptyAccounts);
         }
