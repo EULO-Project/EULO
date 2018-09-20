@@ -1450,6 +1450,13 @@ UniValue callcontract(const UniValue& params, bool fHelp)
 //    if (!ifContractObj->AddressInUse(strAddr))
 //        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
 
+    CBlockIndex * pBlockIndex = chainActive.Tip();
+    if (pBlockIndex->nHeight < Params().Contract_StartHeight())
+        throw JSONRPCError(RPC_INVALID_REQUEST, "contract not enabled.");
+
+    if (contractComponent.AddressInUse(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
     string sender = "";
     if (params.size() == 3)
     {
@@ -1487,6 +1494,7 @@ UniValue callcontract(const UniValue& params, bool fHelp)
 
     //FixMe: Uncomment me, just to compile successfully.
   //  ifContractObj->RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
+    contractComponent.RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
 
     return result;
 }

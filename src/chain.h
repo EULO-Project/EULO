@@ -303,7 +303,7 @@ public:
     bool IsContractEnabled() const
     {
       //FixMe:  return (nVersion & (((uint32_t)1) << VERSIONBITS_SBTC_CONTRACT));
-        return true;
+        return (nVersion > 4);
     }
 
     int64_t GetZerocoinSupply() const

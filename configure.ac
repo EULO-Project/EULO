@@ -440,11 +440,13 @@ AX_GCC_FUNC_ATTRIBUTE([dllimport])
 #
 function ethcontractlibs()
 {
+c_flags=
 gmp_lib=
 boost_lib=
 thread_api=
 system_name=
 ccache_path=
+source_path=
 c_compiler=$CC
 cxx_compiler=$CXX
 if [[ "x$version_type" = "xlinux" ]]; then
@@ -455,6 +457,7 @@ if [[ "x$version_type" = "xlinux" ]]; then
     exit 1
   fi
 elif [[ "x$version_type" = "xwindows" ]]; then
+  c_flags="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=\"\""
   system_name="-DCMAKE_SYSTEM_NAME=Windows"
   thread_api="-DBoost_THREADAPI=win32"
 else
@@ -480,12 +483,24 @@ if [[ "x$ccache_path" != "x" ]]; then
   PATH=`echo $PATH | sed 's/'${replace_path}:'//g'`
 fi
 
-cd $prefix/../../src/
+cd src/
+
+source_path=$prefix/../../src/
 
 #ethash
+if [[ ! -d "ethash/" ]]; then
+  mkdir -p ethash/
+fi
+
 cd ethash/
-make -f ethash.makefile distclean
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib .
+if [[ -f "ethash.makefile" ]]; then
+  make -f ethash.makefile distclean
+else
+  if [[ -f "Makefile" ]]; then
+    make clean
+  fi
+fi
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib $source_path/ethash/
 if [[ $? -ne 0 ]]; then
   echo "configure ethash fail"
   exit 1
@@ -493,29 +508,90 @@ fi
 cd ../
 
 #jsoncpp
+if [[ ! -d "jsoncpp/" ]]; then
+  mkdir -p jsoncpp/
+fi
+
 cd jsoncpp/
-make -f jsoncpp.makefile distclean
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS="" .
+if [[ -f "jsoncpp.makefile" ]]; then
+  make -f jsoncpp.makefile distclean
+else
+  if [[ -f "Makefile" ]]; then
+    make clean
+  fi
+fi
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $source_path/jsoncpp/
 if [[ $? -ne 0 ]]; then
   echo "configure jsoncpp fail"
   exit 1
 fi
 cd ../
 
+
 #libff
+if [[ ! -d "libff/" ]]; then
+  mkdir -p libff/
+fi
+
 cd libff/
-make -f libff.makefile distclean
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS="" $gmp_lib .
+if [[ -f "libff.makefile" ]]; then
+  make -f libff.makefile distclean
+else
+  if [[ -f "Makefile" ]]; then
+    make clean
+  fi
+fi
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $gmp_lib $source_path/libff/
 if [[ $? -ne 0 ]]; then
   echo "configure libff fail"
   exit 1
 fi
 cd ../
 
+#libscrypt
+if [[ ! -d "libscrypt/" ]]; then
+  mkdir -p libscrypt/
+fi
+
+cd libscrypt/
+if [[ -f "Makefile" ]]; then
+  make clean
+else
+  cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $source_path/libscrypt/
+fi
+cd ../
+
+#lz4
+if [[ ! -d "lz4/" ]]; then
+  mkdir -p lz4/
+fi
+
+if [[ ! -d "lz4/lib/" ]]; then
+  mkdir -p lz4/lib/
+fi
+
+cd lz4/lib/
+if [[ -f "Makefile" ]]; then
+  make clean
+else
+  cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON $source_path/lz4/contrib/cmake_unofficial/
+fi
+cd ../../
+
 #snappy
+if [[ ! -d "snappy/" ]]; then
+  mkdir -p snappy/
+fi
+
 cd snappy/
-make -f snappy.makefile distclean
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS="" .
+if [[ -f "snappy.makefile" ]]; then
+  make -f snappy.makefile distclean
+else
+  if [[ -f "Makefile" ]]; then
+    make clean
+  fi
+fi
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $source_path/snappy/
 if [[ $? -ne 0 ]]; then
   echo "configure snappy fail"
   exit 1
@@ -523,9 +599,19 @@ fi
 cd ../
 
 #contract
-cd contract
-make -f contract.makefile distclean
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib .
+if [[ ! -d "contract/" ]]; then
+  mkdir -p contract/
+fi
+
+cd contract/
+if [[ -f "contract.makefile" ]]; then
+  make -f contract.makefile distclean
+else
+  if [[ -f "Makefile" ]]; then
+    make clean
+  fi
+fi
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib $source_path/contract/
 if [[ $? -ne 0 ]]; then
   echo "configure contract fail"
   exit 1
@@ -533,9 +619,19 @@ fi
 cd ../
 
 #contract_api
-cd contract_api
-make -f contract_api.makefile distclean
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib .
+if [[ ! -d "contract_api/" ]]; then
+  mkdir -p contract_api/
+fi
+
+cd contract_api/
+if [[ -f "contract_api.makefile" ]]; then
+  make -f contract_api.makefile distclean
+else
+  if [[ -f "Makefile" ]]; then
+    make clean
+  fi
+fi
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib $source_path/contract_api/
 if [[ $? -ne 0 ]]; then
   echo "configure contract_api fail"
   exit 1

@@ -1467,15 +1467,8 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
         return state.DoS(100, error("CheckTransaction() : size limits failed"),
                          REJECT_INVALID, "bad-txns-oversize");
 
-    /////////////////////////////////////////////////////////// // eulo-vm
-    //FixMe: Make sure these judges are aright
-    bool enablecontract = false;
     CBlockIndex * pBlockIndex = chainActive.Tip();
-    if(pBlockIndex && pBlockIndex->IsContractEnabled())
-    {
-        enablecontract = true;
-    }
-    ///////////////////////////////////////////////////////////
+    bool enablecontract = (pBlockIndex && pBlockIndex->nHeight >= Params().Contract_StartHeight());
 
     // Check for negative or overflow output values
     CAmount nValueOut = 0;

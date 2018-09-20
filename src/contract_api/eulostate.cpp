@@ -184,8 +184,7 @@ void EuloState::transferBalance(dev::Address const &_from, dev::Address const &_
     {
         LogPrint("EuloState::transferBalance ", "_from=%s", HexStr(_from.asBytes())); //eulo debug
         LogPrint("EuloState::transferBalance ", "_to=%s", HexStr(_to.asBytes())); //eulo debug
-        //  FixMe: toHex(boost::multiprecision) error.
-        //  LogPrint("EuloState::transferBalance ", "_value=%s", toHex(_value)); //eulo debug
+        LogPrint("EuloState::transferBalance ", "_value=%s", _value.str(0, std::ios_base::hex).c_str()); //eulo debug
         transfers.push_back({_from, _to, _value});
     }
 }
@@ -312,8 +311,7 @@ void logVin(string str, Vin vin)
     LogPrint("", "%s", str); //eulo debug
     LogPrint("", "hash=%s", vin.hash.hex()); //eulo debug
     LogPrint("", "nVout=%d", vin.nVout); //eulo debug
-    //  FixMe: toHex(boost::multiprecision) error.
-    //  LogPrint("", "value=%s", toHex(vin.value)); //eulo debug
+    LogPrint("", "value=%s", vin.value.str(0, std::ios_base::hex).c_str()); //eulo debug
     LogPrint("", "alive=%d", vin.alive); //eulo debug
 }
 
@@ -419,29 +417,25 @@ void CondensingTX::calculatePlusAndMinus()
         if (!plusMinusInfo.count(ti.from))
         {
             plusMinusInfo[ti.from] = std::make_pair(0, ti.value);
-            //  FixMe: toHex(boost::multiprecision)
-            //  LogPrint("CondensingTX::calculatePlusAndMinus ", "first= %d,second value=%s", 0, toHex(ti.value)); //eulo debug
+            LogPrint("CondensingTX::calculatePlusAndMinus ", "first= %d,second value=%s", 0, ti.value.str(0, std::ios_base::hex).c_str()); //eulo debug
         } else
         {
             plusMinusInfo[ti.from] = std::make_pair(plusMinusInfo[ti.from].first,
                                                     plusMinusInfo[ti.from].second + ti.value);
-            //  FixMe: toHex(boost::multiprecision)
-            //LogPrint("CondensingTX::calculatePlusAndMinus ", "first= %s,second value=%s", toHex(plusMinusInfo[ti.from].first),
-            //           toHex(plusMinusInfo[ti.from].second)); //eulo debug
+            LogPrint("CondensingTX::calculatePlusAndMinus ", "first= %s,second value=%s", plusMinusInfo[ti.from].first.str(0, std::ios_base::hex).c_str(),
+                       plusMinusInfo[ti.from].second.str(0, std::ios_base::hex).c_str()); //eulo debug
         }
 
         LogPrint("CondensingTX::calculatePlusAndMinus ", "to=%s", HexStr(ti.to.asBytes())); //eulo debug
         if (!plusMinusInfo.count(ti.to))
         {
             plusMinusInfo[ti.to] = std::make_pair(ti.value, 0);
-            //  FixMe: toHex(boost::multiprecision)
-            //  LogPrint("CondensingTX::calculatePlusAndMinus ", "first value= %s,second=%d", toHex(ti.value), 0); //eulo debug
+            LogPrint("CondensingTX::calculatePlusAndMinus ", "first value= %s,second=%d", ti.value.str(0, std::ios_base::hex).c_str(), 0); //eulo debug
         } else
         {
             plusMinusInfo[ti.to] = std::make_pair(plusMinusInfo[ti.to].first + ti.value, plusMinusInfo[ti.to].second);
-            //  FixMe: toHex(boost::multiprecision)
-            //LogPrint("CondensingTX::calculatePlusAndMinus ", "first value= %s,second=%s", toHex(plusMinusInfo[ti.to].first),
-            //           toHex(plusMinusInfo[ti.to].second)); //eulo debug
+            LogPrint("CondensingTX::calculatePlusAndMinus ", "first value= %s,second=%s", plusMinusInfo[ti.to].first.str(0, std::ios_base::hex).c_str(),
+                       plusMinusInfo[ti.to].second.str(0, std::ios_base::hex).c_str()); //eulo debug
         }
     }
 }

@@ -242,12 +242,12 @@ unsigned int CTransaction::CalculateModifiedSize(unsigned int nTxSize) const
 bool CTransaction::HasCreateOrCall() const
 {
     //  FixMe:  IsEnabled means the contract enabled or not.
-    bool IsEnabled = false;
+//    bool IsEnabled = false;
 
-    if (!IsEnabled)
-    {
-        return false;
-    }
+//    if (!IsEnabled)
+//    {
+//        return false;
+//    }
     for (const CTxOut &v : vout)
     {
         if (v.scriptPubKey.HasOpCreate() || v.scriptPubKey.HasOpCall())
@@ -276,6 +276,7 @@ bool CTransaction::HasOpSpend() const
     return false;
 }
 
+#if 0
 bool CTransaction::CheckSenderScript(const CCoinsViewCache &view) const
 {
 
@@ -300,6 +301,7 @@ bool CTransaction::CheckSenderScript(const CCoinsViewCache &view) const
     }
     return true;
 }
+#endif
 /////////////////////////////////////////////////////////////
 
 std::string CTransaction::ToString() const

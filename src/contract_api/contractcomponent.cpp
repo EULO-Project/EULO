@@ -1288,28 +1288,18 @@ dev::eth::BlockHeader ByteCodeExec::initBlockHeader()
     blockHeader.setTimestamp(block.nTime);
     blockHeader.setDifficulty(dev::u256(block.nBits));
 
-    /*
-    dev::eth::LastHashes lh;
-    lh.resize(256);
-    for (int i = 0; i < 256; i++)
-    {
-        if (!tip)
-        {
-            LogPrintStr("ByteCodeExec::BuildEVMEnvironment tip == null"); //eulo debug
-            break;
-        }
-        lh[i] = uintToh256(*tip->phashBlock);
-        tip = tip->pprev;
-    }
-    envInfo.setLastHashes(std::move(lh));
-*/
     blockHeader.setGasLimit(blockGasLimit);
     //  FixMe: adjust the following code here must have a model in CBlock to identify contract system condition
 //    if(block.IsProofOfStake() && block.howto??->IsContractEnabled()){
 //        blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
 //    }else
+    if (block.IsProofOfStake())
     {
-        blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
+        blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[2].scriptPubKey));
+    }
+    else
+    {
+        blockHeader.setAuthor(EthAddrFromScript(block.vtx[0].vout[0].scriptPubKey));
     }
     return blockHeader;
 }

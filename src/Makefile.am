@@ -69,10 +69,10 @@ $(LIBCRYPTOPP): $(wildcard cryptopp/*.cpp cryptopp/*.h)
 $(LIBETHASH): $(wildcard ethash/lib/ethash/*.[ch] ethash/lib/ethash/*.[ch]pp) 
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)
 
-$(LIBCONTRACT):
+$(LIBCONTRACT): $(wildcard contract/libdevcore/*.h contract/libdevcore/*.cpp contract/libdevcrypto/*.h contract/libdevcrypto/*.cpp contract/libethashseal/*.h contract/libethashseal/*.cpp contract/libethcore/*.h contract/libethcore/*.cpp contract/libethereum/*.h contract/libethereum/*.cpp contract/libevm/*.h contract/libevm/*.cpp contract/utils/*.h contract/utils/*.cpp) 
 	$(AM_V_at)$(MAKE)  $(AM_MAKEFLAGS)  -C contract/  
 
-$(LIBCONTRACT_API):
+$(LIBCONTRACT_API):$(wildcard contract_api/*.h contract_api/*.cpp) 
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C contract_api/
 
 $(LIBJSONCPP): $(wildcard jsoncpp/src/lib_json/*.cpp jsoncpp/src/lib_json/*.h) 

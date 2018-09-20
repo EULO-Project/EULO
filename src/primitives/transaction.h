@@ -264,7 +264,7 @@ public:
 
     bool HasOpSpend() const;
 
-    bool CheckSenderScript(const CCoinsViewCache& view) const ;
+//    bool CheckSenderScript(const CCoinsViewCache& view) const ;
     ////////////////////////////////////////
 
     bool IsZerocoinSpend() const
@@ -302,7 +302,8 @@ public:
     {
         //FixMe: What?
        // return (vin.size() == 2 && vin[0].prevout.IsNull() && vin[1].prevout.IsNull());
-        return true;
+        return (vin.size() == 1 && vin[0].prevout.IsNull() && 
+                vout.size() > 2 && vout[0].scriptPubKey.empty() && vout[1].scriptPubKey.HasOpVmHashState());
     }
 
     bool IsCoinStake() const
