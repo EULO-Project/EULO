@@ -121,6 +121,7 @@ public:
 
         /** Height or Time Based Activations **/
         nLastPOWBlock = 1439;
+        nContractStartHeight = 2439;
         nPOWStartBlockInPOS = 259200;
         nModifierUpdateBlock = 0;
         nZerocoinStartHeight = 43200;
@@ -231,6 +232,7 @@ public:
         nTargetTimespan = 1 * 60; // EULO: 1 day
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
         nLastPOWBlock = 1439;
+        nContractStartHeight = 2439;
         nPOWStartBlockInPOS = 259200;
         nMaturity = 15;
         nMasternodeCountDrift = 4;
