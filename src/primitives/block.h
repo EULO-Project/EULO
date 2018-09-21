@@ -109,11 +109,11 @@ public:
         READWRITE(nNonce);
 
         //zerocoin active, header changes to include accumulator checksum
-        if(nVersion > POS_VERSION)
+        if(nVersion >= ZEROCOIN_VERSION)
             READWRITE(nAccumulatorCheckpoint);
 
 #ifdef  POW_IN_POS_PHASE
-        if(nVersion > POW_VERSION)
+        if(nVersion >= POS_VERSION)
             READWRITE(nBits2);
 #endif
     }
