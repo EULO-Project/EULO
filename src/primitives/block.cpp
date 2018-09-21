@@ -30,7 +30,7 @@ uint256 CTmpBlockParams::GetHash() const
 
 uint256 CBlockHeader::GetHash() const
 {
-    if(nVersion < 4)
+    if(nVersion < ZEROCOIN_VERSION)
         return HashQuark(BEGIN(nVersion), END(nNonce));
 
     return HashCryptoNight(BEGIN(nVersion), END(nAccumulatorCheckpoint));
@@ -191,10 +191,12 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
     }
     else
     {
-        const CTxOut& txout = vtx[1].vout[1];
+        const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[2];
 
-        if (!Solver(txout.scriptPubKey, whichType, vSolutions))
+        if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
+            LogPrintf("Solver failed: %s\n", txout.scriptPubKey.ToString().c_str());
             return false;
+        }
 
         if (whichType == TX_PUBKEYHASH)
         {
@@ -203,12 +205,16 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
             keyID = CKeyID(uint160(vSolutions[0]));
 
             CKey key;
-            if (!keystore.GetKey(keyID, key))
+            if (!keystore.GetKey(keyID, key)) {
+                LogPrintf("SignBlock TX_PUBKEYHASH GetKey failed: %s\n", txout.scriptPubKey.ToString().c_str());
                 return false;
+            }
 
             //vector<unsigned char> vchSig;
-            if (!key.Sign(GetHash(), vchBlockSig))
+            if (!key.Sign(GetHash(), vchBlockSig)) {
+                 LogPrintf("SignBlock TX_PUBKEYHASH Sign failed: \n");
                  return false;
+            }
 
             return true;
 
@@ -218,12 +224,16 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
             CKeyID keyID;
             keyID = CPubKey(vSolutions[0]).GetID();
             CKey key;
-            if (!keystore.GetKey(keyID, key))
+            if (!keystore.GetKey(keyID, key)) {
+                LogPrintf("TX_PUBKEY GetKey failed: \n");
                 return false;
+            }
 
             //vector<unsigned char> vchSig;
-            if (!key.Sign(GetHash(), vchBlockSig))
-                 return false;
+            if (!key.Sign(GetHash(), vchBlockSig)) {
+                LogPrintf("TX_PUBKEY Sign failed: \n");
+                return false;
+            }
 
             return true;
         }
@@ -241,7 +251,7 @@ bool CBlock::CheckBlockSignature() const
     std::vector<valtype> vSolutions;
     txnouttype whichType;
 
-    const CTxOut& txout = vtx[1].vout[1];
+    const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[2];
 
     if (!Solver(txout.scriptPubKey, whichType, vSolutions))
         return false;
@@ -280,7 +290,7 @@ bool CBlock::CheckBlockSignature() const
 
 VM_STATE_ROOT CBlock::GetVMState(uint256 &hashStateRoot, uint256 &hashUTXORoot) const
 {
-    if (this->nVersion & (((uint32_t) 1) << VERSIONBITS_EULO_CONTRACT))
+    if (this->nVersion > ZEROCOIN_VERSION)
     {
         assert(vtx.size() > 1);
         const CTransaction &tx = vtx[1];  // 0

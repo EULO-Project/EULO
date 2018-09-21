@@ -230,8 +230,12 @@ std::string BlockToString(CBlockIndex* pBlock)
 
     std::string BlockContent;
 
-    if(pBlock->nHeight<=Params().LAST_POW_BLOCK())
-    {
+#ifdef  POW_IN_POS_PHASE
+    if (pBlock->nHeight < Params().POW_Start_BLOCK_In_POS())
+#else
+    if(pBlock->nHeight <= Params().LAST_POW_BLOCK())
+#endif
+{
         std::string BlockContentCells[] =
         {
             _("Height"), itostr(pBlock->nHeight),

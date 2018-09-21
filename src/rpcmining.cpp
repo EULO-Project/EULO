@@ -585,7 +585,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("noncerange", "00000000ffffffff"));
 //    result.push_back(Pair("sigoplimit", (int64_t)MAX_BLOCK_SIGOPS));
 //    result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SIZE));
-    if (pblock->nVersion > 3)
+    if (pblock->nVersion > POS_VERSION)
         result.push_back(Pair("accumulator", pblock->nAccumulatorCheckpoint.GetHex()));
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     if (pindexPrev->nHeight < Params().LAST_POW_BLOCK())

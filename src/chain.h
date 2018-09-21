@@ -238,7 +238,7 @@ public:
         nTime = block.nTime;
         nBits = block.nBits;
         nNonce = block.nNonce;
-        if(block.nVersion > 3)
+        if(block.nVersion > POS_VERSION)
             nAccumulatorCheckpoint = block.nAccumulatorCheckpoint;
 #ifdef  POW_IN_POS_PHASE
         nBits2 = block.nBits2;
@@ -302,7 +302,7 @@ public:
 
     bool IsContractEnabled() const
     {
-        return (nVersion > 4);
+        return (nVersion > ZEROCOIN_VERSION);
     }
 
     int64_t GetZerocoinSupply() const
@@ -493,7 +493,7 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-        if(this->nVersion > 3) {
+        if(this->nVersion > POS_VERSION) {
             READWRITE(nAccumulatorCheckpoint);
 #ifdef  POW_IN_POS_PHASE
             if (IsProofOfStake())

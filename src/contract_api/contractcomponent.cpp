@@ -252,7 +252,7 @@ bool CContractComponent::ContractInit()
     }
 
 
-    LogPrint("AppInitMain ","fGettingValuesDGP = %d", fGettingValuesDGP);
+    LogPrintf("AppInitMain: fGettingValuesDGP = %d", fGettingValuesDGP);
 
     dev::eth::Ethash::init();
     boost::filesystem::path stateDir = GetDataDir() / CONTRACT_STATE_DIR;
@@ -1295,7 +1295,10 @@ dev::eth::BlockHeader ByteCodeExec::initBlockHeader()
 //    }else
     if (block.IsProofOfStake())
     {
-        blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[2].scriptPubKey));
+        if (block.nVersion < SMART_CONTRACT_VERSION)
+            blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
+        else
+            blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[2].scriptPubKey));
     }
     else
     {

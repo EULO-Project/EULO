@@ -3383,7 +3383,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     unsigned int flags = fStrictPayToScriptHash ? SCRIPT_VERIFY_P2SH : SCRIPT_VERIFY_NONE;
 
     // Start enforcing the DERSIG (BIP66) rules, for block.nVersion=3 blocks, when 75% of the network has upgraded:
-    if (block.nVersion >= 3 && CBlockIndex::IsSuperMajority(3, pindex->pprev, Params().EnforceBlockUpgradeMajority())) {
+    if (block.nVersion >= POS_VERSION && CBlockIndex::IsSuperMajority(POS_VERSION, pindex->pprev, Params().EnforceBlockUpgradeMajority())) {
         flags |= SCRIPT_VERIFY_DERSIG;
     }
 
@@ -3504,7 +3504,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::list<libzerocoin::CoinDenomination> listSpends = ZerocoinSpendListFromBlock(block, fFilterInvalid);
 
     // Initialize zerocoin supply to the supply from previous block
-    if (pindex->pprev && pindex->pprev->GetBlockHeader().nVersion > 3) {
+    if (pindex->pprev && pindex->pprev->GetBlockHeader().nVersion > POS_VERSION) {
         for (auto& denom : zerocoinDenomList) {
             pindex->mapZerocoinSupply.at(denom) = pindex->pprev->mapZerocoinSupply.at(denom);
         }

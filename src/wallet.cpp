@@ -2532,12 +2532,14 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     CScript scriptEmpty;
     scriptEmpty.clear();
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
-    if (pblock->nVersion > 4)
+    if (pblock->nVersion > ZEROCOIN_VERSION)
     {
         uint256 utxoRoot;
-	uint256	stateRoot;
+    	uint256	stateRoot;
 
         contractComponent.GetState(stateRoot, utxoRoot);
+
+        LogPrintf("POS stateRoot: %s, utxoRoot: %s\n", stateRoot.GetHex().c_str(), utxoRoot.GetHex().c_str());
 
         CScript contract = CScript() << ParseHex(stateRoot.GetHex().c_str()) << ParseHex(utxoRoot.GetHex().c_str()) << OP_VM_STATE;
 
@@ -2686,13 +2688,14 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     nCredit += nReward;
 
     CAmount nMinFee = 0;
+    size_t statesize = (pblock->nVersion < SMART_CONTRACT_VERSION) ? 0 : 1;
     while (true) {
         // Set output amount
-        if (txNew.vout.size() == 3) {
-            txNew.vout[1].nValue = ((nCredit) / 2 / CENT) * CENT;
-            txNew.vout[2].nValue = nCredit - txNew.vout[1].nValue;
+        if (txNew.vout.size() == (3 + statesize)) {
+            txNew.vout[1 + statesize].nValue = ((nCredit) / 2 / CENT) * CENT;
+            txNew.vout[2 + statesize].nValue = nCredit - txNew.vout[1].nValue;
         } else
-            txNew.vout[1].nValue = nCredit - nMinFee;
+            txNew.vout[1 + statesize].nValue = nCredit - nMinFee;
 
         // Limit size
         unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);

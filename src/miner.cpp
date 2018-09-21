@@ -182,13 +182,13 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     bool fZerocoinActive = (GetAdjustedTime() >= Params().Zerocoin_StartTime()) && (chainActive.Height() + 1 >= Params().Zerocoin_StartHeight());
     bool fContractActive = (chainActive.Height() + 1 >= Params().Contract_StartHeight());
     if (chainActive.Height() + 1 <= Params().LAST_POW_BLOCK()) {
-        pblock->nVersion = 2;
+        pblock->nVersion = POW_VERSION;
     } else if (!fZerocoinActive)
-        pblock->nVersion = 3;
+        pblock->nVersion = POS_VERSION;
     else if (!fContractActive)
-        pblock->nVersion = 4;
+        pblock->nVersion = ZEROCOIN_VERSION;
     else
-        pblock->nVersion = 5;
+        pblock->nVersion = SMART_CONTRACT_VERSION;
 
     // Create coinbase tx
     CMutableTransaction txNew;
@@ -483,7 +483,10 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
                 bool  bUpdateCoinStake = true;
 
                 //  fees to POS Miner.
-                txCoinStake.vout[1].nValue += nFees;
+                if (pblock->nVersion < SMART_CONTRACT_VERSION)
+                    txCoinStake.vout[1].nValue += nFees;
+                else
+                    txCoinStake.vout[2].nValue += nFees;
 
                 // Sign
                 for (size_t nIn = 0; nIn < txCoinStake.vin.size(); nIn++) {
