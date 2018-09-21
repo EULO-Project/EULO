@@ -61,8 +61,8 @@ ChainParams ChainParams::loadConfig(
     js::mValue val;
     js::read_string_or_throw(_json, val);
     js::mObject obj = val.get_obj();
-
-    validateConfigJson(obj);
+//  FixMe
+//    validateConfigJson(obj);
     cp.sealEngineName = obj[c_sealEngine].get_str();
     // params
     js::mObject params = obj[c_params].get_obj();
