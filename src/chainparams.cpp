@@ -106,7 +106,7 @@ public:
         pchMessageStart[3] = 0xe5;
         vAlertPubKey = ParseHex("0490e0480bf864eece4ddca8787bb1a74f823361e7e9e931e67385b6976600a98637e2f2eb32568035266789c44e0471443bbe27efd6673284e53d4f16272566f9");
         nDefaultPort = 58802;
-        bnProofOfWorkLimit = ~uint256(0) >> 20; // EULO starting difficulty is 1 / 2^20
+        bnProofOfWorkLimit = ~uint256(0) >> 16; // EULO starting difficulty is 1 / 2^20
         nSubsidyHalvingInterval = 210000;
         nMaxReorganizationDepth = 100;
         nEnforceBlockUpgradeMajority = 750;
