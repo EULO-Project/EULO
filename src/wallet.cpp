@@ -2699,7 +2699,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
             txNew.vout[1 + statesize].nValue = ((nCredit) / 2 / CENT) * CENT;
             txNew.vout[2 + statesize].nValue = nCredit - txNew.vout[1].nValue;
         } else
-            txNew.vout[1 + statesize].nValue = nCredit - nMinFee;
+            txNew.vout[1 + statesize].nValue = nCredit;
 
         // Limit size
         unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
@@ -2710,7 +2710,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
 
         // Check enough fee is paid
         if (nMinFee < nFeeNeeded) {
-            nMinFee = nFeeNeeded;
+            // nMinFee = nFeeNeeded;
             continue; // try signing again
         } else {
             if (fDebug)

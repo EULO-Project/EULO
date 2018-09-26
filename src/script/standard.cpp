@@ -79,6 +79,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                                     << OP_VM_STATE));
     }
 
+    vSolutionsRet.clear();
     // Shortcut for pay-to-script-hash, which are more constrained than the other types:
     // it is always OP_HASH160 20 [20 byte hash] OP_EQUAL
     if (scriptPubKey.IsPayToScriptHash())
@@ -118,8 +119,8 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         opcodetype opcode1, opcode2;
         vector<unsigned char> vch1, vch2;
 
-        VersionVM version;  //eulo-vm
-        version.rootVM = 20; //eulo-vm set to some invalid value
+        VersionVM version;      //  eulo-vm
+        version.rootVM = 20;    //  eulo-vm set to some invalid value
 
         // Compare
         CScript::const_iterator pc1 = script1.begin();
