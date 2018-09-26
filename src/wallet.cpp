@@ -2694,7 +2694,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
 
         // Check enough fee is paid
         if (nMinFee < nFeeNeeded) {
-            nMinFee = nFeeNeeded;
+            // nMinFee = nFeeNeeded;
             continue; // try signing again
         } else {
             if (fDebug)
