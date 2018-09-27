@@ -15,6 +15,11 @@
 
 #include <boost/thread.hpp>
 
+////////////////////////////////////////// // eulo-vm
+static const char DB_HEIGHTINDEX = 'h';
+static const char DB_STAKEINDEX = 's';
+//////////////////////////////////////////
+
 using namespace std;
 using namespace libzerocoin;
 

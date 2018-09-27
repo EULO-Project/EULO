@@ -264,7 +264,7 @@ public:
 
     bool HasOpSpend() const;
 
-//    bool CheckSenderScript(const CCoinsViewCache& view) const ;
+    bool CheckSenderScript(const CCoinsViewCache& view) const ;
     ////////////////////////////////////////
 
     bool IsZerocoinSpend() const

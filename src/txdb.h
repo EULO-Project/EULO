@@ -67,6 +67,8 @@ public:
     bool WriteInt(const std::string& name, int nValue);
     bool ReadInt(const std::string& name, int& nValue);
     bool LoadBlockIndexGuts();
+
+
 };
 
 class CZerocoinDB : public CLevelDBWrapper

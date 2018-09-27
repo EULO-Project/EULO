@@ -30,6 +30,7 @@
 #include "tmpblocksmempool.h"
 #include "uint256.h"
 #include "undo.h"
+#include "contractconfig.h"
 
 #include <algorithm>
 #include <exception>

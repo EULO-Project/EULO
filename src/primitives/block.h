@@ -225,6 +225,11 @@ public:
         return !IsProofOfStake();
     }
 
+    bool IsContractEnabled() const
+    {
+        return (nVersion > ZEROCOIN_VERSION);
+    }
+
     bool SignBlock(const CKeyStore& keystore);
     bool CheckBlockSignature() const;
 

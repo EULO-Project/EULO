@@ -3079,6 +3079,32 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
+
+    //eulo-vm
+    uint256 hashStateRoot;
+    uint256 hashUTXORoot;
+    CBlock prevblock;
+    if (!ReadBlockFromDisk(prevblock, pindex->pprev)) {
+        //TODO  LogError
+        error("ReadBlockFromDisk failed at %d, hash=%s", pindex->pprev->nHeight,pindex->pprev->GetBlockHash().ToString());
+    } else {
+        if(prevblock.GetVMState(hashStateRoot, hashUTXORoot) == RET_VM_STATE_ERR)
+        {
+            error("GetVMState err");
+        }
+    }
+    contractComponent.UpdateState(hashStateRoot, hashUTXORoot);
+
+    //FixMe: set IsLogEvents to false
+    if (pfClean == NULL && false)
+    {
+        contractComponent.DeleteResults(block.vtx);
+        //FixMe:
+       // ifChainObj->GetBlockTreeDB()->EraseHeightIndex(pindex->nHeight);
+    }
+
+
+
     if (!fVerifyingBlocks) {
         //if block is an accumulator checkpoint block, remove checkpoint and checksums from db
         uint256 nCheckpoint = pindex->nAccumulatorCheckpoint;
@@ -3352,6 +3378,53 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
     bool fScriptChecks = pindex->nHeight >= Checkpoints::GetTotalBlocksEstimate();
 
+    //-------------------eulo-vm------------------------
+    //////////////////////////////////////eulo-evm
+    if ((pindex->nHeight > Params().Contract_StartHeight()) && !pindex->IsContractEnabled())
+    {
+        return state.DoS(100, error("Contract Block veriosn error"), REJECT_INVALID);
+    }
+
+    uint256 blockhashStateRoot ;
+    uint256 blockhashUTXORoot;
+    blockhashStateRoot.SetNull();
+    blockhashUTXORoot.SetNull();
+    //the first new block hight,
+    if (pindex->nHeight == Params().Contract_StartHeight() + 1)
+    {
+        if(block.GetVMState(blockhashStateRoot, blockhashUTXORoot) != RET_VM_STATE_OK)
+        {
+            return state.DoS(100, error("Block hashStateRoot or  hashUTXORoot not exist"), REJECT_INVALID);
+        }
+        if (blockhashStateRoot != DEFAULT_HASH_STATE_ROOT)
+        {
+            return state.DoS(100, error("Block hashStateRoot error"), REJECT_INVALID, );
+        }
+        if (blockhashUTXORoot != DEFAULT_HASH_UTXO_ROOT)
+        {
+            return state.DoS(100, error("Block hashUTXORoot error"), REJECT_INVALID, );
+        }
+    }else if(pindex->nHeight > Params().Contract_StartHeight() + 1)
+    {
+        // after Contract_StartHeight ,must have blockhashStateRoot and blockhashUTXORoot
+        if(block.GetVMState(blockhashStateRoot, blockhashUTXORoot) != RET_VM_STATE_OK)
+        {
+            return state.DoS(100, error("Block hashStateRoot or  hashUTXORoot not exist"), REJECT_INVALID);
+        }
+        if (blockhashStateRoot.IsNull())
+        {
+            return state.DoS(100, error("Block hashStateRoot not exist"), REJECT_INVALID);
+        }
+        if (blockhashUTXORoot.IsNull())
+        {
+            return state.DoS(100, error("Block hashUTXORoot not exist"), REJECT_INVALID);
+        }
+    }
+
+    ////////////////////////////////////////
+
+
+
     // Do not allow blocks that contain transactions which 'overwrite' older transactions,
     // unless those are already completely spent.
     // If such overwrites are allowed, coinbases and transactions depending upon those
@@ -3375,6 +3448,17 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                     REJECT_INVALID, "bad-txns-BIP30");
         }
     }
+
+    //-----------------eulo-vm-----------------------
+    CBlock checkBlock(block.GetBlockHeader());
+    std::vector<CTxOut> checkVouts;
+
+    // Check it again in case a previous version let a bad block in
+    if (!CheckBlock(block, state, chainparams.GetConsensus(), !fJustCheck, !fJustCheck))
+    {
+        return LogPrintf("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
+    }
+
 
     // BIP16 didn't become active until Apr 1 2012
     int64_t nBIP16SwitchTime = 1333238400;
@@ -3402,14 +3486,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CAmount nValueOut = 0;
     CAmount nValueIn = 0;
     unsigned int nMaxBlockSigOps = MAX_BLOCK_SIGOPS_CURRENT;
+
+    ///////////////////////////////////////////////////////// // eulo-vm
+    std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> heightIndexes;
+
+    /////////////////////////////////////////////////////////
+
+
     for (unsigned int i = 0; i < block.vtx.size(); i++) {
         const CTransaction& tx = block.vtx[i];
+        CAmount gasRefunds = 0;
+        CAmount nFeesContract = 0;
 
         nInputs += tx.vin.size();
         nSigOps += GetLegacySigOpCount(tx);
         if (nSigOps > nMaxBlockSigOps)
             return state.DoS(100, error("ConnectBlock() : too many sigops"),
                 REJECT_INVALID, "bad-blk-sigops");
+
+
+        bool hasOpSpend = tx.HasOpSpend(); //eulo-vm
 
         //Temporarily disable zerocoin transactions for maintenance
         if (block.nTime > GetSporkValue(SPORK_16_ZEROCOIN_MAINTENANCE_MODE) && !IsInitialBlockDownload() && tx.ContainsZerocoins())
@@ -3477,16 +3573,102 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                         REJECT_INVALID, "bad-blk-sigops");
             }
 
-            if (!tx.IsCoinStake())
-                nFees += view.GetValueIn(tx) - tx.GetValueOut();
+
+            //--------------eulo-vm----------------
+            CAmount tmpCalcFee = view.GetValueIn(tx) - tx.GetValueOut();
+            if(tmpCalcFee < 0)
+            {
+                return state.DoS(100, error("tx nFee is error"), REJECT_INVALID);
+            }
+            if(!tx.HasCreateOrCall()) {
+                nFees += tmpCalcFee;
+            }else{
+                nFeesContract = tmpCalcFee;
+            }
+            //--------------eulo-vm----------------
+
+
+
             nValueIn += view.GetValueIn(tx);
 
             std::vector<CScriptCheck> vChecks;
             if (!CheckInputs(tx, state, view, fScriptChecks, flags, false, nScriptCheckThreads ? &vChecks : NULL))
                 return false;
             control.Add(vChecks);
+
+            //eulo-vm
+            for (const CTxIn &j : tx.vin)
+            {
+                if (!j.scriptSig.HasOpSpend())
+                {
+
+                    const CTxOut &prevout = view.AccessCoins(j.prevout.hash)->vout[j.prevout.n];
+                    if ((prevout.scriptPubKey.HasOpCreate() || prevout.scriptPubKey.HasOpCall()))
+                    {
+                        return state.DoS(100, error("bad-txns-invalid-contract-spend"), REJECT_INVALID);
+                    }
+                }
+            }
+
+
+
         }
-        nValueOut += tx.GetValueOut();
+
+        //-------------eulo-vm------------------
+        if (tx.IsCoinBase())
+        {
+            nValueOut += tx.GetValueOut();
+        }
+        else
+        {
+            int64_t nTxValueIn = view.GetValueIn(tx);
+            int64_t nTxValueOut = tx.GetValueOut();
+            nValueIn += nTxValueIn;
+            nValueOut += nTxValueOut;
+        }
+
+        ///////////////////////////////////////////////////////////////////////////////////////// eulo-vm
+        if (!tx.HasOpSpend())
+        {
+            checkBlock.vtx.push_back(block.vtx[i]);
+        }
+        if (tx.HasCreateOrCall() && !hasOpSpend)
+        {
+
+            if (!tx.CheckSenderScript(view))
+            {
+                return state.DoS(100, error("bad-txns-invalid-sender-script"), REJECT_INVALID, );
+            }
+
+            int level = 0;
+            string errinfo;
+            ByteCodeExecResult bcer;
+
+            //FixMe: set IsLogEvents() to false
+            if (!contractComponent.ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
+                                                       bcer, false, fJustCheck, heightIndexes,
+                                                       level, errinfo))
+            {
+                return state.DoS(level, error(errinfo), REJECT_INVALID);
+            }
+            for (CTxOut refundVout : bcer.refundOutputs)
+            {
+                gasRefunds += refundVout.nValue;
+            }
+            checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
+            for (CTransaction &t : bcer.valueTransfers)
+            {
+                checkBlock.vtx.push_back(t);
+            }
+            if(nFeesContract < gasRefunds)
+            {
+                return state.DoS(100, error("contract tx nFee is error"), REJECT_INVALID);
+            }
+
+            nFees += (nFeesContract - gasRefunds);//contract tx Actual fee
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////
+
 
         CTxUndo undoDummy;
         if (i > 0) {
@@ -3550,6 +3732,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     nTimeConnect += nTime1 - nTimeStart;
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs - 1), nTimeConnect * 0.000001);
 
+
+
+
+
     //PoW phase redistributed fees to miner. PoS stage destroys fees.
     CAmount nExpectedMint = GetBlockValue(pindex->pprev->nHeight);
 
@@ -3585,8 +3771,140 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     nTimeVerify += nTime2 - nTimeStart;
     LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime2 - nTimeStart), nInputs <= 1 ? 0 : 0.001 * (nTime2 - nTimeStart) / (nInputs - 1), nTimeVerify * 0.000001);
 
-    if (fJustCheck)
-        return true;
+
+    ////////////////////////////////////////////////////////////////// // eulo-vm
+    if(block.vtx.size() > 1) {
+        //check coinbase2 vout must contain all gas refund vouts.
+        std::vector<CTxOut> vTempVouts = block.vtx[1].vout;
+        std::vector<CTxOut>::iterator it;
+        for (size_t i = 0; i < checkVouts.size(); i++) {
+            it = std::find(vTempVouts.begin(), vTempVouts.end(), checkVouts[i]);
+            if (it == vTempVouts.end()) {
+                return state.DoS(100, error("Gas refund missing"), REJECT_INVALID);
+            } else {
+                vTempVouts.erase(it);
+            }
+        }
+    }
+    //////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////// // sbtc-vm
+        checkBlock.hashMerkleRoot =  checkBlock.BuildMerkleTree();
+
+        //If this error happens, it probably means that something with AAL created transactions didn't match up to what is expected
+        if ((checkBlock.GetHash() != block.GetHash()) && !fJustCheck)
+        {
+            LogPrintf("Actual block data does not match block expected by AAL");
+            //Something went wrong with AAL, compare different elements and determine what the problem is
+            if (checkBlock.hashMerkleRoot != block.hashMerkleRoot)
+            {
+                //there is a mismatched tx, so go through and determine which txs
+                if (block.vtx.size() > checkBlock.vtx.size())
+                {
+                    LogPrintf("Unexpected AAL transactions in block. Actual txs: %i, expected txs: %i", block.vtx.size(),
+                               checkBlock.vtx.size());
+                    for (size_t i = 0; i < block.vtx.size(); i++)
+                    {
+                        if (i > checkBlock.vtx.size())
+                        {
+                            LogPrintf("Unexpected transaction: %s", block.vtx[i].ToString());
+                        } else
+                        {
+                            if (block.vtx[i].GetHash() != block.vtx[i].GetHash())
+                            {
+                                LogPrintf("Mismatched transaction at entry %i", i);
+                                LogPrintf("Actual: %s", block.vtx[i].ToString());
+                                LogPrintf("Expected: %s", checkBlock.vtx[i].ToString());
+                            }
+                        }
+                    }
+                } else if (block.vtx.size() < checkBlock.vtx.size())
+                {
+                    LogPrintf("Actual block is missing AAL transactions. Actual txs: %i, expected txs: %i",
+                               block.vtx.size(), checkBlock.vtx.size());
+                    for (size_t i = 0; i < checkBlock.vtx.size(); i++)
+                    {
+                        if (i > block.vtx.size())
+                        {
+                            LogPrintf("Missing transaction: %s", checkBlock.vtx[i].ToString());
+                        } else
+                        {
+                            if (block.vtx[i].GetHash() != block.vtx[i].GetHash())
+                            {
+                                LogPrintf("Mismatched transaction at entry %i", i);
+                                LogPrintf("Actual: %s", block.vtx[i].ToString());
+                                LogPrintf("Expected: %s", checkBlock.vtx[i].ToString());
+                            }
+                        }
+                    }
+                } else
+                {
+                    //count is correct, but a tx is wrong
+                    for (size_t i = 0; i < checkBlock.vtx.size(); i++)
+                    {
+                        if (block.vtx[i].GetHash() != block.vtx[i].GetHash())
+                        {
+                            LogPrintf("Mismatched transaction at entry %i", i);
+                            LogPrintf("Actual: %s", block.vtx[i].ToString());
+                            LogPrintf("Expected: %s", checkBlock.vtx[i].ToString());
+                        }
+                    }
+                }
+            }
+
+            uint256 hashStateRoot;
+            uint256 hashUTXORoot;
+            contractComponent.GetState(hashStateRoot, hashUTXORoot);
+            if (hashUTXORoot != blockhashUTXORoot)
+            {
+                LogPrintf("Actual block data does not match hashUTXORoot expected by AAL block");
+            }
+            if (hashStateRoot != blockhashStateRoot)
+            {
+                LogPrintf("Actual block data does not match hashStateRoot expected by AAL block");
+            }
+
+            return state.DoS(100, error("incorrect-transactions-or-hashes-block"), REJECT_INVALID);
+        }
+
+
+        if (fJustCheck)  //sbtc-vm
+        {
+            /////////////////////////////////////////////////// eulo-evm
+            uint256 prevHashStateRoot = DEFAULT_HASH_STATE_ROOT;
+            uint256 prevHashUTXORoot = DEFAULT_HASH_UTXO_ROOT;
+
+            uint256 hashStateRoot;
+            uint256 hashUTXORoot;
+            CBlock prevblock;
+            if (ReadBlockFromDisk(prevblock, pindex->pprev)) {
+                if(prevblock.GetVMState(hashStateRoot, hashUTXORoot) == RET_VM_STATE_ERR)
+                {
+                    LogPrintf("GetVMState err");
+                    return false;
+                }
+            }
+
+    //        if (pindex->pprev->hashStateRoot != uint256() && pindex->pprev->hashUTXORoot != uint256())
+            if (hashStateRoot != uint256() && hashUTXORoot != uint256()) {
+                prevHashStateRoot = hashStateRoot;
+                prevHashUTXORoot = hashUTXORoot;
+            }
+            contractComponent.UpdateState(prevHashStateRoot,prevHashUTXORoot);//after the create new block,immediately recovery state
+            ///////////////////////////////////////////////////
+            return true;
+        }
+
+        //sbtc-vm
+        //FixMe: set IsLogEvents() to false
+        if (false)
+        {
+//            for (const auto &e: heightIndexes)
+//            {
+//                if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
+//                    return AbortNode(state, "Failed to write height index");
+//            }
+        }
 
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull() || !pindex->IsValid(BLOCK_VALID_SCRIPTS)) {
@@ -3625,6 +3943,13 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     int64_t nTime4 = GetTimeMicros();
     nTimeCallbacks += nTime4 - nTime3;
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime4 - nTime3), nTimeCallbacks * 0.000001);
+
+    //sbtc-vm
+    //FixMe: set IsLogEvents() to false
+    if (false)
+    {
+       contractComponent.CommitResults();
+    }
 
     return true;
 }
@@ -3813,12 +4138,21 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
     int64_t nTime3;
     LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
+        //eulo-vm
+        uint256 oldHashStateRoot, oldHashUTXORoot;
+        contractComponent.GetState(oldHashStateRoot, oldHashUTXORoot);
+
+
         CInv inv(MSG_BLOCK, pindexNew->GetBlockHash());
         bool rv = ConnectBlock(*pblock, state, pindexNew, view, false, fAlreadyChecked);
         g_signals.BlockChecked(*pblock, state);
         if (!rv) {
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
+
+            contractComponent.UpdateState(oldHashStateRoot, oldHashUTXORoot);//eulo-vm
+            contractComponent.ClearCacheResult();//eulo-vm
+
             return error("ConnectTip() : ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
         mapBlockSource.erase(inv.hash);
@@ -4498,7 +4832,35 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         for (unsigned int i = 2; i < block.vtx.size(); i++)
             if (block.vtx[i].IsCoinStake())
                 return state.DoS(100, error("CheckBlock() : more than one coinstake"));
+
+
+        //eulo-evm
+        if(block.IsContractEnabled()){
+
+            //Don't allow contract opcodes in coinbase   //eulo-vm
+            if (block.vtx[0].HasOpSpend() || block.vtx[0].HasCreateOrCall())
+            {
+                return state.DoS(100, error("coinbase must not contain OP_SPEND, OP_CALL, or OP_CREATE"), REJECT_INVALID, "bad-cb-contract", false);
+            }
+
+            if(!(block.vtx.size() > 1) || (!block.vtx[1].IsCoinBase2()))
+            {
+                return state.DoS(100, error("coinbase2 tx is not evm hash root"), REJECT_INVALID, "bad-cb2-missing", false);
+            }
+
+            if (block.vtx[1].HasOpSpend() || block.vtx[1].HasCreateOrCall()) {
+                return state.DoS(100, error("coinbase2 must not contain OP_SPEND, OP_CALL, or OP_CREATE"), REJECT_INVALID, "bad-cb2-contract", false);
+            }
+            for (unsigned int i = 2; i < block.vtx.size(); i++)
+                if (block.vtx[i]->IsCoinBase2())
+                    return state.DoS(100, error("more than one coinbase2"), REJECT_INVALID, "bad-cb2-multiple", false);
+        }
+
+
     }
+
+    bool lastWasContract = false; //eulo-vm
+
 
     // ----------- swiftTX transaction scanning -----------
     if (IsSporkActive(SPORK_3_SWIFTTX_BLOCK_FILTERING)) {
@@ -4570,6 +4932,20 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
                 }
             }
         }
+
+        //eulo-vm
+        //OP_SPEND can only exist immediately after a contract tx in a block, or after another OP_SPEND
+        //So, if the previous tx was not a contract tx, fail it.
+        if (tx.HasOpSpend())
+        {
+            if (!lastWasContract)
+            {
+                return state.DoS(100, error("OP_SPEND transaction without corresponding contract transaction"), REJECT_INVALID, "bad-opspend-tx", false);
+            }
+        }
+        lastWasContract = tx.HasCreateOrCall() || tx.HasOpSpend();
+
+
     }
 
 
@@ -5369,6 +5745,11 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
     CBlockIndex* pindexFailure = NULL;
     int nGoodTransactions = 0;
     CValidationState state;
+
+    uint256 oldHashStateRoot, oldHashUTXORoot;
+    contractComponent.GetState(oldHashStateRoot, oldHashUTXORoot);//eulo-vm
+
+
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev) {
         boost::this_thread::interruption_point();
         uiInterface.ShowProgress(_("Verifying blocks..."), std::max(1, std::min(99, (int)(((double)(chainActive.Height() - pindex->nHeight)) / (double)nCheckDepth * (nCheckLevel >= 4 ? 50 : 100)))));
@@ -5418,9 +5799,19 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
             CBlock block;
             if (!ReadBlockFromDisk(block, pindex))
                 return error("VerifyDB() : *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+            uint256 oldHashStateRoot, oldHashUTXORoot;
+            contractComponent.GetState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
             if (!ConnectBlock(block, state, pindex, coins, false))
+            {
+                contractComponent.UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
+                contractComponent.ClearCacheResult(); //eulo-vm
                 return error("VerifyDB() : *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
+            }
         }
+    }
+    else
+    {
+        contractComponent.UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
     }
 
     LogPrintf("No coin database inconsistencies in last %i blocks (%i transactions)\n", chainActive.Height() - pindexState->nHeight, nGoodTransactions);

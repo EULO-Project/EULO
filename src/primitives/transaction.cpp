@@ -280,7 +280,8 @@ bool CTransaction::HasOpSpend() const
     return false;
 }
 
-#if 0
+/////////////////////////////////////////////////////////////eulo-vm
+
 bool CTransaction::CheckSenderScript(const CCoinsViewCache &view) const
 {
 
@@ -305,7 +306,6 @@ bool CTransaction::CheckSenderScript(const CCoinsViewCache &view) const
     }
     return true;
 }
-#endif
 /////////////////////////////////////////////////////////////
 
 std::string CTransaction::ToString() const
