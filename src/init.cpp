@@ -1714,7 +1714,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         }
     }
 
-    fEnableZeromint = GetBoolArg("-enablezeromint", true);
+    fEnableZeromint = GetBoolArg("-enablezeromint", false);
     fEnableLz4Block = GetBoolArg("-enablelz4block", false);
 
     nZeromintPercentage = GetArg("-zeromintpercentage", 10);

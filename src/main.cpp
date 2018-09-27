@@ -3539,9 +3539,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nMoneySupply = nMoneySupplyPrev + nValueOut - nValueIn;
     pindex->nMint = pindex->nMoneySupply - nMoneySupplyPrev + nFees;
 
-//    LogPrintf("XX69----------> ConnectBlock(): nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s zUloSpent: %s\n",
-//              FormatMoney(nValueOut), FormatMoney(nValueIn),
-//              FormatMoney(nFees), FormatMoney(pindex->nMint), FormatMoney(nAmountZerocoinSpent));
+    LogPrintf("ConnectBlock(): prev supply %s, nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s zUloSpent: %s\n", FormatMoney(nMoneySupplyPrev),
+              FormatMoney(nValueOut), FormatMoney(nValueIn),
+              FormatMoney(nFees), FormatMoney(pindex->nMint), FormatMoney(nAmountZerocoinSpent));
 
     if (!pblocktree->WriteBlockIndex(CDiskBlockIndex(pindex)))
         return error("Connect() : WriteBlockIndex for pindex failed");
@@ -5056,6 +5056,9 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
     AssertLockHeld(cs_main);
     assert(pindexPrev == chainActive.Tip());
 
+    uint256 hashUTXORoot;
+    uint256 hashStateRoot;
+
     CCoinsViewCache viewNew(pcoinsTip);
     CBlockIndex indexDummy(block);
     indexDummy.pprev = pindexPrev;
@@ -5068,8 +5071,13 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
         return false;
     if (!ContextualCheckBlock(block, state, pindexPrev))
         return false;
+    contractComponent.GetState(hashStateRoot, hashUTXORoot);
     if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
+    {
+        contractComponent.UpdateState(hashStateRoot, hashUTXORoot);
+        contractComponent.ClearCacheResult();
         return false;
+    }
     assert(state.IsValid());
 
     return true;
