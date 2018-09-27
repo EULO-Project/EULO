@@ -2305,7 +2305,8 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
     AvailableCoinsType coin_type,
     bool useIX,
     CAmount nFeePay,
-    CAmount nGasFee)
+    CAmount nGasFee,
+    bool hasSender)
 {
     if (useIX && nFeePay < CENT) nFeePay = CENT;
 
@@ -2517,11 +2518,11 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
     return true;
 }
 
-bool CWallet::CreateTransaction(CScript scriptPubKey, const CAmount& nValue, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, std::string& strFailReason, const CCoinControl* coinControl, AvailableCoinsType coin_type, bool useIX, CAmount nFeePay)
+bool CWallet::CreateTransaction(CScript scriptPubKey, const CAmount& nValue, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, std::string& strFailReason, const CCoinControl* coinControl, AvailableCoinsType coin_type, bool useIX, CAmount nFeePay, CAmount nGasFee, bool hasSender)
 {
     vector<pair<CScript, CAmount> > vecSend;
     vecSend.push_back(make_pair(scriptPubKey, nValue));
-    return CreateTransaction(vecSend, wtxNew, reservekey, nFeeRet, strFailReason, coinControl, coin_type, useIX, nFeePay);
+    return CreateTransaction(vecSend, wtxNew, reservekey, nFeeRet, strFailReason, coinControl, coin_type, useIX, nFeePay, nGasFee, hasSender);
 }
 
 // ppcoin: create coin stake transaction

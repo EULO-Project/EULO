@@ -19,6 +19,7 @@
 #include "walletdb.h"
 #include "main.h"
 #include "contractconfig.h"
+#include "coincontrol.h"
 
 #include <stdint.h>
 
@@ -2125,7 +2126,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
                                  FormatMoney(minGasPrice) + " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
         );
 
-    string bytecode = params[0].get_str();
+    std::string bytecode = params[0].get_str();
 
     if (!IsHex(bytecode))
     {
@@ -2173,7 +2174,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasPrice is not (numeric or string)");
         }
 
-        CAmount maxRpcGasPrice = Args().GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
+        CAmount maxRpcGasPrice = GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
         if (nGasPrice > (int64_t)maxRpcGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: " +
                                                FormatMoney(maxRpcGasPrice) + " (use -rpcmaxgasprice to change it)");
@@ -2224,7 +2225,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
         for (const COutput &out : vecOutputs)
         {
             CTxDestination address;
-            const CScript &scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            const CScript &scriptPubKey = out.tx->vout[out.i].scriptPubKey;
             bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
             CBitcoinAddress destAdress(address);
@@ -2276,8 +2277,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
 
     vecSend.push_back(std::make_pair(scriptPubKey, 0));
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true,
-                                    nGasFee, fHasSender))
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, nGasFee, fHasSender))
     {
         if (nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf(
@@ -2287,7 +2287,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
     }
 
     CTxDestination txSenderDest;
-    ExtractDestination(pwalletMain->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey,
+    ExtractDestination(pwalletMain->mapWallet[wtx.vin[0].prevout.hash].vout[wtx.vin[0].prevout.n].scriptPubKey,
                        txSenderDest);
 
     if (fHasSender && !(senderAddress.Get() == txSenderDest))
@@ -2301,42 +2301,46 @@ UniValue createcontract(const UniValue& params, bool fHelp)
     {
         //////////////////////////////////////////////////////////// //eulo-vm
         // check contract tx
-        if (!wtx.tx->CheckTransaction(state)) // state filled in by CheckTransaction
+        if (!CheckTransaction(wtx, height >= Params().Zerocoin_StartHeight(), false, state)) // state filled in by CheckTransaction
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
         }
 
-        CCoinsView dummy;
-        CCoinsViewCache view(&dummy);
-
-        GET_CHAIN_INTERFACE(ifChainObj);
-        CCoinsViewCache *pcoinsTip = ifChainObj->GetCoinsTip();
-
-        GET_TXMEMPOOL_INTERFACE(ifMempoolObj);
-        CCoinsViewMemPool viewMemPool(pcoinsTip, ifMempoolObj->GetMemPool());
-        view.SetBackend(viewMemPool);
-
+        
         CAmount nMinGasPrice = 0;
-        CAmount nValueIn = view.GetValueIn(*(wtx.tx));
-        CAmount nValueOut = wtx.tx->GetValueOut();
-        CAmount nFees = nValueIn - nValueOut;
+        CAmount nValueIn = 0;
+        CAmount nValueOut = 0;
+        CAmount nFees = 0;
 
-        if (!wtx.tx->CheckSenderScript(view))
         {
-            throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            CCoinsView dummy;
+            CCoinsViewCache view(&dummy);
+
+            LOCK(mempool.cs);
+            CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+            view.SetBackend(viewMemPool);
+
+            nMinGasPrice = 0;
+            nValueIn = view.GetValueIn(wtx);
+            nValueOut = wtx.GetValueOut();
+            nFees = nValueIn - nValueOut;
+
+            if (!wtx.CheckSenderScript(view))
+            {
+                throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            }
         }
 
         int level = 0;
         string errinfo;
 
-        GET_CONTRACT_INTERFACE(ifContractObj);
-        if (!ifContractObj->CheckContractTx(*(wtx.tx), nFees, nMinGasPrice, level, errinfo))
+        if (!contractComponent.CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
         {
             throw JSONRPCError(RPC_TYPE_ERROR, errinfo);
         }
         ////////////////////////////////////////////////////////////
 
-        if (!pwalletMain->CommitTransaction(wtx, reservekey, g_connman.get(), state))
+        if (!pwalletMain->CommitTransaction(wtx, reservekey, "smart-contract"))
             throw JSONRPCError(RPC_WALLET_ERROR,
                                "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
 
@@ -2351,11 +2355,11 @@ UniValue createcontract(const UniValue& params, bool fHelp)
         result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(), keyid.end()))));
 
         std::vector<unsigned char> SHA256TxVout(32);
-        vector<unsigned char> contractAddress(20);
-        vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
+        std::vector<unsigned char> contractAddress(20);
+        std::vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
         uint32_t voutNumber = 0;
         //        BOOST_FOREACH(const CTxOut& txout, wtx.tx->vout) {
-        for (const CTxOut &txout : wtx.tx->vout)
+        for (const CTxOut &txout : wtx.vout)
         {
             if (txout.scriptPubKey.HasOpCreate())
             {
@@ -2373,15 +2377,15 @@ UniValue createcontract(const UniValue& params, bool fHelp)
         result.push_back(Pair("address", HexStr(contractAddress)));
     } else
     {
-        string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
+        std::string strHex = EncodeHexTx(wtx);
         result.push_back(Pair("raw transaction", strHex));
     }
-    GET_TXMEMPOOL_INTERFACE(ifTxMempoolObj);
-    if (!ifTxMempoolObj->GetMemPool().exists(wtx.GetHash()))
+    if (!mempool.exists(wtx.GetHash()))
     {
         result.push_back(Pair("state", strprintf("Warning: Transaction cannot be broadcast immediately! %s",
                                                  state.GetRejectReason())));
     }
+
     return result;
 }
 #if 0
