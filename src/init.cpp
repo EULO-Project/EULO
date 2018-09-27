@@ -1456,7 +1456,7 @@ bool AppInit2(boost::thread_group& threadGroup)
 
     //FixMe: Start CContractComponent at a proper moment,
     //this may not be the best time, needs check,
-    //but blockchain needs to be loaded refer to the code of sbtc;
+    //but blockchain needs to be loaded refer to the code of eulo;
     //So I put it here firstly.
     contractComponent.ContractInit();
 

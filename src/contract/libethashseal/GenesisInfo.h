@@ -59,7 +59,7 @@ enum class Network
     Special = 0xff,			///< Something else.
 
     //FixMe: what does this mean?
-    euloMainNetwork = 9,    ///< SBTC Homestead + EIP150 + EIP158 Rules active from block 0 to enum class Network
+    euloMainNetwork = 9,    ///< EULO Homestead + EIP150 + EIP158 Rules active from block 0 to enum class Network
     euloTestNetwork = 10
 };
 
