@@ -3408,11 +3408,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
         if (blockhashStateRoot != DEFAULT_HASH_STATE_ROOT)
         {
-            return state.DoS(100, error("Block hashStateRoot error"), REJECT_INVALID, );
+            return state.DoS(100, error("Block hashStateRoot error"), REJECT_INVALID);
         }
         if (blockhashUTXORoot != DEFAULT_HASH_UTXO_ROOT)
         {
-            return state.DoS(100, error("Block hashUTXORoot error"), REJECT_INVALID, );
+            return state.DoS(100, error("Block hashUTXORoot error"), REJECT_INVALID);
         }
     }else if(pindex->nHeight > Params().Contract_StartHeight() + 1)
     {
@@ -3464,9 +3464,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::vector<CTxOut> checkVouts;
 
     // Check it again in case a previous version let a bad block in
-    if (!CheckBlock(block, state, chainparams.GetConsensus(), !fJustCheck, !fJustCheck))
+    if (!CheckBlock(block, state, pindex->nVersion < POS_VERSION, !fJustCheck, !fJustCheck))
     {
-        return LogPrintf("%s: Consensus::CheckBlock: %s", __func__, FormatStateMessage(state));
+        return LogPrintf("%s: Consensus::CheckBlock: %s", __func__, state.GetRejectReason());
     }
 
 
@@ -3647,7 +3647,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if (!tx.CheckSenderScript(view))
             {
-                return state.DoS(100, error("bad-txns-invalid-sender-script"), REJECT_INVALID, );
+                return state.DoS(100, error("bad-txns-invalid-sender-script"), REJECT_INVALID);
             }
 
             int level = 0;
@@ -3659,7 +3659,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                                                        bcer, false, fJustCheck, heightIndexes,
                                                        level, errinfo))
             {
-                return state.DoS(level, error(errinfo), REJECT_INVALID);
+                return state.DoS(level, error(errinfo.c_str()), REJECT_INVALID);
             }
             for (CTxOut refundVout : bcer.refundOutputs)
             {
@@ -4862,7 +4862,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
                 return state.DoS(100, error("coinbase2 must not contain OP_SPEND, OP_CALL, or OP_CREATE"), REJECT_INVALID, "bad-cb2-contract", false);
             }
             for (unsigned int i = 2; i < block.vtx.size(); i++)
-                if (block.vtx[i]->IsCoinBase2())
+                if (block.vtx[i].IsCoinBase2())
                     return state.DoS(100, error("more than one coinbase2"), REJECT_INVALID, "bad-cb2-multiple", false);
         }
 
