@@ -281,11 +281,12 @@ bool CTransaction::HasOpSpend() const
 }
 
 
-/////////////////////////////////////////////////////////////eulo-vm
 
+/////////////////////////////////////////////////////////////eulo-vm
 
 bool CTransaction::CheckSenderScript(const CCoinsViewCache &view) const
 {
+
 
 //    bool IsEnabled =  chainActive.Tip()->IsContractEnabled();
 
