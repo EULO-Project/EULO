@@ -19,6 +19,7 @@
 #include "walletdb.h"
 #include "main.h"
 #include "contractconfig.h"
+#include "coincontrol.h"
 
 #include <stdint.h>
 
@@ -2091,7 +2092,6 @@ UniValue createcontract(const UniValue& params, bool fHelp)
     int height = chainActive.Tip()->nHeight;
 
     uint64_t blockGasLimit = contractComponent.GetBlockGasLimit(height);
-
     uint64_t minGasPrice = CAmount(contractComponent.GetMinGasPrice(height));
     CAmount nGasPrice = (minGasPrice > DEFAULT_GAS_PRICE) ? minGasPrice : DEFAULT_GAS_PRICE;
     if (fHelp || params.size() < 1 || params.size() > 6)
@@ -2125,7 +2125,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
                                  FormatMoney(minGasPrice) + " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
         );
 
-    string bytecode = params[0].get_str();
+    std::string bytecode = params[0].get_str();
 
     if (!IsHex(bytecode))
     {
@@ -2173,7 +2173,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasPrice is not (numeric or string)");
         }
 
-        CAmount maxRpcGasPrice = Args().GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
+        CAmount maxRpcGasPrice = GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
         if (nGasPrice > (int64_t)maxRpcGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: " +
                                                FormatMoney(maxRpcGasPrice) + " (use -rpcmaxgasprice to change it)");
@@ -2224,7 +2224,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
         for (const COutput &out : vecOutputs)
         {
             CTxDestination address;
-            const CScript &scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            const CScript &scriptPubKey = out.tx->vout[out.i].scriptPubKey;
             bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
             CBitcoinAddress destAdress(address);
@@ -2276,8 +2276,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
 
     vecSend.push_back(std::make_pair(scriptPubKey, 0));
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true,
-                                    nGasFee, fHasSender))
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, nGasFee, fHasSender))
     {
         if (nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf(
@@ -2287,7 +2286,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
     }
 
     CTxDestination txSenderDest;
-    ExtractDestination(pwalletMain->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey,
+    ExtractDestination(pwalletMain->mapWallet[wtx.vin[0].prevout.hash].vout[wtx.vin[0].prevout.n].scriptPubKey,
                        txSenderDest);
 
     if (fHasSender && !(senderAddress.Get() == txSenderDest))
@@ -2301,42 +2300,46 @@ UniValue createcontract(const UniValue& params, bool fHelp)
     {
         //////////////////////////////////////////////////////////// //eulo-vm
         // check contract tx
-        if (!wtx.tx->CheckTransaction(state)) // state filled in by CheckTransaction
+        if (!CheckTransaction(wtx, height >= Params().Zerocoin_StartHeight(), false, state)) // state filled in by CheckTransaction
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
         }
 
-        CCoinsView dummy;
-        CCoinsViewCache view(&dummy);
-
-        GET_CHAIN_INTERFACE(ifChainObj);
-        CCoinsViewCache *pcoinsTip = ifChainObj->GetCoinsTip();
-
-        GET_TXMEMPOOL_INTERFACE(ifMempoolObj);
-        CCoinsViewMemPool viewMemPool(pcoinsTip, ifMempoolObj->GetMemPool());
-        view.SetBackend(viewMemPool);
-
+        
         CAmount nMinGasPrice = 0;
-        CAmount nValueIn = view.GetValueIn(*(wtx.tx));
-        CAmount nValueOut = wtx.tx->GetValueOut();
-        CAmount nFees = nValueIn - nValueOut;
+        CAmount nValueIn = 0;
+        CAmount nValueOut = 0;
+        CAmount nFees = 0;
 
-        if (!wtx.tx->CheckSenderScript(view))
         {
-            throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            CCoinsView dummy;
+            CCoinsViewCache view(&dummy);
+
+            LOCK(mempool.cs);
+            CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+            view.SetBackend(viewMemPool);
+
+            nMinGasPrice = 0;
+            nValueIn = view.GetValueIn(wtx);
+            nValueOut = wtx.GetValueOut();
+            nFees = nValueIn - nValueOut;
+
+            if (!wtx.CheckSenderScript(view))
+            {
+                throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            }
         }
 
         int level = 0;
         string errinfo;
 
-        GET_CONTRACT_INTERFACE(ifContractObj);
-        if (!ifContractObj->CheckContractTx(*(wtx.tx), nFees, nMinGasPrice, level, errinfo))
+        if (!contractComponent.CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
         {
             throw JSONRPCError(RPC_TYPE_ERROR, errinfo);
         }
         ////////////////////////////////////////////////////////////
 
-        if (!pwalletMain->CommitTransaction(wtx, reservekey, g_connman.get(), state))
+        if (!pwalletMain->CommitTransaction(wtx, reservekey, "smart-contract"))
             throw JSONRPCError(RPC_WALLET_ERROR,
                                "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
 
@@ -2351,11 +2354,11 @@ UniValue createcontract(const UniValue& params, bool fHelp)
         result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(), keyid.end()))));
 
         std::vector<unsigned char> SHA256TxVout(32);
-        vector<unsigned char> contractAddress(20);
-        vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
+        std::vector<unsigned char> contractAddress(20);
+        std::vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
         uint32_t voutNumber = 0;
         //        BOOST_FOREACH(const CTxOut& txout, wtx.tx->vout) {
-        for (const CTxOut &txout : wtx.tx->vout)
+        for (const CTxOut &txout : wtx.vout)
         {
             if (txout.scriptPubKey.HasOpCreate())
             {
@@ -2373,58 +2376,47 @@ UniValue createcontract(const UniValue& params, bool fHelp)
         result.push_back(Pair("address", HexStr(contractAddress)));
     } else
     {
-        string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
+        std::string strHex = EncodeHexTx(wtx);
         result.push_back(Pair("raw transaction", strHex));
     }
-    GET_TXMEMPOOL_INTERFACE(ifTxMempoolObj);
-    if (!ifTxMempoolObj->GetMemPool().exists(wtx.GetHash()))
+    if (!mempool.exists(wtx.GetHash()))
     {
         result.push_back(Pair("state", strprintf("Warning: Transaction cannot be broadcast immediately! %s",
                                                  state.GetRejectReason())));
     }
+
     return result;
 }
-#if 0
+
 //  eulo-vm
 UniValue sendtocontract(const UniValue& params, bool fHelp)
 {
-    GET_CHAIN_INTERFACE(ifChainObj);
-    bool IsEnabled =  [&]()->bool{
-        GET_CHAIN_INTERFACE(ifChainObj);
-        if(ifChainObj->GetActiveChain().Tip()== nullptr) return false;
-        return ifChainObj->GetActiveChain().Tip()->IsSBTCContractEnabled();
-    }();
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
 
     if (!IsEnabled)
     {
         throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
     }
 
-    CWallet *const pwallet = GetWalletForJSONRPCRequest(request);
-    if (!EnsureWalletIsAvailable(pwallet, request.fHelp))
-    {
-        return NullUniValue;
-    }
+    EnsureWalletIsUnlocked();
 
-    LOCK2(cs_main, pwallet->cs_wallet);
+    LOCK2(cs_main, pwalletMain->cs_wallet);
 
-    int height = ifChainObj->GetActiveChain().Height();
+    int height = chainActive.Tip()->nHeight;
 
-    GET_CONTRACT_INTERFACE(ifContractObj);
-    uint64_t blockGasLimit = ifContractObj->GetBlockGasLimit(height);
-    uint64_t minGasPrice = CAmount(ifContractObj->GetMinGasPrice(height));
+    uint64_t blockGasLimit = contractComponent.GetBlockGasLimit(height);
+    uint64_t minGasPrice = CAmount(contractComponent.GetMinGasPrice(height));
     CAmount nGasPrice = (minGasPrice > DEFAULT_GAS_PRICE) ? minGasPrice : DEFAULT_GAS_PRICE;
 
-    if (request.fHelp || request.params.size() < 2 || request.params.size() > 8)
+    if (fHelp || params.size() < 2 || params.size() > 8)
         throw std::runtime_error(
                 "sendtocontract \"contractaddress\" \"data\" (amount gaslimit gasprice senderaddress broadcast)"
                         "\nSend funds and data to a contract.\n"
-                + HelpRequiringPassphrase(pwallet) +
+                + HelpRequiringPassphrase() +
                 "\nArguments:\n"
                         "1. \"contractaddress\" (string, required) The contract address that will receive the funds and data.\n"
                         "2. \"datahex\"  (string, required) data to send.\n"
-                        "3. \"amount\"      (numeric or string, optional) The amount in " + CURRENCY_UNIT +
-                " to send. eg 0.1, default: 0\n"
+                        "3. \"amount\"      (numeric or string, optional) The amount in EULO to send. eg 0.1, default: 0\n"
                         "4. gasLimit  (numeric or string, optional) gasLimit, default: " +
                 i64tostr(DEFAULT_GAS_LIMIT_OP_SEND) + ", max: " + i64tostr(blockGasLimit) + "\n"
                         "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: " +
@@ -2436,7 +2428,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
                         "[\n"
                         "  {\n"
                         "    \"txid\" : (string) The transaction id.\n"
-                        "    \"sender\" : (string) " + CURRENCY_UNIT + " address of the sender.\n"
+                        "    \"sender\" : (string) EULO address of the sender.\n"
                         "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
                         "  }\n"
                         "]\n"
@@ -2447,34 +2439,34 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
                                  FormatMoney(minGasPrice) + " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
         );
 
-    std::string contractaddress = request.params[0].get_str();
+    std::string contractaddress = params[0].get_str();
     if (contractaddress.size() != 40 || !IsHex(contractaddress))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
 
-    if (!ifContractObj->AddressInUse(contractaddress))
+    if (!contractComponent.AddressInUse(contractaddress))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
 
-    string datahex = request.params[1].get_str();
+    std::string datahex = params[1].get_str();
     if (!IsHex(datahex))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
 
     CAmount nAmount = 0;
-    if (request.params.size() > 2)
+    if (params.size() > 2)
     {
-        nAmount = AmountFromValue(request.params[2]);
+        nAmount = AmountFromValue(params[2]);
         if (nAmount < 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
     }
 
     uint64_t nGasLimit = DEFAULT_GAS_LIMIT_OP_SEND;
-    if (request.params.size() > 3)
+    if (params.size() > 3)
     {
-        if (request.params[3].isNum())
+        if (params[3].isNum())
         {
-            nGasLimit = request.params[3].get_int64();
-        } else if (request.params[3].isStr())
+            nGasLimit = params[3].get_int64();
+        } else if (params[3].isStr())
         {
-            nGasLimit = atoi64(request.params[3].get_str());
+            nGasLimit = atoi64(params[3].get_str());
         } else
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasLimit is not (numeric or string)");
@@ -2490,15 +2482,15 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
     }
 
-    if (request.params.size() > 4)
+    if (params.size() > 4)
     {
-        if (request.params[4].isNum())
+        if (params[4].isNum())
         {
-            nGasPrice = request.params[4].get_real() * COIN;
-        } else if (request.params[4].isStr())
+            nGasPrice = params[4].get_real() * COIN;
+        } else if (params[4].isStr())
         {
             double retval;
-            if (!ParseDouble(request.params[4].get_str(), &retval))
+            if (!ParseDouble(params[4].get_str(), &retval))
                 throw std::runtime_error("JSON double out of range");
 
             nGasPrice = retval * COIN;
@@ -2507,7 +2499,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasPrice is not (numeric or string)");
         }
 
-        CAmount maxRpcGasPrice = gArgs.GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
+        CAmount maxRpcGasPrice = GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
         if (nGasPrice > (int64_t)maxRpcGasPrice)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: " +
                                                FormatMoney(maxRpcGasPrice) + " (use -rpcmaxgasprice to change it)");
@@ -2520,9 +2512,9 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
 
     bool fHasSender = false;
     CBitcoinAddress senderAddress;
-    if (request.params.size() > 5)
+    if (params.size() > 5)
     {
-        senderAddress.SetString(request.params[5].get_str());
+        senderAddress.SetString(params[5].get_str());
         if (!senderAddress.IsValid())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
         else
@@ -2530,15 +2522,15 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     }
 
     bool fBroadcast = true;
-    if (request.params.size() > 6)
+    if (params.size() > 6)
     {
-        fBroadcast = request.params[6].get_bool();
+        fBroadcast = params[6].get_bool();
     }
 
     bool fChangeToSender = true;
-    if (request.params.size() > 7)
+    if (params.size() > 7)
     {
-        fChangeToSender = request.params[7].get_bool();
+        fChangeToSender = params[7].get_bool();
     }
 
     CCoinControl coinControl;
@@ -2547,18 +2539,18 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     {
 
         UniValue results(UniValue::VARR);
-        vector<COutput> vecOutputs;
+        std::vector<COutput> vecOutputs;
 
         coinControl.fAllowOtherInputs = true;
 
-        assert(pwallet != NULL);
-        pwallet->AvailableCoins(vecOutputs, false, NULL, true);
+        assert(pwalletMain != NULL);
+        pwalletMain->AvailableCoins(vecOutputs, true, NULL, false);
 
         //        BOOST_FOREACH(const COutput& out, vecOutputs) {
         for (const COutput &out : vecOutputs)
         {
             CTxDestination address;
-            const CScript &scriptPubKey = out.tx->tx->vout[out.i].scriptPubKey;
+            const CScript &scriptPubKey = out.tx->vout[out.i].scriptPubKey;
             bool fValidAddress = ExtractDestination(scriptPubKey, address);
 
             CBitcoinAddress destAdress(address);
@@ -2582,15 +2574,13 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
         }
     }
 
-    EnsureWalletIsUnlocked(pwallet);
-
     CWalletTx wtx;
 
     wtx.nTimeSmart = GetAdjustedTime();
 
     CAmount nGasFee = nGasPrice * nGasLimit;
 
-    CAmount curBalance = pwallet->GetBalance();
+    CAmount curBalance = pwalletMain->GetBalance();
 
     // Check amount
     if (nGasFee <= 0)
@@ -2605,18 +2595,17 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
                                      << OP_CALL;
 
     // Create and send the transaction
-    CReserveKey reservekey(pwallet);
+    CReserveKey reservekey(pwalletMain);
     CAmount nFeeRequired;
     std::string strError;
-    vector<CRecipient> vecSend;
+    std::vector<std::pair<CScript, CAmount>> vecSend;
     int nChangePosRet = -1;
-    CRecipient recipient = {scriptPubKey, nAmount, false};
-    vecSend.push_back(recipient);
 
-    if (!pwallet->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, nChangePosRet, strError, coinControl, true,
-                                    nGasFee, fHasSender))
+    vecSend.push_back(std::make_pair(scriptPubKey, 0));
+
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, nGasFee, fHasSender))
     {
-        if (nFeeRequired > pwallet->GetBalance())
+        if (nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf(
                     "Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!",
                     FormatMoney(nFeeRequired));
@@ -2624,7 +2613,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     }
 
     CTxDestination txSenderDest;
-    ExtractDestination(pwallet->mapWallet[wtx.tx->vin[0].prevout.hash].tx->vout[wtx.tx->vin[0].prevout.n].scriptPubKey,
+    ExtractDestination(pwalletMain->mapWallet[wtx.vin[0].prevout.hash].vout[wtx.vin[0].prevout.n].scriptPubKey,
                        txSenderDest);
 
     if (fHasSender && !(senderAddress.Get() == txSenderDest))
@@ -2639,42 +2628,45 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     {
         //////////////////////////////////////////////////////////// //eulo-vm
         // check contract tx
-        if (!wtx.tx->CheckTransaction(state)) // state filled in by CheckTransaction
+        if (!CheckTransaction(wtx, height >= Params().Zerocoin_StartHeight(), false, state)) // state filled in by CheckTransaction
         {
             throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
         }
 
-        CCoinsView dummy;
-        CCoinsViewCache view(&dummy);
-
-        GET_CHAIN_INTERFACE(ifChainObj);
-        CCoinsViewCache *pcoinsTip = ifChainObj->GetCoinsTip();
-
-        GET_TXMEMPOOL_INTERFACE(ifMempoolObj);
-        CCoinsViewMemPool viewMemPool(pcoinsTip, ifMempoolObj->GetMemPool());
-        view.SetBackend(viewMemPool);
-
         CAmount nMinGasPrice = 0;
-        CAmount nValueIn = view.GetValueIn(*(wtx.tx));
-        CAmount nValueOut = wtx.tx->GetValueOut();
-        CAmount nFees = nValueIn - nValueOut;
-
-        if (!wtx.tx->CheckSenderScript(view))
+        CAmount nValueIn = 0;
+        CAmount nValueOut = 0;
+        CAmount nFees = 0;
+        
         {
-            throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            CCoinsView dummy;
+            CCoinsViewCache view(&dummy);
+
+            LOCK(mempool.cs);
+            CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+            view.SetBackend(viewMemPool);
+
+            nMinGasPrice = 0;
+            nValueIn = view.GetValueIn(wtx);
+            nValueOut = wtx.GetValueOut();
+            nFees = nValueIn - nValueOut;
+
+            if (!wtx.CheckSenderScript(view))
+            {
+                throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            }
         }
 
         int level = 0;
         string errinfo;
 
-        GET_CONTRACT_INTERFACE(ifContractObj);
-        if (!ifContractObj->CheckContractTx(*(wtx.tx), nFees, nMinGasPrice, level, errinfo))
+        if (!contractComponent.CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
         {
             throw JSONRPCError(RPC_TYPE_ERROR, errinfo);
         }
         ////////////////////////////////////////////////////////////
 
-        if (!pwallet->CommitTransaction(wtx, reservekey, g_connman.get(), state))
+        if (!pwalletMain->CommitTransaction(wtx, reservekey, "smart-contract"))
             throw JSONRPCError(RPC_WALLET_ERROR,
                                "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
 
@@ -2689,18 +2681,17 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
         result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(), keyid.end()))));
     } else
     {
-        string strHex = EncodeHexTx(*wtx.tx, RPCSerializationFlags());
+        std::string strHex = EncodeHexTx(wtx);
         result.push_back(Pair("raw transaction", strHex));
     }
-    GET_TXMEMPOOL_INTERFACE(ifTxMempoolObj);
-    if (!ifTxMempoolObj->GetMemPool().exists(wtx.GetHash()))
+    if (!mempool.exists(wtx.GetHash()))
     {
         result.push_back(Pair("state", strprintf("Warning: Transaction cannot be broadcast immediately! %s",
                                                  state.GetRejectReason())));
     }
+
     return result;
 }
-#endif
 
 UniValue printMultiSend()
 {

@@ -1473,6 +1473,14 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
     // Check for negative or overflow output values
     CAmount nValueOut = 0;
     int nZCSpendCount = 0;
+
+    if (enablecontract && tx.IsCoinBase2())
+    {
+        if (!tx.vout.at(0).scriptPubKey.HasOpVmHashState())
+            return state.DoS(100, error("CheckTransaction() : miss contract state"), 
+                             REJECT_INVALID, "bad-txns-vout-hashstate");
+    }
+
     BOOST_FOREACH (const CTxOut& txout, tx.vout) {
         if (txout.IsEmpty() && !tx.IsCoinBase() && !tx.IsCoinStake())
             return state.DoS(100, error("CheckTransaction(): txout empty for user transaction"));
@@ -1495,13 +1503,15 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
         {
             if (!enablecontract)
             {
-                return state.DoS(100, false, REJECT_INVALID, "not arrive to the contract height,refuse");
+                return state.DoS(100, error("CheckTransaction() : smart contract not enabled!"), 
+                             REJECT_INVALID, "not arrive to the contract height,refuse");
             }
             std::vector<std::vector<unsigned char>> vSolutions;
             txnouttype whichType;
             if (!Solver(txout.scriptPubKey, whichType, vSolutions, true))
             {
-                return state.DoS(100, false, REJECT_INVALID, "bad-txns-contract-nonstandard");
+                return state.DoS(100, error("CheckTransaction() : smart contract script not standard"), 
+                             REJECT_INVALID, "bad-txns-contract-nonstandard");
             }
         }
         ///////////////////////////////////////////////////////////
@@ -1566,11 +1576,11 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
             {
                 if (!enablecontract)
                 {
-                    return state.DoS(100, false, REJECT_INVALID, "not arrive to the contract height,refuse");
+                    return state.DoS(100, error("CheckTransaction() : smart contract not enabled!"), 
+                            REJECT_INVALID, "not arrive to the contract height, refuse");
                 }
             }
         }
-            ///////////////////////////////////////////////////////////
     }
 
     return true;

@@ -280,25 +280,24 @@ bool CTransaction::HasOpSpend() const
     return false;
 }
 
+
 /////////////////////////////////////////////////////////////eulo-vm
+
 
 bool CTransaction::CheckSenderScript(const CCoinsViewCache &view) const
 {
 
-    bool IsEnabled =  chainActive.Tip()->IsContractEnabled();
+//    bool IsEnabled =  chainActive.Tip()->IsContractEnabled();
 
-    if (!IsEnabled)
-    {
-        return false;
-    }
-
-
+//    if (!IsEnabled)
+//    {
+//        return false;
+//    }
 
     //FixMe: Is this correct:vout[vin[0].prevout.n]?
 
     CScript script = view.AccessCoins(vin[0].prevout.hash)->vout[vin[0].prevout.n].scriptPubKey;
     // CScript script = view.AccessCoin(vin[0].prevout).out.scriptPubKey;
-
 
     if (!script.IsPayToPubkeyHash() && !script.IsPayToPubkey())
     {
