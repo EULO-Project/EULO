@@ -2081,11 +2081,10 @@ UniValue createcontract(const UniValue& params, bool fHelp)
     bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
 
     if (!IsEnabled)
-    {
         throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
-    }
 
-    EnsureWalletIsUnlocked();
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
 
     LOCK(pwalletMain->cs_wallet);
 
@@ -2394,11 +2393,10 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
 
     if (!IsEnabled)
-    {
         throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
-    }
 
-    EnsureWalletIsUnlocked();
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 

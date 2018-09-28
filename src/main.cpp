@@ -3929,7 +3929,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         for (const auto &e: heightIndexes)
         {
             if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
-                return AbortNode(state, "Failed to write height index");
+                return AbortNode(state.GetRejectReason(), "Failed to write height index");
         }
     }
 
@@ -5828,29 +5828,6 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
     LogPrintf("No coin database inconsistencies in last %i blocks (%i transactions)\n", chainActive.Height() - pindexState->nHeight, nGoodTransactions);
 
     return true;
-}
-
-//eulo-evm
-int LoadLogEvents()
-{
-    //TODO:LoadLogEvents is able to use, after LoadBlockIndex is called.
-    if (pBlcokTreee == nullptr)
-    {
-        return rLogError("%s: pBlcokTreee is not init", __func__);
-    }
-
-    if (!Args().GetArg<bool>("-logevents", DEFAULT_LOGEVENTS))
-    {
-        pBlcokTreee->WipeHeightIndex();
-        bLogEvents = false;
-        pBlcokTreee->WriteFlag("logevents", bLogEvents);
-    } else
-    {
-        bLogEvents = true;
-        pBlcokTreee->WriteFlag("logevents", bLogEvents);
-    }
-
-    return 0;
 }
 
 void UnloadBlockIndex()

@@ -301,7 +301,13 @@ static const CRPCCommand vRPCCommands[] =
         {"blockchain", "invalidateblock", &invalidateblock, true, true, false},
         {"blockchain", "reconsiderblock", &reconsiderblock, true, true, false},
         {"blockchain", "verifychain", &verifychain, true, false, false},
+        //  eulo-vm
+        {"blockchain", "getaccountinfo", &getaccountinfo,},
+        {"blockchain", "getstorage", &getstorage,},
         {"blockchain", "callcontract", &callcontract, true, false,false},
+        {"blockchain", "listcontracts", &listcontracts,},
+        {"blockchain", "gettransactionreceipt", &gettransactionreceipt,},
+        {"blockchain", "searchlogs", &searchlogs,},
 
         /* Mining */
         {"mining", "getblocktemplate", &getblocktemplate, true, false, false},

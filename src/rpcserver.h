@@ -264,7 +264,12 @@ extern UniValue getfeeinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxoutsetinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxout(const UniValue& params, bool fHelp);
 extern UniValue verifychain(const UniValue& params, bool fHelp);
+extern UniValue getaccountinfo(const UniValue& params, bool fHelp);
+extern UniValue getstorage(const UniValue& params, bool fHelp);
 extern UniValue callcontract(const UniValue& params, bool fHelp);
+extern UniValue searchlogs(const UniValue& params, bool fHelp);
+extern UniValue listcontracts(const UniValue& params, bool fHelp);
+extern UniValue gettransactionreceipt(const UniValue& params, bool fHelp);
 extern UniValue getchaintips(const UniValue& params, bool fHelp);
 
 extern UniValue tmpblockstatus(const UniValue& params, bool fHelp);

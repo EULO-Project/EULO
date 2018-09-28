@@ -1409,29 +1409,172 @@ UniValue verifychain(const UniValue& params, bool fHelp)
     return CVerifyDB().VerifyDB(pcoinsTip, nCheckLevel, nCheckDepth);
 }
 
+/////////////////////////////////////////////////////sbtc-vm
+UniValue getaccountinfo(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+                "getaccountinfo \"address\"\n"
+                "\nArgument:\n"
+                "1. \"address\"          (string, required) The account address\n");
+
+    LOCK(cs_main);
+
+    std::string strAddr = params[0].get_str();
+    if (strAddr.size() != 40 || !IsHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    if (!contractComponent.AddressInUse(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
+    dev::Address addrAccount(strAddr);
+
+    UniValue result(UniValue::VOBJ);
+
+    result.push_back(Pair("address", strAddr));
+    result.push_back(Pair("balance", contractComponent.GetContractBalance(addrAccount)));
+    std::vector<uint8_t> code = contractComponent.GetContractCode(addrAccount);
+
+    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = contractComponent.GetStorageByAddress(strAddr);
+
+    UniValue storageUV(UniValue::VOBJ);
+    for (auto j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.push_back(Pair(j.second.first.str(0, std::ios_base::hex).c_str(), j.second.second.str(0, std::ios_base::hex).c_str()));
+        storageUV.push_back(Pair(j.first.hex(), e));
+    }
+
+    result.push_back(Pair("storage", storageUV));
+
+    result.push_back(Pair("code", HexStr(code.begin(), code.end())));
+
+    dev::h256 hash;
+    uint32_t nVout;
+    dev::u256 value;
+    uint8_t alive;
+    if (contractComponent.GetContractVin(addrAccount, hash, nVout, value, alive))
+    {
+        UniValue vin(UniValue::VOBJ);
+        valtype vchHash(hash.asBytes());
+        vin.push_back(Pair("hash", HexStr(vchHash.rbegin(), vchHash.rend())));
+        vin.push_back(Pair("nVout", uint64_t(nVout)));
+        vin.push_back(Pair("value", uint64_t(value)));
+        vin.push_back(Pair("alive", uint8_t(alive)));
+        result.push_back(Pair("vin", vin));
+    }
+
+    return result;
+}
+
+UniValue getstorage(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+                "getstorage \"address\"\n"
+                "\nArgument:\n"
+                "1. \"address\"          (string, required) The address to get the storage from\n"
+                "2. \"blockNum\"         (string, optional) Number of block to get state from, \"latest\" keyword supported. Latest if not passed.\n"
+                "3. \"index\"            (number, optional) Zero-based index position of the storage\n");
+
+    LOCK(cs_main);
+
+    std::string strAddr = params[0].get_str();
+    if (strAddr.size() != 40 || !IsHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    if (params.size() > 1)
+    {
+        if (params[1].isNum())
+        {
+            auto blockNum = params[1].get_int();
+            if ((blockNum < 0 && blockNum != -1) || blockNum > chainActive.Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+
+            if (blockNum != -1)
+            {
+                uint256 hashStateRoot;
+                uint256 hashUTXORoot;
+                CBlock block;
+                if (!ReadBlockFromDisk(block, chainActive[blockNum]))
+                {
+                    std::ostringstream stringStream;
+                    stringStream << "ReadBlockFromDisk failed at hegiht " << chainActive[blockNum]->nHeight << " hash: " << chainActive[blockNum]->GetBlockHash().ToString();
+                    throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+                } else
+                {
+                    if(block.GetVMState(hashStateRoot, hashUTXORoot) == RET_VM_STATE_ERR){
+                        throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect GetVMState");
+                    }
+                }
+                contractComponent.SetTemporaryState(hashStateRoot, hashUTXORoot);
+                //                ifContractObj->SetTemporaryState(chainActive[blockNum]->hashStateRoot,
+                //                                                 chainActive[blockNum]->hashUTXORoot);
+            }
+        } else
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    }
+
+    if (!contractComponent.AddressInUse(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
+    UniValue result(UniValue::VOBJ);
+
+    bool onlyIndex = params.size() > 2;
+    unsigned index = 0;
+    if (onlyIndex)
+        index = params[2].get_int();
+
+    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = contractComponent.GetStorageByAddress(strAddr);
+    if (onlyIndex)
+    {
+        if (index >= storage.size())
+        {
+            std::ostringstream stringStream;
+            stringStream << "Storage size: " << storage.size() << " got index: " << index;
+            throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+        }
+        auto elem = std::next(storage.begin(), index);
+        UniValue e(UniValue::VOBJ);
+
+        storage = {{elem->first, {elem->second.first, elem->second.second}}};
+    }
+    for (const auto &j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.push_back(Pair(j.second.first.str(0, std::ios_base::hex).c_str(), j.second.second.str(0, std::ios_base::hex).c_str()));
+        result.push_back(Pair(j.first.hex(), e));
+    }
+
+    return result;
+}
+
 
 UniValue callcontract(const UniValue& params, bool fHelp)
 {
-    bool IsEnabled =  [&]()->bool{
-        if(chainActive.Tip()== nullptr) return false;
-        return chainActive.Tip()->IsContractEnabled();
-    }();
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
     if (!IsEnabled)
-    {
          throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
-    }
 
     if (fHelp || params.size() < 2)
         throw std::runtime_error(
                 "callcontract \"address\" \"data\" ( address )\n"
-                        "\nArgument:\n"
-                        "1. \"address\"          (string, required) The account address\n"
-                        "2. \"data\"             (string, required) The data hex string\n"
-                        "3. address              (string, optional) The sender address hex string\n"
-                        "4. gasLimit  (numeric or string, optional) gasLimit, default: " +
-                i64tostr(DEFAULT_GAS_LIMIT_OP_SEND) + "\n"
-                //                        "4. gasLimit             (string, optional) The gas limit for executing the contract\n"
-        );
+                "\nArgument:\n"
+                "1. \"address\"          (string, required) The account address\n"
+                "2. \"data\"             (string, required) The data hex string\n"
+                "3. address              (string, optional) The sender address hex string\n"
+                "4. gasLimit  (numeric or string, optional) gasLimit, default: " +
+                i64tostr(DEFAULT_GAS_LIMIT_OP_SEND) + "\n");
 
     LOCK(cs_main);
 
@@ -1492,6 +1635,334 @@ UniValue callcontract(const UniValue& params, bool fHelp)
     return result;
 }
 
+void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
+    entry.push_back(Pair("blockHash", resExec.blockHash.GetHex()));
+    entry.push_back(Pair("blockNumber", uint64_t(resExec.blockNumber)));
+    entry.push_back(Pair("transactionHash", resExec.transactionHash.GetHex()));
+    entry.push_back(Pair("transactionIndex", uint64_t(resExec.transactionIndex)));
+    entry.push_back(Pair("from", resExec.from.hex()));
+    entry.push_back(Pair("to", resExec.to.hex()));
+    entry.push_back(Pair("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed)));
+    entry.push_back(Pair("gasUsed", CAmount(resExec.gasUsed)));
+    entry.push_back(Pair("contractAddress", resExec.contractAddress.hex()));
+    std::stringstream ss;
+    ss << resExec.excepted;
+    entry.push_back(Pair("excepted",ss.str()));
+}
+
+void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
+        bool includeAddress) {
+    if (includeAddress) {
+        logEntry.push_back(Pair("address", log.address.hex()));
+    }
+
+    UniValue topics(UniValue::VARR);
+    for (dev::h256 hash : log.topics) {
+        topics.push_back(hash.hex());
+    }
+    logEntry.push_back(Pair("topics", topics));
+    logEntry.push_back(Pair("data", HexStr(log.data)));
+}
+
+void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry) {
+    assignJSON(entry, resExec);
+
+    const auto& logs = resExec.logs;
+    UniValue logEntries(UniValue::VARR);
+    for(const auto&log : logs){
+        UniValue logEntry(UniValue::VOBJ);
+        assignJSON(logEntry, log, true);
+        logEntries.push_back(logEntry);
+    }
+    entry.push_back(Pair("log", logEntries));
+}
+
+UniValue searchlogs(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 2 || params.size() > 5)
+        throw std::runtime_error(
+                "searchlogs <fromBlock> <toBlock> (address) (topics)\n"
+                "requires -logevents to be enabled"
+                "\nArgument:\n"
+                "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
+                "2. \"toBlock\"          (string, required) The number of the latest block (-1 may be given to mean the most recent block).\n"
+                "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
+                "4. \"topics\"           (string, optional) An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
+                "5. \"minconf\"          (uint, optional, default=0) Minimal number of confirmations before a log is returned\n"
+                "\nExamples:\n"
+                + HelpExampleCli("searchlogs",
+                "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+                + HelpExampleRpc("searchlogs",
+                "0 100 {\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}"));
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    int curheight = 0;
+
+    LOCK(cs_main);
+
+    size_t  fromBlock = 0;
+    size_t  toBlock = 0;
+    size_t  minconf = 0;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    if (params[0].isNum() && params[0].get_int() >= 0)
+        fromBlock = params[0].get_int();
+    else if (params[0].isNull() || (params[0].isStr() && !params[0].get_str().compare("latest")))
+        fromBlock = chainActive.Height();
+    else
+        throw JSONRPCError(RPC_INVALID_PARAMS, "invalid from block number");
+
+    if (params[1].isNum() && params[1].get_int() >= 0)
+        toBlock = params[1].get_int();
+    else if (params[1].isNull() || (params[1].isStr() && !params[1].get_str().compare("latest")))
+        toBlock = chainActive.Height();
+    else
+        throw JSONRPCError(RPC_INVALID_PARAMS, "invalid to block number");
+
+    if (params.size() > 2 && !params[2]["addresses"].isNull())
+    {
+        if (params[2]["addresses"].isStr())
+        {
+            std::string address = params[2]["addresses"].get_str();
+
+            if (address.length() != 40 || !IsHex(address))
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string address");
+
+            addresses.insert(dev::h160(address));
+        }
+        else if (params[2]["addresses"].isArray())
+        {
+            auto value = params[2]["addresses"].getValues();
+
+            for (size_t index = 0; index < value.size(); index++)
+            {            
+                std::string address;
+                
+                if (!value[index].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string in address array");
+                
+                address = value[index].get_str();
+                if (address.length() != 40 || !IsHex(address))
+                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string or size in address array");
+
+                addresses.insert(dev::h160(address));
+            }
+        }
+        else
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an string or array of hex 160 strings address");
+    }
+
+    if(params.size() > 3 && !params[3]["topics"].isNull())
+    {
+        if (params[3]["topics"].isStr())
+        {
+            std::string topic = params[3]["topics"].get_str();
+
+            if (topic.length() != 40 || !IsHex(topic))
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string topics");
+
+            topics.push_back(boost::optional<dev::h256>(dev::h256(topic)));
+        }
+        else if (params[3]["topics"].isArray())
+        {
+            auto value = params[3]["topics"].getValues();
+
+            for (size_t index = 0; index < value.size(); index++)
+            {
+                std::string topic;
+            
+                if (!value[index].isStr())
+                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string in address array");
+            
+                topic = value[index].get_str();
+                if (topic.length() != 40 || !IsHex(topic))
+                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string or size in address array");
+            
+                topics.push_back(boost::optional<dev::h256>(dev::h256(topic)));;
+            }
+        }
+        else
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an string or array of hex 160 strings topics");
+    }
+
+    if (params.size() > 4)
+    {
+        if (params[4].isNum() && params[4].get_int() >= 0)
+            minconf = params[4].get_int();
+        else
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer of minconf");
+    }
+
+    std::vector<std::vector<uint256>> hashesToBlock;
+    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf,
+                                                              hashesToBlock,
+                                                              addresses);
+
+    if (curheight == -1)
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+    }
+
+    UniValue result(UniValue::VARR);
+
+    for (const auto &hashesTx : hashesToBlock)
+    {
+        for (const auto &e : hashesTx)
+        {
+            std::vector<TransactionReceiptInfo> receipts = contractComponent.GetResult(e);
+
+            for (const auto &receipt : receipts)
+            {
+                if (receipt.logs.empty())
+                {
+                    continue;
+                }
+
+                if (!topics.empty())
+                {
+                    for (size_t i = 0; i < topics.size(); i++)
+                    {
+                        const auto &tc = topics[i];
+
+                        if (!tc)
+                        {
+                            continue;
+                        }
+
+                        for (const auto &log: receipt.logs)
+                        {
+                            auto filterTopicContent = tc.get();
+
+                            if (i >= log.topics.size())
+                            {
+                                continue;
+                            }
+
+                            if (filterTopicContent == log.topics[i])
+                            {
+                                goto push;
+                            }
+                        }
+                    }
+
+                    // Skip the log if none of the topics are matched
+                    continue;
+                }
+
+                push:
+
+                UniValue tri(UniValue::VOBJ);
+                transactionReceiptInfoToJSON(receipt, tri);
+                result.push_back(tri);
+            }
+        }
+    }
+
+    return result;
+}
+
+UniValue gettransactionreceipt(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+                "gettransactionreceipt \"hash\"\n"
+                "requires -logevents to be enabled"
+                "\nArgument:\n"
+                "1. \"hash\"          (string, required) The transaction hash\n");
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    LOCK(cs_main);
+
+    std::string hashTemp = params[0].get_str();
+    if (hashTemp.size() != 64)
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect hash");
+    }
+
+    uint256 hash(uint256S(hashTemp));
+
+    std::vector<TransactionReceiptInfo> transactionReceiptInfo = contractComponent.GetResult(hash);
+
+    UniValue result(UniValue::VARR);
+    for (TransactionReceiptInfo &t : transactionReceiptInfo)
+    {
+        UniValue tri(UniValue::VOBJ);
+        transactionReceiptInfoToJSON(t, tri);
+        result.push_back(tri);
+    }
+
+    return result;
+}
+
+UniValue listcontracts(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp)
+        throw std::runtime_error(
+                "listcontracts (start maxDisplay)\n"
+                "\nArgument:\n"
+                "1. start     (numeric or string, optional) The starting account index, default 1\n"
+                "2. maxDisplay       (numeric or string, optional) Max accounts to list, default 20\n");
+
+    LOCK(cs_main);
+
+    int start = 1;
+    if (params.size() > 0)
+    {
+        start = params[0].get_int();
+        if (start <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
+    }
+
+    int maxDisplay = 20;
+    if (params.size() > 1)
+    {
+        maxDisplay = params[1].get_int();
+        if (maxDisplay <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
+    }
+
+    UniValue result(UniValue::VOBJ);
+
+    std::unordered_map<dev::h160, dev::u256> map = contractComponent.GetContractList();
+    int contractsCount = (int)map.size();
+
+    if (contractsCount > 0 && start > contractsCount)
+        throw JSONRPCError(RPC_TYPE_ERROR, "start greater than max index " + itostr(contractsCount));
+
+    int itStartPos = std::min(start - 1, contractsCount);
+    int i = 0;
+
+    for (auto it = std::next(map.begin(), itStartPos); it != map.end(); it++)
+    {
+        CAmount balance = contractComponent.GetContractBalance(it->first);
+        result.push_back(Pair(it->first.hex(), ValueFromAmount(balance)));
+        i++;
+        if (i == maxDisplay)
+            break;
+    }
+
+    return result;
+}
+
+///////////////////////////////////////////////////////
 
 UniValue getblockchaininfo(const UniValue& params, bool fHelp)
 {
