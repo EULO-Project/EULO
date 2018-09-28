@@ -673,6 +673,14 @@ UniValue submitblock(const UniValue& params, bool fHelp)
         }
     }
 
+    //eulo-vm
+    bool enablecontract = chainActive.Tip()->IsContractEnabled();
+    if(enablecontract){
+        if((block.vtx.size() > 1) && (!block.vtx[1].IsCoinBase2())){
+            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "enable contract,coinbase2 is error");
+        }
+    }
+
     CValidationState state;
     if (chainActive.Height() < Params().LAST_POW_BLOCK()) {
         submitblock_StateCatcher sc(block.GetHash());

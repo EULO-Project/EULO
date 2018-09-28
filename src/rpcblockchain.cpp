@@ -1409,7 +1409,7 @@ UniValue verifychain(const UniValue& params, bool fHelp)
     return CVerifyDB().VerifyDB(pcoinsTip, nCheckLevel, nCheckDepth);
 }
 
-/////////////////////////////////////////////////////sbtc-vm
+/////////////////////////////////////////////////////eulo-vm
 UniValue getaccountinfo(const UniValue& params, bool fHelp)
 {
     bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);

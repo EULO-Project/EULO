@@ -18,7 +18,11 @@
 
 typedef std::vector<unsigned char> valtype;
 
-static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520; // bytes
+//static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520;
+static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 128000; //(128 kb) // eulo-vm
+
+//static const int MAX_SCRIPT_SIZE = 10000;
+static const int MAX_SCRIPT_SIZE = 129000; // (129 kb) // eulo-vm
 
 template <typename T>
 std::vector<unsigned char> ToByteVector(const T& in)
@@ -646,7 +650,7 @@ public:
      */
     bool IsUnspendable() const
     {
-        return (size() > 0 && *begin() == OP_RETURN);
+        return (size() > 0 && *begin() == OP_RETURN || (size() > MAX_SCRIPT_SIZE);
     }
 
     ///////////////////////////////////////// //eulo-vm
