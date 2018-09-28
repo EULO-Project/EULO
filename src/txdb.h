@@ -69,6 +69,60 @@ public:
     bool LoadBlockIndexGuts();
 
 
+    ////////////////////////////////////////////////////////////////////////////// // eulo-evm
+
+    template<typename K>
+    bool GetKey(boost::scoped_ptr<leveldb::Iterator> piter, K &key)
+    {
+        leveldb::Slice slKey = piter->key();
+        try
+        {
+            CDataStream ssKey(slKey.data(), slKey.data() + slKey.size(), SER_DISK, CLIENT_VERSION);
+            ssKey >> key;
+        } catch (const std::exception &)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    template<typename V>
+    bool GetValue(boost::scoped_ptr<leveldb::Iterator> piter,V &value)
+    {
+        leveldb::Slice slValue = piter->value();
+        try
+        {
+            CDataStream ssValue(slValue.data(), slValue.data() + slValue.size(), SER_DISK, CLIENT_VERSION);
+          //  ssValue.Xor(dbwrapper_private::GetObfuscateKey(parent));
+            ssValue >> value;
+        } catch (const std::exception &)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    bool WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash);
+
+    /**
+     * Iterates through blocks by height, starting from low.
+     *
+     * @param low start iterating from this block height
+     * @param high end iterating at this block height (ignored if <= 0)
+     * @param minconf stop iterating of the block height does not have enough confirmations (ignored if <= 0)
+     * @param blocksOfHashes transaction hashes in blocks iterated are collected into this vector.
+     * @param addresses filter out a block unless it matches one of the addresses in this set.
+     *
+     * @return the height of the latest block iterated. 0 if no block is iterated.
+     */
+    int ReadHeightIndex(int low, int high, int minconf,
+                        std::vector<std::vector<uint256>> &blocksOfHashes,
+                        std::set<dev::h160> const &addresses);
+    bool EraseHeightIndex(const unsigned int &height);
+    bool WipeHeightIndex();
+
+    //////////////////////////////////////////////////////////////////////////////
+
 };
 
 class CZerocoinDB : public CLevelDBWrapper

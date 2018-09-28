@@ -149,6 +149,8 @@ extern bool fImporting;
 extern bool fReindex;
 extern int nScriptCheckThreads;
 extern bool fTxIndex;
+extern bool fLogEvents;
+
 extern bool fIsBareMultisigStd;
 extern bool fCheckBlockIndex;
 extern unsigned int nCoinCacheSize;
@@ -226,6 +228,7 @@ bool InitBlockIndex();
 bool LoadBlockIndex(std::string& strError);
 /** Unload database information */
 void UnloadBlockIndex();
+int LoadLogEvents();//eulo-evm
 /** See whether the protocol update is enforced for connected nodes */
 int ActiveProtocol();
 /** Process protocol messages received from a given node */

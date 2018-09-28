@@ -1332,8 +1332,14 @@ bool AppInit2(boost::thread_group& threadGroup)
                 pcoinscatcher = new CCoinsViewErrorCatcher(pcoinsdbview);
                 pcoinsTip = new CCoinsViewCache(pcoinscatcher);
 
-                if (fReindex)
+                if (fReindex){
+                    //TODO:eulo-evm ,fReindex is true ,wipeResults
+                    boost::filesystem::path stateDir = GetDataDir() / CONTRACT_STATE_DIR;
+                    StorageResults storageRes(stateDir.string());
+                    storageRes.wipeResults();
+
                     pblocktree->WriteReindexing(true);
+                }
 
                 // EULO: load previous sessions sporks if we have them.
                 uiInterface.InitMessage(_("Loading sporks..."));
@@ -1363,6 +1369,40 @@ bool AppInit2(boost::thread_group& threadGroup)
                     strLoadError = _("You need to rebuild the database using -reindex to change -txindex");
                     break;
                 }
+
+                // Check for changed -logevents state,which is better?
+//                if (!Args().GetArg<bool>("-logevents", DEFAULT_LOGEVENTS))
+//                {
+//                    pBlcokTreee->WipeHeightIndex();
+//                    bLogEvents = false;
+//                    pBlcokTreee->WriteFlag("logevents", bLogEvents);
+//                } else
+//                {
+//                    bLogEvents = true;
+//                    pBlcokTreee->WriteFlag("logevents", bLogEvents);
+//                }
+
+
+
+
+                if (fLogEvents != GetBoolArg("-logevents", false) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
+                    break;
+                }
+
+                if (!GetBoolArg("-logevents", false))
+                {
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+                    pblocktree->WriteFlag("logevents", fLogEvents);
+                }
+
+                //FixMe: Start CContractComponent at a proper moment,
+                //this may not be the best time, needs check,
+                //checked with qtum codes. eulo-vm
+                contractComponent.ContractInit();
+
+
 
                 // Populate list of invalid/fraudulent outpoints that are banned from the chain
                 PopulateInvalidOutPointMap();
@@ -1454,11 +1494,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     fFeeEstimatesInitialized = true;
 
 
-    //FixMe: Start CContractComponent at a proper moment,
-    //this may not be the best time, needs check,
-    //but blockchain needs to be loaded refer to the code of eulo;
-    //So I put it here firstly.
-    contractComponent.ContractInit();
+
 
 // ********************************************************* Step 8: load wallet
 #ifdef ENABLE_WALLET

@@ -75,6 +75,7 @@ int nScriptCheckThreads = 0;
 bool fImporting = false;
 bool fReindex = false;
 bool fTxIndex = true;
+bool fLogEvents = false;//eulo-vm
 bool fIsBareMultisigStd = true;
 bool fCheckBlockIndex = false;
 bool fVerifyingBlocks = false;
@@ -3105,12 +3106,10 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
     }
     contractComponent.UpdateState(hashStateRoot, hashUTXORoot);
 
-    //FixMe: set IsLogEvents to false
-    if (pfClean == NULL && false)
+    if (pfClean == NULL && fLogEvents)
     {
         contractComponent.DeleteResults(block.vtx);
-        //FixMe:
-       // ifChainObj->GetBlockTreeDB()->EraseHeightIndex(pindex->nHeight);
+        pblocktree->EraseHeightIndex(pindex->nHeight);
     }
 
 
@@ -3654,9 +3653,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             string errinfo;
             ByteCodeExecResult bcer;
 
-            //FixMe: set IsLogEvents() to false
             if (!contractComponent.ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
-                                                       bcer, false, fJustCheck, heightIndexes,
+                                                       bcer, fLogEvents, fJustCheck, heightIndexes,
                                                        level, errinfo))
             {
                 return state.DoS(level, error(errinfo.c_str()), REJECT_INVALID);
@@ -3905,16 +3903,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             return true;
         }
 
-        //sbtc-vm
-        //FixMe: set IsLogEvents() to false
-        if (false)
-        {
-//            for (const auto &e: heightIndexes)
-//            {
-//                if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
-//                    return AbortNode(state, "Failed to write height index");
-//            }
-        }
+
 
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull() || !pindex->IsValid(BLOCK_VALID_SCRIPTS)) {
@@ -3932,6 +3921,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         pindex->RaiseValidity(BLOCK_VALID_SCRIPTS);
         setDirtyBlockIndex.insert(pindex);
+    }
+
+    //eulo-vm
+    if (fLogEvents)
+    {
+        for (const auto &e: heightIndexes)
+        {
+            if (!pblocktree->WriteHeightIndex(e.second.first, e.second.second))
+                return AbortNode(state, "Failed to write height index");
+        }
     }
 
     if (fTxIndex)
@@ -3954,9 +3953,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     nTimeCallbacks += nTime4 - nTime3;
     LogPrint("bench", "    - Callbacks: %.2fms [%.2fs]\n", 0.001 * (nTime4 - nTime3), nTimeCallbacks * 0.000001);
 
-    //sbtc-vm
-    //FixMe: set IsLogEvents() to false
-    if (false)
+    //eulo-vm
+    if (fLogEvents)
     {
        contractComponent.CommitResults();
     }
@@ -5708,6 +5706,9 @@ bool static LoadBlockIndexDB(string& strError)
     pblocktree->ReadFlag("txindex", fTxIndex);
     LogPrintf("LoadBlockIndexDB(): transaction index %s\n", fTxIndex ? "enabled" : "disabled");
 
+    pblocktree->ReadFlag("logevents", fLogEvents);//eulo-vm
+    LogPrintf("logevents %s", fLogEvents ? "enabled" : "disabled");//eulo-vm
+
     // If this is written true before the next client init, then we know the shutdown process failed
     pblocktree->WriteFlag("shutdown", false);
 
@@ -5827,6 +5828,29 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
     LogPrintf("No coin database inconsistencies in last %i blocks (%i transactions)\n", chainActive.Height() - pindexState->nHeight, nGoodTransactions);
 
     return true;
+}
+
+//eulo-evm
+int LoadLogEvents()
+{
+    //TODO:LoadLogEvents is able to use, after LoadBlockIndex is called.
+    if (pBlcokTreee == nullptr)
+    {
+        return rLogError("%s: pBlcokTreee is not init", __func__);
+    }
+
+    if (!Args().GetArg<bool>("-logevents", DEFAULT_LOGEVENTS))
+    {
+        pBlcokTreee->WipeHeightIndex();
+        bLogEvents = false;
+        pBlcokTreee->WriteFlag("logevents", bLogEvents);
+    } else
+    {
+        bLogEvents = true;
+        pBlcokTreee->WriteFlag("logevents", bLogEvents);
+    }
+
+    return 0;
 }
 
 void UnloadBlockIndex()

@@ -311,16 +311,10 @@ bool CContractComponent::ContractInit()
     fRecordLogOpcodes = GetBoolArg("-record-log-opcodes", false);
     fIsVMlogFile = boost::filesystem::exists(GetDataDir() / "vmExecLogs.json");
 
-    //FixMe: Check if this is necessary,is defined by config or command line argument
-    //    if (!ifChainObj->IsLogEvents())
-    //    {
-    //        pstorageresult->wipeResults();
-    //    }
-    if (true)
+    if (!fLogEvents)
     {
         pstorageresult->wipeResults();
     }
-
 
     return true;
 }
