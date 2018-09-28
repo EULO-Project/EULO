@@ -2696,31 +2696,17 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
 
     CAmount nMinFee = 0;
     size_t statesize = (pblock->nVersion < SMART_CONTRACT_VERSION) ? 0 : 1;
-    while (true) {
-        // Set output amount
-        if (txNew.vout.size() == (3 + statesize)) {
-            txNew.vout[1 + statesize].nValue = ((nCredit) / 2 / CENT) * CENT;
-            txNew.vout[2 + statesize].nValue = nCredit - txNew.vout[1].nValue;
-        } else
-            txNew.vout[1 + statesize].nValue = nCredit;
+    // Set output amount
+    if (txNew.vout.size() == (3 + statesize)) {
+        txNew.vout[1 + statesize].nValue = (nCredit / 2 / CENT) * CENT;
+        txNew.vout[2 + statesize].nValue = nCredit - txNew.vout[1].nValue;
+    } else
+        txNew.vout[1 + statesize].nValue = nCredit;
 
-        // Limit size
-        unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
-        if (nBytes >= DEFAULT_BLOCK_MAX_SIZE / 5)
-            return error("CreateCoinStake : exceeded coinstake size limit");
-
-        CAmount nFeeNeeded = GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
-
-        // Check enough fee is paid
-        if (nMinFee < nFeeNeeded) {
-            // nMinFee = nFeeNeeded;
-            continue; // try signing again
-        } else {
-            if (fDebug)
-                LogPrintf("CreateCoinStake : fee for coinstake %s\n", FormatMoney(nMinFee).c_str());
-            break;
-        }
-    }
+    // Limit size
+    unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
+    if (nBytes >= DEFAULT_BLOCK_MAX_SIZE / 5)
+        return error("CreateCoinStake : exceeded coinstake size limit");
 
     //Masternode payment
     FillBlockPayee(txNew, nReward, nMinFee, true);
