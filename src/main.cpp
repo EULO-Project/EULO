@@ -1806,7 +1806,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
         {
             if (!tx.CheckSenderScript(view))
             {
-                return state.DoS(1, error("AcceptToMemoryPool : CheckSenderScript.", REJECT_INVALID, "bad-txns-invalid-sender-script");
+                return state.DoS(1, error("AcceptToMemoryPool : CheckSenderScript."), REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
 
             int level = 0;
@@ -1815,9 +1815,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
             if (!contractComponent.CheckContractTx(tx, nFees, nMinGasPrice, level, errinfo))
             {
                 if(REJECT_HIGHFEE == level){
-                    return state.DoS(level, false, REJECT_HIGHFEE, errinfo);
+                    return state.DoS(level, error(errinfo.c_str()), REJECT_HIGHFEE);
                 }
-                return state.DoS(level, false, REJECT_INVALID, errinfo);
+                return state.DoS(level, error(errinfo.c_str()), REJECT_INVALID);
             }
         }
         ////////////////////////////////////////////////////////////

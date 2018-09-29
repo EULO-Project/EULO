@@ -72,7 +72,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////// // eulo-evm
 
     template<typename K>
-    bool GetKey(boost::scoped_ptr<leveldb::Iterator> piter, K &key)
+    bool GetKey(leveldb::Iterator *piter, K &key)
     {
         leveldb::Slice slKey = piter->key();
         try
@@ -87,7 +87,7 @@ public:
     }
 
     template<typename V>
-    bool GetValue(boost::scoped_ptr<leveldb::Iterator> piter,V &value)
+    bool GetValue(leveldb::Iterator *piter,V &value)
     {
         leveldb::Slice slValue = piter->value();
         try

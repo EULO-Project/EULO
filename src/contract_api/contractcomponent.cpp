@@ -17,7 +17,7 @@ static bool fIsVMlogFile = false;
 static bool fGettingValuesDGP = false;
 
 /** Too high fee. Can not be triggered by P2P transactions */
-static const unsigned int REJECT_HIGHFEE = 0x100;
+//static const unsigned int REJECT_HIGHFEE = 0x100;
 
 bool CheckMinGasPrice(std::vector<EthTransactionParams> &etps, const uint64_t &minGasPrice)
 {

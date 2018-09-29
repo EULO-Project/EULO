@@ -26,19 +26,21 @@ struct CHeightTxIndexIteratorKey
 
     size_t GetSerializeSize(int nType, int nVersion) const
     {
+        //FixMe: Numerical hard coding should be avoided in case of misleading
+        // here stands for sizeof(unsigned int)
         return 4;
     }
 
     template<typename Stream>
-    void Serialize(Stream &s) const
+    void Serialize(Stream &s,int nType, int nVersion) const //FixMe: double check if this template expanding works properly
     {
-        ser_writedata32be(s, height);
+        ser_writedata32be(s, height);//FixMe: double check if this template expanding works properly
     }
 
     template<typename Stream>
-    void Unserialize(Stream &s)
+    void Unserialize(Stream &s,int nType, int nVersion)//FixMe: double check if this template expanding works properly
     {
-        height = ser_readdata32be(s);
+        height = ser_readdata32be(s);//FixMe: double check if this template expanding works properly
     }
 
     CHeightTxIndexIteratorKey(unsigned int _height)
@@ -64,20 +66,22 @@ struct CHeightTxIndexKey
 
     size_t GetSerializeSize(int nType, int nVersion) const
     {
+        //FixMe: Numerical hard coding should be avoided in case of misleading
+        // here stands for sizeof(unsigned int + dev::h160)
         return 24;
     }
 
     template<typename Stream>
-    void Serialize(Stream &s) const
+    void Serialize(Stream &s,int nType, int nVersion) const     //FixMe: double check if this template expanding works properly
     {
-        ser_writedata32be(s, height);
+        ser_writedata32be(s, height);//FixMe: double check if this template expanding works properly
         s << address.asBytes();
     }
 
     template<typename Stream>
-    void Unserialize(Stream &s)
+    void Unserialize(Stream &s,int nType, int nVersion) //FixMe: double check if this template expanding works properly
     {
-        height = ser_readdata32be(s);
+        height = ser_readdata32be(s);//FixMe: double check if this template expanding works properly
         std::vector<unsigned char> tmp;
         s >> tmp;
         address = dev::h160(tmp);
