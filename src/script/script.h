@@ -650,7 +650,7 @@ public:
      */
     bool IsUnspendable() const
     {
-        return (size() > 0 && *begin() == OP_RETURN || (size() > MAX_SCRIPT_SIZE);
+        return (size() > 0 && *begin() == OP_RETURN || (size() > MAX_SCRIPT_SIZE));
     }
 
     ///////////////////////////////////////// //eulo-vm

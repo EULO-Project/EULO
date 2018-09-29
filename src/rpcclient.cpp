@@ -95,7 +95,27 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"importaddress", 2},
         {"verifychain", 0},
         {"verifychain", 1},
+
+        //////////////////////////////sbtc-vm
+        {"createcontract", 1},
+        {"createcontract", 2},
+        {"createcontract", 4},
+        {"createcontract", 5},
+        {"sendtocontract", 2},
+        {"sendtocontract", 3},
+        {"sendtocontract", 4},
+        {"sendtocontract", 6},
+        {"sendtocontract", 7},
+
+        {"listcontracts", 0},
+        {"listcontracts", 1},
+        {"getstorage", 2},
+        {"getstorage", 1},
         {"callcontract", 3},
+        {"searchlogs", 0},
+        {"searchlogs", 1},
+        {"searchlogs", 2},
+        {"searchlogs", 3},
 
         {"keypoolrefill", 0},
         {"getrawmempool", 0},

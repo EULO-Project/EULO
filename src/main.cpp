@@ -1798,6 +1798,30 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = nValueIn - nValueOut;
+
+        //////////////////////////////////////////////////////////// //sbtc-vm
+        // check contract tx
+        CAmount nMinGasPrice = 0;
+        if (tx.HasCreateOrCall())
+        {
+            if (!tx.CheckSenderScript(view))
+            {
+                return state.DoS(1, error("AcceptToMemoryPool : CheckSenderScript.", REJECT_INVALID, "bad-txns-invalid-sender-script");
+            }
+
+            int level = 0;
+            string errinfo;
+
+            if (!contractComponent.CheckContractTx(tx, nFees, nMinGasPrice, level, errinfo))
+            {
+                if(REJECT_HIGHFEE == level){
+                    return state.DoS(level, false, REJECT_HIGHFEE, errinfo);
+                }
+                return state.DoS(level, false, REJECT_INVALID, errinfo);
+            }
+        }
+        ////////////////////////////////////////////////////////////
+
         double dPriority = 0;
         if (!tx.IsZerocoinSpend())
             view.GetPriority(tx, chainActive.Height());
