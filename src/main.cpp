@@ -1799,7 +1799,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = nValueIn - nValueOut;
 
-        //////////////////////////////////////////////////////////// //sbtc-vm
+        //////////////////////////////////////////////////////////// //eulo-vm
         // check contract tx
         CAmount nMinGasPrice = 0;
         if (tx.HasCreateOrCall())
