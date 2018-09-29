@@ -1806,7 +1806,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
         {
             if (!tx.CheckSenderScript(view))
             {
-                return state.DoS(1, error("AcceptToMemoryPool : CheckSenderScript.", REJECT_INVALID, "bad-txns-invalid-sender-script");
+                return state.DoS(1, error("AcceptToMemoryPool : CheckSenderScript."), REJECT_INVALID, "bad-txns-invalid-sender-script");
             }
 
             int level = 0;
@@ -3820,7 +3820,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
     //////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////// // sbtc-vm
+    ////////////////////////////////////////////////////////////////// // eulo-vm
         checkBlock.hashMerkleRoot =  checkBlock.BuildMerkleTree();
 
         //If this error happens, it probably means that something with AAL created transactions didn't match up to what is expected
@@ -3900,7 +3900,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
 
 
-        if (fJustCheck)  //sbtc-vm
+        if (fJustCheck)  //eulo-vm
         {
             /////////////////////////////////////////////////// eulo-evm
             uint256 prevHashStateRoot = DEFAULT_HASH_STATE_ROOT;

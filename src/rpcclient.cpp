@@ -96,7 +96,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"verifychain", 0},
         {"verifychain", 1},
 
-        //////////////////////////////sbtc-vm
+        //////////////////////////////eulo-vm
         {"createcontract", 1},
         {"createcontract", 2},
         {"createcontract", 4},
