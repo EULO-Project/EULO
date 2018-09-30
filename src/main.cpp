@@ -3385,7 +3385,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 {
     AssertLockHeld(cs_main);
     // Check it again in case a previous version let a bad block in
-    if (!fAlreadyChecked && !CheckBlock(block, state, !fJustCheck, !fJustCheck))
+    if (!fAlreadyChecked && !CheckBlock(block, state, !fJustCheck,!fJustCheck))
         return false;
 
     // verify that the view's current state corresponds to the previous block
@@ -3486,11 +3486,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CBlock checkBlock(block.GetBlockHeader());
     std::vector<CTxOut> checkVouts;
 
-    // Check it again in case a previous version let a bad block in
-    if (!CheckBlock(block, state, pindex->nVersion < POS_VERSION, !fJustCheck, !fJustCheck))
-    {
-        return LogPrintf("%s: Consensus::CheckBlock: %s", __func__, state.GetRejectReason());
-    }
+//    // Check it again in case a previous version let a bad block in
+//    if (!CheckBlock(block, state, pindex->nVersion < POS_VERSION, !fJustCheck, !fJustCheck))
+//    {
+//        return LogPrintf("%s: Consensus::CheckBlock: %s", __func__, state.GetRejectReason());
+//    }
 
 
     // BIP16 didn't become active until Apr 1 2012
@@ -5479,6 +5479,7 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
         return false;
     if (!ContextualCheckBlock(block, state, pindexPrev))
         return false;
+
     contractComponent.GetState(hashStateRoot, hashUTXORoot);
     if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
     {
