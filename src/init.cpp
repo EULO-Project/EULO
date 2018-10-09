@@ -180,7 +180,6 @@ void PrepareShutdown()
     RenameThread("eulo-shutoff");
     mempool.AddTransactionsUpdated(1);
     StopRPCThreads();
-    StopTorControl();
 #ifdef ENABLE_WALLET
     if (pwalletMain)
         bitdb.Flush(false);
@@ -1701,7 +1700,7 @@ bool AppInit2(boost::thread_group& threadGroup)
         }
     }
 
-    fEnableZeromint = GetBoolArg("-enablezeromint", true);
+    fEnableZeromint = GetBoolArg("-enablezeromint", false);
     fEnableLz4Block = GetBoolArg("-enablelz4block", false);
 
     nZeromintPercentage = GetArg("-zeromintpercentage", 1);
