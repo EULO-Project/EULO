@@ -181,7 +181,6 @@ void PrepareShutdown()
     RenameThread("eulo-shutoff");
     mempool.AddTransactionsUpdated(1);
     StopRPCThreads();
-    StopTorControl();
 #ifdef ENABLE_WALLET
     if (pwalletMain)
         bitdb.Flush(false);
@@ -264,7 +263,7 @@ void Shutdown()
     if (!fRestartRequested) {
         PrepareShutdown();
     }
-    // Shutdown part 2: delete wallet instance
+    // Shutdown part 2: Stop TOR thread and delete wallet instance
     StopTorControl();
 #ifdef ENABLE_WALLET
     delete pwalletMain;

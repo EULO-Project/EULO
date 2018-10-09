@@ -3608,10 +3608,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 
             //--------------eulo-vm----------------
-            if(!tx.IsCoinBase2()){
+            if(!tx.IsCoinStake()){
                 CAmount tmpCalcFee = view.GetValueIn(tx) - tx.GetValueOut();
 
-                // LogPrint("tmpCalcFee: ", "view.GetValueIn(tx): %lld \t tx.GetValueOut(): %lld \n", view.GetValueIn(tx), tx.GetValueOut());
+                LogPrint("tmpCalcFee: ", "view.GetValueIn(tx): %lld \t tx.GetValueOut(): %lld \n", view.GetValueIn(tx), tx.GetValueOut());
 
                 if(tmpCalcFee < 0)
                 {
