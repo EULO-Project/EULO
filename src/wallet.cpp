@@ -2539,6 +2539,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     CScript scriptEmpty;
     scriptEmpty.clear();
     txNew.vout.push_back(CTxOut(0, scriptEmpty));
+
+    //  Add contract state.
     if (pblock->nVersion > ZEROCOIN_VERSION)
     {
         uint256 utxoRoot;
@@ -2552,6 +2554,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
 
         txNew.vout.push_back(CTxOut(0, contract));
     }
+
     // Choose coins to use
     CAmount nBalance = GetBalance();
 
@@ -2703,7 +2706,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     // Set output amount
     if (txNew.vout.size() == (3 + statesize)) {
         txNew.vout[1 + statesize].nValue = (nCredit / 2 / CENT) * CENT;
-        txNew.vout[2 + statesize].nValue = nCredit - txNew.vout[1].nValue;
+        txNew.vout[2 + statesize].nValue = nCredit - txNew.vout[1 + statesize].nValue;
     } else
         txNew.vout[1 + statesize].nValue = nCredit;
 
