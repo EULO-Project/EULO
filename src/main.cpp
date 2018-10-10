@@ -1477,7 +1477,7 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, bool fReject
 
     if (enablecontract && tx.IsCoinBase2())
     {
-        if (!tx.vout.at(0).scriptPubKey.HasOpVmHashState())
+        if (!tx.vout.at(1).scriptPubKey.HasOpVmHashState())
             return state.DoS(100, error("CheckTransaction() : miss contract state"),
                              REJECT_INVALID, "bad-txns-vout-hashstate");
     }
