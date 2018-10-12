@@ -38,27 +38,36 @@ GetSenderAddress(const CTransaction &tx, const CCoinsViewCache *coinsView, const
     // First check the current (or in-progress) block for zero-confirmation change spending that won't yet be in txindex
     if (blockTxs)
     {
+        LogPrintf("tx vin size %d\n", tx.vin.size());
+        if (tx.vin.size() > 0)
+            LogPrintf("tx vin[0] hash %s, n %d", tx.vin[0].prevout.hash.GetHex().c_str(),
+                                                 tx.vin[0].prevout.n);
+        
+        LogPrintf("vtx size is %d\n\n", blockTxs->size());
         for (auto btx : *blockTxs)
         {
+            LogPrintf("vtx vin size: %d, vout size %d\n", btx.vin.size(), btx.vout.size());
+            LogPrintf("vtx vin[0] hash %s\n", btx.GetHash().GetHex().c_str());
             if (btx.GetHash() == tx.vin[0].prevout.hash)
-            {
+            {LogPrintf("Find match");
                 script = btx.vout[tx.vin[0].prevout.n].scriptPubKey;
                 scriptFilled = true;
                 break;
-            }
+            }LogPrintf("Not match");
         }
-    }
+    }LogPrintf("GetSenderAddress, scriptFilled: %d, coinsView %d\n", scriptFilled, NULL == coinsView);
     if (!scriptFilled && coinsView)
     {
         // script = coinsView->AccessCoin(tx.vin[0].prevout.hash).out.scriptPubKey;
         script = coinsView->AccessCoins(tx.vin[0].prevout.hash)->vout[tx.vin[0].prevout.n].scriptPubKey;
         scriptFilled = true;
-    }
+    }LogPrintf("GetSenderAddress, script: %s\n", script.ToString().c_str());
     if (!scriptFilled)
     {
 
         CTransaction txPrevout;
         uint256 hashBlock;
+        LogPrintf("before GetTransaction\n");
         if (GetTransaction(tx.vin[0].prevout.hash, txPrevout, hashBlock, true))
         {
             script = txPrevout.vout[tx.vin[0].prevout.n].scriptPubKey;
@@ -69,19 +78,19 @@ GetSenderAddress(const CTransaction &tx, const CCoinsViewCache *coinsView, const
                      tx.vin[0].prevout.hash.ToString().c_str());
             return valtype();
         }
-    }
+    }LogPrintf("before ExtractDestination\n");
 
     CTxDestination addressBit;
     txnouttype txType = TX_NONSTANDARD;
     if (ExtractDestination(script, addressBit, &txType))
-    {
+    {LogPrintf(" ExtractDestination done\n");
         if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) &&
                 addressBit.type() == typeid(CKeyID))
         {
             CKeyID senderAddress(boost::get<CKeyID>(addressBit));
             return valtype(senderAddress.begin(), senderAddress.end());
         }
-    }
+    }LogPrintf(" return type 0\n");
     //prevout is not a standard transaction format, so just return 0
     return valtype();
 }
@@ -422,6 +431,7 @@ bool CContractComponent::CheckContractTx(const CTransaction tx, const CAmount nF
         count += o.scriptPubKey.HasOpCreate() || o.scriptPubKey.HasOpCall() ? 1 : 0;
     EuloTxConverter converter(tx, NULL);
     ExtractEuloTX resultConverter;
+    LogPrintStr("CheckContractTx"); //eulo debug
     if (!converter.extractionEuloTransactions(resultConverter))
     {
         level = 100;
@@ -571,6 +581,7 @@ bool CContractComponent::RunContractTx(CTransaction tx, CCoinsViewCache *v, CBlo
     EuloTxConverter convert(tx, v, &pblock->vtx);
 
     ExtractEuloTX resultConverter;
+    LogPrintStr("RunContractTx"); //eulo debug
     if (!convert.extractionEuloTransactions(resultConverter))
     {
         //this check already happens when accepting txs into mempool
@@ -745,6 +756,7 @@ bool CContractComponent::ContractTxConnectBlock(CTransaction tx, uint32_t transa
     EuloTxConverter convert(tx, v, &block.vtx);
 
     ExtractEuloTX resultConvertQtumTX;
+    LogPrintStr("ContractTxConnectBlock\n"); //eulo debug
     if (!convert.extractionEuloTransactions(resultConvertQtumTX))
     {
         level = 100;
@@ -759,7 +771,9 @@ bool CContractComponent::ContractTxConnectBlock(CTransaction tx, uint32_t transa
     }
 
     dev::u256 gasAllTxs = dev::u256(0);
+    LogPrintf("ContractTxConnectBlock() : before ByteCodeExec\n");
     ByteCodeExec exec(block, resultConvertQtumTX.first, blockGasLimit);
+    LogPrintf("ContractTxConnectBlock() : after ByteCodeExec\n");
     //validate VM version and other ETH params before execution
     //Reject anything unknown (could be changed later by DGP)
     //TODO evaluate if this should be relaxed for soft-fork purposes
@@ -862,12 +876,13 @@ bool CContractComponent::ContractTxConnectBlock(CTransaction tx, uint32_t transa
         }
     }
 
+    LogPrintf("ContractTxConnectBlock() : before exec.performByteCode\n");
     if (!exec.performByteCode())
-    {
+    {LogPrintf("ContractTxConnectBlock() : after exec.performByteCode fail\n");
         level = 100;
         errinfo = "bad-tx-unknown-error";
         return false;
-    }
+    }LogPrintf("ContractTxConnectBlock() : after exec.performByteCode ok\n");
 
     std::vector<ResultExecute> resultExec(exec.getResult());
     if (!exec.processingResults(bcer))
@@ -1193,12 +1208,12 @@ void CContractComponent::RPCCallContract(UniValue &result, const string addrCont
 bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
 {
     for (EuloTransaction &tx : txs)
-    {
+    {LogPrintf("performByteCode() : validate VM version\n");
         //validate VM version
         if (tx.getVersion().toRaw() != VersionVM::GetEVMDefault().toRaw())
-        {
+        {LogPrintf("performByteCode() : validate VM version failed\n");
             return false;
-        }
+        }LogPrintf("performByteCode() : validate VM version ok\n");
         LastBlockHashes lastBlockHashes;
         dev::eth::BlockHeader blockHeader{initBlockHeader()};
         dev::eth::EnvInfo envInfo(blockHeader, lastBlockHashes, 0);
@@ -1334,15 +1349,16 @@ bool EuloTxConverter::extractionEuloTransactions(ExtractEuloTX &eulotx)
                 EthTransactionParams params;
                 if (parseEthTXParams(params))
                 {
-                    LogPrintStr("extractionEuloTransactions"); //eulo debug
+                    LogPrintStr("extractionEuloTransactions\n"); //eulo debug
                     resultTX.push_back(createEthTX(params, i));
                     resultETP.push_back(params);
+                    LogPrintStr("createEthTX and push back\n");
                 } else
-                {
+                {LogPrintf("parseEthTXParams return failed \n");
                     return false;
                 }
             } else
-            {
+            {LogPrintf("receiveStack return failed \n");
                 return false;
             }
         }
@@ -1354,6 +1370,7 @@ bool EuloTxConverter::extractionEuloTransactions(ExtractEuloTX &eulotx)
 bool EuloTxConverter::receiveStack(const CScript &scriptPubKey)
 {
     EvalScript(stack, scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(),  nullptr);
+    LogPrintf("receiveStack stack.empty(): %d \n", stack.empty());
     if (stack.empty())
         return false;
 
@@ -1361,6 +1378,7 @@ bool EuloTxConverter::receiveStack(const CScript &scriptPubKey)
     stack.pop_back();
 
     opcode = (opcodetype)(*scriptRest.begin());
+    LogPrintf("receiveStack stack.size(): %d \n", stack.size());
     if ((opcode == OP_CREATE && stack.size() < 4) || (opcode == OP_CALL && stack.size() < 5))
     {
         stack.clear();
@@ -1427,7 +1445,7 @@ bool EuloTxConverter::parseEthTXParams(EthTransactionParams &params)
 
 EuloTransaction EuloTxConverter::createEthTX(const EthTransactionParams &etp, uint32_t nOut)
 {
-    EuloTransaction txEth;
+    EuloTransaction txEth;LogPrintStr("createEthTX txEth\n");
     if (etp.receiveAddress == dev::Address() && opcode != OP_CALL)
     {
         txEth = EuloTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.code, dev::u256(0));
@@ -1436,6 +1454,9 @@ EuloTransaction EuloTxConverter::createEthTX(const EthTransactionParams &etp, ui
         txEth = EuloTransaction(txBit.vout[nOut].nValue, etp.gasPrice, etp.gasLimit, etp.receiveAddress, etp.code,
                                 dev::u256(0));
     }
+    LogPrintStr("createEthTX before GetSenderAddress\n");
+    valtype types = GetSenderAddress(txBit, view, blockTransactions);
+    LogPrintStr("createEthTX after GetSenderAddress, type: \n");
     dev::Address sender(GetSenderAddress(txBit, view, blockTransactions));
     txEth.forceSender(sender);
     txEth.setHashWith(uintToh256(txBit.GetHash()));

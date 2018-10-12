@@ -2744,7 +2744,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
         if (bnTarget > Params().ProofOfWorkLimit()) {
             bnTarget = Params().ProofOfWorkLimit();
         }
-        
+
         pblock->nBits2 = bnTarget.GetCompact();
     }
 #endif

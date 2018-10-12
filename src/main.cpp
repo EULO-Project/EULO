@@ -3681,13 +3681,14 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             int level = 0;
             string errinfo;
             ByteCodeExecResult bcer;
+            LogPrintStr("ConnectBlock call ContractTxConnectBlock\n");
 
             if (!contractComponent.ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
                                                           bcer, fLogEvents, fJustCheck, heightIndexes,
                                                           level, errinfo))
-            {
+            {LogPrintStr("ConnectBlock -> ContractTxConnectBlock failed\n");
                 return state.DoS(level, error(errinfo.c_str()), REJECT_INVALID);
-            }
+            }LogPrintStr("ConnectBlock -> ContractTxConnectBlock OK\n");
             for (CTxOut refundVout : bcer.refundOutputs)
             {
                 gasRefunds += refundVout.nValue;

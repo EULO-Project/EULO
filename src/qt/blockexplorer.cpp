@@ -383,7 +383,7 @@ std::string TxToString(uint256 BlockHash, const CTransaction& tx)
         _("Size"), itostr(GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION)),
         _("Input"), tx.IsCoinBase() ? "-" : ValueToString(Input),
         _("Output"), ValueToString(Output),
-        _("Fees"), tx.IsCoinBase() ? "-" : ValueToString(Input - Output),
+        _("Fees"), tx.IsCoinBase() || tx.IsCoinStake() ? "-" : ValueToString(Input - Output),
         _("Timestamp"), "",
         _("Hash"), "<pre>" + Hash + "</pre>",
     };
