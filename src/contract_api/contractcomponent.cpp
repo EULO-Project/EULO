@@ -756,7 +756,7 @@ bool CContractComponent::ContractTxConnectBlock(CTransaction tx, uint32_t transa
     EuloTxConverter convert(tx, v, &block.vtx);
 
     ExtractEuloTX resultConvertQtumTX;
-    LogPrintStr("ContractTxConnectBlock\n"); //eulo debug
+    LogPrintf("ContractTxConnectBlock: vtx size %d\n", block.vtx.size()); //eulo debug
     if (!convert.extractionEuloTransactions(resultConvertQtumTX))
     {
         level = 100;

@@ -3681,7 +3681,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             int level = 0;
             string errinfo;
             ByteCodeExecResult bcer;
-            LogPrintStr("ConnectBlock call ContractTxConnectBlock\n");
+            LogPrintf("ConnectBlock call ContractTxConnectBlock: vtx size %d\n", block.vtx.size());
 
             if (!contractComponent.ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
                                                           bcer, fLogEvents, fJustCheck, heightIndexes,
