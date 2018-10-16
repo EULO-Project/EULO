@@ -224,25 +224,14 @@ public:
     void clear() override {}
 };
 
-CContractComponent::CContractComponent()
-{
-
-}
-
-CContractComponent::~CContractComponent()
-{
-
-}
-
-bool CContractComponent::ComponentInitialize()
+bool ComponentInitialize()
 {
     LogPrintStr("initialize CContract component");
     return true;
 }
 
-bool CContractComponent::ContractInit()
+bool ContractInit()
 {
-
     //FixME: Comment this is not right?
 
     //    ////////////////////////////////////////////////////////////////////// //eulo-vm
@@ -329,14 +318,14 @@ bool CContractComponent::ContractInit()
 }
 
 
-bool CContractComponent::ComponentStartup()
+bool ComponentStartup()
 {
     LogPrintStr("starting CContract component\n");
 
     return true;
 }
 
-bool CContractComponent::ComponentShutdown()
+bool ComponentShutdown()
 {
     LogPrintStr("shutdown CContract component");
 
@@ -347,7 +336,7 @@ bool CContractComponent::ComponentShutdown()
     return true;
 }
 
-uint64_t CContractComponent::GetMinGasPrice(int height)
+uint64_t GetMinGasPrice(int height)
 {
     uint64_t minGasPrice = 1;
 
@@ -368,7 +357,7 @@ uint64_t CContractComponent::GetMinGasPrice(int height)
     return minGasPrice;
 }
 
-uint64_t CContractComponent::GetBlockGasLimit(int height)
+uint64_t GetBlockGasLimit(int height)
 {
     uint64_t blockGasLimit = 1;
 
@@ -389,7 +378,7 @@ uint64_t CContractComponent::GetBlockGasLimit(int height)
     return blockGasLimit;
 }
 
-bool CContractComponent::AddressInUse(string contractaddress)
+bool AddressInUse(string contractaddress)
 {
     //
     bool IsEnabled =  [&]()->bool{
@@ -405,7 +394,7 @@ bool CContractComponent::AddressInUse(string contractaddress)
     return globalState->addressInUse(addrAccount);
 }
 
-bool CContractComponent::CheckContractTx(const CTransaction tx, const CAmount nFees,
+bool CheckContractTx(const CTransaction tx, const CAmount nFees,
                                          CAmount &nMinGasPrice, int &level,
                                          string &errinfo, const CAmount nAbsurdFee, bool rawTx)
 {
@@ -560,7 +549,7 @@ bool CContractComponent::CheckContractTx(const CTransaction tx, const CAmount nF
     return true;
 }
 
-bool CContractComponent::RunContractTx(CTransaction tx, CCoinsViewCache *v, CBlock *pblock,
+bool RunContractTx(CTransaction tx, CCoinsViewCache *v, CBlock *pblock,
                                        uint64_t minGasPrice,
                                        uint64_t hardBlockGasLimit,
                                        uint64_t softBlockGasLimit,
@@ -707,7 +696,7 @@ uint32_t GetExcepted(dev::eth::TransactionException status)
     }
 }
 
-string CContractComponent::GetExceptedInfo(uint32_t index)
+string GetExceptedInfo(uint32_t index)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -728,22 +717,16 @@ string CContractComponent::GetExceptedInfo(uint32_t index)
     }
 }
 
-bool CContractComponent::ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsViewCache *v,
-                                                const CBlock &block,
-                                                int nHeight,
-                                                ByteCodeExecResult &bcer,
-                                                bool bLogEvents,
-                                                bool fJustCheck,
-                                                std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
-                                                int &level, string &errinfo)
+bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsViewCache *v,
+                                    const CBlock &block,
+                                    int nHeight,
+                                    ByteCodeExecResult &bcer,
+                                    bool bLogEvents,
+                                    bool fJustCheck,
+                                    std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
+                                    int &level, string &errinfo)
 {
-
-    bool IsEnabled =  [&]()->bool{
-
-            if(chainActive.Tip()== nullptr) return false;
-            return chainActive.Tip()->IsContractEnabled();
-}();
-    if (!IsEnabled)
+    if (!block.IsContractEnabled())
     {
         return false;
     }
@@ -752,10 +735,13 @@ bool CContractComponent::ContractTxConnectBlock(CTransaction tx, uint32_t transa
     uint64_t blockGasLimit = GetBlockGasLimit(nHeight + 1);
     uint64_t countCumulativeGasUsed = 0;
     uint64_t blockGasUsed = 0;
+    LogPrintf("before EuloTxConverter: vtx addr %p\n", &block.vtx); //eulo debug
+    LogPrintf("before EuloTxConverter: vtx size %d\n", block.vtx.size()); //eulo debug
 
     EuloTxConverter convert(tx, v, &block.vtx);
 
     ExtractEuloTX resultConvertQtumTX;
+    LogPrintf("ContractTxConnectBlock: vtx addr %p\n", &block.vtx); //eulo debug
     LogPrintf("ContractTxConnectBlock: vtx size %d\n", block.vtx.size()); //eulo debug
     if (!convert.extractionEuloTransactions(resultConvertQtumTX))
     {
@@ -939,7 +925,7 @@ bool CContractComponent::ContractTxConnectBlock(CTransaction tx, uint32_t transa
     return true;
 }
 
-void CContractComponent::GetState(uint256 &hashStateRoot, uint256 &hashUTXORoot)
+void GetState(uint256 &hashStateRoot, uint256 &hashUTXORoot)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -957,7 +943,7 @@ void CContractComponent::GetState(uint256 &hashStateRoot, uint256 &hashUTXORoot)
     hashUTXORoot = h256Touint(oldHashUTXORoot);
 }
 
-void CContractComponent::UpdateState(uint256 hashStateRoot, uint256 hashUTXORoot)
+void UpdateState(uint256 hashStateRoot, uint256 hashUTXORoot)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -977,7 +963,7 @@ void CContractComponent::UpdateState(uint256 hashStateRoot, uint256 hashUTXORoot
     globalState->setRootUTXO(uintToh256(hashUTXORoot));
 }
 
-void CContractComponent::DeleteResults(std::vector<CTransaction> const &txs)
+void DeleteResults(std::vector<CTransaction> const &txs)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -991,7 +977,7 @@ void CContractComponent::DeleteResults(std::vector<CTransaction> const &txs)
     pstorageresult->deleteResults(txs);
 }
 
-std::vector<TransactionReceiptInfo> CContractComponent::GetResult(uint256 const &hashTx)
+std::vector<TransactionReceiptInfo> GetResult(uint256 const &hashTx)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1005,7 +991,7 @@ std::vector<TransactionReceiptInfo> CContractComponent::GetResult(uint256 const 
     return pstorageresult->getResult(uintToh256(hashTx));
 }
 
-void CContractComponent::CommitResults()
+void CommitResults()
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1019,7 +1005,7 @@ void CContractComponent::CommitResults()
     pstorageresult->commitResults();
 }
 
-void CContractComponent::ClearCacheResult()
+void ClearCacheResult()
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1033,7 +1019,7 @@ void CContractComponent::ClearCacheResult()
     pstorageresult->clearCacheResult();
 }
 
-std::map<dev::h256, std::pair<dev::u256, dev::u256>> CContractComponent::GetStorageByAddress(string address)
+std::map<dev::h256, std::pair<dev::u256, dev::u256>> GetStorageByAddress(string address)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1050,7 +1036,7 @@ std::map<dev::h256, std::pair<dev::u256, dev::u256>> CContractComponent::GetStor
     return storage;
 };
 
-void CContractComponent::SetTemporaryState(uint256 hashStateRoot, uint256 hashUTXORoot)
+void SetTemporaryState(uint256 hashStateRoot, uint256 hashUTXORoot)
 {
 
     bool IsEnabled =  [&]()->bool{
@@ -1070,7 +1056,7 @@ void CContractComponent::SetTemporaryState(uint256 hashStateRoot, uint256 hashUT
     ts.SetRoot(uintToh256(hashStateRoot), uintToh256(hashUTXORoot));
 }
 
-std::unordered_map<dev::h160, dev::u256> CContractComponent::GetContractList()
+std::unordered_map<dev::h160, dev::u256> GetContractList()
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1086,7 +1072,7 @@ std::unordered_map<dev::h160, dev::u256> CContractComponent::GetContractList()
 };
 
 
-CAmount CContractComponent::GetContractBalance(dev::h160 address)
+CAmount GetContractBalance(dev::h160 address)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1100,7 +1086,7 @@ CAmount CContractComponent::GetContractBalance(dev::h160 address)
     return CAmount(globalState->balance(address));
 }
 
-std::vector<uint8_t> CContractComponent::GetContractCode(dev::Address address)
+std::vector<uint8_t> GetContractCode(dev::Address address)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1114,7 +1100,7 @@ std::vector<uint8_t> CContractComponent::GetContractCode(dev::Address address)
     return globalState->code(address);
 }
 
-bool CContractComponent::GetContractVin(dev::Address address, dev::h256 &hash, uint32_t &nVout, dev::u256 &value,
+bool GetContractVin(dev::Address address, dev::h256 &hash, uint32_t &nVout, dev::u256 &value,
                                         uint8_t &alive)
 {
     bool ret = false;
@@ -1180,7 +1166,7 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt &txRec)
     return result;
 }
 
-void CContractComponent::RPCCallContract(UniValue &result, const string addrContract, std::vector<unsigned char> opcode,
+void RPCCallContract(UniValue &result, const string addrContract, std::vector<unsigned char> opcode,
                                          string sender, uint64_t gasLimit)
 {
     bool IsEnabled =  [&]()->bool{

@@ -133,8 +133,6 @@ extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CTxMemPool mempool;
 
-extern CContractComponent contractComponent;
-
 #ifdef  POW_IN_POS_PHASE
 extern TmpBlocksMempool tmpblockmempool;
 #endif

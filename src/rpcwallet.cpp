@@ -2090,8 +2090,8 @@ UniValue createcontract(const UniValue& params, bool fHelp)
 
     int height = chainActive.Tip()->nHeight;
 
-    uint64_t blockGasLimit = contractComponent.GetBlockGasLimit(height);
-    uint64_t minGasPrice = CAmount(contractComponent.GetMinGasPrice(height));
+    uint64_t blockGasLimit = GetBlockGasLimit(height);
+    uint64_t minGasPrice = CAmount(GetMinGasPrice(height));
     CAmount nGasPrice = (minGasPrice > DEFAULT_GAS_PRICE) ? minGasPrice : DEFAULT_GAS_PRICE;
     if (fHelp || params.size() < 1 || params.size() > 6)
         throw std::runtime_error(
@@ -2332,7 +2332,7 @@ UniValue createcontract(const UniValue& params, bool fHelp)
         int level = 0;
         string errinfo;
 
-        if (!contractComponent.CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
+        if (!CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
         {
             throw JSONRPCError(RPC_TYPE_ERROR, errinfo);
         }
@@ -2402,8 +2402,8 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
 
     int height = chainActive.Tip()->nHeight;
 
-    uint64_t blockGasLimit = contractComponent.GetBlockGasLimit(height);
-    uint64_t minGasPrice = CAmount(contractComponent.GetMinGasPrice(height));
+    uint64_t blockGasLimit = GetBlockGasLimit(height);
+    uint64_t minGasPrice = CAmount(GetMinGasPrice(height));
     CAmount nGasPrice = (minGasPrice > DEFAULT_GAS_PRICE) ? minGasPrice : DEFAULT_GAS_PRICE;
 
     if (fHelp || params.size() < 2 || params.size() > 8)
@@ -2441,7 +2441,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     if (contractaddress.size() != 40 || !IsHex(contractaddress))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
 
-    if (!contractComponent.AddressInUse(contractaddress))
+    if (!AddressInUse(contractaddress))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
 
     std::string datahex = params[1].get_str();
@@ -2658,7 +2658,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
         int level = 0;
         string errinfo;
 
-        if (!contractComponent.CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
+        if (!CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
         {
             throw JSONRPCError(RPC_TYPE_ERROR, errinfo);
         }

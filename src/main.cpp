@@ -93,8 +93,6 @@ CFeeRate minRelayTxFee = CFeeRate(10000);
 
 CTxMemPool mempool(::minRelayTxFee);
 
-CContractComponent contractComponent;
-
 #ifdef  POW_IN_POS_PHASE
 
 TmpBlocksMempool  tmpblockmempool;
@@ -1812,7 +1810,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
             int level = 0;
             string errinfo;
 
-            if (!contractComponent.CheckContractTx(tx, nFees, nMinGasPrice, level, errinfo))
+            if (!CheckContractTx(tx, nFees, nMinGasPrice, level, errinfo))
             {
                 if(REJECT_HIGHFEE == level){
                     return state.DoS(level, error(errinfo.c_str()), REJECT_HIGHFEE);
@@ -3128,11 +3126,11 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
             error("GetVMState err");
         }
     }
-    contractComponent.UpdateState(hashStateRoot, hashUTXORoot);
+    UpdateState(hashStateRoot, hashUTXORoot);
 
     if (pfClean == NULL && fLogEvents)
     {
-        contractComponent.DeleteResults(block.vtx);
+        DeleteResults(block.vtx);
         pblocktree->EraseHeightIndex(pindex->nHeight);
     }
 
@@ -3682,8 +3680,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             string errinfo;
             ByteCodeExecResult bcer;
             LogPrintf("ConnectBlock call ContractTxConnectBlock: vtx size %d\n", block.vtx.size());
+            LogPrintf("ConnectBlock call ContractTxConnectBlock: vtx addr %p\n", &block.vtx);
+            LogPrintf("ConnectBlock call ContractTxConnectBlock: vtx addr %p\n", &(block.vtx));
 
-            if (!contractComponent.ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
+            if (!ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
                                                           bcer, fLogEvents, fJustCheck, heightIndexes,
                                                           level, errinfo))
             {LogPrintStr("ConnectBlock -> ContractTxConnectBlock failed\n");
@@ -3892,7 +3892,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         uint256 hashStateRoot;
         uint256 hashUTXORoot;
-        contractComponent.GetState(hashStateRoot, hashUTXORoot);
+        GetState(hashStateRoot, hashUTXORoot);
         if (hashUTXORoot != blockhashUTXORoot)
         {
             LogPrintf("Actual block data does not match hashUTXORoot expected by AAL block");
@@ -3928,7 +3928,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             prevHashStateRoot = hashStateRoot;
             prevHashUTXORoot = hashUTXORoot;
         }
-        contractComponent.UpdateState(prevHashStateRoot,prevHashUTXORoot);//after the create new block,immediately recovery state
+        UpdateState(prevHashStateRoot,prevHashUTXORoot);//after the create new block,immediately recovery state
         ///////////////////////////////////////////////////
         return true;
     }
@@ -3986,7 +3986,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     //eulo-vm
     if (fLogEvents)
     {
-        contractComponent.CommitResults();
+        CommitResults();
     }
 
     return true;
@@ -4178,7 +4178,7 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
     {
         //eulo-vm
         uint256 oldHashStateRoot, oldHashUTXORoot;
-        contractComponent.GetState(oldHashStateRoot, oldHashUTXORoot);
+        GetState(oldHashStateRoot, oldHashUTXORoot);
 
 
         CInv inv(MSG_BLOCK, pindexNew->GetBlockHash());
@@ -4188,8 +4188,8 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
             if (state.IsInvalid())
                 InvalidBlockFound(pindexNew, state);
 
-            contractComponent.UpdateState(oldHashStateRoot, oldHashUTXORoot);//eulo-vm
-            contractComponent.ClearCacheResult();//eulo-vm
+            UpdateState(oldHashStateRoot, oldHashUTXORoot);//eulo-vm
+            ClearCacheResult();//eulo-vm
 
             return error("ConnectTip() : ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
@@ -5486,11 +5486,11 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
     if (!ContextualCheckBlock(block, state, pindexPrev))
         return false;
 
-    contractComponent.GetState(hashStateRoot, hashUTXORoot);
+    GetState(hashStateRoot, hashUTXORoot);
     if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
     {
-        contractComponent.UpdateState(hashStateRoot, hashUTXORoot);
-        contractComponent.ClearCacheResult();
+        UpdateState(hashStateRoot, hashUTXORoot);
+        ClearCacheResult();
         return false;
     }
     assert(state.IsValid());
@@ -5789,7 +5789,7 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
     CValidationState state;
 
     uint256 oldHashStateRoot, oldHashUTXORoot;
-    contractComponent.GetState(oldHashStateRoot, oldHashUTXORoot);//eulo-vm
+    GetState(oldHashStateRoot, oldHashUTXORoot);//eulo-vm
 
 
     for (CBlockIndex* pindex = chainActive.Tip(); pindex && pindex->pprev; pindex = pindex->pprev) {
@@ -5842,18 +5842,18 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
             if (!ReadBlockFromDisk(block, pindex))
                 return error("VerifyDB() : *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             uint256 oldHashStateRoot, oldHashUTXORoot;
-            contractComponent.GetState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
+            GetState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
             if (!ConnectBlock(block, state, pindex, coins, false))
             {
-                contractComponent.UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
-                contractComponent.ClearCacheResult(); //eulo-vm
+                UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
+                ClearCacheResult(); //eulo-vm
                 return error("VerifyDB() : *** found unconnectable block at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             }
         }
     }
     else
     {
-        contractComponent.UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
+        UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
     }
 
     LogPrintf("No coin database inconsistencies in last %i blocks (%i transactions)\n", chainActive.Height() - pindexState->nHeight, nGoodTransactions);

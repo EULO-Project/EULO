@@ -2546,7 +2546,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
         uint256 utxoRoot;
     	uint256	stateRoot;
 
-        contractComponent.GetState(stateRoot, utxoRoot);
+        GetState(stateRoot, utxoRoot);
 
         LogPrintf("POS stateRoot: %s, utxoRoot: %s\n", stateRoot.GetHex().c_str(), utxoRoot.GetHex().c_str());
 

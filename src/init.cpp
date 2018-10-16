@@ -1399,7 +1399,7 @@ bool AppInit2(boost::thread_group& threadGroup)
                 //FixMe: Start CContractComponent at a proper moment,
                 //this may not be the best time, needs check,
                 //checked with qtum codes. eulo-vm
-                contractComponent.ContractInit();
+                ContractInit();
 
 
 

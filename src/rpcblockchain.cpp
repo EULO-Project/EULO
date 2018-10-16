@@ -1428,7 +1428,7 @@ UniValue getaccountinfo(const UniValue& params, bool fHelp)
     if (strAddr.size() != 40 || !IsHex(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
 
-    if (!contractComponent.AddressInUse(strAddr))
+    if (!AddressInUse(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
 
     dev::Address addrAccount(strAddr);
@@ -1436,10 +1436,10 @@ UniValue getaccountinfo(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VOBJ);
 
     result.push_back(Pair("address", strAddr));
-    result.push_back(Pair("balance", contractComponent.GetContractBalance(addrAccount)));
-    std::vector<uint8_t> code = contractComponent.GetContractCode(addrAccount);
+    result.push_back(Pair("balance", GetContractBalance(addrAccount)));
+    std::vector<uint8_t> code = GetContractCode(addrAccount);
 
-    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = contractComponent.GetStorageByAddress(strAddr);
+    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = GetStorageByAddress(strAddr);
 
     UniValue storageUV(UniValue::VOBJ);
     for (auto j: storage)
@@ -1457,7 +1457,7 @@ UniValue getaccountinfo(const UniValue& params, bool fHelp)
     uint32_t nVout;
     dev::u256 value;
     uint8_t alive;
-    if (contractComponent.GetContractVin(addrAccount, hash, nVout, value, alive))
+    if (GetContractVin(addrAccount, hash, nVout, value, alive))
     {
         UniValue vin(UniValue::VOBJ);
         valtype vchHash(hash.asBytes());
@@ -1515,7 +1515,7 @@ UniValue getstorage(const UniValue& params, bool fHelp)
                         throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect GetVMState");
                     }
                 }
-                contractComponent.SetTemporaryState(hashStateRoot, hashUTXORoot);
+                SetTemporaryState(hashStateRoot, hashUTXORoot);
                 //                ifContractObj->SetTemporaryState(chainActive[blockNum]->hashStateRoot,
                 //                                                 chainActive[blockNum]->hashUTXORoot);
             }
@@ -1525,7 +1525,7 @@ UniValue getstorage(const UniValue& params, bool fHelp)
         }
     }
 
-    if (!contractComponent.AddressInUse(strAddr))
+    if (!AddressInUse(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
 
     UniValue result(UniValue::VOBJ);
@@ -1535,7 +1535,7 @@ UniValue getstorage(const UniValue& params, bool fHelp)
     if (onlyIndex)
         index = params[2].get_int();
 
-    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = contractComponent.GetStorageByAddress(strAddr);
+    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = GetStorageByAddress(strAddr);
     if (onlyIndex)
     {
         if (index >= storage.size())
@@ -1592,7 +1592,7 @@ UniValue callcontract(const UniValue& params, bool fHelp)
     if (pBlockIndex->nHeight < Params().Contract_StartHeight())
         throw JSONRPCError(RPC_INVALID_REQUEST, "contract not enabled.");
 
-    if (contractComponent.AddressInUse(strAddr))
+    if (AddressInUse(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
 
     string sender = "";
@@ -1630,7 +1630,7 @@ UniValue callcontract(const UniValue& params, bool fHelp)
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("address", strAddr));
 
-    contractComponent.RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
+    RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
 
     return result;
 }
@@ -1817,7 +1817,7 @@ UniValue searchlogs(const UniValue& params, bool fHelp)
     {
         for (const auto &e : hashesTx)
         {
-            std::vector<TransactionReceiptInfo> receipts = contractComponent.GetResult(e);
+            std::vector<TransactionReceiptInfo> receipts = GetResult(e);
 
             for (const auto &receipt : receipts)
             {
@@ -1895,7 +1895,7 @@ UniValue gettransactionreceipt(const UniValue& params, bool fHelp)
 
     uint256 hash(uint256S(hashTemp));
 
-    std::vector<TransactionReceiptInfo> transactionReceiptInfo = contractComponent.GetResult(hash);
+    std::vector<TransactionReceiptInfo> transactionReceiptInfo = GetResult(hash);
 
     UniValue result(UniValue::VARR);
     for (TransactionReceiptInfo &t : transactionReceiptInfo)
@@ -1941,7 +1941,7 @@ UniValue listcontracts(const UniValue& params, bool fHelp)
 
     UniValue result(UniValue::VOBJ);
 
-    std::unordered_map<dev::h160, dev::u256> map = contractComponent.GetContractList();
+    std::unordered_map<dev::h160, dev::u256> map = GetContractList();
     int contractsCount = (int)map.size();
 
     if (contractsCount > 0 && start > contractsCount)
@@ -1952,7 +1952,7 @@ UniValue listcontracts(const UniValue& params, bool fHelp)
 
     for (auto it = std::next(map.begin(), itStartPos); it != map.end(); it++)
     {
-        CAmount balance = contractComponent.GetContractBalance(it->first);
+        CAmount balance = GetContractBalance(it->first);
         result.push_back(Pair(it->first.hex(), ValueFromAmount(balance)));
         i++;
         if (i == maxDisplay)

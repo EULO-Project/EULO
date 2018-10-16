@@ -114,32 +114,25 @@ private:
 
 };
 
-class CContractComponent
-{
-public:
-    CContractComponent();
+bool ComponentInitialize();
 
-    ~CContractComponent();
+bool ContractInit();
 
-    bool ComponentInitialize();
+bool ComponentStartup();
 
-    bool ContractInit();
+bool ComponentShutdown();
 
-    bool ComponentStartup();
+uint64_t GetMinGasPrice(int height);
 
-    bool ComponentShutdown();
+uint64_t GetBlockGasLimit(int height);
 
-    uint64_t GetMinGasPrice(int height);
+bool AddressInUse(string contractaddress);
 
-    uint64_t GetBlockGasLimit(int height);
-
-    bool AddressInUse(string contractaddress);
-
-    bool CheckContractTx(const CTransaction tx, const CAmount nFees,
+bool CheckContractTx(const CTransaction tx, const CAmount nFees,
                          CAmount &nMinGasPrice, int &level,
                          string &errinfo, const CAmount nAbsurdFee = 0, bool rawTx = false);
 
-    bool RunContractTx(CTransaction tx, CCoinsViewCache *v, CBlock *pblock,
+bool RunContractTx(CTransaction tx, CCoinsViewCache *v, CBlock *pblock,
                        uint64_t minGasPrice,
                        uint64_t hardBlockGasLimit,
                        uint64_t softBlockGasLimit,
@@ -147,7 +140,7 @@ public:
                        uint64_t usedGas,
                        ByteCodeExecResult &testExecResult);
 
-    bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsViewCache *v, const CBlock &block,
+bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsViewCache *v, const CBlock &block,
                                 int nHeight,
                                 ByteCodeExecResult &bcer,
                                 bool bLogEvents,
@@ -155,40 +148,33 @@ public:
                                 std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
                                 int &level, string &errinfo);
 
-    void GetState(uint256 &hashStateRoot, uint256 &hashUTXORoot);
+void GetState(uint256 &hashStateRoot, uint256 &hashUTXORoot);
 
-    void UpdateState(uint256 hashStateRoot, uint256 hashUTXORoot);
+void UpdateState(uint256 hashStateRoot, uint256 hashUTXORoot);
 
-    void DeleteResults(std::vector<CTransaction> const &txs);
+void DeleteResults(std::vector<CTransaction> const &txs);
 
-    std::vector<TransactionReceiptInfo> GetResult(uint256 const &hashTx);
+std::vector<TransactionReceiptInfo> GetResult(uint256 const &hashTx);
 
-    void CommitResults();
+void CommitResults();
 
-    void ClearCacheResult();
+void ClearCacheResult();
 
-    std::map<dev::h256, std::pair<dev::u256, dev::u256>> GetStorageByAddress(string address);
+std::map<dev::h256, std::pair<dev::u256, dev::u256>> GetStorageByAddress(string address);
 
-    void SetTemporaryState(uint256 hashStateRoot, uint256 hashUTXORoot);
+void SetTemporaryState(uint256 hashStateRoot, uint256 hashUTXORoot);
 
-    std::unordered_map<dev::h160, dev::u256> GetContractList();
+std::unordered_map<dev::h160, dev::u256> GetContractList();
 
-    CAmount GetContractBalance(dev::h160 address);
+CAmount GetContractBalance(dev::h160 address);
 
-    std::vector<uint8_t> GetContractCode(dev::Address address);
+std::vector<uint8_t> GetContractCode(dev::Address address);
 
-    bool
-    GetContractVin(dev::Address address, dev::h256 &hash, uint32_t &nVout, dev::u256 &value, uint8_t &alive);
+bool GetContractVin(dev::Address address, dev::h256 &hash, uint32_t &nVout, dev::u256 &value, uint8_t &alive);
 
-    void
-    RPCCallContract(UniValue &result, const string addrContract, std::vector<unsigned char> opcode, string sender = "",
-                    uint64_t gasLimit = 0);
+void RPCCallContract(UniValue &result, const string addrContract, std::vector<unsigned char> opcode, string sender = "", uint64_t gasLimit = 0);
 
-    string GetExceptedInfo(uint32_t index);
-
-private:
-
-};
+string GetExceptedInfo(uint32_t index);
 
 
 #endif //CONTRACT_COMPONENT_H
