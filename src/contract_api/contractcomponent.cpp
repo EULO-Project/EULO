@@ -716,6 +716,7 @@ string GetExceptedInfo(uint32_t index)
         return "";
     }
 }
+extern UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool txDetails);
 
 bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsViewCache *v,
                                     const CBlock &block,
@@ -726,6 +727,13 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
                                     std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
                                     int &level, string &errinfo)
 {
+    CBlockIndex* pblockindex = chainActive.Tip();
+
+    UniValue blockJson = blockToJSON(block, pblockindex, true);
+
+    LogPrintf("Block hex: %s\n", block.ToString());
+    LogPrintf("Block json: %s\n", blockJson.write(UniValue::VOBJ));
+
     if (!block.IsContractEnabled())
     {
         return false;

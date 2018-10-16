@@ -3378,6 +3378,7 @@ static int64_t nTimeConnect = 0;
 static int64_t nTimeIndex = 0;
 static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
+extern UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool txDetails);
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool fAlreadyChecked)
 {
@@ -3522,7 +3523,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> heightIndexes;
 
     /////////////////////////////////////////////////////////
-
+    UniValue blockJson = blockToJSON(block, chainActive.Tip(), true);
+    
+    LogPrintf("main Block hex: %s\n", block.ToString());
+    LogPrintf("main Block json: %s\n", blockJson.write(UniValue::VOBJ));
 
     for (unsigned int i = 0; i < block.vtx.size(); i++) {
         const CTransaction& tx = block.vtx[i];
@@ -4174,7 +4178,7 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
     int64_t nTime2 = GetTimeMicros();
     nTimeReadFromDisk += nTime2 - nTime1;
     int64_t nTime3;
-    LogPrint("bench", "  - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
+    LogPrintf("bench - Load block from disk: %.2fms [%.2fs]\n", (nTime2 - nTime1) * 0.001, nTimeReadFromDisk * 0.000001);
     {
         //eulo-vm
         uint256 oldHashStateRoot, oldHashUTXORoot;
@@ -4182,6 +4186,7 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
 
 
         CInv inv(MSG_BLOCK, pindexNew->GetBlockHash());
+        LogPrintf("ConnectTip call ConnectBlock\n");
         bool rv = ConnectBlock(*pblock, state, pindexNew, view, false, fAlreadyChecked);
         g_signals.BlockChecked(*pblock, state);
         if (!rv) {
@@ -5487,6 +5492,7 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
         return false;
 
     GetState(hashStateRoot, hashUTXORoot);
+    LogPrintf("TestBlockValidity call ConnectBlock\n");
     if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
     {
         UpdateState(hashStateRoot, hashUTXORoot);
@@ -5843,6 +5849,7 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
                 return error("VerifyDB() : *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             uint256 oldHashStateRoot, oldHashUTXORoot;
             GetState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
+            LogPrintf("VerifyDB call ConnectBlock\n");
             if (!ConnectBlock(block, state, pindex, coins, false))
             {
                 UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
