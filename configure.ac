@@ -631,7 +631,11 @@ else
     make clean
   fi
 fi
+if test x$use_pow_in_pos != xno; then
+cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DPOW_IN_POS_PHASE=1 $boost_lib $source_path/contract_api/
+else
 cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib $source_path/contract_api/
+fi
 if [[ $? -ne 0 ]]; then
   echo "configure contract_api fail"
   exit 1

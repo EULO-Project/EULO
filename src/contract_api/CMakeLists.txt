@@ -17,6 +17,10 @@ if(WIN32)
 add_definitions(-DWIN32)
 endif()
 
+if(POW_IN_POS_PHASE)
+add_definitions(-DPOW_IN_POS_PHASE)
+endif()
+
 include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../")
