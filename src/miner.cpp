@@ -180,8 +180,8 @@ CBlockTemplate* CreateNewPowBlock(CBlockIndex* pindexPrev, CWallet* pwallet)
 void RebuildRefundTransaction(CBlock *pblock,CAmount &nFees)
 {
     CMutableTransaction contrTx(pblock->vtx[1]);
-    contrTx.vout[1].nValue = nFees + GetBlockValue(chainActive.Tip()->nHeight);
-    contrTx.vout[1].nValue -= bceResult.refundSender;
+
+    contrTx.vout[2].nValue -= bceResult.refundSender;
 
     //note, this will need changed for MPoS
     int i = contrTx.vout.size();
@@ -373,7 +373,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     // Create coinbase tx
     CMutableTransaction txNew;
     CMutableTransaction txCoinStake;
-    CMutableTransaction coinbaseTxBak; //eulo-vm
+   // CMutableTransaction coinbaseTxBak; //eulo-vm
 
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
@@ -382,7 +382,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     pblock->vtx.push_back(txNew);
     pblocktemplate->vTxFees.push_back(-1);   // updated at end
     pblocktemplate->vTxSigOps.push_back(-1); // updated at end
-    coinbaseTxBak = txNew; //eulo-vm
+    //coinbaseTxBak = txNew; //eulo-vm
 
     // ppcoin: if coinstake available add coinstake tx
     static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // only initialized at startup
@@ -717,8 +717,23 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
                 pblock->payee = txNew.vout[1].scriptPubKey;
             }
         } else {
-            if (nFees > 0) {
-                bool  bUpdateCoinStake = true;
+
+
+            //--------------eulo-vm---------------
+            //this should already be populated by AddBlock in case of contracts, but if no contracts
+            //then it won't get populated
+            if(chainActive.Tip()->nHeight >= Params().Contract_StartHeight()) {
+
+                uint256 hashStateRoot, hashUTXORoot;
+
+                GetState(hashStateRoot, hashUTXORoot);
+                UpdateState(oldHashStateRoot, oldHashUTXORoot);
+
+                RebuildRefundTransaction(pblock,nFees);
+                txCoinStake = pblock->vtx[1];
+
+            }
+
 
                 //  fees to POS Miner.
                 if (pblock->nVersion < SMART_CONTRACT_VERSION)
@@ -726,20 +741,22 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
                 else
                     txCoinStake.vout[2].nValue += nFees;
 
+
+
                 // Sign
                 for (size_t nIn = 0; nIn < txCoinStake.vin.size(); nIn++) {
                     const CWalletTx* pcoin = pwallet->GetWalletTx(txCoinStake.vin[nIn].prevout.hash);
 
                     if (!SignSignature(*pwallet, *pcoin, txCoinStake, nIn)) {
-                        bUpdateCoinStake = false;
                         LogPrintStr("CreateCoinStake : failed to re-sign coinstake");
+                        return NULL;
                     }
                 }
 
-                if (bUpdateCoinStake) {
-                    pblock->vtx[1] = CTransaction(txCoinStake);
-                }
-            }
+                pblock->vtx[1] = CTransaction(txCoinStake);
+
+
+
         }
 
         nLastBlockTx = nBlockTx;
@@ -747,21 +764,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         LogPrintf("CreateNewBlock(): total size %u\n", nBlockSize);
 
 
-        //--------------eulo-vm---------------
-        //this should already be populated by AddBlock in case of contracts, but if no contracts
-        //then it won't get populated
-        if(chainActive.Tip()->nHeight >= Params().Contract_StartHeight()) {
 
-            uint256 hashStateRoot, hashUTXORoot;
-
-            GetState(hashStateRoot, hashUTXORoot);
-            UpdateState(oldHashStateRoot, oldHashUTXORoot);
-
-            RebuildRefundTransaction(pblock,nFees);
-
-            coinbaseTxBak.vout[0].nValue = 0;
-            pblock->vtx[0] = std::move(coinbaseTxBak);
-        }
 
 
 
