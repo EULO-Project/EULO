@@ -347,13 +347,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     CReserveKey reservekey(pwallet);
 
     // Create new block
-    //FixMe: This unique ptr seems make no sense?
 
-   // unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
-     CBlockTemplate* pblocktemplate = new CBlockTemplate();
-
-    //if (!pblocktemplate.get())
-     if (!pblocktemplate)
+    unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
+    if (!pblocktemplate.get())
         return NULL;
     CBlock* pblock = &pblocktemplate->block; // pointer for convenience
 
@@ -668,7 +664,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             // Added
             //--------eulo-vm---
             if (tx.HasCreateOrCall()) {
-                if(!AttemptToAddContractToBlock(tx, minGasPrice,pblocktemplate,nBlockSize,nBlockSigOps,nBlockTx,view, nFees))
+                if(!AttemptToAddContractToBlock(tx, minGasPrice,pblocktemplate.get(),nBlockSize,nBlockSigOps,nBlockTx,view, nFees))
                 {
                     std::pop_heap(vecPriority.begin(), vecPriority.end(), comparer);
                     vecPriority.pop_back();
@@ -801,8 +797,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         }
     }
 
-    //return pblocktemplate.release();
-    return pblocktemplate;
+    return pblocktemplate.release();
 }
 
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
