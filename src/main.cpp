@@ -1796,6 +1796,8 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = nValueIn - nValueOut;
+        LogPrint("nFees", "nValueIn: %d ,\tnValueOut: %d\n", nValueIn, nValueOut);
+
 
         //////////////////////////////////////////////////////////// //eulo-vm
         // check contract tx
