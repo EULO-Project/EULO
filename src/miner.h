@@ -7,6 +7,7 @@
 #define BITCOIN_MINER_H
 
 #include <stdint.h>
+#include "primitives/transaction.h"
 
 class CBlock;
 class CBlockHeader;
@@ -16,6 +17,8 @@ class CScript;
 class CWallet;
 
 struct CBlockTemplate;
+
+static const int32_t BYTECODE_TIME_BUFFER = 6;
 
 /** Run the miner threads */
 void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads);
@@ -29,6 +32,11 @@ void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& 
 void UpdateTime(CBlockHeader* block, const CBlockIndex* pindexPrev);
 
 void BitcoinMiner(CWallet* pwallet, bool fProofOfStake);
+
+void RebuildRefundTransaction(CBlock *pblock, CAmount &nFees);
+bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice, CBlockTemplate *pblockTemplate, uint64_t &nBlockSize, int &nBlockSigOps, uint64_t &nBlockTx, CCoinsViewCache &view, CAmount &nFees);
+
+
 
 extern double dHashesPerSec;
 extern int64_t nHPSTimerStart;

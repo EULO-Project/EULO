@@ -2548,11 +2548,15 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
 
         GetState(stateRoot, utxoRoot);
 
+
         LogPrintf("POS stateRoot: %s, utxoRoot: %s\n", stateRoot.GetHex().c_str(), utxoRoot.GetHex().c_str());
 
         CScript contract = CScript() << ParseHex(stateRoot.GetHex().c_str()) << ParseHex(utxoRoot.GetHex().c_str()) << OP_VM_STATE;
 
         txNew.vout.push_back(CTxOut(0, contract));
+
+
+
     }
 
     // Choose coins to use

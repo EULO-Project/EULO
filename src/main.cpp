@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2010 Satoshi Nakamoto
+﻿// Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2017 The PIVX developers
@@ -3690,18 +3690,26 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
             if (!ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
                                                           bcer, fLogEvents, fJustCheck, heightIndexes,
                                                           level, errinfo))
-            {LogPrintStr("ConnectBlock -> ContractTxConnectBlock failed\n");
+            {
+                LogPrintStr("ConnectBlock -> ContractTxConnectBlock failed\n");
                 return state.DoS(level, error(errinfo.c_str()), REJECT_INVALID);
-            }LogPrintStr("ConnectBlock -> ContractTxConnectBlock OK\n");
+            }
+
+            LogPrintStr("ConnectBlock -> ContractTxConnectBlock OK\n");
+
             for (CTxOut refundVout : bcer.refundOutputs)
             {
                 gasRefunds += refundVout.nValue;
             }
+
+
             checkVouts.insert(checkVouts.end(), bcer.refundOutputs.begin(), bcer.refundOutputs.end());
+
             for (CTransaction &t : bcer.valueTransfers)
             {
                 checkBlock.vtx.push_back(t);
             }
+
             if(nFeesContract < gasRefunds)
             {
                 return state.DoS(100, error("contract tx nFee is error"), REJECT_INVALID);

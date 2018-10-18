@@ -14,7 +14,6 @@
 #include "net.h"
 #include "pow.h"
 #include "primitives/block.h"
-#include "primitives/transaction.h"
 #include "script/sign.h"
 #include "timedata.h"
 #include "util.h"
@@ -44,6 +43,20 @@ using namespace std;
 // The COrphan class keeps track of these 'temporary orphans' while
 // CreateBlock is figuring out which transactions to include.
 //
+
+
+///////////////////////////////////////////// // eulo-vm
+
+    ByteCodeExecResult bceResult;
+    uint64_t minGasPrice = 1;
+    uint64_t hardBlockGasLimit;
+    uint64_t softBlockGasLimit;
+    uint64_t txGasLimit;
+/////////////////////////////////////////////
+
+
+
+
 class COrphan
 {
 public:
@@ -163,13 +176,184 @@ CBlockTemplate* CreateNewPowBlock(CBlockIndex* pindexPrev, CWallet* pwallet)
     return pblocktemplate.release();
 }
 
+
+void RebuildRefundTransaction(CBlock *pblock,CAmount &nFees)
+{
+    CMutableTransaction contrTx(pblock->vtx[1]);
+    contrTx.vout[1].nValue = nFees + GetBlockValue(chainActive.Tip()->nHeight);
+    contrTx.vout[1].nValue -= bceResult.refundSender;
+
+    //note, this will need changed for MPoS
+    int i = contrTx.vout.size();
+    contrTx.vout.resize(contrTx.vout.size() + bceResult.refundOutputs.size());
+    for (CTxOut &vout : bceResult.refundOutputs)
+    {
+        contrTx.vout[i] = vout;
+        i++;
+    }
+    pblock->vtx[1] = std::move(contrTx);
+}
+
+
+bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,CBlockTemplate *pblockTemplate,uint64_t &nBlockSize,int &nBlockSigOps,uint64_t &nBlockTx,CCoinsViewCache &view,CAmount &nFees)
+{
+
+    //FixMe: Check if this cause something unexpected.
+//    if (nTimeLimit != 0 && GetAdjustedTime() >= nTimeLimit - BYTECODE_TIME_BUFFER) {
+//        return false;
+//    }
+    if (GetBoolArg("-disablecontractstaking", false))
+    {
+        return false;
+    }
+
+    uint256 oldHashStateRoot;
+    uint256 oldHashUTXORoot;
+
+    GetState(oldHashStateRoot, oldHashUTXORoot);
+
+    // operate on local vars first, then later apply to `this`
+    uint64_t nBlockWeight = nBlockSize;
+    int nBlockSigOpsCost = nBlockSigOps;
+
+    CBlock *pblock = &pblockTemplate->block;
+
+    EuloTxConverter convert(iter, NULL, &pblock->vtx);
+
+    ExtractEuloTX resultConverter;
+    if(!convert.extractionEuloTransactions(resultConverter)){
+        //this check already happens when accepting txs into mempool
+        //therefore, this can only be triggered by using raw transactions on the staker itself
+        return false;
+    }
+    std::vector<EuloTransaction> euloTransactions = resultConverter.first;
+    dev::u256 txGas = 0;
+    for(EuloTransaction euloTransaction : euloTransactions){
+        txGas += euloTransaction.gas();
+        if(txGas > txGasLimit) {
+            // Limit the tx gas limit by the soft limit if such a limit has been specified.
+            return false;
+        }
+
+        if(bceResult.usedGas + euloTransaction.gas() > softBlockGasLimit){
+            //if this transaction's gasLimit could cause block gas limit to be exceeded, then don't add it
+            return false;
+        }
+        if(euloTransaction.gasPrice() < minGasPrice){
+            //if this transaction's gasPrice is less than the current DGP minGasPrice don't add it
+            return false;
+        }
+    }
+    // We need to pass the DGP's block gas limit (not the soft limit) since it is consensus critical.
+    ByteCodeExec exec(*pblock, euloTransactions, hardBlockGasLimit);
+    if(!exec.performByteCode()){
+        //error, don't add contract
+        UpdateState(oldHashStateRoot,oldHashUTXORoot);
+        return false;
+    }
+
+    ByteCodeExecResult testExecResult;
+    if(!exec.processingResults(testExecResult)){
+        UpdateState(oldHashStateRoot,oldHashUTXORoot);
+        return false;
+    }
+
+    if(bceResult.usedGas + testExecResult.usedGas > softBlockGasLimit){
+        //if this transaction could cause block gas limit to be exceeded, then don't add it
+        UpdateState(oldHashStateRoot,oldHashUTXORoot);
+
+        return false;
+    }
+
+
+    //apply contractTx costs to local state
+    nBlockSize += ::GetSerializeSize(iter, SER_NETWORK, PROTOCOL_VERSION);
+    nBlockSigOpsCost += GetLegacySigOpCount(iter);
+    //apply value-transfer txs to local state
+
+    for (CTransaction &t : testExecResult.valueTransfers) {
+        nBlockWeight += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);;
+        nBlockSigOpsCost += GetLegacySigOpCount(t);
+    }
+
+    int proofTx = pblock->IsProofOfStake() ? 1 : 0;
+
+    //calculate sigops from new refund/proof tx
+
+    //first, subtract old proof tx
+    nBlockSigOpsCost -= GetLegacySigOpCount(pblock->vtx[proofTx]);
+
+    // manually rebuild refundtx
+    CMutableTransaction contrTx(pblock->vtx[proofTx]);
+    //note, this will need changed for MPoS
+    int i = contrTx.vout.size();
+    contrTx.vout.resize(contrTx.vout.size()+testExecResult.refundOutputs.size());
+    for(CTxOut& vout : testExecResult.refundOutputs){
+        contrTx.vout[i]=vout;
+        i++;
+    }
+    nBlockSigOpsCost += GetLegacySigOpCount(contrTx);
+    //all contract costs now applied to local state
+
+    //Check if block will be too big or too expensive with this contract execution
+    if (nBlockSigOpsCost > (int)MAX_BLOCK_SIGOPS_CURRENT ||
+            nBlockWeight > GetArg("-blockmaxsize", DEFAULT_BLOCK_MAX_SIZE)) {
+        //contract will not be added to block, so revert state to before we tried
+        UpdateState(oldHashStateRoot,oldHashUTXORoot);
+
+        return false;
+    }
+
+    //block is not too big, so apply the contract execution and it's results to the actual block
+
+    //apply local bytecode to global bytecode state
+    bceResult.usedGas += testExecResult.usedGas;
+    bceResult.refundSender += testExecResult.refundSender;
+    bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
+    bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
+
+    pblock->vtx.emplace_back(iter);
+    pblockTemplate->vTxFees.push_back(view.GetValueIn(iter) - iter.GetValueOut());
+    pblockTemplate->vTxSigOps.push_back(GetLegacySigOpCount(iter));
+
+    nBlockSize += ::GetSerializeSize(iter, SER_NETWORK, PROTOCOL_VERSION);
+    ++nBlockTx;
+    nBlockSigOps += GetLegacySigOpCount(iter);
+
+    nFees += view.GetValueIn(iter) - iter.GetValueOut();
+
+
+
+    for (CTransaction &t : bceResult.valueTransfers) {
+        pblock->vtx.emplace_back(t);
+        nBlockSize += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);
+        nBlockSigOps += GetLegacySigOpCount(t);
+        ++nBlockTx;
+    }
+    //calculate sigops from new refund/proof tx
+    nBlockSigOps -= GetLegacySigOpCount(pblock->vtx[proofTx]);
+
+    RebuildRefundTransaction(pblock,nFees);
+
+    nBlockSigOps += GetLegacySigOpCount(pblock->vtx[proofTx]);
+
+    bceResult.valueTransfers.clear();
+
+    return true;
+}
+
 CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, bool fProofOfStake)
 {
     CReserveKey reservekey(pwallet);
 
     // Create new block
-    unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
-    if (!pblocktemplate.get())
+    //FixMe: This unique ptr seems make no sense?
+
+   // unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
+     CBlockTemplate* pblocktemplate = new CBlockTemplate();
+
+    //if (!pblocktemplate.get())
+     if (!pblocktemplate)
         return NULL;
     CBlock* pblock = &pblocktemplate->block; // pointer for convenience
 
@@ -193,6 +377,8 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     // Create coinbase tx
     CMutableTransaction txNew;
     CMutableTransaction txCoinStake;
+    CMutableTransaction coinbaseTxBak; //eulo-vm
+
     txNew.vin.resize(1);
     txNew.vin[0].prevout.SetNull();
     txNew.vout.resize(1);
@@ -200,6 +386,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     pblock->vtx.push_back(txNew);
     pblocktemplate->vTxFees.push_back(-1);   // updated at end
     pblocktemplate->vTxSigOps.push_back(-1); // updated at end
+    coinbaseTxBak = txNew; //eulo-vm
 
     // ppcoin: if coinstake available add coinstake tx
     static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // only initialized at startup
@@ -229,6 +416,40 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         if (!fStakeFound)
             return NULL;
     }
+
+    //////////////////////////////////////////////////////// eulo-vm
+      minGasPrice = GetMinGasPrice(chainActive.Height()+1);
+      if (GetBoolArg("-staker-min-tx-gas-price", false))
+      {
+          CAmount stakerMinGasPrice;
+          string strMinxGasPrice = "";
+          strMinxGasPrice = GetArg("-staker-min-tx-gas-price", strMinxGasPrice);
+          if (ParseMoney(strMinxGasPrice, stakerMinGasPrice))
+          {
+              minGasPrice = std::max(minGasPrice, (uint64_t)stakerMinGasPrice);
+          }
+      }
+      hardBlockGasLimit = GetBlockGasLimit(chainActive.Height()+1);
+      softBlockGasLimit = GetArg("-staker-soft-block-gas-limit", hardBlockGasLimit);
+      softBlockGasLimit = std::min(softBlockGasLimit, hardBlockGasLimit);
+      txGasLimit = GetArg("-staker-max-tx-gas-limit", softBlockGasLimit);
+
+      //    nBlockMaxSize = blockSizeDGP ? blockSizeDGP : nBlockMaxSize;
+
+      uint256 oldHashStateRoot, oldHashUTXORoot;
+      GetState(oldHashStateRoot, oldHashUTXORoot);
+
+
+      ////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", DEFAULT_BLOCK_MAX_SIZE);
@@ -357,7 +578,12 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
 
         vector<CBigNum> vBlockSerials;
         vector<CBigNum> vTxSerials;
+
+        //-------------eulo-vm
         while (!vecPriority.empty()) {
+
+
+
             // Take highest priority transaction off the priority queue:
             double dPriority = vecPriority.front().get<0>();
             CFeeRate feeRate = vecPriority.front().get<1>();
@@ -440,21 +666,37 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             UpdateCoins(tx, state, view, txundo, nHeight);
 
             // Added
-            pblock->vtx.push_back(tx);
-            pblocktemplate->vTxFees.push_back(nTxFees);
-            pblocktemplate->vTxSigOps.push_back(nTxSigOps);
-            nBlockSize += nTxSize;
-            ++nBlockTx;
-            nBlockSigOps += nTxSigOps;
-            nFees += nTxFees;
+            //--------eulo-vm---
+            if (tx.HasCreateOrCall()) {
+                if(!AttemptToAddContractToBlock(tx, minGasPrice,pblocktemplate,nBlockSize,nBlockSigOps,nBlockTx,view, nFees))
+                {
+                    std::pop_heap(vecPriority.begin(), vecPriority.end(), comparer);
+                    vecPriority.pop_back();
+                    continue;
+                }
 
+            } else {
+                pblock->vtx.push_back(tx);
+                pblocktemplate->vTxFees.push_back(nTxFees);
+                pblocktemplate->vTxSigOps.push_back(nTxSigOps);
+                nBlockSize += nTxSize;
+                ++nBlockTx;
+                nBlockSigOps += nTxSigOps;
+                nFees += nTxFees;
+
+
+                if (fPrintPriority) {
+                    LogPrintf("priority %.1f fee %s txid %s\n",
+                        dPriority, feeRate.ToString(), tx.GetHash().ToString());
+                }
+
+            }
             for (const CBigNum bnSerial : vTxSerials)
                 vBlockSerials.emplace_back(bnSerial);
 
-            if (fPrintPriority) {
-                LogPrintf("priority %.1f fee %s txid %s\n",
-                    dPriority, feeRate.ToString(), tx.GetHash().ToString());
-            }
+            //--------eulo-vm---
+
+
 
             // Add transactions that depend on this one to the priority queue
             if (mapDependers.count(hash)) {
@@ -508,6 +750,28 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         nLastBlockSize = nBlockSize;
         LogPrintf("CreateNewBlock(): total size %u\n", nBlockSize);
 
+
+        //--------------eulo-vm---------------
+        //this should already be populated by AddBlock in case of contracts, but if no contracts
+        //then it won't get populated
+        if(chainActive.Tip()->nHeight >= Params().Contract_StartHeight()) {
+
+            uint256 hashStateRoot, hashUTXORoot;
+
+            GetState(hashStateRoot, hashUTXORoot);
+            UpdateState(oldHashStateRoot, oldHashUTXORoot);
+
+            RebuildRefundTransaction(pblock,nFees);
+
+            coinbaseTxBak.vout[0].nValue = 0;
+            pblock->vtx[0] = std::move(coinbaseTxBak);
+        }
+
+
+
+
+        //--------------eulo-vm---------------
+
         // Compute final coinbase transaction.
         if (!fProofOfStake) {
             pblock->vtx[0] = txNew;
@@ -537,7 +801,8 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
         }
     }
 
-    return pblocktemplate.release();
+    //return pblocktemplate.release();
+    return pblocktemplate;
 }
 
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
