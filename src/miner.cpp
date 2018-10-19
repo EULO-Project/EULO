@@ -384,6 +384,22 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     CReserveKey reservekey(pwallet);
 
     // Create new block
+    //Init global vars //-----eulo-vm
+    originalRewardTx.nLockTime = 0;
+    originalRewardTx.nVersion = 0;
+    originalRewardTx.vin.clear();
+    originalRewardTx.vout.clear();
+
+    bceResult.refundSender = 0;
+    bceResult.usedGas = 0;
+    bceResult.refundOutputs.clear();
+    bceResult.valueTransfers.clear();
+
+    minGasPrice = 1;
+    hardBlockGasLimit = 0;
+    softBlockGasLimit = 0;
+    txGasLimit = 0;
+    //-----eulo-vm
 
     unique_ptr<CBlockTemplate> pblocktemplate(new CBlockTemplate());
     if (!pblocktemplate.get())
