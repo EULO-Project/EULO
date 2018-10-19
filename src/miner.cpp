@@ -332,17 +332,27 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
     bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
     LogPrintf("%s:%d\n",__func__,333);
 
+
     pblock->vtx.emplace_back(iter);
-    pblockTemplate->vTxFees.push_back(view.GetValueIn(iter) - iter.GetValueOut());
-    pblockTemplate->vTxSigOps.push_back(GetLegacySigOpCount(iter));
+
     LogPrintf("%s:%d\n",__func__,338);
+
+    CAmount in_value = view.GetValueIn(iter);
+
+    LogPrintf("in_value:%d\n",in_value);
+
+    pblockTemplate->vTxFees.push_back(view.GetValueIn(iter) - iter.GetValueOut());
+    LogPrintf("%s:%d\n",__func__,345);
+
+    pblockTemplate->vTxSigOps.push_back(GetLegacySigOpCount(iter));
+    LogPrintf("%s:%d\n",__func__,347);
 
     nBlockSize += ::GetSerializeSize(iter, SER_NETWORK, PROTOCOL_VERSION);
     ++nBlockTx;
     nBlockSigOps += GetLegacySigOpCount(iter);
 
     nFees += view.GetValueIn(iter) - iter.GetValueOut();
-    LogPrintf("%s:%d\n",__func__,345);
+    LogPrintf("%s:%d\n",__func__,355);
 
 
 

@@ -1796,7 +1796,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
 
         CAmount nValueOut = tx.GetValueOut();
         CAmount nFees = nValueIn - nValueOut;
-        LogPrint("nFees", "nValueIn: %d ,\tnValueOut: %d\n", nValueIn, nValueOut);
+        LogPrintf("nFees nValueIn: %d ,\tnValueOut: %d\n", nValueIn, nValueOut);
 
 
         //////////////////////////////////////////////////////////// //eulo-vm
@@ -1871,6 +1871,12 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
                 dFreeCount += nSize;
             }
         }
+
+
+        LogPrintf("fRejectInsaneFee: %d \n", fRejectInsaneFee);
+        LogPrintf("nFees: %d \n", nFees);
+        LogPrintf("nSize: %d \n", nSize);
+        LogPrintf("minRelayTxFee.GetFee(nSize):* 10000 :  %d \n", ::minRelayTxFee.GetFee(nSize) * 10000);
 
         if (fRejectInsaneFee && nFees > ::minRelayTxFee.GetFee(nSize) * 10000)
             return error("AcceptToMemoryPool: : insane fees %s, %d > %d",
