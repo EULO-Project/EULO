@@ -180,6 +180,7 @@ CBlockTemplate* CreateNewPowBlock(CBlockIndex* pindexPrev, CWallet* pwallet)
 void RebuildRefundTransaction(CBlock *pblock,CAmount &nFees)
 {
     CMutableTransaction contrTx(pblock->vtx[1]);
+    LogPrintf("%s:%d\n",__func__,183);
 
     contrTx.vout[2].nValue -= bceResult.refundSender;
 
@@ -192,6 +193,8 @@ void RebuildRefundTransaction(CBlock *pblock,CAmount &nFees)
         i++;
     }
     pblock->vtx[1] = std::move(contrTx);
+    LogPrintf("%s:%d\n",__func__,196);
+
 }
 
 
@@ -252,11 +255,16 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
         return false;
     }
 
+    LogPrintf("%s:%d\n",__func__,258);
+
+
     ByteCodeExecResult testExecResult;
     if(!exec.processingResults(testExecResult)){
         UpdateState(oldHashStateRoot,oldHashUTXORoot);
         return false;
     }
+
+    LogPrintf("%s:%d\n",__func__,267);
 
     if(bceResult.usedGas + testExecResult.usedGas > softBlockGasLimit){
         //if this transaction could cause block gas limit to be exceeded, then don't add it
@@ -265,16 +273,21 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
         return false;
     }
 
+    LogPrintf("%s:%d\n",__func__,276);
 
     //apply contractTx costs to local state
     nBlockSize += ::GetSerializeSize(iter, SER_NETWORK, PROTOCOL_VERSION);
     nBlockSigOpsCost += GetLegacySigOpCount(iter);
     //apply value-transfer txs to local state
 
+    LogPrintf("%s:%d\n",__func__,293);
+
     for (CTransaction &t : testExecResult.valueTransfers) {
         nBlockWeight += ::GetSerializeSize(t, SER_NETWORK, PROTOCOL_VERSION);;
         nBlockSigOpsCost += GetLegacySigOpCount(t);
     }
+
+    LogPrintf("%s:%d\n",__func__,290);
 
     int proofTx = pblock->IsProofOfStake() ? 1 : 0;
 
@@ -282,6 +295,9 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
 
     //first, subtract old proof tx
     nBlockSigOpsCost -= GetLegacySigOpCount(pblock->vtx[proofTx]);
+
+
+    LogPrintf("%s:%d\n",__func__,300);
 
     // manually rebuild refundtx
     CMutableTransaction contrTx(pblock->vtx[proofTx]);
@@ -295,6 +311,8 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
     nBlockSigOpsCost += GetLegacySigOpCount(contrTx);
     //all contract costs now applied to local state
 
+    LogPrintf("%s:%d\n",__func__,314);
+
     //Check if block will be too big or too expensive with this contract execution
     if (nBlockSigOpsCost > (int)MAX_BLOCK_SIGOPS_CURRENT ||
             nBlockWeight > GetArg("-blockmaxsize", DEFAULT_BLOCK_MAX_SIZE)) {
@@ -303,6 +321,7 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
 
         return false;
     }
+    LogPrintf("%s:%d\n",__func__,324);
 
     //block is not too big, so apply the contract execution and it's results to the actual block
 
@@ -311,16 +330,19 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
     bceResult.refundSender += testExecResult.refundSender;
     bceResult.refundOutputs.insert(bceResult.refundOutputs.end(), testExecResult.refundOutputs.begin(), testExecResult.refundOutputs.end());
     bceResult.valueTransfers = std::move(testExecResult.valueTransfers);
+    LogPrintf("%s:%d\n",__func__,333);
 
     pblock->vtx.emplace_back(iter);
     pblockTemplate->vTxFees.push_back(view.GetValueIn(iter) - iter.GetValueOut());
     pblockTemplate->vTxSigOps.push_back(GetLegacySigOpCount(iter));
+    LogPrintf("%s:%d\n",__func__,338);
 
     nBlockSize += ::GetSerializeSize(iter, SER_NETWORK, PROTOCOL_VERSION);
     ++nBlockTx;
     nBlockSigOps += GetLegacySigOpCount(iter);
 
     nFees += view.GetValueIn(iter) - iter.GetValueOut();
+    LogPrintf("%s:%d\n",__func__,345);
 
 
 
@@ -332,12 +354,16 @@ bool AttemptToAddContractToBlock(const CTransaction &iter, uint64_t minGasPrice,
     }
     //calculate sigops from new refund/proof tx
     nBlockSigOps -= GetLegacySigOpCount(pblock->vtx[proofTx]);
+    LogPrintf("%s:%d\n",__func__,357);
 
     RebuildRefundTransaction(pblock,nFees);
+    LogPrintf("%s:%d\n",__func__,360);
 
     nBlockSigOps += GetLegacySigOpCount(pblock->vtx[proofTx]);
 
+    LogPrintf("%s:%d\n",__func__,364);
     bceResult.valueTransfers.clear();
+    LogPrintf("%s:%d\n",__func__,366);
 
     return true;
 }

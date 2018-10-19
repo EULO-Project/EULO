@@ -34,9 +34,9 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createEuloAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
 
-    LogPrint("EuloState::execute ", "sender=%s", HexStr(_t.sender().asBytes())); //eulo debug
-    LogPrint("EuloState::execute ", "newAddress=%s", HexStr(newAddress.asBytes())); //eulo debug
-    LogPrint("EuloState::execute ", "author=%s", HexStr(_envInfo.author().asBytes())); //eulo debug
+    LogPrintf("EuloState::execute sender=%s", HexStr(_t.sender().asBytes())); //eulo debug
+    LogPrintf("EuloState::execute newAddress=%s", HexStr(newAddress.asBytes())); //eulo debug
+    LogPrintf("EuloState::execute author=%s", HexStr(_envInfo.author().asBytes())); //eulo debug
     _sealEngine.deleteAddresses.insert({_t.sender(), _envInfo.author()});
 
     h256 oldStateRoot = rootHash();
@@ -59,7 +59,7 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
     {
         if (_t.isCreation() && _t.value())
             BOOST_THROW_EXCEPTION(CreateWithValue());
-        LogPrintStr("EuloState::initialize"); //eulo debug
+        LogPrintStr("EuloState::initialize\n"); //eulo debug
         e.initialize(_t);
         // OK - transaction looks valid - execute.
         startGasUsed = _envInfo.gasUsed();
@@ -79,7 +79,7 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
             cacheUTXO.clear();
         } else
         {
-            LogPrintStr("EuloState::execute ok"); //eulo debug
+            LogPrintStr("EuloState::execute ok\n"); //eulo debug
             deleteAccounts(_sealEngine.deleteAddresses);
             if (res.excepted == TransactionException::None)
             {
@@ -87,7 +87,7 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
                 tx = ctx.createCondensingTX();  //eulo call contract tx =>output from/to value
                 if (ctx.reachedVoutLimit())
                 {
-                    LogPrintStr("EuloState::execute voutOverflow = 1"); //eulo debug
+                    LogPrintStr("EuloState::execute voutOverflow = 1\n"); //eulo debug
                     voutLimit = true;
                     e.revert();
                     throw Exception();
@@ -100,18 +100,24 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
                 printfErrorLog(res.excepted);
             }
 
-            LogPrintStr("EuloState::execute commit"); //eulo debug
+            LogPrintStr("EuloState::before execute commit\n"); //eulo debug
             eulo::commit(cacheUTXO, stateUTXO, m_cache);
             cacheUTXO.clear();
+            LogPrintStr("EuloState::after execute commit\n"); //eulo debug
+
             //  FixMe: force removeEmptyAccounts false, is used to control EmptyAccounts in vmstate.
             //  bool removeEmptyAccounts = _envInfo.number() >= _sealEngine.chainParams().u256Param("EIP158ForkBlock");
             bool removeEmptyAccounts = false;
             commit(removeEmptyAccounts ? State::CommitBehaviour::RemoveEmptyAccounts
                                        : State::CommitBehaviour::KeepEmptyAccounts);
+
+            LogPrintStr("EuloState::final commit\n"); //eulo debug
+
         }
     }
     catch (Exception const &_e)
     {
+        LogPrintStr("Exception::something wrong\n"); //eulo debug
 
         printfErrorLog(dev::eth::toTransactionException(_e));
         res.excepted = dev::eth::toTransactionException(_e);
@@ -127,13 +133,24 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
             cacheUTXO.clear();
         }
     }
+    LogPrintStr("EuloState::before judge isCreation\n"); //eulo debug
 
     if (!_t.isCreation())
         res.newAddress = _t.receiveAddress();
+
+    LogPrintStr("EuloState::after judge isCreation\n"); //eulo debug
+
     newAddress = dev::Address();
+
+    LogPrintStr("EuloState::after assign newAddress\n"); //eulo debug
+
     transfers.clear();
+    LogPrintStr("EuloState::after transfers clear\n"); //eulo debug
+
     if (voutLimit)
     {
+        LogPrintStr("EuloState:: in voutLimit judge\n"); //eulo debug
+
         //use old and empty states to create virtual Out Of Gas exception
         LogEntries logs;
         u256 gas = _t.gas();
@@ -156,6 +173,8 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
                              refund.vout.empty() ? CTransaction() : CTransaction(refund)};
     } else
     {
+        LogPrintStr("before:: in else voutLimit judge ResultExecute\n"); //eulo debug
+
         return ResultExecute{res, dev::eth::TransactionReceipt(rootHash(), startGasUsed + e.gasUsed(), e.logs()),
                              tx};
     }
