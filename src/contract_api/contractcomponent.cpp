@@ -1213,7 +1213,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
         dev::eth::EnvInfo envInfo(blockHeader, lastBlockHashes, 0);
         if (!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress()))
         {
-            LogPrintStr("performByteCode execption====="); //eulo debug
+            LogPrintStr("performByteCode execption=====\n"); //eulo debug
             dev::eth::ExecutionResult execRes;
             execRes.excepted = dev::eth::TransactionException::Unknown;
             result.push_back(ResultExecute{execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(),
@@ -1221,7 +1221,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
                                            CTransaction()});
             continue;
         }
-        LogPrintStr("performByteCode start exec====="); //eulo debug
+        LogPrintStr("performByteCode start exec=====\n"); //eulo debug
         result.push_back(globalState->execute(envInfo, *globalSealEngine.get(), tx, type, OnOpFunc()));
     }
     globalState->db().commit();

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2009-2010 Satoshi Nakamoto
+// Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2017 The PIVX developers
@@ -4874,6 +4874,12 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
             return state.DoS(100, error("CheckBlock() : more than one coinbase"),
                              REJECT_INVALID, "bad-cb-multiple");
 
+    if (chainActive.Tip() && chainActive.Tip()->nHeight > 200) {
+        UniValue blockJson = blockToJSON(block, chainActive.Tip(), true);
+            
+        LogPrintf("main.cpp CheckBlock Block hex: %s\n", block.ToString());
+        LogPrintf("main.cpp CheckBlock Block json: %s\n", blockJson.write(UniValue::VOBJ));
+    }
     if (block.IsProofOfStake()) {
         // Coinbase output should be empty if proof-of-stake block
         if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
