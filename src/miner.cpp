@@ -45,7 +45,8 @@ using namespace std;
 //
 
 
-///////////////////////////////////////////// // eulo-vm
+///////////////////////////////////////////// // -vm
+    CMutableTransaction originalRewardTx;
 
     ByteCodeExecResult bceResult;
     uint64_t minGasPrice = 1;
@@ -179,7 +180,7 @@ CBlockTemplate* CreateNewPowBlock(CBlockIndex* pindexPrev, CWallet* pwallet)
 
 void RebuildRefundTransaction(CBlock *pblock,CAmount &nFees)
 {
-    CMutableTransaction contrTx(pblock->vtx[1]);
+    CMutableTransaction contrTx(originalRewardTx);
     LogPrintf("%s:%d\n",__func__,183);
 
     contrTx.vout[2].nValue -= bceResult.refundSender;
@@ -439,6 +440,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
                 pblock->nTime = nTxNewTime;
                 pblock->vtx[0].vout[0].SetEmpty();
                 pblock->vtx.push_back(CTransaction(txCoinStake));
+                originalRewardTx = txCoinStake;
                 fStakeFound = true;
             }
             nLastCoinStakeSearchInterval = nSearchTime - nLastCoinStakeSearchTime;
