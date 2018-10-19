@@ -694,8 +694,6 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             if (!CheckInputs(tx, state, view, true, MANDATORY_SCRIPT_VERIFY_FLAGS, true))
                 continue;
 
-            CTxUndo txundo;
-            UpdateCoins(tx, state, view, txundo, nHeight);
 
             // Added
             //--------eulo-vm---
@@ -727,6 +725,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
                 vBlockSerials.emplace_back(bnSerial);
 
             //--------eulo-vm---
+
+            CTxUndo txundo;
+            UpdateCoins(tx, state, view, txundo, nHeight);
 
 
 
