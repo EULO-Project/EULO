@@ -128,7 +128,7 @@ uint64_t GetBlockGasLimit(int height);
 
 bool AddressInUse(string contractaddress);
 
-bool CheckContractTx(const CTransaction tx, const CAmount nFees,
+bool CheckContractTx(const CTransaction tx, CAmount &nFees,
                          CAmount &nMinGasPrice, int &level,
                          string &errinfo, const CAmount nAbsurdFee = 0, bool rawTx = false);
 

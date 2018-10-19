@@ -1819,6 +1819,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
                 }
                 return state.DoS(level, error(errinfo.c_str()), REJECT_INVALID);
             }
+
         }
         ////////////////////////////////////////////////////////////
 
@@ -1877,6 +1878,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
         LogPrintf("nFees: %d \n", nFees);
         LogPrintf("nSize: %d \n", nSize);
         LogPrintf("minRelayTxFee.GetFee(nSize):* 10000 :  %d \n", ::minRelayTxFee.GetFee(nSize) * 10000);
+
 
         if (fRejectInsaneFee && nFees > ::minRelayTxFee.GetFee(nSize) * 10000)
             return error("AcceptToMemoryPool: : insane fees %s, %d > %d",

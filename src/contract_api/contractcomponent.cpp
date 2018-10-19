@@ -394,7 +394,7 @@ bool AddressInUse(string contractaddress)
     return globalState->addressInUse(addrAccount);
 }
 
-bool CheckContractTx(const CTransaction tx, const CAmount nFees,
+bool CheckContractTx(const CTransaction tx,CAmount &nFees,
                                          CAmount &nMinGasPrice, int &level,
                                          string &errinfo, const CAmount nAbsurdFee, bool rawTx)
 {
@@ -545,6 +545,8 @@ bool CheckContractTx(const CTransaction tx, const CAmount nFees,
     }
 
     nMinGasPrice = CAmount(txMinGasPrice);
+
+    nFees -= CAmount(sumGas);
 
     return true;
 }
