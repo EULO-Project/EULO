@@ -1,3 +1,0 @@
-/home/uvei-ubuntu/EULO/src/contract_api/CMakeFiles/edit_cache.dir
-/home/uvei-ubuntu/EULO/src/contract_api/CMakeFiles/rebuild_cache.dir
-/home/uvei-ubuntu/EULO/src/contract_api/CMakeFiles/contract_api.dir

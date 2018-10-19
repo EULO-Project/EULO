@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcontract_api.a  CMakeFiles/contract_api.dir/eulostate.cpp.o CMakeFiles/contract_api.dir/storageresults.cpp.o CMakeFiles/contract_api.dir/contractcomponent.cpp.o CMakeFiles/contract_api.dir/euloDGP.cpp.o
-/usr/bin/ranlib libcontract_api.a
