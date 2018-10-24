@@ -153,11 +153,9 @@ public:
         assert(hashGenesisBlock == uint256("0x00000013ea705af4ed8b40a86250bc6d78b982c604eef80a908cec7f11abbdd1"));
         assert(genesis.hashMerkleRoot == uint256("0x4df5d8d4db708df49c4f911a0946991d5a7628e2e93dfe22b76f9233a9492426"));
 
-        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Germany node address
-        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Japan node address
-        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Singapore node address
-        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // US node address
-        vSeeds.push_back(CDNSSeedData("47.89.243.161", "47.89.243.161"));           // Single node address
+        vSeeds.push_back("seed1.eulo.io");              // seed1
+        vSeeds.push_back("seed2.eulo.io"));             // seed2
+        vSeeds.push_back("seed3.eulo.io"));             // seed3
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 68);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 13);
