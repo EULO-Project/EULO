@@ -13,6 +13,7 @@
 class BitcoinGUI;
 class ClientModel;
 class OverviewPage;
+class CreateContractPage;
 class ReceiveCoinsDialog;
 class PrivacyDialog;
 class SendCoinsDialog;
@@ -61,6 +62,8 @@ private:
     WalletModel* walletModel;
 
     OverviewPage* overviewPage;
+
+    CreateContractPage* createContractPage;
     QWidget* transactionsPage;
     ReceiveCoinsDialog* receiveCoinsPage;
     PrivacyDialog* privacyPage;
@@ -76,6 +79,8 @@ private:
 public slots:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
+    /** Switch to CreateContract page */
+    void gotoCreateContractPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to masternode page */

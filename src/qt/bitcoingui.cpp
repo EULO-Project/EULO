@@ -360,6 +360,14 @@ void BitcoinGUI::createActions(const NetworkStyle* networkStyle)
         connect(masternodeAction, SIGNAL(triggered()), this, SLOT(gotoMasternodePage()));
     }
 
+    createContractAction = new QAction(QIcon(":/icons/createcontract"), tr("&CreateContract"), this);
+    tabGroup->addAction(createContractAction);
+    createContractAction->setCheckable(true);
+
+    //FixMe: Should add a contract switch derive from native check func.
+    connect(createContractAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(createContractAction, SIGNAL(triggered()), this, SLOT(gotoCreateContractPage()));
+
     // These showNormalIfMinimized are needed because Send Coins and Receive Coins
     // can be triggered from the tray menu, and need to show the GUI to be useful.
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -555,6 +563,8 @@ void BitcoinGUI::createToolBars()
         if (settings.value("fShowMasternodesTab").toBool()) {
             toolbar->addAction(masternodeAction);
         }
+        toolbar->addAction(createContractAction);
+
         toolbar->setMovable(false); // remove unused icon in upper left corner
         overviewAction->setChecked(true);
 
@@ -776,6 +786,14 @@ void BitcoinGUI::gotoOverviewPage()
 {
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
+}
+
+void BitcoinGUI::gotoCreateContractPage()
+{
+    createContractAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoCreateContractPage();
+
+
 }
 
 void BitcoinGUI::gotoHistoryPage()

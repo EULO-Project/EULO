@@ -164,6 +164,13 @@ HEADERS += src/activemasternode.h \
            src/obj/build.h \
            src/primitives/block.h \
            src/primitives/transaction.h \
+	   src/qt/abifunctionfield.h \
+	   src/qt/abiparam.h \
+	   src/qt/abiparamitem.h \
+	   src/qt/abiparamsfield.h \
+	   src/qt/contractabi.h \
+	   src/qt/contractresult.h \
+	   src/qt/execrpccommand.h \
            src/qt/addressbookpage.h \
            src/qt/addresstablemodel.h \
            src/qt/askpassphrasedialog.h \
@@ -188,6 +195,7 @@ HEADERS += src/activemasternode.h \
            src/qt/optionsdialog.h \
            src/qt/optionsmodel.h \
            src/qt/overviewpage.h \
+           src/qt/createcontractpage.h \
            src/qt/paymentrequest.pb.h \
            src/qt/paymentrequestplus.h \
            src/qt/paymentserver.h \
@@ -347,6 +355,7 @@ FORMS += src/qt/forms/addressbookpage.ui \
          src/qt/forms/openuridialog.ui \
          src/qt/forms/optionsdialog.ui \
          src/qt/forms/overviewpage.ui \
+         src/qt/forms/createcontractpage.ui \
          src/qt/forms/receivecoinsdialog.ui \
          src/qt/forms/receiverequestdialog.ui \
          src/qt/forms/rpcconsole.ui \
@@ -458,6 +467,13 @@ SOURCES += src/activemasternode.cpp \
            src/json/json_spirit_writer.cpp \
            src/primitives/block.cpp \
            src/primitives/transaction.cpp \
+           src/qt/abifunctionfield.cpp \
+	   src/qt/abiparam.cpp \
+	   src/qt/abiparamitem.cpp \
+	   src/qt/abiparamsfield.cpp \
+	   src/qt/contractabi.cpp \
+	   src/qt/contractresult.cpp \
+	   src/qt/execrpccommand.cpp \
            src/qt/addressbookpage.cpp \
            src/qt/addresstablemodel.cpp \
            src/qt/askpassphrasedialog.cpp \
@@ -481,6 +497,7 @@ SOURCES += src/activemasternode.cpp \
            src/qt/optionsdialog.cpp \
            src/qt/optionsmodel.cpp \
            src/qt/overviewpage.cpp \
+           src/qt/createcontractpage.cpp \
            src/qt/paymentrequest.pb.cc \
            src/qt/paymentrequestplus.cpp \
            src/qt/paymentserver.cpp \

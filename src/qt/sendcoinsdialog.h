@@ -105,4 +105,23 @@ signals:
     void message(const QString& title, const QString& message, unsigned int style);
 };
 
+class SendConfirmationDialog : public QMessageBox
+{
+    Q_OBJECT
+
+public:
+    SendConfirmationDialog(const QString &title, const QString &text, int secDelay = SEND_CONFIRM_DELAY, QWidget *parent = 0);
+    int exec();
+
+private Q_SLOTS:
+    void countDown();
+    void updateYesButton();
+
+private:
+    QAbstractButton *yesButton;
+    QTimer countDownTimer;
+    int secDelay;
+};
+
+
 #endif // BITCOIN_QT_SENDCOINSDIALOG_H

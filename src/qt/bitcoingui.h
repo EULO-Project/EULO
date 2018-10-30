@@ -94,6 +94,8 @@ private:
     QAction* overviewAction;
     QAction* historyAction;
     QAction* masternodeAction;
+    QAction* createContractAction;
+
     QAction* quitAction;
     QAction* sendCoinsAction;
     QAction* usedSendingAddressesAction;
@@ -199,6 +201,8 @@ private slots:
 #ifdef ENABLE_WALLET
     /** Switch to overview (home) page */
     void gotoOverviewPage();
+    /** Switch to CreateContract page */
+    void gotoCreateContractPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to Explorer Page */

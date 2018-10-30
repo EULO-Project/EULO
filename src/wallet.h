@@ -1463,7 +1463,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
     {
         if (!(nType & SER_GETHASH))
-            READWRITE(nVersion);
+        READWRITE(nVersion);
         READWRITE(vchPubKey);
     }
 };

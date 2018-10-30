@@ -622,6 +622,10 @@
         <translation>&amp;M主节点</translation>
     </message>
     <message>
+        <source>&amp;CreateContract</source>
+        <translation>&amp;C创建智能合约</translation>
+    </message>
+    <message>
         <source>Browse masternodes</source>
         <translation>浏览主节点</translation>
     </message>
