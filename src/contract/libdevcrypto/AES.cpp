@@ -26,8 +26,10 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/sha.h>
 
+using namespace std;
 using namespace dev;
 using namespace dev::crypto;
+using namespace CryptoPP;
 
 bytes dev::aesDecrypt(bytesConstRef _ivCipher, std::string const& _password, unsigned _rounds, bytesConstRef _salt)
 {
@@ -51,10 +53,9 @@ bytes dev::aesDecrypt(bytesConstRef _ivCipher, std::string const& _password, uns
 		stfDecryptor.MessageEnd();
 		return asBytes(decrypted);
 	}
-	catch (std::exception const& e)
+	catch (exception const& e)
 	{
-		// FIXME: Handle this error better.
-		std::cerr << e.what() << '\n';
+		cerr << e.what() << endl;
 		return bytes();
 	}
 }

@@ -272,7 +272,7 @@ void EuloState::addBalance(dev::Address const &_id, dev::u256 const &_amount)
         // TODO: to save space we can combine this event with Balance by having
         //       Balance and Balance+Touch events.
         if (!a->isDirty() && a->isEmpty())
-            m_changeLog.emplace_back(dev::eth::Change::Touch, _id);
+            m_changeLog.emplace_back(dev::eth::detail::Change::Touch, _id);
 
         // Increase the account balance. This also is done for value 0 to mark
         // the account as dirty. Dirty account are not removed from the cache
@@ -289,7 +289,7 @@ void EuloState::addBalance(dev::Address const &_id, dev::u256 const &_amount)
     }
 
     if (_amount)
-        m_changeLog.emplace_back(dev::eth::Change::Balance, _id, _amount);
+        m_changeLog.emplace_back(dev::eth::detail::Change::Balance, _id, _amount);
 }
 
 dev::Address EuloState::createEuloAddress(dev::h256 hashTx, uint32_t voutNumber)

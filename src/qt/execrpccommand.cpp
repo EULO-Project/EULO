@@ -2,6 +2,8 @@
 #include <qt/rpcconsole.h>
 #include <QJsonDocument>
 #include <univalue.h>
+#include <rpcserver.h>
+#include <rpcclient.h>
 
 ExecRPCCommand::ExecRPCCommand(const QString &command, const QStringList &mandatory, const QStringList &optional, const QMap<QString, QString>& translations, QObject *parent)
     : QObject(parent)
@@ -64,12 +66,34 @@ bool ExecRPCCommand::exec(const QMap<QString, QString> &params, QVariant &result
     }
 
     // Execute the RPC command
+
+    std::vector<std::string> args;
+
+
     try
     {
         std::string strResult;
         std::string strCommand = commandLine.join(' ').toStdString();
-        if(RPCConsole::RPCExecuteCommandLine(strResult, strCommand))
+
+        if (!RPCConsole::parseCommandLine(args, strCommand)) {
+            return false;
+        }
+        if (args.empty())
+            return false; // Nothing to do
+
+        UniValue result2 = tableRPC.execute(
+            args[0],
+            RPCConvertValues(args[0], std::vector<std::string>(args.begin() + 1, args.end())));
+
+        if (result2.isNull())
         {
+            errorMessage = tr("Parse error: unbalanced ' or \"");
+            strResult = "";
+            resultJson = strResult.c_str();
+        }
+        else if (result2.isStr())
+        {
+            strResult = result2.get_str();
             resultJson = strResult.c_str();
             QJsonDocument doc = QJsonDocument::fromJson(strResult.c_str());
             result = doc.toVariant();
@@ -77,7 +101,9 @@ bool ExecRPCCommand::exec(const QMap<QString, QString> &params, QVariant &result
         }
         else
         {
+            strResult = result2.write(2);
             errorMessage = tr("Parse error: unbalanced ' or \"");
+            resultJson = strResult.c_str();
         }
     }
     catch (UniValue& objError)

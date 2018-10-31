@@ -100,7 +100,8 @@ public:
 
 private:
 
-    dev::eth::BlockHeader initBlockHeader();
+
+    dev::eth::EnvInfo BuildEVMEnvironment();
 
     dev::Address EthAddrFromScript(const CScript &scriptIn);
 

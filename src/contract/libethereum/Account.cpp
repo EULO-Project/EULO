@@ -20,19 +20,15 @@
  */
 
 #include "Account.h"
-#include "ValidationSchemes.h"
-#include <libdevcore/JsonUtils.h>
+#include <json_spirit/JsonSpiritHeaders.h>
 #include <libethcore/ChainOperationParams.h>
 #include <libethcore/Precompiled.h>
 
 using namespace std;
 using namespace dev;
 using namespace dev::eth;
-using namespace dev::eth::validation;
 
-namespace fs = boost::filesystem;
-
-void Account::setCode(bytes&& _code)
+void Account::setNewCode(bytes&& _code)
 {
 	m_codeCache = std::move(_code);
 	m_hasNewCode = true;
@@ -40,9 +36,6 @@ void Account::setCode(bytes&& _code)
 }
 
 namespace js = json_spirit;
-
-namespace
-{
 
 uint64_t toUnsigned(js::mValue const& _v)
 {
@@ -54,138 +47,98 @@ uint64_t toUnsigned(js::mValue const& _v)
 	}
 }
 
-PrecompiledContract createPrecompiledContract(js::mObject const& _precompiled)
+AccountMap dev::eth::jsonToAccountMap(std::string const& _json, u256 const& _defaultNonce, AccountMaskMap* o_mask, PrecompiledContractMap* o_precompiled)
 {
-    auto n = _precompiled.at("name").get_str();
-    try
+	auto u256Safe = [](std::string const& s) -> u256 {
+		bigint ret(s);
+		if (ret >= bigint(1) << 256)
+			BOOST_THROW_EXCEPTION(ValueTooLarge() << errinfo_comment("State value is equal or greater than 2**256") );
+		return (u256)ret;
+	};
+
+	std::unordered_map<Address, Account> ret;
+
+	js::mValue val;
+	json_spirit::read_string(_json, val);
+	js::mObject o = val.get_obj();
+	for (auto const& account: o.count("alloc") ? o["alloc"].get_obj() : o.count("accounts") ? o["accounts"].get_obj() : o)
 	{
-		u256 startingBlock = 0;
-		if (_precompiled.count("startingBlock"))
-            startingBlock = u256(_precompiled.at("startingBlock").get_str());
+		Address a(fromHex(account.first));
+		auto o = account.second.get_obj();
 
-        if (!_precompiled.count("linear"))
-			return PrecompiledContract(PrecompiledRegistrar::pricer(n), PrecompiledRegistrar::executor(n), startingBlock);
+		bool haveBalance = (o.count("wei") || o.count("finney") || o.count("balance"));
+		bool haveNonce = o.count("nonce");
+		bool haveCode = o.count("code");
+		bool haveStorage = o.count("storage");
+		bool shouldNotExists = o.count("shouldnotexist");
 
-        auto const& l = _precompiled.at("linear").get_obj();
-        unsigned base = toUnsigned(l.at("base"));
-        unsigned word = toUnsigned(l.at("word"));
-        return PrecompiledContract(base, word, PrecompiledRegistrar::executor(n), startingBlock);
+		if (haveStorage || haveCode || haveNonce || haveBalance)
+		{
+			u256 balance = 0;
+			if (o.count("wei"))
+				balance = u256Safe(o["wei"].get_str());
+			else if (o.count("finney"))
+				balance = u256Safe(o["finney"].get_str()) * finney;
+			else if (o.count("balance"))
+				balance = u256Safe(o["balance"].get_str());
+
+			u256 nonce = haveNonce ? u256Safe(o["nonce"].get_str()) : _defaultNonce;
+
+			if (haveCode)
+			{
+				ret[a] = Account(nonce, balance);
+				if (o["code"].type() == json_spirit::str_type)
+				{
+					if (o["code"].get_str().find("0x") != 0)
+						cerr << "Error importing code of account " << a << "! Code needs to be hex bytecode prefixed by \"0x\".";
+					else
+						ret[a].setNewCode(fromHex(o["code"].get_str().substr(2)));
+				}
+				else
+					cerr << "Error importing code of account " << a << "! Code field needs to be a string";
+			}
+			else
+				ret[a] = Account(nonce, balance);
+
+			if (haveStorage)
+				for (pair<string, js::mValue> const& j: o["storage"].get_obj())
+					ret[a].setStorage(u256(j.first), u256(j.second.get_str()));
+		}
+
+		if (o_mask)
+		{
+			(*o_mask)[a] = AccountMask(haveBalance, haveNonce, haveCode, haveStorage, shouldNotExists);
+			if (!haveStorage && !haveCode && !haveNonce && !haveBalance && shouldNotExists) //defined only shouldNotExists field
+				ret[a] = Account(0, 0);
+		}
+
+		if (o_precompiled && o.count("precompiled"))
+		{
+			js::mObject p = o["precompiled"].get_obj();
+			auto n = p["name"].get_str();
+			if (!p.count("linear"))
+			{
+				cwarn << "No gas cost given for precompiled contract " << n;
+				throw;
+			}
+			try
+			{
+				auto l = p["linear"].get_obj();
+				u256 startingBlock = 0;
+				if (p.count("startingBlock"))
+					startingBlock = u256(p["startingBlock"].get_str());
+				unsigned base = toUnsigned(l["base"]);
+				unsigned word = toUnsigned(l["word"]);
+				o_precompiled->insert(make_pair(a, PrecompiledContract(base, word, PrecompiledRegistrar::executor(n), startingBlock)));
+			}
+			catch (ExecutorNotFound)
+			{
+				// Oh dear - missing a plugin?
+				cwarn << "Couldn't create a precompiled contract account. Missing an executor called:" << n;
+				throw;
+			}
+		}
 	}
-	catch (PricerNotFound const&)
-	{
-		cwarn << "Couldn't create a precompiled contract account. Missing a pricer called:" << n;
-		throw;
-	}
-	catch (ExecutorNotFound const&)
-	{
-		// Oh dear - missing a plugin?
-		cwarn << "Couldn't create a precompiled contract account. Missing an executor called:" << n;
-		throw;
-	}
-}
-}
 
-// TODO move AccountMaskObj to libtesteth (it is used only in test logic)
-AccountMap dev::eth::jsonToAccountMap(std::string const& _json, u256 const& _defaultNonce,
-    AccountMaskMap* o_mask, PrecompiledContractMap* o_precompiled, const fs::path& _configPath)
-{
-    auto u256Safe = [](std::string const& s) -> u256 {
-        bigint ret(s);
-        if (ret >= bigint(1) << 256)
-            BOOST_THROW_EXCEPTION(
-                ValueTooLarge() << errinfo_comment("State value is equal or greater than 2**256"));
-        return (u256)ret;
-    };
-
-    std::unordered_map<Address, Account> ret;
-
-    js::mValue val;
-    json_spirit::read_string_or_throw(_json, val);
-
-    for (auto const& account : val.get_obj())
-    {
-        Address a(fromHex(account.first));
-        auto const& accountMaskJson = account.second.get_obj();
-
-        bool haveBalance = (accountMaskJson.count(c_wei) || accountMaskJson.count(c_finney) ||
-                            accountMaskJson.count(c_balance));
-        bool haveNonce = accountMaskJson.count(c_nonce);
-        bool haveCode = accountMaskJson.count(c_code) || accountMaskJson.count(c_codeFromFile);
-        bool haveStorage = accountMaskJson.count(c_storage);
-        bool shouldNotExists = accountMaskJson.count(c_shouldnotexist);
-
-        if (haveStorage || haveCode || haveNonce || haveBalance)
-        {
-            u256 balance = 0;
-            if (accountMaskJson.count(c_wei))
-                balance = u256Safe(accountMaskJson.at(c_wei).get_str());
-            else if (accountMaskJson.count(c_finney))
-                balance = u256Safe(accountMaskJson.at(c_finney).get_str()) * finney;
-            else if (accountMaskJson.count(c_balance))
-                balance = u256Safe(accountMaskJson.at(c_balance).get_str());
-
-            u256 nonce =
-                haveNonce ? u256Safe(accountMaskJson.at(c_nonce).get_str()) : _defaultNonce;
-
-            ret[a] = Account(nonce, balance);
-            auto codeIt = accountMaskJson.find(c_code);
-            if (codeIt != accountMaskJson.end())
-            {
-                auto& codeObj = codeIt->second;
-                if (codeObj.type() == json_spirit::str_type)
-                {
-                    auto& codeStr = codeObj.get_str();
-                    if (codeStr.find("0x") != 0 && !codeStr.empty())
-                        cerr << "Error importing code of account " << a
-                             << "! Code needs to be hex bytecode prefixed by \"0x\".";
-                    else
-                        ret[a].setCode(fromHex(codeStr));
-                }
-                else
-                    cerr << "Error importing code of account " << a
-                         << "! Code field needs to be a string";
-            }
-
-            auto codePathIt = accountMaskJson.find(c_codeFromFile);
-            if (codePathIt != accountMaskJson.end())
-            {
-                auto& codePathObj = codePathIt->second;
-                if (codePathObj.type() == json_spirit::str_type)
-                {
-                    fs::path codePath{codePathObj.get_str()};
-                    if (codePath.is_relative())  // Append config dir if code file path is relative.
-                        codePath = _configPath.parent_path() / codePath;
-                    bytes code = contents(codePath);
-                    if (code.empty())
-                        cerr << "Error importing code of account " << a << "! Code file "
-                             << codePath << " empty or does not exist.\n";
-                    ret[a].setCode(std::move(code));
-                }
-                else
-                    cerr << "Error importing code of account " << a
-                         << "! Code file path must be a string\n";
-            }
-
-            if (haveStorage)
-                for (pair<string, js::mValue> const& j : accountMaskJson.at(c_storage).get_obj())
-                    ret[a].setStorage(u256(j.first), u256(j.second.get_str()));
-        }
-
-        if (o_mask)
-        {
-            (*o_mask)[a] =
-                AccountMask(haveBalance, haveNonce, haveCode, haveStorage, shouldNotExists);
-            if (!haveStorage && !haveCode && !haveNonce && !haveBalance &&
-                shouldNotExists)  // defined only shouldNotExists field
-                ret[a] = Account(0, 0);
-        }
-
-        if (o_precompiled && accountMaskJson.count(c_precompiled))
-        {
-            js::mObject p = accountMaskJson.at(c_precompiled).get_obj();
-            o_precompiled->insert(make_pair(a, createPrecompiledContract(p)));
-        }
-    }
-
-    return ret;
+	return ret;
 }

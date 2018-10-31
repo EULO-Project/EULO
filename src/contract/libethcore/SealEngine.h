@@ -47,15 +47,16 @@ class SealEngineFace
 public:
 	virtual ~SealEngineFace() {}
 
-    virtual unsigned revision() const { return 0; }
-    virtual unsigned sealFields() const { return 0; }
-    virtual bytes sealRLP() const { return bytes(); }
+	virtual std::string name() const = 0;
+	virtual unsigned revision() const { return 0; }
+	virtual unsigned sealFields() const { return 0; }
+	virtual bytes sealRLP() const { return bytes(); }
 	virtual StringHashMap jsInfo(BlockHeader const&) const { return StringHashMap(); }
 
 	/// Don't forget to call Super::verify when subclassing & overriding.
 	virtual void verify(Strictness _s, BlockHeader const& _bi, BlockHeader const& _parent = BlockHeader(), bytesConstRef _block = bytesConstRef()) const;
 	/// Additional verification for transactions in blocks.
-	virtual void verifyTransaction(ImportRequirements::value _ir, TransactionBase const& _t, BlockHeader const& _header, u256 const& _startGasUsed) const;
+	virtual void verifyTransaction(ImportRequirements::value _ir, TransactionBase const& _t, BlockHeader const& _bi) const;
 	/// Don't forget to call Super::populateFromParent when subclassing & overriding.
 	virtual void populateFromParent(BlockHeader& _bi, BlockHeader const& _parent) const;
 
@@ -74,8 +75,7 @@ public:
 	ChainOperationParams const& chainParams() const { return m_params; }
 	void setChainParams(ChainOperationParams const& _params) { m_params = _params; }
 	SealEngineFace* withChainParams(ChainOperationParams const& _params) { setChainParams(_params); return this; }
-	virtual EVMSchedule const& evmSchedule(u256 const& _blockNumber) const = 0;
-	virtual u256 blockReward(u256 const& _blockNumber) const = 0;
+	virtual EVMSchedule const& evmSchedule(EnvInfo const&) const = 0;
 
 	virtual bool isPrecompiled(Address const& _a, u256 const& _blockNumber) const
 	{
@@ -84,19 +84,17 @@ public:
 	virtual bigint costOfPrecompiled(Address const& _a, bytesConstRef _in, u256 const&) const { return m_params.precompiled.at(_a).cost(_in); }
 	virtual std::pair<bool, bytes> executePrecompiled(Address const& _a, bytesConstRef _in, u256 const&) const { return m_params.precompiled.at(_a).execute(_in); }
 
-    ////////////////////////////////////////////////////////////// // eulo
-    void setEuloSchedule(EVMSchedule _euloSchedule) const
-    {
-        euloSchedule = _euloSchedule;
-    }
+////////////////////////////////////////////////////////////// // eulo
+	void setEuloSchedule(EVMSchedule _euloSchedule) const { euloSchedule = _euloSchedule; }
 
-    EVMSchedule &getEuloSchedule() const
-    {
-        return euloSchedule;
-    }
+	EVMSchedule& getEuloSchedule() const { return euloSchedule; }
 
-    mutable std::set<Address> deleteAddresses;
-    //////////////////////////////////////////////////////////////
+	//deleteAddresses is a set that keeps track of accounts that were inserted as part of sending to pubkeyhash addresses
+	//This is added to when doing a CALL to a non-existent address (if the account does not exist, it assumes you're sending to pubkeyhash)
+	//It is also added to when a SUICIDE is done where all coins are sent to a non-existent address
+	//After contract execution, these accounts will be deleted from the ETH database, and their vins marked dead, to ensure future executions behave the same
+	mutable std::set<Address> deleteAddresses;
+//////////////////////////////////////////////////////////////
 
 protected:
 	virtual bool onOptionChanging(std::string const&, bytes const&) { return true; }
@@ -105,7 +103,7 @@ private:
 	mutable Mutex x_options;
 	std::unordered_map<std::string, bytes> m_options;
 
-    mutable EVMSchedule euloSchedule; // eulo
+	mutable EVMSchedule euloSchedule; // eulo
 
 	ChainOperationParams m_params;
 };
@@ -121,8 +119,7 @@ public:
 			m_onSealGenerated(ret.out());
 	}
 	void onSealGenerated(std::function<void(bytes const&)> const& _f) override { m_onSealGenerated = _f; }
-	EVMSchedule const& evmSchedule(u256 const& _blockNumber) const override;
-	u256 blockReward(u256 const& _blockNumber) const override;
+	EVMSchedule const& evmSchedule(EnvInfo const&) const override;
 
 protected:
 	std::function<void(bytes const& s)> m_onSealGenerated;
@@ -153,8 +150,8 @@ private:
 class NoProof: public eth::SealEngineBase
 {
 public:
-    static std::string name() { return "NoProof"; }
-    static void init();
+	std::string name() const override { return "NoProof"; }
+	static void init();
 };
 
 }

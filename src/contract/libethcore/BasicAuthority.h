@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <libdevcrypto/Common.h>
 #include "SealEngine.h"
 
 namespace dev
@@ -34,8 +33,8 @@ namespace eth
 class BasicAuthority: public SealEngineBase
 {
 public:
-    static std::string name() { return "BasicAuthority"; }
-    unsigned revision() const override { return 0; }
+	std::string name() const override { return "BasicAuthority"; }
+	unsigned revision() const override { return 0; }
 	unsigned sealFields() const override { return 1; }
 	bytes sealRLP() const override { return rlp(Signature()); }
 

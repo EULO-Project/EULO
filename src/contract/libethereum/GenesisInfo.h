@@ -21,9 +21,8 @@
 
 #pragma once
 
-#include <libdevcore/Common.h>
-
 #include <string>
+#include <libdevcrypto/Common.h>
 
 namespace dev
 {

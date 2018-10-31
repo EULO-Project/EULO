@@ -21,9 +21,8 @@
 
 #pragma once
 
-#include <libdevcore/FixedHash.h>
-
-#include <vector>
+#include "Common.h"
+#include "FixedHash.h"
 
 namespace dev
 {

@@ -24,11 +24,10 @@
 
 #pragma once
 
-#include <boost/thread.hpp>
-#include <libdevcore/Address.h>
+#include <mutex>
 #include <libdevcore/Common.h>
-#include <libdevcore/Exceptions.h>
 #include <libdevcore/FixedHash.h>
+#include <libdevcore/Exceptions.h>
 
 namespace dev
 {
@@ -57,6 +56,19 @@ struct SignatureStruct
 	h256 s;
 	byte v = 0;
 };
+
+/// An Ethereum address: 20 bytes.
+/// @NOTE This is not endian-specific; it's just a bunch of bytes.
+using Address = h160;
+
+/// The zero address.
+extern Address ZeroAddress;
+
+/// A vector of Ethereum addresses.
+using Addresses = h160s;
+
+/// A hash set of Ethereum addresses.
+using AddressHash = std::unordered_set<h160>;
 
 /// A vector of secrets.
 using Secrets = std::vector<Secret>;
@@ -138,6 +150,9 @@ bytesSec scrypt(std::string const& _pass, bytes const& _salt, uint64_t _n, uint3
 class KeyPair
 {
 public:
+	/// Null constructor.
+	KeyPair() = default;
+
 	/// Normal constructor - populates object from the given secret key.
 	/// If the secret key is invalid the constructor succeeds, but public key
 	/// and address stay "null".
@@ -195,21 +210,14 @@ private:
 	/// @returns the next nonce.
 	Secret next();
 
-	boost::mutex x_value;
+	std::mutex x_value;
 	Secret m_value;
 };
 
 namespace ecdh
 {
 
-bool agree(Secret const& _s, Public const& _r, Secret& o_s) noexcept;
-
-}
-
-namespace ecies
-{
-
-bytes kdf(Secret const& _z, bytes const& _s1, unsigned kdByteLen);
+void agree(Secret const& _s, Public const& _r, Secret& o_s);
 
 }
 }

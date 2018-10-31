@@ -22,8 +22,7 @@
 #pragma once
 
 #include <string>
-#include <boost/thread.hpp>
-#include <boost/thread/condition_variable.hpp>
+#include <thread>
 #include <atomic>
 #include "Guards.h"
 
@@ -92,20 +91,16 @@ protected:
 	/// Blocks caller into worker thread has finished.
 //	void join() const { Guard l(x_work); try { if (m_work) m_work->join(); } catch (...) {} }
 
-	/// Stop and never start again.
-	/// This has to be called in the destructor of any most derived class.  Otherwise the worker thread will try to lookup vptrs.
-	/// It's OK to call terminate() in destructors of multiple derived classes.
-	void terminate();
-
 private:
+	/// Stop and never start again.
+	void terminate();
 
 	std::string m_name;
 
 	unsigned m_idleWaitMs = 0;
 	
-	mutable Mutex x_work;						///< Lock for the network existance and m_state_notifier.
-	std::unique_ptr<boost::thread> m_work;		///< The network thread.
-	mutable boost::condition_variable m_state_notifier; //< Notification when m_state changes.
+	mutable Mutex x_work;						///< Lock for the network existance.
+	std::unique_ptr<std::thread> m_work;		///< The network thread.
 	std::atomic<WorkerState> m_state = {WorkerState::Starting};
 };
 

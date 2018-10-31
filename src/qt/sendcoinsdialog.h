@@ -9,7 +9,9 @@
 
 #include <QDialog>
 #include <QString>
-
+#include <QAbstractButton>
+#include <QTimer>
+#include <QMessageBox>
 static const int MAX_SEND_POPUP_ENTRIES = 10;
 
 class ClientModel;
@@ -104,6 +106,8 @@ signals:
     // Fired when a message should be reported to the user
     void message(const QString& title, const QString& message, unsigned int style);
 };
+
+#define SEND_CONFIRM_DELAY   3
 
 class SendConfirmationDialog : public QMessageBox
 {

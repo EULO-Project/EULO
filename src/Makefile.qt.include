@@ -46,6 +46,7 @@ QT_FORMS_UI = \
   qt/forms/openuridialog.ui \
   qt/forms/optionsdialog.ui \
   qt/forms/overviewpage.ui \
+  qt/forms/contractresult.ui \
   qt/forms/createcontractpage.ui \
   qt/forms/receivecoinsdialog.ui \
   qt/forms/privacydialog.ui \

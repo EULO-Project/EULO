@@ -1,7 +1,7 @@
 #ifndef EULO_TRANSACTION_H
 #define EULO_TRANSACTION_H
 
-#include "libethcore/TransactionBase.h"
+#include "libethcore/Transaction.h"
 
 struct VersionVM
 {

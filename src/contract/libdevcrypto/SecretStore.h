@@ -27,8 +27,6 @@
 #include <libdevcore/FileSystem.h>
 #include "Common.h"
 
-#include <boost/filesystem.hpp>
-
 namespace dev
 {
 
@@ -51,7 +49,7 @@ public:
 	struct EncryptedKey
 	{
 		std::string encryptedKey;
-		boost::filesystem::path filename;
+		std::string filename;
 		Address address;
 	};
 
@@ -60,10 +58,10 @@ public:
 	SecretStore() = default;
 
 	/// Construct a new SecretStore and read all keys in the given directory.
-	SecretStore(boost::filesystem::path const& _path);
+	SecretStore(std::string const& _path);
 
 	/// Set a path for finding secrets.
-	void setPath(boost::filesystem::path const& _path);
+	void setPath(std::string const& _path);
 
 	/// @returns the secret key stored by the given @a _uuid.
 	/// @param _pass function that returns the password for the key.
@@ -104,15 +102,15 @@ public:
 	/// Import the key from the file @a _file, but do not copy it to the managed directory yet.
 	/// @param _takeFileOwnership if true, deletes the file if it is not the canonical file for the
 	/// key (derived from its uuid).
-	h128 readKey(boost::filesystem::path const& _file, bool _takeFileOwnership);
+	h128 readKey(std::string const& _file, bool _takeFileOwnership);
 	/// Import the key contained in the json-encoded @a _content, but do not store it in the
 	/// managed directory.
 	/// @param _file if given, assume this file contains @a _content and delete it later, if it is
 	/// not the canonical file for the key (derived from the uuid).
-	h128 readKeyContent(std::string const& _content, boost::filesystem::path const& _file = boost::filesystem::path());
+	h128 readKeyContent(std::string const& _content, std::string const& _file = std::string());
 
 	/// Store all keys in the directory @a _keysPath.
-	void save(boost::filesystem::path const& _keysPath);
+	void save(std::string const& _keysPath);
 	/// Store all keys in the managed directory.
 	void save() { save(m_path); }
 	/// @returns true if the current file @arg _uuid contains an empty address. m_keys will be updated with the given @arg _address.
@@ -121,11 +119,11 @@ public:
 	Address address(h128 const& _uuid) const { return m_keys.at(_uuid).address; }
 
 	/// @returns the default path for the managed directory.
-	static boost::filesystem::path defaultPath() { return getDataDir("web3") / boost::filesystem::path("keys"); }
+	static std::string defaultPath() { return getDataDir("web3") + "/keys"; }
 
 private:
 	/// Loads all keys in the given directory.
-	void load(boost::filesystem::path const& _keysPath);
+	void load(std::string const& _keysPath);
 	void load() { load(m_path); }
 	/// Encrypts @a _v with a key derived from @a _pass or the empty string on error.
 	static std::string encrypt(bytesConstRef _v, std::string const& _pass, KDF _kdf = KDF::Scrypt);
@@ -139,7 +137,7 @@ private:
 	/// Stores encrypted keys together with the file they were loaded from by uuid.
 	std::unordered_map<h128, EncryptedKey> m_keys;
 
-	boost::filesystem::path m_path;
+	std::string m_path;
 };
 
 }

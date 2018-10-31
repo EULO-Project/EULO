@@ -14871,6 +14871,8 @@ src/qt/editaddressdialog.cpp
 src/qt/editaddressdialog.h
 src/qt/eulo.cpp
 src/qt/eulostrings.cpp
+src/qt/execrpccommand.cpp
+src/qt/execrpccommand.h
 src/qt/forms/addressbookpage.ui
 src/qt/forms/askpassphrasedialog.ui
 src/qt/forms/bip38tooldialog.ui
@@ -14972,6 +14974,8 @@ src/qt/recentrequeststablemodel.h
 src/qt/rpcconsole.cpp
 src/qt/rpcconsole.h
 src/qt/sendcoinsdialog.cpp
+src/qt/sendcoinsdialog.cpp
+src/qt/sendcoinsdialog.h
 src/qt/sendcoinsdialog.h
 src/qt/sendcoinsentry.cpp
 src/qt/sendcoinsentry.h

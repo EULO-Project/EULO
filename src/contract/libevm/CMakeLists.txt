@@ -1,17 +1,23 @@
 
-set(sources
-    EVMC.cpp EVMC.h
-    ExtVMFace.cpp ExtVMFace.h
-    Instruction.cpp Instruction.h
-    LegacyVM.cpp LegacyVM.h
-    LegacyVMConfig.h
-    LegacyVMCalls.cpp
-    LegacyVMOpt.cpp
-    VMFace.h
-    VMFactory.cpp VMFactory.h
+set(SOURCES
+	ExtVMFace.cpp
+	VM.cpp
+	VMOpt.cpp
+	VMCalls.cpp
+	VMValidate.cpp
+	VMFactory.cpp
 )
 
-add_library(evm ${sources})
+if (EVMJIT)
+	list(APPEND SOURCES
+		JitVM.cpp
+		SmartVM.cpp
+	)
+endif()
+
+file(GLOB HEADERS "*.h")
+
+add_library(evm ${SOURCES} ${HEADERS})
 
 target_link_libraries(
     evm
@@ -23,10 +29,11 @@ if(EVM_OPTIMIZE)
     target_compile_definitions(evm PRIVATE EVM_OPTIMIZE)
 endif()
 
-if(EVMJIT)
-    target_link_libraries(evm PRIVATE evmjit)
-    target_compile_definitions(evm PRIVATE ETH_EVMJIT)
+if (EVMJIT)
+	target_include_directories(evm PRIVATE ../evmjit/include)
+	target_link_libraries(evm ${Eth_EVMJIT_LIBRARIES})
 endif()
+
 
 if(HERA)
     target_link_libraries(evm PRIVATE hera)

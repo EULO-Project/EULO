@@ -36,33 +36,37 @@
 #include <boost/filesystem.hpp>
 using namespace std;
 using namespace dev;
-
-namespace fs = boost::filesystem;
-
+#ifndef EULO_BUILD
+static_assert(BOOST_VERSION == 106400, "Wrong boost headers version");
+#endif
 // Should be written to only once during startup
-static fs::path s_ethereumDatadir;
-static fs::path s_ethereumIpcPath;
+static string s_ethereumDatadir;
+static string s_ethereumIpcPath;
 
-void dev::setDataDir(fs::path const& _dataDir)
+void dev::setDataDir(string const& _dataDir)
 {
 	s_ethereumDatadir = _dataDir;
 }
 
-void dev::setIpcPath(fs::path const& _ipcDir)
+void dev::setIpcPath(string const& _ipcDir)
 {
 	s_ethereumIpcPath = _ipcDir;
 }
 
-fs::path dev::getIpcPath()
+string dev::getIpcPath()
 {
-	// Strip "geth.ipc" suffix if provided.
-	if (s_ethereumIpcPath.filename() == "geth.ipc")
-		return s_ethereumIpcPath.parent_path();
+	if (s_ethereumIpcPath.empty())
+		return string(getDataDir());
 	else
+	{
+		size_t socketPos = s_ethereumIpcPath.rfind("geth.ipc");
+		if (socketPos != string::npos)
+			return s_ethereumIpcPath.substr(0, socketPos);
 		return s_ethereumIpcPath;
+	}
 }
 
-fs::path dev::getDataDir(string _prefix)
+string dev::getDataDir(string _prefix)
 {
 	if (_prefix.empty())
 		_prefix = "ethereum";
@@ -71,7 +75,7 @@ fs::path dev::getDataDir(string _prefix)
 	return getDefaultDataDir(_prefix);
 }
 
-fs::path dev::getDefaultDataDir(string _prefix)
+string dev::getDefaultDataDir(string _prefix)
 {
 	if (_prefix.empty())
 		_prefix = "ethereum";
@@ -80,7 +84,7 @@ fs::path dev::getDefaultDataDir(string _prefix)
 	_prefix[0] = toupper(_prefix[0]);
 	char path[1024] = "";
 	if (SHGetSpecialFolderPathA(NULL, path, CSIDL_APPDATA, true))
-		return fs::path(path) / _prefix;
+		return (boost::filesystem::path(path) / _prefix).string();
 	else
 	{
 	#ifndef _MSC_VER // todo?
@@ -89,7 +93,7 @@ fs::path dev::getDefaultDataDir(string _prefix)
 		BOOST_THROW_EXCEPTION(std::runtime_error("getDataDir() - SHGetSpecialFolderPathA() failed."));
 	}
 #else
-	fs::path dataDirPath;
+	boost::filesystem::path dataDirPath;
 	char const* homeDir = getenv("HOME");
 	if (!homeDir || strlen(homeDir) == 0)
 	{
@@ -99,18 +103,10 @@ fs::path dev::getDefaultDataDir(string _prefix)
 	}
 	
 	if (!homeDir || strlen(homeDir) == 0)
-		dataDirPath = fs::path("/");
+		dataDirPath = boost::filesystem::path("/");
 	else
-		dataDirPath = fs::path(homeDir);
+		dataDirPath = boost::filesystem::path(homeDir);
 	
-	return dataDirPath / ("." + _prefix);
+	return (dataDirPath / ("." + _prefix)).string();
 #endif
-}
-
-fs::path dev::appendToFilename(fs::path const& _orig, string const& _suffix)
-{
-	if (_orig.filename() == fs::path(".") || _orig.filename() == fs::path(".."))
-		return _orig / fs::path(_suffix);
-	else
-		return _orig.parent_path() / fs::path( _orig.filename().string() + _suffix);
 }

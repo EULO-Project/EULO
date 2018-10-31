@@ -28,6 +28,7 @@
 #include <QSettings>
 #include <QTextDocument>
 
+
 SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent),
                                                     ui(new Ui::SendCoinsDialog),
                                                     clientModel(0),

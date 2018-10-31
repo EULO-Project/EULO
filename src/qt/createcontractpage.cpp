@@ -13,6 +13,8 @@
 #include <qt/sendcoinsdialog.h>
 #include <qt/contractresult.h>
 
+#include <QDebug>
+
 namespace CreateContract_NS
 {
 // Contract data names
@@ -30,7 +32,7 @@ using namespace CreateContract_NS;
 CreateContractPage::CreateContractPage(QWidget *parent) : QWidget(parent),ui(new Ui::CreateContractPage)
 {
     ui->setupUi(this);
-
+    std::string platformName;
     platformStyle = PlatformStyle::instantiate(QString::fromStdString(platformName));
     if (!platformStyle)
         platformStyle = PlatformStyle::instantiate("other");
@@ -99,7 +101,9 @@ void CreateContractPage::on_createContractClicked()
     int unit = m_model->getOptionsModel()->getDisplayUnit();
 
     uint64_t gasLimit = ui->create_gasLimitSpinBox->value();
-    CAmount gasPrice = QString(ui->create_gasPriceEdit->text().toDouble()*COIN).toLongLong();
+
+    //FixMe: check if this convert has overflow problem?
+    CAmount gasPrice = (int64_t)(ui->create_gasPriceEdit->text().toDouble()*COIN);
 
 
     int func = m_ABIFunctionField->getSelectedFunction();
@@ -117,7 +121,7 @@ void CreateContractPage::on_createContractClicked()
     ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, bytecode);
     ExecRPCCommand::appendParam(lstParams, PARAM_GASLIMIT, QString::number(gasLimit));
     ExecRPCCommand::appendParam(lstParams, PARAM_GASPRICE, BitcoinUnits::format(unit, gasPrice, false, BitcoinUnits::separatorNever));
-    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->create_senderAddress->currentText());
+    ExecRPCCommand::appendParam(lstParams, PARAM_SENDER, ui->create_senderAddress->text());
 
     QString questionString = tr("Are you sure you want to create contract? <br />");
 
@@ -129,14 +133,14 @@ void CreateContractPage::on_createContractClicked()
         // Execute RPC command line
         if(errorMessage.isEmpty() && m_execRPCCommand->exec(lstParams, result, resultJson, errorMessage))
         {
-            ContractResult *widgetResult = new ContractResult(ui->stackedWidget);
+            ContractResult *widgetResult = new ContractResult(NULL);
             widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
-            ui->stackedWidget->addWidget(widgetResult);
+            //ui->stackedWidget->addWidget(widgetResult);
             int position = ui->tabview->count() - 1;
             m_results = position == 1 ? 1 : m_results + 1;
 
             ui->tabview->addTab(widgetResult,tr("Result %1").arg(m_results));
-            ui->tabview->setCurrent(position);
+            ui->tabview->setCurrentIndex(position);
         }
         else
         {

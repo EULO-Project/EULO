@@ -5,9 +5,11 @@
 #include "timedata.h"
 #include "contractconfig.h"
 #include "main.h"
-#include "libdevcore/Address.h"
+#include "libdevcore/Common.h"
 #include "libdevcore/Log.h"
-#include <libethereum/LastBlockHashesFace.h>
+//#include <libethereum/LastBlockHashesFace.h>
+#include <fstream>
+#include <boost/filesystem.hpp>
 
 static std::unique_ptr<EuloState> globalState;
 static std::shared_ptr<dev::eth::SealEngineFace> globalSealEngine;
@@ -214,15 +216,7 @@ std::vector<ResultExecute> CallContract(const dev::Address &addrContract, std::v
     return exec.getResult();
 }
 
-class LastBlockHashes : public dev::eth::LastBlockHashesFace
-{
-public:
-    dev::h256s precedingHashes(dev::h256 const& /* _mostRecentHash */) const override
-    {
-        return dev::h256s(256, dev::h256());
-    }
-    void clear() override {}
-};
+
 
 bool ComponentInitialize()
 {
@@ -1155,7 +1149,7 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt &txRec)
 {
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("stateRoot", txRec.stateRoot().hex()));
-    result.push_back(Pair("gasUsed", CAmount(txRec.cumulativeGasUsed())));
+    result.push_back(Pair("gasUsed", CAmount(txRec.gasUsed())));
     result.push_back(Pair("bloom", txRec.bloom().hex()));
     UniValue logEntries(UniValue::VARR);
     dev::eth::LogEntries logs = txRec.log();
@@ -1201,6 +1195,34 @@ void RPCCallContract(UniValue &result, const string addrContract, std::vector<un
     result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec)));
 }
 
+
+dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
+    dev::eth::EnvInfo env;
+    CBlockIndex* tip = chainActive.Tip();
+    env.setNumber(dev::u256(tip->nHeight + 1));
+    env.setTimestamp(dev::u256(block.nTime));
+    env.setDifficulty(dev::u256(block.nBits));
+
+    dev::eth::LastHashes lh;
+    lh.resize(256);
+    for(int i=0;i<256;i++){
+        if(!tip)
+            break;
+        lh[i]= uintToh256(*tip->phashBlock);
+        tip = tip->pprev;
+    }
+    env.setLastHashes(std::move(lh));
+    env.setGasLimit(blockGasLimit);
+    if(block.IsProofOfStake()){
+        env.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
+    }else {
+        env.setAuthor(EthAddrFromScript(block.vtx[0].vout[0].scriptPubKey));
+    }
+    return env;
+}
+
+
+
 bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
 {
     for (EuloTransaction &tx : txs)
@@ -1210,9 +1232,8 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
         {LogPrintf("performByteCode() : validate VM version failed\n");
             return false;
         }LogPrintf("performByteCode() : validate VM version ok\n");
-        LastBlockHashes lastBlockHashes;
-        dev::eth::BlockHeader blockHeader{initBlockHeader()};
-        dev::eth::EnvInfo envInfo(blockHeader, lastBlockHashes, 0);
+
+        dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
         if (!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress()))
         {
             LogPrintStr("performByteCode execption=====\n"); //eulo debug
@@ -1284,33 +1305,6 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult &resultBCE)
     return true;
 }
 
-dev::eth::BlockHeader ByteCodeExec::initBlockHeader()
-{
-    dev::eth::BlockHeader blockHeader;
-
-    CBlockIndex *tip = chainActive.Tip();
-    blockHeader.setNumber(tip->nHeight + 1);
-    blockHeader.setTimestamp(block.nTime);
-    blockHeader.setDifficulty(dev::u256(block.nBits));
-
-    blockHeader.setGasLimit(blockGasLimit);
-    //  FixMe: adjust the following code here must have a model in CBlock to identify contract system condition
-//    if(block.IsProofOfStake() && block.howto??->IsContractEnabled()){
-//        blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
-//    }else
-    if (block.IsProofOfStake())
-    {
-        if (block.nVersion < SMART_CONTRACT_VERSION)
-            blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
-        else
-            blockHeader.setAuthor(EthAddrFromScript(block.vtx[1].vout[2].scriptPubKey));
-    }
-    else
-    {
-        blockHeader.setAuthor(EthAddrFromScript(block.vtx[0].vout[0].scriptPubKey));
-    }
-    return blockHeader;
-}
 
 dev::Address ByteCodeExec::EthAddrFromScript(const CScript &script)
 {

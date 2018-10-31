@@ -62,16 +62,13 @@ struct ChainParams: public ChainOperationParams
 
 	/// Genesis block info.
 	bytes genesisBlock() const;
-
-    /// load config
-    ChainParams loadConfig(std::string const& _json, h256 const& _stateRoot = {},
-        const boost::filesystem::path& _configPath = {}) const;
+	/// load config/genesis
+	ChainParams loadConfig(std::string const& _json, h256 const& _stateRoot = h256()) const;
+	ChainParams loadGenesisState(std::string const& _json,  h256 const& _stateRoot = h256()) const;
+	ChainParams loadGenesis(std::string const& _json, h256 const& _stateRoot = h256()) const;
 
 private:
-    void populateFromGenesis(bytes const& _genesisRLP, AccountMap const& _state);
-
-    /// load genesis
-    ChainParams loadGenesis(std::string const& _json, h256 const& _stateRoot = {}) const;
+	void populateFromGenesis(bytes const& _genesisRLP, AccountMap const& _state);
 };
 
 }

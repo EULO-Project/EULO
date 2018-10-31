@@ -23,20 +23,14 @@
 
 #pragma once
 
-#include <libdevcore/Address.h>
-#include <libdevcore/Common.h>
-#include <libdevcore/Exceptions.h>
-#include <libdevcore/FixedHash.h>
-
-#include <functional>
 #include <string>
+#include <functional>
+#include <libdevcore/Common.h>
+#include <libdevcore/FixedHash.h>
+#include <libdevcrypto/Common.h>
 
 namespace dev
 {
-
-class RLP;
-class RLPStream;
-
 namespace eth
 {
 
@@ -48,11 +42,6 @@ extern const unsigned c_minorProtocolVersion;
 
 /// Current database version.
 extern const unsigned c_databaseVersion;
-
-/// Address of the special contract for block hash storage defined in EIP96
-extern const Address c_blockhashContractAddress;
-/// Code of the special contract for block hash storage defined in EIP96
-extern const bytes c_blockhashContractCode;
 
 /// User-friendly string representation of the amount _b in wei.
 std::string formatBalance(bigint const& _b);
@@ -96,13 +85,6 @@ enum class RelativeBlock: BlockNumber
 	Pending = PendingBlock
 };
 
-enum class BlockPolarity
-{
-	Unknown,
-	Dead,
-	Live
-};
-
 class Transaction;
 
 struct ImportRoute
@@ -122,8 +104,7 @@ enum class ImportResult
 	AlreadyKnown,
 	Malformed,
 	OverbidGasPrice,
-	BadChain,
-	ZeroSignature
+	BadChain
 };
 
 struct ImportRequirements

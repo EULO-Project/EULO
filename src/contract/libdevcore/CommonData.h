@@ -42,36 +42,22 @@ enum class WhenError
 	Throw = 1,
 };
 
-template <class Iterator>
-std::string toHex(Iterator _it, Iterator _end, std::string const& _prefix)
+enum class HexPrefix
 {
-	typedef std::iterator_traits<Iterator> traits;
-	static_assert(sizeof(typename traits::value_type) == 1, "toHex needs byte-sized element type");
-
-	static char const* hexdigits = "0123456789abcdef";
-	size_t off = _prefix.size();
-	std::string hex(std::distance(_it, _end)*2 + off, '0');
-	hex.replace(0, off, _prefix);
-	for (; _it != _end; _it++)
-	{
-		hex[off++] = hexdigits[(*_it >> 4) & 0x0f];
-		hex[off++] = hexdigits[*_it & 0x0f];
-	}
-	return hex;
-}
-
-/// Convert a series of bytes to the corresponding hex string.
+	DontAdd = 0,
+	Add = 1,
+};
+/// Convert a series of bytes to the corresponding string of hex duplets.
+/// @param _w specifies the width of the first of the elements. Defaults to two - enough to represent a byte.
 /// @example toHex("A\x69") == "4169"
-template <class T> std::string toHex(T const& _data)
+template <class T>
+std::string toHex(T const& _data, int _w = 2, HexPrefix _prefix = HexPrefix::DontAdd)
 {
-	return toHex(_data.begin(), _data.end(), "");
-}
-
-/// Convert a series of bytes to the corresponding hex string with 0x prefix.
-/// @example toHexPrefixed("A\x69") == "0x4169"
-template <class T> std::string toHexPrefixed(T const& _data)
-{
-	return toHex(_data.begin(), _data.end(), "0x");
+	std::ostringstream ret;
+	unsigned ii = 0;
+	for (auto i: _data)
+		ret << std::hex << std::setfill('0') << std::setw(ii++ ? 2 : _w) << (int)(typename std::make_unsigned<decltype(i)>::type)i;
+	return (_prefix == HexPrefix::Add) ? "0x" + ret.str() : ret.str();
 }
 
 /// Converts a (printable) ASCII hex string into the corresponding byte stream.
@@ -179,14 +165,17 @@ inline std::string toCompactBigEndianString(T _val, unsigned _min = 0)
 	return ret;
 }
 
-inline std::string toCompactHex(u256 _val, unsigned _min = 0)
+/// Convenience function for conversion of a u256 to hex
+inline std::string toHex(u256 val, HexPrefix prefix = HexPrefix::DontAdd)
 {
-	return toHex(toCompactBigEndian(_val, _min));
+	std::string str = toHex(toBigEndian(val));
+	return (prefix == HexPrefix::Add) ? "0x" + str : str;
 }
 
-inline std::string toCompactHexPrefixed(u256 _val, unsigned _min = 0)
+inline std::string toCompactHex(u256 val, HexPrefix prefix = HexPrefix::DontAdd, unsigned _min = 0)
 {
-	return toHexPrefixed(toCompactBigEndian(_val, _min));
+	std::string str = toHex(toCompactBigEndian(val, _min));
+	return (prefix == HexPrefix::Add) ? "0x" + str : str;
 }
 
 // Algorithms for string and string-like collections.
@@ -207,6 +196,9 @@ unsigned commonPrefix(T const& _t, _U const& _u)
 			return i;
 	return s;
 }
+
+/// Creates a random, printable, word.
+std::string randomWord();
 
 /// Determine bytes required to encode the given integer value. @returns 0 if @a _i is zero.
 template <class T>
@@ -310,6 +302,37 @@ inline std::vector<T> operator+(std::vector<T> const& _a, std::vector<T> const& 
 	return ret += _b;
 }
 
+/// Merge two sets of elements.
+template <class T>
+inline std::set<T>& operator+=(std::set<T>& _a, std::set<T> const& _b)
+{
+	for (auto& i: _b)
+		_a.insert(i);
+	return _a;
+}
+
+/// Merge two sets of elements.
+template <class T>
+inline std::set<T> operator+(std::set<T> const& _a, std::set<T> const& _b)
+{
+	std::set<T> ret(_a);
+	return ret += _b;
+}
+
+template <class A, class B>
+std::unordered_map<A, B>& operator+=(std::unordered_map<A, B>& _x, std::unordered_map<A, B> const& _y)
+{
+	for (auto const& i: _y)
+		_x.insert(i);
+	return _x;
+}
+
+template <class A, class B>
+std::unordered_map<A, B> operator+(std::unordered_map<A, B> const& _x, std::unordered_map<A, B> const& _y)
+{
+	std::unordered_map<A, B> ret(_x);
+	return ret += _y;
+}
 
 /// Make normal string from fixed-length string.
 std::string toString(string32 const& _s);
@@ -358,9 +381,4 @@ bool contains(T const& _t, V const& _v)
 	return std::end(_t) != std::find(std::begin(_t), std::end(_t), _v);
 }
 
-template <class V>
-bool contains(std::unordered_set<V> const& _set, V const& _v)
-{
-    return _set.find(_v) != _set.end();
-}
 }

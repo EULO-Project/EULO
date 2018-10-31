@@ -16,7 +16,10 @@
 
 
 using OnOpFunc = std::function<void(uint64_t, uint64_t, dev::eth::Instruction, dev::bigint, dev::bigint,
-                                    dev::bigint, const dev::eth::VMFace *, dev::eth::ExtVMFace const *)>;
+                                    dev::bigint, dev::eth::VM*, dev::eth::ExtVMFace const *)>;
+
+
+
 using plusAndMinus = std::pair<dev::u256, dev::u256>;  //eulo commmetn the first: the plus value;the second:the minus value
 using valtype = std::vector<unsigned char>;
 

@@ -21,11 +21,7 @@
 
 #pragma once
 
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/lock_guard.hpp>
-#include <boost/thread/recursive_mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
-
+#include <mutex>
 #include <condition_variable>
 #include <atomic>
 #pragma warning(push)
@@ -38,13 +34,13 @@
 namespace dev
 {
 
-using Mutex = boost::mutex;
-using RecursiveMutex = boost::recursive_mutex;
+using Mutex = std::mutex;
+using RecursiveMutex = std::recursive_mutex;
 using SharedMutex = boost::shared_mutex;
 
-using Guard = boost::lock_guard<boost::mutex>;
-using UniqueGuard = std::unique_lock<boost::mutex>;
-using RecursiveGuard = boost::lock_guard<boost::recursive_mutex>;
+using Guard = std::lock_guard<std::mutex>;
+using UniqueGuard = std::unique_lock<std::mutex>;
+using RecursiveGuard = std::lock_guard<std::recursive_mutex>;
 using ReadGuard = boost::shared_lock<boost::shared_mutex>;
 using UpgradableGuard = boost::upgrade_lock<boost::shared_mutex>;
 using UpgradeGuard = boost::upgrade_to_unique_lock<boost::shared_mutex>;
@@ -73,6 +69,18 @@ struct GenericUnguardSharedBool
 	MutexType& m;
 };
 
+/** @brief Simple lock that waits for release without making context switch */
+class SpinLock
+{
+public:
+	SpinLock() { m_lock.clear(); }
+	void lock() { while (m_lock.test_and_set(std::memory_order_acquire)) {} }
+	void unlock() { m_lock.clear(std::memory_order_release); }
+private:
+	std::atomic_flag m_lock;
+};
+using SpinGuard = std::lock_guard<SpinLock>;
+
 template <class N>
 class Notified
 {
@@ -96,7 +104,7 @@ public:
 
 private:
 	mutable Mutex m_mutex;
-	mutable boost::condition_variable m_cv;
+	mutable std::condition_variable m_cv;
 	N m_value;
 };
 

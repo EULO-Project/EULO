@@ -26,9 +26,10 @@
 #include <vector>
 #include <array>
 #include <exception>
-#include <iosfwd>
+#include <iostream>
 #include <iomanip>
 #include "vector_ref.h"
+#include "Common.h"
 #include "Exceptions.h"
 #include "FixedHash.h"
 
@@ -208,10 +209,10 @@ public:
 			ret.reserve(itemCount());
 			for (auto const& i: *this)
 				ret.push_back(i.convert<T>(_flags));
-		}
+		 }
 		else if (_flags & ThrowOnFail)
 			BOOST_THROW_EXCEPTION(BadCast());
-		return ret;
+		 return ret;
 	}
 
 	template <class T>
@@ -270,7 +271,7 @@ public:
 		return ret;
 	}
 
-	/// Converts to int of type given; if isData(), decodes as big-endian bytestream. @returns 0 if not an int or data.
+	/// Converts to int of type given; if isString(), decodes as big-endian bytestream. @returns 0 if not an int or string.
 	template <class _T = unsigned> _T toInt(int _flags = Strict) const
 	{
 		requireGood();
@@ -292,14 +293,6 @@ public:
 		}
 
 		return fromBigEndian<_T>(p);
-	}
-
-	int64_t toPositiveInt64(int _flags = Strict) const
-	{
-		int64_t i = toInt<int64_t>(_flags);
-		if ((_flags & ThrowOnFail) && i < 0)
-			BOOST_THROW_EXCEPTION(BadCast());
-		return i;
 	}
 
 	template <class _N> _N toHash(int _flags = Strict) const
@@ -458,7 +451,7 @@ private:
 		m_out.resize(m_out.size() + _br);
 		byte* b = &m_out.back();
 		for (; _i; _i >>= 8)
-			*(b--) = (byte)_i;
+			*(b--) = toUint8(_i);
 	}
 
 	/// Our output byte stream.

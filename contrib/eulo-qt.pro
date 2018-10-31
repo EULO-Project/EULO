@@ -355,6 +355,7 @@ FORMS += src/qt/forms/addressbookpage.ui \
          src/qt/forms/openuridialog.ui \
          src/qt/forms/optionsdialog.ui \
          src/qt/forms/overviewpage.ui \
+         src/qt/forms/contractresult.ui \
          src/qt/forms/createcontractpage.ui \
          src/qt/forms/receivecoinsdialog.ui \
          src/qt/forms/receiverequestdialog.ui \

@@ -91,12 +91,12 @@ static js::mValue upgraded(string const& _s)
 	return js::mValue();
 }
 
-SecretStore::SecretStore(fs::path const& _path): m_path(_path)
+SecretStore::SecretStore(string const& _path): m_path(_path)
 {
 	load();
 }
 
-void SecretStore::setPath(fs::path const& _path)
+void SecretStore::setPath(string const& _path)
 {
 	m_path = _path;
 	load();
@@ -104,22 +104,18 @@ void SecretStore::setPath(fs::path const& _path)
 
 bytesSec SecretStore::secret(h128 const& _uuid, function<string()> const& _pass, bool _useCache) const
 {
-    auto rit = m_cached.find(_uuid);
-    if (_useCache && rit != m_cached.end())
-        return rit->second;
-    auto it = m_keys.find(_uuid);
-    bytesSec key;
-    if (it != m_keys.end())
-    {
-        key = bytesSec(decrypt(it->second.encryptedKey, _pass()));
-        if (!key.empty())
-        {
-            m_cached[_uuid] = key;
-            // TODO: Fix constness.
-            const_cast<SecretStore*>(this)->noteAddress(_uuid, toAddress(Secret{key}));
-        }
-    }
-    return key;
+	auto rit = m_cached.find(_uuid);
+	if (_useCache && rit != m_cached.end())
+		return rit->second;
+	auto it = m_keys.find(_uuid);
+	bytesSec key;
+	if (it != m_keys.end())
+	{
+		key = bytesSec(decrypt(it->second.encryptedKey, _pass()));
+		if (!key.empty())
+			m_cached[_uuid] = key;
+	}
+	return key;
 }
 
 bytesSec SecretStore::secret(Address const& _address, function<string()> const& _pass) const
@@ -180,14 +176,15 @@ void SecretStore::clearCache() const
 	m_cached.clear();
 }
 
-void SecretStore::save(fs::path const& _keysPath)
+void SecretStore::save(string const& _keysPath)
 {
-	fs::create_directories(_keysPath);
-	DEV_IGNORE_EXCEPTIONS(fs::permissions(_keysPath, fs::owner_all));
+	fs::path p(_keysPath);
+	fs::create_directories(p);
+	DEV_IGNORE_EXCEPTIONS(fs::permissions(p, fs::owner_all));
 	for (auto& k: m_keys)
 	{
 		string uuid = toUUID(k.first);
-		fs::path filename = (_keysPath / uuid).string() + ".json";
+		string filename = (p / uuid).string() + ".json";
 		js::mObject v;
 		js::mValue crypto;
 		js::read_string(k.second.encryptedKey, crypto);
@@ -204,33 +201,33 @@ void SecretStore::save(fs::path const& _keysPath)
 
 bool SecretStore::noteAddress(h128 const& _uuid, Address const& _address)
 {
-    auto it = m_keys.find(_uuid);
-    if (it != m_keys.end() && it->second.address == ZeroAddress)
-    {
-        it->second.address = _address;
-        return true;
-    }
-    return false;
+	if (m_keys.find(_uuid) != m_keys.end() && m_keys[_uuid].address == ZeroAddress)
+	{
+		m_keys[_uuid].address =	_address;
+		return true;
+	}
+	return false;
 }
 
-void SecretStore::load(fs::path const& _keysPath)
+void SecretStore::load(string const& _keysPath)
 {
+	fs::path p(_keysPath);
 	try
 	{
-		for (fs::directory_iterator it(_keysPath); it != fs::directory_iterator(); ++it)
+		for (fs::directory_iterator it(p); it != fs::directory_iterator(); ++it)
 			if (fs::is_regular_file(it->path()))
 				readKey(it->path().string(), true);
 	}
 	catch (...) {}
 }
 
-h128 SecretStore::readKey(fs::path const& _file, bool _takeFileOwnership)
+h128 SecretStore::readKey(string const& _file, bool _takeFileOwnership)
 {
-	ctrace << "Reading" << _file.string();
+	ctrace << "Reading" << _file;
 	return readKeyContent(contentsString(_file), _takeFileOwnership ? _file : string());
 }
 
-h128 SecretStore::readKeyContent(string const& _content, fs::path const& _file)
+h128 SecretStore::readKeyContent(string const& _content, string const& _file)
 {
 	try
 	{
@@ -243,12 +240,12 @@ h128 SecretStore::readKeyContent(string const& _content, fs::path const& _file)
 			if (o.find("address") != o.end() && isHex(o["address"].get_str()))
 				address = Address(o["address"].get_str());
 			else
-				cwarn << "Account address is either not defined or not in hex format" << _file.string();
+				cwarn << "Account address is either not defined or not in hex format" << _file;
 			m_keys[uuid] = EncryptedKey{js::write_string(o["crypto"], false), _file, address};
 			return uuid;
 		}
 		else
-			cwarn << "Invalid JSON in key file" << _file.string();
+			cwarn << "Invalid JSON in key file" << _file;
 		return h128();
 	}
 	catch (...)

@@ -20,7 +20,6 @@
  */
 
 #include <thread>
-#include <boost/thread.hpp>
 #include <boost/filesystem.hpp>
 #include "Exceptions.h"
 #include "TransientDirectory.h"
@@ -57,7 +56,7 @@ TransientDirectory::~TransientDirectory()
 	// As a consequence, directory is locked and can not be deleted immediately.
 	// Retry after 10 milliseconds usually is successful.
 	// This will help our tests run smoothly in such environment.
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+	this_thread::sleep_for(chrono::milliseconds(10));
 
 	ec.clear();
 	fs::remove_all(m_path, ec);
