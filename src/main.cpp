@@ -3388,7 +3388,6 @@ static int64_t nTimeConnect = 0;
 static int64_t nTimeIndex = 0;
 static int64_t nTimeCallbacks = 0;
 static int64_t nTimeTotal = 0;
-extern UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool txDetails);
 
 bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pindex, CCoinsViewCache& view, bool fJustCheck, bool fAlreadyChecked)
 {
@@ -3533,10 +3532,6 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> heightIndexes;
 
     /////////////////////////////////////////////////////////
-    UniValue blockJson = blockToJSON(block, chainActive.Tip(), true);
-    
-    LogPrintf("main Block hex: %s\n", block.ToString());
-    LogPrintf("main Block json: %s\n", blockJson.write(UniValue::VOBJ));
 
     for (unsigned int i = 0; i < block.vtx.size(); i++) {
         const CTransaction& tx = block.vtx[i];
@@ -4882,12 +4877,6 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
             return state.DoS(100, error("CheckBlock() : more than one coinbase"),
                              REJECT_INVALID, "bad-cb-multiple");
 
-    if (chainActive.Tip() && chainActive.Tip()->nHeight > 200) {
-        UniValue blockJson = blockToJSON(block, chainActive.Tip(), true);
-            
-        LogPrintf("main.cpp CheckBlock Block hex: %s\n", block.ToString());
-        LogPrintf("main.cpp CheckBlock Block json: %s\n", blockJson.write(UniValue::VOBJ));
-    }
     if (block.IsProofOfStake()) {
         // Coinbase output should be empty if proof-of-stake block
         if (block.vtx[0].vout.size() != 1 || !block.vtx[0].vout[0].IsEmpty())
