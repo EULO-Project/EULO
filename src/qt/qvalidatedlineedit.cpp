@@ -5,7 +5,7 @@
 #include <qt/qvalidatedlineedit.h>
 
 #include <qt/bitcoinaddressvalidator.h>
-#include <qt/styleSheet.h>
+//#include <qt/styleSheet.h>
 
 QValidatedLineEdit::QValidatedLineEdit(QWidget *parent) :
     QLineEdit(parent),
@@ -40,11 +40,11 @@ void QValidatedLineEdit::setValid(bool _valid)
         QWidget *widget = this->parentWidget();
         if(widget && widget->inherits("QComboBox"))
         {
-            SetObjectStyleSheet(widget, StyleSheetNames::Invalid);
+           // SetObjectStyleSheet(widget, StyleSheetNames::Invalid);
         }
         else
         {
-            SetObjectStyleSheet(this, StyleSheetNames::Invalid);
+           // SetObjectStyleSheet(this, StyleSheetNames::Invalid);
         }
     }
     this->valid = _valid;
