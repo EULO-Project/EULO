@@ -2402,6 +2402,9 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
 
     int height = chainActive.Tip()->nHeight;
 
+
+    LogPrintf("Sendto Params: %s",params.write(2));
+
     uint64_t blockGasLimit = GetBlockGasLimit(height);
     uint64_t minGasPrice = CAmount(GetMinGasPrice(height));
     CAmount nGasPrice = (minGasPrice > DEFAULT_GAS_PRICE) ? minGasPrice : DEFAULT_GAS_PRICE;

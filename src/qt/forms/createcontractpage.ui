@@ -26,7 +26,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -320,7 +320,7 @@
       <string>Options</string>
      </property>
     </widget>
-    <widget class="QSpinBox" name="gasLimitSpinBox_2">
+    <widget class="QSpinBox" name="sendto_gasLimitSpinBox">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -349,7 +349,7 @@
       <string>Gas Price</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="gasPriceEdit_2">
+    <widget class="QLineEdit" name="sendto_gasPriceEdit">
      <property name="geometry">
       <rect>
        <x>320</x>
@@ -378,7 +378,7 @@
       <string>Sender</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_3">
+    <widget class="QLineEdit" name="sendto_senderAddress">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -401,7 +401,7 @@
       <string>Gas Limit</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit_4">
+    <widget class="QLineEdit" name="sendto_amountText">
      <property name="geometry">
       <rect>
        <x>100</x>
@@ -459,6 +459,140 @@
        </rect>
       </property>
      </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_3">
+    <attribute name="title">
+     <string>call</string>
+    </attribute>
+    <widget class="QLabel" name="label_19">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>10</y>
+       <width>111</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Call</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="call_btn">
+     <property name="geometry">
+      <rect>
+       <x>700</x>
+       <y>520</y>
+       <width>89</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Call</string>
+     </property>
+    </widget>
+    <widget class="QScrollArea" name="call_scrollArea">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>220</y>
+       <width>641</width>
+       <height>111</height>
+      </rect>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>639</width>
+        <height>109</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_5">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>110</y>
+       <width>641</width>
+       <height>72</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <item>
+       <widget class="QLabel" name="label_22">
+        <property name="text">
+         <string>Interface(ABI)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="call_abiText"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_6">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>30</y>
+       <width>641</width>
+       <height>72</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_6">
+      <item>
+       <widget class="QLabel" name="label_23">
+        <property name="text">
+         <string>Address</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTextEdit" name="call_byteCodeText"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QLabel" name="label_24">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>190</y>
+       <width>91</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Function</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="call_senderAddress">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>390</y>
+       <width>361</width>
+       <height>25</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_26">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>390</y>
+       <width>121</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>SenderAddress</string>
+     </property>
     </widget>
    </widget>
   </widget>

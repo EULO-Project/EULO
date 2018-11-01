@@ -186,7 +186,7 @@ void RPCExecutor::request(const QString& command)
 {
     std::vector<std::string> args;
     if (!RPCConsole::parseCommandLine(args, command.toStdString())) {
-        emit reply(RPCConsole::CMD_ERROR, QString("Parse error: unbalanced ' or \""));
+        emit reply(RPCConsole::CMD_ERROR, QString("Parse error: unbalanced1 ' or \""));
         return;
     }
     if (args.empty())

@@ -4,6 +4,7 @@
 #include <univalue.h>
 #include <rpcserver.h>
 #include <rpcclient.h>
+#include <QDebug>
 
 ExecRPCCommand::ExecRPCCommand(const QString &command, const QStringList &mandatory, const QStringList &optional, const QMap<QString, QString>& translations, QObject *parent)
     : QObject(parent)
@@ -87,7 +88,7 @@ bool ExecRPCCommand::exec(const QMap<QString, QString> &params, QVariant &result
 
         if (result2.isNull())
         {
-            errorMessage = tr("Parse error: unbalanced ' or \"");
+            errorMessage = tr("Parse error: unbalanced2 ' or \"");
             strResult = "";
             resultJson = strResult.c_str();
         }
@@ -101,9 +102,13 @@ bool ExecRPCCommand::exec(const QMap<QString, QString> &params, QVariant &result
         }
         else
         {
+
             strResult = result2.write(2);
-            errorMessage = tr("Parse error: unbalanced ' or \"");
+            errorMessage = tr("Parse error: unbalanced3 ' or \"");
             resultJson = strResult.c_str();
+            qDebug()<<"resultJson:"<<resultJson;
+            return true;
+
         }
     }
     catch (UniValue& objError)

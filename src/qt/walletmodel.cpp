@@ -422,6 +422,7 @@ AddressTableModel* WalletModel::getAddressTableModel()
     return addressTableModel;
 }
 
+
 TransactionTableModel* WalletModel::getTransactionTableModel()
 {
     return transactionTableModel;

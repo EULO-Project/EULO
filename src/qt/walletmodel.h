@@ -127,6 +127,7 @@ public:
 
     OptionsModel* getOptionsModel();
     AddressTableModel* getAddressTableModel();
+
     TransactionTableModel* getTransactionTableModel();
     RecentRequestsTableModel* getRecentRequestsTableModel();
 

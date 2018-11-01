@@ -1592,7 +1592,7 @@ UniValue callcontract(const UniValue& params, bool fHelp)
     if (pBlockIndex->nHeight < Params().Contract_StartHeight())
         throw JSONRPCError(RPC_INVALID_REQUEST, "contract not enabled.");
 
-    if (AddressInUse(strAddr))
+    if (!AddressInUse(strAddr))
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
 
     string sender = "";
