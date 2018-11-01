@@ -34,9 +34,9 @@ EuloState::execute(EnvInfo const &_envInfo, SealEngineFace const &_sealEngine, E
     addBalance(_t.sender(), _t.value() + (_t.gas() * _t.gasPrice()));
     newAddress = _t.isCreation() ? createEuloAddress(_t.getHashWith(), _t.getNVout()) : dev::Address();
 
-    LogPrintf("EuloState::execute sender=%s", HexStr(_t.sender().asBytes())); //eulo debug
-    LogPrintf("EuloState::execute newAddress=%s", HexStr(newAddress.asBytes())); //eulo debug
-    LogPrintf("EuloState::execute author=%s", HexStr(_envInfo.author().asBytes())); //eulo debug
+    LogPrintf("EuloState::execute sender=%s\n", HexStr(_t.sender().asBytes())); //eulo debug
+    LogPrintf("EuloState::execute newAddress=%s\n", HexStr(newAddress.asBytes())); //eulo debug
+    LogPrintf("EuloState::execute author=%s\n", HexStr(_envInfo.author().asBytes())); //eulo debug
     _sealEngine.deleteAddresses.insert({_t.sender(), _envInfo.author()});
 
     h256 oldStateRoot = rootHash();

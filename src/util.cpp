@@ -211,14 +211,27 @@ static boost::once_flag debugPrintInitFlag = BOOST_ONCE_INIT;
 static FILE* fileout = NULL;
 static boost::mutex* mutexDebugLog = NULL;
 
+static FILE* fileoutVM = NULL;
+
+
 static void DebugPrintInit()
 {
     assert(fileout == NULL);
     assert(mutexDebugLog == NULL);
 
+    assert(fileoutVM == nullptr); // eulo-vm
+
+
     boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
+
+
     fileout = fopen(pathDebug.string().c_str(), "a");
     if (fileout) setbuf(fileout, NULL); // unbuffered
+
+
+    boost::filesystem::path pathDebugVM = GetDataDir() / "vm.log"; // eulo-vm
+    fileoutVM = fopen(pathDebugVM.string().c_str(), "a");// eulo-vm
+
 
     mutexDebugLog = new boost::mutex();
 }
@@ -258,19 +271,41 @@ bool LogAcceptCategory(const char* category)
     return true;
 }
 
-int LogPrintStr(const std::string& str)
+int LogPrintStr(const std::string& str, bool useVMLog)
 {
     int ret = 0; // Returns total number of characters written
+    //////////////////////////////// // eulo
+    FILE* file = fileout;
+    if(useVMLog){
+        file = fileoutVM;
+
+//        ret = fwrite("yes use vmlog \n", 1, sizeof("yes use vmlog \n"), stdout);
+
+//        if(file != NULL){
+//            ret = fwrite("yes use vmlog1 \n", 1, sizeof("yes use vmlog1 \n"), stdout);
+
+//            fwrite("yes use vmlog \n", 1, sizeof("yes use vmlog \n"), file);
+//            fflush(file);
+//        }
+
+    }
+    //////////////////////////////// //
+   // fwrite("what happened?\n", 1, sizeof("what happened?\n"), stdout);
+
     if (fPrintToConsole) {
         // print to console
         ret = fwrite(str.data(), 1, str.size(), stdout);
         fflush(stdout);
-    } else if (fPrintToDebugLog && AreBaseParamsConfigured()) {
+    } else if (fPrintToDebugLog) {//eulo-vm
         static bool fStartedNewLine = true;
         boost::call_once(&DebugPrintInit, debugPrintInitFlag);
 
-        if (fileout == NULL)
+        if (file == NULL){
+           // ret = fwrite("returned  \n", 1, sizeof("returned  \n"), stdout);
+
             return ret;
+
+        }
 
         boost::mutex::scoped_lock scoped_lock(*mutexDebugLog);
 
@@ -278,19 +313,19 @@ int LogPrintStr(const std::string& str)
         if (fReopenDebugLog) {
             fReopenDebugLog = false;
             boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
-            if (freopen(pathDebug.string().c_str(), "a", fileout) != NULL)
-                setbuf(fileout, NULL); // unbuffered
+            if (freopen(pathDebug.string().c_str(), "a", file) != NULL)
+                setbuf(file, NULL); // unbuffered
         }
 
         // Debug print useful for profiling
         if (fLogTimestamps && fStartedNewLine)
-            ret += fprintf(fileout, "%s ", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
+            ret += fprintf(file, "%s ", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
         if (!str.empty() && str[str.size() - 1] == '\n')
             fStartedNewLine = true;
         else
             fStartedNewLine = false;
 
-        ret = fwrite(str.data(), 1, str.size(), fileout);
+        ret = fwrite(str.data(), 1, str.size(), file);
     }
 
     return ret;

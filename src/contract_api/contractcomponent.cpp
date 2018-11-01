@@ -85,7 +85,8 @@ GetSenderAddress(const CTransaction &tx, const CCoinsViewCache *coinsView, const
     CTxDestination addressBit;
     txnouttype txType = TX_NONSTANDARD;
     if (ExtractDestination(script, addressBit, &txType))
-    {LogPrintf(" ExtractDestination done\n");
+    {
+        LogPrintf(" ExtractDestination done\n");
         if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) &&
                 addressBit.type() == typeid(CKeyID))
         {
@@ -228,10 +229,11 @@ bool ContractInit()
 {
     //FixME: Comment this is not right?
 
-    //    ////////////////////////////////////////////////////////////////////// //eulo-vm
-    //    dev::g_logPost = [&](std::string const &s, char const *c)
-    //    { VMLog("%s : %s", s.c_str(), c); };
-    //    //////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////// // qtum
+        dev::g_logPost = [&](std::string const& s, char const* c){ LogPrintStr(s + '\n', true); };
+        dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+        //LogPrintStr("\n\n\n\n\n\n\nnnnnnnnnnnnnnnnnnnnnn",true);
+    //////////////////////////////////////////////////////////////////////
 
     if ((GetBoolArg("-dgpstorage", false) && GetBoolArg("-dgpevm", false)) ||
             (!GetBoolArg("-dgpstorage", false) && GetBoolArg("-dgpevm", false)) ||
@@ -727,8 +729,8 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
 
     UniValue blockJson = blockToJSON(block, pblockindex, true);
 
-    LogPrintf("Block hex: %s\n", block.ToString());
-    LogPrintf("Block json: %s\n", blockJson.write(UniValue::VOBJ));
+    //LogPrintf("Block hex: %s\n", block.ToString());
+    //LogPrintf("Block json: %s\n", blockJson.write(UniValue::VOBJ));
 
     if (!block.IsContractEnabled())
     {
@@ -739,14 +741,14 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
     uint64_t blockGasLimit = GetBlockGasLimit(nHeight + 1);
     uint64_t countCumulativeGasUsed = 0;
     uint64_t blockGasUsed = 0;
-    LogPrintf("before EuloTxConverter: vtx addr %p\n", &block.vtx); //eulo debug
-    LogPrintf("before EuloTxConverter: vtx size %d\n", block.vtx.size()); //eulo debug
+   // LogPrintf("before EuloTxConverter: vtx addr %p\n", &block.vtx); //eulo debug
+    //LogPrintf("before EuloTxConverter: vtx size %d\n", block.vtx.size()); //eulo debug
 
     EuloTxConverter convert(tx, v, &block.vtx);
 
     ExtractEuloTX resultConvertQtumTX;
-    LogPrintf("ContractTxConnectBlock: vtx addr %p\n", &block.vtx); //eulo debug
-    LogPrintf("ContractTxConnectBlock: vtx size %d\n", block.vtx.size()); //eulo debug
+    //LogPrintf("ContractTxConnectBlock: vtx addr %p\n", &block.vtx); //eulo debug
+    //LogPrintf("ContractTxConnectBlock: vtx size %d\n", block.vtx.size()); //eulo debug
     if (!convert.extractionEuloTransactions(resultConvertQtumTX))
     {
         level = 100;
@@ -922,9 +924,10 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
 
     for (ResultExecute &re: resultExec)
     {
-        if (re.execRes.newAddress != dev::Address() && !fJustCheck)
+        if (re.execRes.newAddress != dev::Address() && !fJustCheck){
             LogPrint("Address : ","%s :", std::string(re.execRes.newAddress.hex()));
-        //dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
+        dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
+        }
     }
     return true;
 }
