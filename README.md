@@ -40,7 +40,7 @@ More information at [eulo.io](http://www.eulo.io) Visit our ANN thread at [Bitco
 ### PoS Rewards Breakdown
 
 <table>
-<th><font size="2">Phase<font></th><th><font size="2">Block Height<font></th><th><font size="2">Reward<font></th><th><font size="2">Masternodes & Stakers<font></th><th><font size="2">Miner<font></th><th><font size="2">Budget<font></th>
+<th>Phase</th><th><font size="2">Block Height<font></th><th><font size="2">Reward<font></th><th><font size="2">Masternodes & Stakers<font></th><th><font size="2">Miner<font></th><th><font size="2">Budget<font></th>
 <tr><td><font size="2">Phase 0<font></td><td><font size="2">1440-259199<font></td><td><font size="2">10 ULO<font></td><td><font size="2">100% (10 ULO)<font></td><td><font size="2">0% (0 ULO)<font></td><td><font size="2">N/A<font></td></tr>
 <tr><td><font size="2">Phase 1<font></td><td><font size="2">259200-1295999<font></td><td><font size="2">1300 ULO<font></td><td><font size="2">76% (988 ULO)<font></td><td><font size="2">19% (247 ULO)<font></td><td><font size="2">5% (65 ULO)<font></td></tr>
 <tr><td><font size="2">Phase 2<font></td><td><font size="2">1296000-2332799<font></td><td><font size="2">1250 ULO<font></td><td><font size="2">66.5% (831.25 ULO)<font></td><td><font size="2">28.5% (356.25 ULO)<font></td><td><font size="2">5% (62.5 ULO)<font></td></tr>
