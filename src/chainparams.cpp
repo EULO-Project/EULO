@@ -154,8 +154,8 @@ public:
         assert(genesis.hashMerkleRoot == uint256("0x4df5d8d4db708df49c4f911a0946991d5a7628e2e93dfe22b76f9233a9492426"));
 
         vSeeds.push_back("seed1.eulo.io");          // seed1
-        vSeeds.push_back("seed2.eulo.io"));         // seed2
-        vSeeds.push_back("seed3.eulo.io"));         // seed3
+        vSeeds.push_back("seed2.eulo.io");          // seed2
+        vSeeds.push_back("seed3.eulo.io");          // seed3
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 68);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 13);
@@ -246,8 +246,8 @@ public:
         vSeeds.clear();
 
         vSeeds.push_back("seed1.eulo.io");          // seed1
-        vSeeds.push_back("seed2.eulo.io"));         // seed2
-        vSeeds.push_back("seed3.eulo.io"));         // seed3
+        vSeeds.push_back("seed2.eulo.io");          // seed2
+        vSeeds.push_back("seed3.eulo.io");          // seed3
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 130); // Testnet ulo addresses start with 'u'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);  // Testnet eulo script addresses start with '8' or '9'
