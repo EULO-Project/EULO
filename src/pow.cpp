@@ -28,9 +28,7 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
     uint256 PastDifficultyAverage;
     uint256 PastDifficultyAveragePrev;
 
-    if (pindexLast == NULL || pindexLast->nHeight == 0 || pindexLast->nHeight < PastBlocksMin || pindexLast->nHeight < Params().POW_Start_BLOCK_In_POS() || 
-        (pindexLast->nHeight + 1 >= Params().POW_Start_BLOCK_In_POS() && pindexLast->nHeight <= Params().POW_Start_BLOCK_In_POS() + PastBlocksMin) ||
-        (pindexLast->nHeight + 1 >= Params().Zerocoin_StartHeight() && pindexLast->nHeight <= Params().Zerocoin_StartHeight() + PastBlocksMin)) {
+    if (pindexLast == NULL || pindexLast->nHeight == 0 || pindexLast->nHeight < PastBlocksMin || pindexLast->nHeight <= Params().Zerocoin_StartHeight() + PastBlocksMin) {
         return Params().ProofOfWorkLimit().GetCompact();
     }
 
@@ -108,8 +106,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     uint256 PastDifficultyAverage;
     uint256 PastDifficultyAveragePrev;
 
-    if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || BlockLastSolved->nHeight < PastBlocksMin || 
-        (BlockLastSolved->nHeight + 1 >= Params().Zerocoin_StartHeight() && BlockLastSolved->nHeight <= Params().Zerocoin_StartHeight() + PastBlocksMin)) {
+    if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || BlockLastSolved->nHeight < PastBlocksMin) {
         return Params().ProofOfWorkLimit().GetCompact();
     }
 

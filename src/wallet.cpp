@@ -2717,6 +2717,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
         //  Adjust POW difficulty with tmpblock count.
         bnTarget.SetCompact(pblock->nBits2, &fNegative, &fOverflow);
 
+        //  nCount always bigger than 0 (coinBaseTx.vout.size())
         bnTarget /= nCount;
         bnTarget *= nTargetCount;
 
