@@ -3434,6 +3434,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     //the first new block hight,
     if (pindex->nHeight == Params().Contract_StartHeight() + 1)
     {
+        LogPrintf("blockhashStateRoot:%s\nblockhashUTXORoot:%s\n",blockhashStateRoot.GetHex().c_str(),blockhashUTXORoot.GetHex().c_str());
+
         if(block.GetVMState(blockhashStateRoot, blockhashUTXORoot) != RET_VM_STATE_OK)
         {
             return state.DoS(100, error("Block hashStateRoot or  hashUTXORoot not exist"), REJECT_INVALID);
