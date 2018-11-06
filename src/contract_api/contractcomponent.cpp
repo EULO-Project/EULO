@@ -259,8 +259,8 @@ bool ContractInit()
                               existstate));
 
     //Note: Should only add after genesis contract changed state and utxo root
-    dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::euloMainNetwork)));
-    globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
+    //dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::euloMainNetwork)));
+    //globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
 
     pstorageresult = new StorageResults(stateDir.string());
 
@@ -296,9 +296,9 @@ bool ContractInit()
         }
     } else
     {
-        globalState->setRoot(dev::sha3(dev::rlp("")));
+        globalState->setRoot(uintToh256(DEFAULT_HASH_STATE_ROOT));
         globalState->setRootUTXO(uintToh256(DEFAULT_HASH_UTXO_ROOT));
-        globalState->populateFrom(cp.genesisState);
+        //globalState->populateFrom(cp.genesisState);
     }
 
     globalState->db().commit();
@@ -330,7 +330,7 @@ bool ComponentShutdown()
     delete pstorageresult;
     pstorageresult = NULL;
     delete globalState.release();
-    globalSealEngine.reset();
+    //globalSealEngine.reset();
     return true;
 }
 
@@ -349,7 +349,7 @@ uint64_t GetMinGasPrice(int height)
     }
 
     EuloDGP euloDGP(globalState.get(), fGettingValuesDGP);
-    globalSealEngine->setEuloSchedule(euloDGP.getGasSchedule(height));
+    //globalSealEngine->setEuloSchedule(euloDGP.getGasSchedule(height));
     minGasPrice = euloDGP.getMinGasPrice(height);
 
     return minGasPrice;
@@ -370,7 +370,7 @@ uint64_t GetBlockGasLimit(int height)
     }
 
     EuloDGP euloDGP(globalState.get(), fGettingValuesDGP);
-    globalSealEngine->setEuloSchedule(euloDGP.getGasSchedule(height));
+    //globalSealEngine->setEuloSchedule(euloDGP.getGasSchedule(height));
     blockGasLimit = euloDGP.getBlockGasLimit(height);
 
     return blockGasLimit;
@@ -391,7 +391,7 @@ uint32_t GetBlockSize(int height)
     }
 
     EuloDGP euloDGP(globalState.get(), fGettingValuesDGP);
-    globalSealEngine->setEuloSchedule(euloDGP.getGasSchedule(height));
+    //globalSealEngine->setEuloSchedule(euloDGP.getGasSchedule(height));
     blockSize = euloDGP.getBlockSize(height);
 
     return blockSize;
@@ -1259,6 +1259,10 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
         }LogPrintf("performByteCode() : validate VM version ok\n");
 
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
+
+        std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
+
+
         if (!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress()))
         {
             LogPrintStr("performByteCode execption=====\n"); //eulo debug
@@ -1270,11 +1274,11 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
             continue;
         }
         LogPrintStr("performByteCode start exec=====\n"); //eulo debug
-        result.push_back(globalState->execute(envInfo, *globalSealEngine.get(), tx, type, OnOpFunc()));
+        result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
     }
     globalState->db().commit();
     globalState->dbUtxo().commit();
-    globalSealEngine.get()->deleteAddresses.clear();
+    //globalSealEngine.get()->deleteAddresses.clear();
     return true;
 }
 

@@ -13922,6 +13922,7 @@ src/contract/libethashseal/GenesisInfo.cpp
 src/contract/libethashseal/GenesisInfo.h
 src/contract/libethashseal/genesis/euloMainNetwork.cpp
 src/contract/libethashseal/genesis/euloTestNetwork.cpp
+src/contract/libethashseal/genesis/homesteadTest.cpp
 src/contract/libethashseal/genesis/mainNetwork.cpp
 src/contract/libethashseal/genesis/ropsten.cpp
 src/contract/libethashseal/genesis/test/EIP158ToByzantiumAt5Test.cpp

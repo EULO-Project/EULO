@@ -110,3 +110,4 @@ src/univalue/include
 src/univalue/lib
 src/zmq
 src/qt/forms
+src/contract/libethashseal/genesis
