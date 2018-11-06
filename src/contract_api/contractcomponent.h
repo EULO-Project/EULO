@@ -126,6 +126,7 @@ bool ComponentShutdown();
 uint64_t GetMinGasPrice(int height);
 
 uint64_t GetBlockGasLimit(int height);
+uint32_t GetBlockSize(int height);
 
 bool AddressInUse(string contractaddress);
 
@@ -147,7 +148,7 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
                                 bool bLogEvents,
                                 bool fJustCheck,
                                 std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
-                                int &level, string &errinfo);
+                                int &level, string &errinfo,uint64_t &countCumulativeGasUsed,uint64_t &blockGasUsed);
 
 void GetState(uint256 &hashStateRoot, uint256 &hashUTXORoot);
 

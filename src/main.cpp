@@ -3136,6 +3136,7 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
             error("GetVMState err");
         }
     }
+
     UpdateState(hashStateRoot, hashUTXORoot);
 
     if (pfClean == NULL && fLogEvents)
@@ -3491,6 +3492,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     }
 
     //-----------------eulo-vm-----------------------
+    //Note: No need to add euloDGP here, Will exam in ContractTxConnectBlock
+    uint64_t countCumulativeGasUsed = 0;
+    uint64_t blockGasUsed = 0;
+
+
     CBlock checkBlock(block.GetBlockHeader());
     std::vector<CTxOut> checkVouts;
 
@@ -3694,7 +3700,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
             if (!ContractTxConnectBlock(tx, i, &view, block, pindex->nHeight,
                                                           bcer, fLogEvents, fJustCheck, heightIndexes,
-                                                          level, errinfo))
+                                                          level, errinfo,countCumulativeGasUsed,blockGasUsed))
             {
                 LogPrintStr("ConnectBlock -> ContractTxConnectBlock failed\n");
                 return state.DoS(level, error(errinfo.c_str()), REJECT_INVALID);
@@ -4199,7 +4205,8 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
 
 
         CInv inv(MSG_BLOCK, pindexNew->GetBlockHash());
-        LogPrintf("ConnectTip call ConnectBlock\n");
+        LogPrintf("ConnectTip State and utxo before connectblock:\n state: %s\n utxo:%s\n",oldHashStateRoot.GetHex().c_str(),oldHashUTXORoot.GetHex().c_str());
+
         bool rv = ConnectBlock(*pblock, state, pindexNew, view, false, fAlreadyChecked);
         g_signals.BlockChecked(*pblock, state);
         if (!rv) {
@@ -4211,6 +4218,11 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
 
             return error("ConnectTip() : ConnectBlock %s failed", pindexNew->GetBlockHash().ToString());
         }
+
+        uint256 newHashStateRoot, newHashUTXORoot;
+        GetState(newHashStateRoot, newHashUTXORoot);
+        LogPrintf("ConnectTip State and utxo After connectblock:\n state: %s\n utxo:%s\n",newHashStateRoot.GetHex().c_str(),newHashUTXORoot.GetHex().c_str());
+
         mapBlockSource.erase(inv.hash);
         nTime3 = GetTimeMicros();
         nTimeConnectTotal += nTime3 - nTime2;
@@ -5483,7 +5495,7 @@ bool ProcessNewBlock(CValidationState& state, CNode* pfrom, CBlock* pblock, CDis
     return true;
 }
 
-bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex* const pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot)
+bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW, bool fCheckMerkleRoot)
 {
     AssertLockHeld(cs_main);
     assert(pindexPrev == chainActive.Tip());

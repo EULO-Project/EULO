@@ -257,6 +257,8 @@ bool ContractInit()
     globalState = std::unique_ptr<EuloState>(
                 new EuloState(dev::u256(0), EuloState::openDB(dirEulo, hashDB, dev::WithExisting::Trust), dirEulo,
                               existstate));
+
+    //Note: Should only add after genesis contract changed state and utxo root
     dev::eth::ChainParams cp((dev::eth::genesisInfo(dev::eth::Network::euloMainNetwork)));
     globalSealEngine = std::unique_ptr<dev::eth::SealEngineFace>(cp.createSealEngine());
 
@@ -372,6 +374,27 @@ uint64_t GetBlockGasLimit(int height)
     blockGasLimit = euloDGP.getBlockGasLimit(height);
 
     return blockGasLimit;
+}
+
+uint32_t GetBlockSize(int height)
+{
+    uint32_t blockSize = 1;
+
+    bool IsEnabled =  [&]()->bool{
+
+            if(chainActive.Tip()== nullptr) return false;
+            return chainActive.Tip()->IsContractEnabled();
+}();
+    if (!IsEnabled)
+    {
+        return 0;
+    }
+
+    EuloDGP euloDGP(globalState.get(), fGettingValuesDGP);
+    globalSealEngine->setEuloSchedule(euloDGP.getGasSchedule(height));
+    blockSize = euloDGP.getBlockSize(height);
+
+    return blockSize;
 }
 
 bool AddressInUse(string contractaddress)
@@ -723,7 +746,7 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
                                     bool bLogEvents,
                                     bool fJustCheck,
                                     std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
-                                    int &level, string &errinfo)
+                                    int &level, string &errinfo,uint64_t &countCumulativeGasUsed,uint64_t &blockGasUsed)
 {
     CBlockIndex* pblockindex = chainActive.Tip();
 
@@ -739,8 +762,7 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
 
     uint64_t minGasPrice = GetMinGasPrice(nHeight + 1);
     uint64_t blockGasLimit = GetBlockGasLimit(nHeight + 1);
-    uint64_t countCumulativeGasUsed = 0;
-    uint64_t blockGasUsed = 0;
+
    // LogPrintf("before EuloTxConverter: vtx addr %p\n", &block.vtx); //eulo debug
     //LogPrintf("before EuloTxConverter: vtx size %d\n", block.vtx.size()); //eulo debug
 

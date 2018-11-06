@@ -656,17 +656,23 @@ public:
     ///////////////////////////////////////// //eulo-vm
     bool HasOpVmHashState() const
     {
-        return Find(OP_VM_STATE) == 1;
+        return size() >0 && *(--end()) == OP_VM_STATE;
+
+        //return Find(OP_VM_STATE) == 1;
     }
 
     bool HasOpCreate() const
     {
-        return Find(OP_CREATE) == 1;
+        return size() >0 && *(--end()) == OP_CREATE;
+
+        //return Find(OP_CREATE) == 1;
     }
 
     bool HasOpCall() const
     {
-        return Find(OP_CALL) == 1;
+        return size() >0 && *(--end()) == OP_CALL;
+
+        //return Find(OP_CALL) == 1;
     }
 
     bool HasOpSpend() const

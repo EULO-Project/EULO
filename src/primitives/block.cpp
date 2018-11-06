@@ -290,60 +290,59 @@ bool CBlock::CheckBlockSignature() const
 
 VM_STATE_ROOT CBlock::GetVMState(uint256 &hashStateRoot, uint256 &hashUTXORoot) const
 {
-    if (this->nVersion > ZEROCOIN_VERSION)
-    {
-        assert(vtx.size() > 1);
-        const CTransaction &tx = vtx[1];  // 0
-        assert(tx.IsCoinBase2() == true);
-
-        int index = 0;
-        unsigned int  i = 0;
-        for (i = 0; i < tx.vout.size(); i++)
-        {
-            if (tx.vout[i].scriptPubKey.HasOpVmHashState())
-            {
-                index = i;
-                break;
-            }
-        }
-
-        if(i >= tx.vout.size())
-        {  // must to have VmHashState vout
-            assert(0);
-            LogPrintStr("Error: GetVMState coinbase vout");
-            return RET_VM_STATE_ERR;
-        }
-        // have VmHashState vout
-        std::vector<std::vector<unsigned char> > stack;
-        EvalScript(stack, tx.vout[index].scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(),
-                    nullptr);
-        if (stack.empty())
-        {
-            // VmHashState vout script err
-            assert(0);
-            LogPrintStr("Error: GetVMState coinbase vout.scriptPubKey err");
-            return RET_VM_STATE_ERR;
-        }
-
-        std::vector<unsigned char> code(stack.back());
-        stack.pop_back();
-
-        std::vector<unsigned char> vechashUTXORoot(stack.back());
-        stack.pop_back();
-
-        std::string strUTXO;
-        strUTXO = HexStr(vechashUTXORoot);
-        hashUTXORoot = uint256S(strUTXO);
-
-        std::vector<unsigned char> vechashStateRoot(stack.back());
-
-        stack.pop_back();
-
-        std::string strHASH;
-        strHASH = HexStr(vechashStateRoot);
-        hashStateRoot = uint256S(strHASH);
-        return RET_VM_STATE_OK;
-    }else {
+    if (this->nVersion <= ZEROCOIN_VERSION)
         return RET_CONTRACT_UNENBALE;
+
+    assert(vtx.size() > 1);
+    const CTransaction &tx = vtx[1];  // 0
+    assert(tx.IsCoinBase2() == true);
+
+    int index = 0;
+    unsigned int  i = 0;
+    for (i = 0; i < tx.vout.size(); i++)
+    {
+        if (tx.vout[i].scriptPubKey.HasOpVmHashState())
+        {
+            index = i;
+            break;
+        }
     }
+
+    if(i >= tx.vout.size())
+    {  // must to have VmHashState vout
+        assert(0);
+        LogPrintStr("Error: GetVMState coinbase vout");
+        return RET_VM_STATE_ERR;
+    }
+    // have VmHashState vout
+    std::vector<std::vector<unsigned char> > stack;
+    EvalScript(stack, tx.vout[index].scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(),
+               nullptr);
+    if (stack.empty())
+    {
+        // VmHashState vout script err
+        assert(0);
+        LogPrintStr("Error: GetVMState coinbase vout.scriptPubKey err");
+        return RET_VM_STATE_ERR;
+    }
+
+    std::vector<unsigned char> code(stack.back());
+    stack.pop_back();
+
+    std::vector<unsigned char> vechashUTXORoot(stack.back());
+    stack.pop_back();
+
+    std::string strUTXO;
+    strUTXO = HexStr(vechashUTXORoot);
+    hashUTXORoot = uint256S(strUTXO);
+
+    std::vector<unsigned char> vechashStateRoot(stack.back());
+
+    stack.pop_back();
+
+    std::string strHASH;
+    strHASH = HexStr(vechashStateRoot);
+    hashStateRoot = uint256S(strHASH);
+    return RET_VM_STATE_OK;
+
 }
