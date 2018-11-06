@@ -296,13 +296,20 @@ bool ContractInit()
         }
     } else
     {
-        globalState->setRoot(uintToh256(DEFAULT_HASH_STATE_ROOT));
-        globalState->setRootUTXO(uintToh256(DEFAULT_HASH_UTXO_ROOT));
+        LogPrintf("ContractInit 3\n");
+
+        globalState->setRoot(dev::sha3(dev::rlp("")));
+        globalState->setRootUTXO(dev::sha3(dev::rlp("")));
         //globalState->populateFrom(cp.genesisState);
+
+        LogPrintf("ContractInit 4\n");
+
     }
+    LogPrintf("ContractInit 5\n");
 
     globalState->db().commit();
     globalState->dbUtxo().commit();
+    LogPrintf("ContractInit 6\n");
 
     fRecordLogOpcodes = GetBoolArg("-record-log-opcodes", false);
     fIsVMlogFile = boost::filesystem::exists(GetDataDir() / "vmExecLogs.json");
