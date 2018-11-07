@@ -273,6 +273,7 @@ extern UniValue gettransactionreceipt(const UniValue& params, bool fHelp);
 extern UniValue getchaintips(const UniValue& params, bool fHelp);
 
 extern UniValue tmpblockstatus(const UniValue& params, bool fHelp);
+extern UniValue hashstateandutxo(const UniValue& params, bool fHelp);
 
 extern UniValue invalidateblock(const UniValue& params, bool fHelp);
 extern UniValue reconsiderblock(const UniValue& params, bool fHelp);

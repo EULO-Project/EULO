@@ -2312,6 +2312,14 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
     if (useIX && nFeePay < CENT) nFeePay = CENT;
 
     CAmount nValue = 0;
+    COutPoint senderInput;
+    if(hasSender && coinControl->HasSelected()){
+        std::vector<COutPoint> vSenderInputs;
+
+        coinControl->ListSelected(vSenderInputs);
+        senderInput=vSenderInputs[0];
+    }
+
 
     BOOST_FOREACH (const PAIRTYPE(CScript, CAmount) & s, vecSend) {
         if (nValue < 0 || s.second < 0) {
@@ -2374,6 +2382,8 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
 
                 // Choose coins to use
                 set<pair<const CWalletTx*, unsigned int> > setCoins;
+                std::vector<pair<const CWalletTx*, unsigned int>> vCoins;
+
                 CAmount nValueIn = 0;
 
                 if (!SelectCoins(nTotalValue, setCoins, nValueIn, coinControl, coin_type, useIX)) {
@@ -2461,13 +2471,37 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
                 } else
                     reservekey.ReturnKey();
 
+
+
+                vCoins.clear();
+                std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
+
+                if(hasSender && coinControl->HasSelected()){
+                    for (std::vector<pair<const CWalletTx*, unsigned int>>::size_type i = 0 ; i != vCoins.size(); i++){
+
+                        COutPoint outPoint = COutPoint(vCoins[i].first->GetHash(), vCoins[i].second);
+
+                        if(outPoint==senderInput){
+                            if(i==0)break;
+                            iter_swap(vCoins.begin(),vCoins.begin()+i);
+                            break;
+                        }
+                    }
+                }
+
+
+
+
+
                 // Fill vin
-                BOOST_FOREACH (const PAIRTYPE(const CWalletTx*, unsigned int) & coin, setCoins)
+                BOOST_FOREACH (const auto & coin, vCoins){
+
                     txNew.vin.push_back(CTxIn(coin.first->GetHash(), coin.second));
+                }
 
                 // Sign
                 int nIn = 0;
-                BOOST_FOREACH (const PAIRTYPE(const CWalletTx*, unsigned int) & coin, setCoins)
+                BOOST_FOREACH (const auto & coin, vCoins)
                     if (!SignSignature(*this, *coin.first, txNew, nIn++)) {
                         strFailReason = _("Signing transaction failed");
                         return false;

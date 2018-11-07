@@ -2193,6 +2193,43 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
     return ret;
 }
 
+UniValue hashstateandutxo(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "hashstateandutxo \n"
+            "\nShows globalState hashstate and hashutxo.\n"
+            "\nArguments:\n"
+            "\nResult:\n"
+            "\nExamples:\n" +
+            HelpExampleCli("hashstateandutxo","") + HelpExampleRpc("hashstateandutxo",""));
+
+    UniValue hashstateandutxo(UniValue::VARR);
+
+    {
+        LOCK(cs_main);
+
+        uint256 hashStateRoot, hashUTXORoot;
+        hashStateRoot.SetNull();
+        hashUTXORoot.SetNull();
+
+        GetState(hashStateRoot,hashUTXORoot);
+
+
+        UniValue state_obj(UniValue::VOBJ);
+        UniValue utxo_obj(UniValue::VOBJ);
+
+        state_obj.push_back(Pair("state", hashStateRoot.GetHex()));
+        utxo_obj.push_back(Pair("utxo",hashUTXORoot.GetHex() ));
+        hashstateandutxo.push_back(state_obj);
+        hashstateandutxo.push_back(utxo_obj);
+
+
+    }
+
+    return hashstateandutxo;
+}
+
 #ifdef  POW_IN_POS_PHASE
 
 UniValue tmpblockstatus(const UniValue& params, bool fHelp)

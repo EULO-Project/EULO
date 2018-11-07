@@ -298,6 +298,8 @@ static const CRPCCommand vRPCCommands[] =
 #ifdef  POW_IN_POS_PHASE
         {"blockchain", "tmpblockstatus", &tmpblockstatus, true, true, false},
 #endif
+        {"blockchain", "hashstateandutxo", &hashstateandutxo, true, true, false},
+
         {"blockchain", "invalidateblock", &invalidateblock, true, true, false},
         {"blockchain", "reconsiderblock", &reconsiderblock, true, true, false},
         {"blockchain", "verifychain", &verifychain, true, false, false},
