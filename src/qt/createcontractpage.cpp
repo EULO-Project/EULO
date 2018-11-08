@@ -202,15 +202,18 @@ void CreateContractPage::on_callContractClicked()
     // Execute RPC command line
     if(errorMessage.isEmpty() && m_execRPCCommand_call->exec(lstParams, result, resultJson, errorMessage))
     {
-        ContractResult *widgetResult = new ContractResult(NULL);
-        widgetResult->setResultData(result, m_contractABI_call->functions[func], m_ABIFunctionField_call->getParamsValues(), ContractResult::CallResult);
+
+        QMessageBox::information(this, tr("Result"), resultJson);
+
+//        ContractResult *widgetResult = new ContractResult(NULL);
+//        widgetResult->setResultData(result, m_contractABI_call->functions[func], m_ABIFunctionField_call->getParamsValues(), ContractResult::CallResult);
 
 
-        int position = ui->tabview->count() - 1;
-        m_results_call = position == 1 ? 1 : m_results_call + 1;
+//        int position = ui->tabview->count() - 1;
+//        m_results_call = position == 1 ? 1 : m_results_call + 1;
 
-        ui->tabview->addTab(widgetResult,tr("Result %1").arg(m_results_call));
-        ui->tabview->setCurrentIndex(position);
+//        ui->tabview->addTab(widgetResult,tr("Result %1").arg(m_results_call));
+//        ui->tabview->setCurrentIndex(position);
 
 
 
@@ -373,14 +376,17 @@ void CreateContractPage::on_sendToContractClicked()
         // Execute RPC command line
         if(errorMessage.isEmpty() && m_execRPCCommand_sendto->exec(lstParams, result, resultJson, errorMessage))
         {
-            ContractResult *widgetResult = new ContractResult(NULL);
-            widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField_sendto->getParamsValues(), ContractResult::SendToResult);
 
-            int position = ui->tabview->count() - 1;
-            m_results_sendto = position == 1 ? 1 : m_results_sendto + 1;
+            QMessageBox::information(this, tr("Result"), resultJson);
 
-            ui->tabview->addTab(widgetResult,tr("Result %1").arg(m_results_sendto));
-            ui->tabview->setCurrentIndex(position);
+//            ContractResult *widgetResult = new ContractResult(NULL);
+//            widgetResult->setResultData(result, FunctionABI(), m_ABIFunctionField_sendto->getParamsValues(), ContractResult::SendToResult);
+
+//            int position = ui->tabview->count() - 1;
+//            m_results_sendto = position == 1 ? 1 : m_results_sendto + 1;
+
+//            ui->tabview->addTab(widgetResult,tr("Result %1").arg(m_results_sendto));
+//            ui->tabview->setCurrentIndex(position);
 
         }
         else
@@ -578,24 +584,28 @@ void CreateContractPage::on_createContractClicked()
         {
             qDebug()<<__func__<<" errorMessage:"<<errorMessage;
 
-            ContractResult *widgetResult = new ContractResult(NULL);
 
-            qDebug()<<__func__<<" widgetResult:"<<result;
+            QMessageBox::information(this, tr("Result"), resultJson);
 
-            widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
-            //ui->stackedWidget->addWidget(widgetResult);
-            int position = ui->tabview->count() - 1;
-            m_results = position == 1 ? 1 : m_results + 1;
 
-            qDebug()<<__func__<<" m_results:"<<m_results;
+//            ContractResult *widgetResult = new ContractResult(NULL);
 
-            ui->tabview->addTab(widgetResult,tr("Result %1").arg(m_results));
+//            qDebug()<<__func__<<" widgetResult:"<<result;
 
-            qDebug()<<__func__<<" add:";
+//            widgetResult->setResultData(result, FunctionABI(), QList<QStringList>(), ContractResult::CreateResult);
+//            //ui->stackedWidget->addWidget(widgetResult);
+//            int position = ui->tabview->count() - 1;
+//            m_results = position == 1 ? 1 : m_results + 1;
 
-            ui->tabview->setCurrentIndex(position);
+//            qDebug()<<__func__<<" m_results:"<<m_results;
 
-            qDebug()<<__func__<<" end:";
+//            ui->tabview->addTab(widgetResult,tr("Result %1").arg(m_results));
+
+//            qDebug()<<__func__<<" add:";
+
+//            ui->tabview->setCurrentIndex(position);
+
+//            qDebug()<<__func__<<" end:";
 
         }
         else
