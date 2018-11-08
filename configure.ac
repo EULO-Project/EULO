@@ -200,11 +200,15 @@ fi
 if test "x$CXXFLAGS_overridden" = "xno"; then
   CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter"
 fi
-CPPFLAGS="$CPPFLAGS -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS"
+CPPFLAGS="$CPPFLAGS -DBOOST_SPIRIT_THREADSAFE -D__STDC_FORMAT_MACROS"
 
 if test x$use_pow_in_pos != xno; then
     CPPFLAGS="$CPPFLAGS -DPOW_IN_POS_PHASE"
+    CXXFLAGS="$CXXFLAGS -DPOW_IN_POS_PHASE"
 fi
+
+CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1 "
+CXXFLAGS="$CXXFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1 "
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],
@@ -487,80 +491,6 @@ cd src/
 
 source_path=$prefix/../../src/
 
-#ethash
-if [[ ! -d "ethash/" ]]; then
-  mkdir -p ethash/
-fi
-
-cd ethash/
-if [[ -f "ethash.makefile" ]]; then
-  make -f ethash.makefile distclean
-else
-  if [[ -f "Makefile" ]]; then
-    make clean
-  fi
-fi
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib $source_path/ethash/
-if [[ $? -ne 0 ]]; then
-  echo "configure ethash fail"
-  exit 1
-fi
-cd ../
-
-#jsoncpp
-if [[ ! -d "jsoncpp/" ]]; then
-  mkdir -p jsoncpp/
-fi
-
-cd jsoncpp/
-if [[ -f "jsoncpp.makefile" ]]; then
-  make -f jsoncpp.makefile distclean
-else
-  if [[ -f "Makefile" ]]; then
-    make clean
-  fi
-fi
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $source_path/jsoncpp/
-if [[ $? -ne 0 ]]; then
-  echo "configure jsoncpp fail"
-  exit 1
-fi
-cd ../
-
-
-#libff
-if [[ ! -d "libff/" ]]; then
-  mkdir -p libff/
-fi
-
-cd libff/
-if [[ -f "libff.makefile" ]]; then
-  make -f libff.makefile distclean
-else
-  if [[ -f "Makefile" ]]; then
-    make clean
-  fi
-fi
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $gmp_lib $source_path/libff/
-if [[ $? -ne 0 ]]; then
-  echo "configure libff fail"
-  exit 1
-fi
-cd ../
-
-#libscrypt
-if [[ ! -d "libscrypt/" ]]; then
-  mkdir -p libscrypt/
-fi
-
-cd libscrypt/
-if [[ -f "Makefile" ]]; then
-  make clean
-else
-  cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $source_path/libscrypt/
-fi
-cd ../
-
 #lz4
 if [[ ! -d "lz4/" ]]; then
   mkdir -p lz4/
@@ -577,70 +507,6 @@ else
   cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON $source_path/lz4/contrib/cmake_unofficial/
 fi
 cd ../../
-
-#snappy
-if [[ ! -d "snappy/" ]]; then
-  mkdir -p snappy/
-fi
-
-cd snappy/
-if [[ -f "snappy.makefile" ]]; then
-  make -f snappy.makefile distclean
-else
-  if [[ -f "Makefile" ]]; then
-    make clean
-  fi
-fi
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $c_flags $source_path/snappy/
-if [[ $? -ne 0 ]]; then
-  echo "configure snappy fail"
-  exit 1
-fi
-cd ../
-
-#contract
-if [[ ! -d "contract/" ]]; then
-  mkdir -p contract/
-fi
-
-cd contract/
-if [[ -f "contract.makefile" ]]; then
-  make -f contract.makefile distclean
-else
-  if [[ -f "Makefile" ]]; then
-    make clean
-  fi
-fi
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib $source_path/contract/
-if [[ $? -ne 0 ]]; then
-  echo "configure contract fail"
-  exit 1
-fi
-cd ../
-
-#contract_api
-if [[ ! -d "contract_api/" ]]; then
-  mkdir -p contract_api/
-fi
-
-cd contract_api/
-if [[ -f "contract_api.makefile" ]]; then
-  make -f contract_api.makefile distclean
-else
-  if [[ -f "Makefile" ]]; then
-    make clean
-  fi
-fi
-if test x$use_pow_in_pos != xno; then
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DPOW_IN_POS_PHASE=1 $boost_lib $source_path/contract_api/
-else
-cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler $boost_lib $source_path/contract_api/
-fi
-if [[ $? -ne 0 ]]; then
-  echo "configure contract_api fail"
-  exit 1
-fi
-cd ../
 
 if [[ "x$ccache_path" != "x" ]]; then
   PATH=$ccache_path:$PATH
