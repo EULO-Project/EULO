@@ -748,6 +748,60 @@ UniValue sendrawtransaction(const UniValue& params, bool fHelp)
     return hashTx.GetHex();
 }
 
+UniValue gethexaddress(const UniValue& params, bool fHelp) {
+    if (fHelp || params.size() < 1 || params.size() > 1)
+        throw std::runtime_error(
+                "gethexaddress \"address\"\n"
+                "\nConverts a base58 pubkeyhash address to a hex address for use in smart contracts.\n"
+                "\nArguments:\n"
+                "1. \"address\"      (string, required) The base58 address\n"
+                "\nResult:\n"
+                "\"hexaddress\"      (string) The raw hex pubkeyhash address for use in smart contracts\n"
+                "\nExamples:\n" +
+                HelpExampleCli("gethexaddress", "\"address\"") +
+                HelpExampleRpc("gethexaddress", "\"address\""));
+
+    CBitcoinAddress dest(params[0].get_str());
+    if (!dest.IsValid()) {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+    }
+
+    CKeyID invkeyID;
+    dest.GetKeyID(invkeyID);
+
+    std::vector<unsigned char> hexaddr(invkeyID.begin(), invkeyID.end());
+    std::reverse(hexaddr.begin(), hexaddr.end());
+
+    uint160 keyID(hexaddr);
+
+    return keyID.GetHex();
+}
+
+UniValue fromhexaddress(const UniValue& params, bool fHelp) {
+    if (fHelp || params.size() < 1 || params.size() > 1)
+        throw std::runtime_error(
+                "fromhexaddress \"hexaddress\"\n"
+                        "\nConverts a raw hex address to a base58 pubkeyhash address\n"
+                        "\nArguments:\n"
+                        "1. \"hexaddress\"      (string, required) The raw hex address\n"
+                        "\nResult:\n"
+                        "\"address\"      (string) The base58 pubkeyhash address\n"
+                        "\nExamples:\n" +
+                HelpExampleCli("fromhexaddress", "\"hexaddress\"") +
+                HelpExampleRpc("fromhexaddress", "\"hexaddress\""));
+    if (params[0].get_str().size() != 40)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid pubkeyhash hex size (should be 40 hex characters)");
+
+    CBitcoinAddress dest;
+
+    uint160 hex(ParseHex(params[0].get_str()));
+    CKeyID keyID(hex);
+
+    dest.Set(keyID);
+
+    return dest.ToString();
+}
+
 UniValue getspentzerocoinamount(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 2)
