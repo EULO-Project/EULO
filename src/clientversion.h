@@ -7,13 +7,27 @@
 
 #if defined(HAVE_CONFIG_H)
 #include "config/eulo-config.h"
-#endif //HAVE_CONFIG_H
+#else
 
-// client versioning and copyright year
+/**
+ * client versioning and copyright year
+ */
 
 //! These need to be macros, as clientversion.cpp's and eulo*-res.rc's voodoo requires it
-#if !defined(CLIENT_VERSION_MAJOR) || !defined(CLIENT_VERSION_MINOR) || !defined(CLIENT_VERSION_REVISION) || !defined(CLIENT_VERSION_BUILD) || !defined(CLIENT_VERSION_IS_RELEASE) || !defined(COPYRIGHT_YEAR)
-#error Client version information missing: version is not defined by eulo-config.h or in any other way
+#define CLIENT_VERSION_MAJOR 1
+#define CLIENT_VERSION_MINOR 0
+#define CLIENT_VERSION_REVISION 3
+#define CLIENT_VERSION_BUILD 0
+
+//! Set to true for release, false for prerelease or test build
+#define CLIENT_VERSION_IS_RELEASE true
+
+/**
+ * Copyright year (2009-this)
+ * Todo: update this when changing our copyright comments in the source
+ */
+#define COPYRIGHT_YEAR 2018
+
 #endif //HAVE_CONFIG_H
 
 /**
