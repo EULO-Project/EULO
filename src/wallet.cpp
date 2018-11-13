@@ -2347,7 +2347,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
                 txNew.vout.clear();
                 wtxNew.fFromMe = true;
 
-                CAmount nTotalValue = nValue + nFeeRet;
+                CAmount nTotalValue = nValue + nFeeRet + nGasFee;
                 double dPriority = 0;
 
                 // vouts to the payees
@@ -2418,7 +2418,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
                     dPriority += (double)nCredit * age;
                 }
 
-                CAmount nChange = nValueIn - nValue - nFeeRet;
+                CAmount nChange = nValueIn - nValue - nFeeRet - nGasFee;
 
                 //over pay for denominated transactions
                 if (coin_type == ONLY_DENOMINATED) {
@@ -2471,8 +2471,6 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
                 } else
                     reservekey.ReturnKey();
 
-
-
                 vCoins.clear();
                 std::copy(setCoins.begin(), setCoins.end(), std::back_inserter(vCoins));
 
@@ -2488,10 +2486,6 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
                         }
                     }
                 }
-
-
-
-
 
                 // Fill vin
                 BOOST_FOREACH (const auto & coin, vCoins){
@@ -2532,7 +2526,6 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
                 }
 
                 CAmount nFeeNeeded = max(nFeePay, GetMinimumFee(nBytes, nTxConfirmTarget, mempool));
-                nFeeNeeded += nGasFee;
 
                 // If we made it here and we aren't even able to meet the relay fee on the next pass, give up
                 // because we must be at the maximum allowed fee.
