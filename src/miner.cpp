@@ -1126,7 +1126,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
 
                         uint256 hash;
                         while (pindexCurrent == chainActive.Tip()) {
-                            hash = block.GetHash();
+                            hash = HashCryptoNight(BEGIN(block.nVersion), END(block.nAccumulatorCheckpoint));
                             if (hash < hashTarget) {
                                 CTmpBlockParams tmpBlockParams;
 

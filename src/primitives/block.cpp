@@ -33,7 +33,7 @@ uint256 CBlockHeader::GetHash() const
     if(nVersion < ZEROCOIN_VERSION)
         return HashQuark(BEGIN(nVersion), END(nNonce));
 
-    return HashCryptoNight(BEGIN(nVersion), END(nAccumulatorCheckpoint));
+    return HashQuark(BEGIN(nVersion), END(nAccumulatorCheckpoint));
 }
 
 uint256 CBlock::BuildMerkleTree(bool* fMutated) const
