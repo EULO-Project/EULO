@@ -220,19 +220,23 @@ public:
         pchMessageStart[3] = 0xc5;
         vAlertPubKey = ParseHex("04146d06bd90bf85bec61fb050e0016dc6fd9b078f86ae6f8a2281a861065d40de1cf02788c0a2324e1020cd13bc323d8bdb66e1bf24d241cf601d347f1aa3ad78");
         nDefaultPort = 58804;
-        nEnforceBlockUpgradeMajority = 51;
-        nRejectBlockOutdatedMajority = 75;
-        nToCheckBlockUpgradeMajority = 100;
+        bnProofOfWorkLimit = ~uint256(0) >> 16; // EULO starting difficulty is 1 / 2^16
+        nSubsidyHalvingInterval = 210000;
+        nMaxReorganizationDepth = 100;
+        nEnforceBlockUpgradeMajority = 750;
+        nRejectBlockOutdatedMajority = 950;
+        nToCheckBlockUpgradeMajority = 1000;
         nMinerThreads = 0;
         nTargetTimespan = 1 * 60; // EULO: 1 day
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
+
         nLastPOWBlock = 1439;
-        nPOWStartBlockInPOS = 259200;
+        nPOWStartBlockInPOS = 518400;
         nMaturity = 15;
         nMasternodeCountDrift = 4;
         nModifierUpdateBlock = 0; //approx Mon, 17 Apr 2017 04:00:00 GMT
         nMaxMoneyOut = 21148191990 * COIN;
-        nZerocoinStartHeight = 43200;
+        nZerocoinStartHeight = 129600;
         nZerocoinStartTime = 1550037281;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
@@ -271,7 +275,7 @@ public:
         nPoolMaxTransactions = 2;
         strSporkKey = "042a5bab8709d72839c05e72a6396b69608a164abe94eeccdc311a9e0dd8fc8e3a13d75bcd2ffa6077ffea53319fa0e60ac0ba0bc6b392f7f296f0164d6ff08250";
         strObfuscationPoolDummyAddress = "uTxyz1tQzBkZrJaZgFQ9TXn2TxsSQQcoQ8";
-        nStartMasternodePayments = 1420837558; //Fri, 09 Jan 2015 21:05:58 GMT
+        nStartMasternodePayments = 1514768399; //Fri, 09 Jan 2015 21:05:58 GMT
         nBudget_Fee_Confirmations = 3; // Number of confirmations for the finalization fee. We have to make this very short
                                        // here because we only have a 8 block finalization window on testnet
     }
