@@ -43,7 +43,7 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
             break;
         }
 
-        if (BlockReading->nNonce || pindexLast->nHeight <= Params().POW_Start_BLOCK_In_POS() + PastBlocksMin) {
+        if (BlockReading->nNonce || BlockReading->nHeight <= Params().POW_Start_BLOCK_In_POS() + PastBlocksMin) {
             PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (uint256().SetCompact(BlockReading->nBits2))) / (CountBlocks + 1);
             PastDifficultyAveragePrev = PastDifficultyAverage;
             CountBlocks++;
