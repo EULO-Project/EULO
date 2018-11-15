@@ -28,17 +28,13 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
     uint256 PastDifficultyAverage;
     uint256 PastDifficultyAveragePrev;
 
-    if (pindexLast == NULL || pindexLast->nHeight == 0 || pindexLast->nHeight < PastBlocksMin || pindexLast->nHeight <= Params().Zerocoin_StartHeight() + PastBlocksMin) {
+    if (pindexLast == NULL || pindexLast->nHeight == 0 || pindexLast->nHeight <= Params().POW_Start_BLOCK_In_POS() + PastBlocksMin) {
         return Params().ProofOfWorkLimit().GetCompact();
     }
 
     CountBlocks = 1;
     LastBlockTime = BlockReading->GetBlockTime();
-    if (BlockReading->nHeight <= Params().LAST_POW_BLOCK()) {
-        PastDifficultyAverage.SetCompact(BlockReading->nBits);
-    } else {
-        PastDifficultyAverage.SetCompact(BlockReading->nBits2);
-    }
+    PastDifficultyAverage.SetCompact(BlockReading->nBits2);
     PastDifficultyAveragePrev = PastDifficultyAverage;
     BlockReading = BlockReading->pprev;
 
@@ -47,12 +43,8 @@ unsigned int GetNextPowWorkRequired(const CBlockIndex* pindexLast, const CBlockH
             break;
         }
 
-        if (BlockReading->nNonce) {
-            if (BlockReading->nHeight <= Params().LAST_POW_BLOCK()) {
-                PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (uint256().SetCompact(BlockReading->nBits))) / (CountBlocks + 1);
-            } else {
-                PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (uint256().SetCompact(BlockReading->nBits2))) / (CountBlocks + 1);
-            }
+        if (BlockReading->nNonce || pindexLast->nHeight <= Params().POW_Start_BLOCK_In_POS() + PastBlocksMin) {
+            PastDifficultyAverage = ((PastDifficultyAveragePrev * CountBlocks) + (uint256().SetCompact(BlockReading->nBits2))) / (CountBlocks + 1);
             PastDifficultyAveragePrev = PastDifficultyAverage;
             CountBlocks++;
 

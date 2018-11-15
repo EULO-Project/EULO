@@ -4899,8 +4899,10 @@ bool ProcessNewTmpBlockParam(CTmpBlockParams &tmpBlockParams, const CBlockHeader
 {
     LOCK(cs_main);
 
-    if(CheckProofOfWork(blockHeader.GetHash(), blockHeader.nBits) && !tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) {
-        tmpBlockParams.blockheader_hash =  blockHeader.GetHash();
+    uint256 blockcnhash = HashCryptoNight(BEGIN(blockHeader.nVersion), END(blockHeader.nAccumulatorCheckpoint));
+
+    if(CheckProofOfWork(blockcnhash, blockHeader.nBits) && !tmpblockmempool.HaveTmpBlock(tmpBlockParams.GetHash())) {
+        tmpBlockParams.blockheader_hash =  blockcnhash;
         tmpblockmempool.mapTmpBlock.insert(make_pair(tmpBlockParams.GetHash(),std::pair<CTmpBlockParams,int64_t>(tmpBlockParams,GetTime())));
         LogPrintf("New tmp block(%s): orig %s, nonce %lu, coinBase %s\n", 
             tmpBlockParams.GetHash().GetHex(), tmpBlockParams.ori_hash.GetHex(), tmpBlockParams.nNonce, 
