@@ -182,7 +182,7 @@ void RebuildRefundTransaction(CBlock *pblock,CAmount &nFees)
 {
     CMutableTransaction contrTx(originalRewardTx);
 
-    contrTx.vout[2].nValue -= bceResult.refundSender;
+    contrTx.vout[3].nValue -= bceResult.refundSender;
 
     //note, this will need changed for MPoS
     int i = contrTx.vout.size();
@@ -775,28 +775,25 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             }
 
 
-                //  fees to POS Miner.
-                if (pblock->nVersion < SMART_CONTRACT_VERSION)
-                    txCoinStake.vout[1].nValue += nFees;
-                else
-                    txCoinStake.vout[2].nValue += nFees;
+            //  fees to POS Miner.
+            if (pblock->nVersion < SMART_CONTRACT_VERSION)
+                txCoinStake.vout[1].nValue += nFees;
+            else
+                txCoinStake.vout[3].nValue += nFees;
 
 
 
-                // Sign
-                for (size_t nIn = 0; nIn < txCoinStake.vin.size(); nIn++) {
-                    const CWalletTx* pcoin = pwallet->GetWalletTx(txCoinStake.vin[nIn].prevout.hash);
+            // Sign
+            for (size_t nIn = 0; nIn < txCoinStake.vin.size(); nIn++) {
+                const CWalletTx* pcoin = pwallet->GetWalletTx(txCoinStake.vin[nIn].prevout.hash);
 
-                    if (!SignSignature(*pwallet, *pcoin, txCoinStake, nIn)) {
-                        LogPrintStr("CreateCoinStake : failed to re-sign coinstake");
-                        return NULL;
-                    }
+                if (!SignSignature(*pwallet, *pcoin, txCoinStake, nIn)) {
+                    LogPrintStr("CreateCoinStake : failed to re-sign coinstake");
+                    return NULL;
                 }
+            }
 
-                pblock->vtx[1] = CTransaction(txCoinStake);
-
-
-
+            pblock->vtx[1] = CTransaction(txCoinStake);
         }
 
         nLastBlockTx = nBlockTx;
