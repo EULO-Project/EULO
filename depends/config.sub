@@ -822,8 +822,8 @@ case $basic_machine in
 		basic_machine=microblaze-xilinx
 		;;
 	mingw64)
-		basic_machine=x86_64-w64
-		os=-mingw32
+		basic_machine=x86_64-pc
+		os=-mingw64
 		;;
 	mingw32)
 		basic_machine=i686-pc
