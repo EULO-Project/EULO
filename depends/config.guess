@@ -847,7 +847,7 @@ EOF
 	echo ${UNAME_MACHINE}-pc-cygwin
 	exit ;;
     *:MINGW64*:*)
-	echo ${UNAME_MACHINE}-pc-mingw64
+	echo ${UNAME_MACHINE}-w64-mingw32
 	exit ;;
     *:MINGW*:*)
 	echo ${UNAME_MACHINE}-pc-mingw32
