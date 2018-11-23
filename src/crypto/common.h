@@ -6,7 +6,7 @@
 #define BITCOIN_CRYPTO_COMMON_H
 
 #include <stdint.h>
-
+#include <compat/endian.h>
 #if defined(HAVE_ENDIAN_H)
 #include <endian.h>
 #endif

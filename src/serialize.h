@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 #include "libzerocoin/Denominations.h"
-
+#include <compat/endian.h>
 class CScript;
 
 static const unsigned int MAX_SIZE = 0x02000000;
