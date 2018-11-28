@@ -60,7 +60,7 @@ SealEngineFace* SealEngineRegistrar::create(ChainOperationParams const& _params)
 
 EVMSchedule const& SealEngineBase::evmSchedule(EnvInfo const& _envInfo) const
 {
-	////////////////////////////////////////////////////////// // qtum
+    ////////////////////////////////////////////////////////// // eulo
 	if (u256(0) == chainParams().u256Param("EIP158ForkBlock") && 
 		u256(0) == chainParams().u256Param("EIP150ForkBlock") &&
 		u256(0) == chainParams().u256Param("homsteadForkBlock")){

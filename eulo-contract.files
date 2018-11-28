@@ -13838,6 +13838,8 @@ src/coincontrol.h
 src/coins.cpp
 src/coins.h
 src/compat.h
+src/compat/byteswap.h
+src/compat/endian.h
 src/compat/glibc_compat.cpp
 src/compat/glibc_sanity.cpp
 src/compat/glibcxx_compat.cpp
@@ -13961,6 +13963,8 @@ src/contract/libethcore/Precompiled.cpp
 src/contract/libethcore/Precompiled.h
 src/contract/libethcore/SealEngine.cpp
 src/contract/libethcore/SealEngine.h
+src/contract/libethcore/Transaction.cpp
+src/contract/libethcore/Transaction.h
 src/contract/libethcore/TransactionBase.cpp
 src/contract/libethcore/TransactionBase.h
 src/contract/libethereum/Account.cpp
