@@ -69,8 +69,8 @@ AC_DEFUN([AX_BOOST_RANDOM],
 			CXXFLAGS_SAVE=$CXXFLAGS
 
 			AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-				[[@%:@include <boost/nondet_random.hpp>]],
-				[[boost::random_device()();]])],
+				[[@%:@include <boost/random/random_device.hpp>]],
+				[[boost::random::random_device()();]])],
 				ax_cv_boost_random=yes, ax_cv_boost_random=no)
 				CXXFLAGS=$CXXFLAGS_SAVE
 			AC_LANG_POP([C++])
