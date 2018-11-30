@@ -442,12 +442,8 @@ AX_GCC_FUNC_ATTRIBUTE([dllexport])
 AX_GCC_FUNC_ATTRIBUTE([dllimport])
 
 #
-function ethcontractlibs()
+function extlibs()
 {
-c_flags=
-gmp_lib=
-boost_lib=
-thread_api=
 system_name=
 ccache_path=
 source_path=
@@ -461,7 +457,6 @@ if [[ "x$version_type" = "xlinux" ]]; then
     exit 1
   fi
 elif [[ "x$version_type" = "xwindows" ]]; then
-  c_flags="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=\"\""
   system_name="-DCMAKE_SYSTEM_NAME=Windows"
   thread_api="-DBoost_THREADAPI=win32"
 else
@@ -478,9 +473,6 @@ if [[ "x$use_ccache" = "xyes" ]]; then
     ccache_path=`dirname $ccache_compiler`
   fi
 fi
-
-gmp_lib="-DGMP_INCLUDE_DIR='$prefix/include' -DGMP_LIBRARY='$prefix/lib'"
-boost_lib="-DBOOST_INCLUDEDIR='$prefix/include' -DBOOST_LIBRARYDIR='$prefix/lib' -DBoost_USE_STATIC_LIBS=ON $thread_api -DBoost_USE_MULTITHREADED=ON"
 
 if [[ "x$ccache_path" != "x" ]]; then
   replace_path=`echo $ccache_path | sed 's/\//\\\\\//g'`
@@ -1176,7 +1168,7 @@ case $host in
    ;;
 esac
 
-ethcontractlibs
+extlibs
 
 echo
 echo "Options used to compile and link:"

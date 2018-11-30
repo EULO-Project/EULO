@@ -47,13 +47,6 @@ LIBBITCOINQT=qt/libbitcoinqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 LIBLZ4=lz4/lib/liblz4.a
 LIBCRYPTOPP=cryptopp/libcryptopp.a
-LIBETHASH=ethash/lib/ethash/libethash.a
-LIBCONTRACT=contract/libcontract.a
-LIBCONTRACT_API=contract_api/libcontract_api.a
-LIBJSONCPP=jsoncpp/src/lib_json/libjsoncpp.a
-LIBSCRYPT=libscrypt/libscrypt.a
-LIBSNAPPY=snappy/libsnappy.a
-LIBFF=libff/libff/libff.a
 
 $(LIBSECP256K1): $(wildcard secp256k1/src/*) $(wildcard secp256k1/include/*)
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F)
@@ -63,27 +56,6 @@ $(LIBLZ4): $(wildcard lz4/lib/*.[ch])
 
 $(LIBCRYPTOPP): $(wildcard cryptopp/*.cpp cryptopp/*.h) 
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) -f GNUmakefile $(@F) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
-
-$(LIBETHASH): $(wildcard ethash/lib/ethash/*.[ch] ethash/lib/ethash/*.[ch]pp) 
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)
-
-$(LIBCONTRACT): $(wildcard contract/libdevcore/*.h contract/libdevcore/*.cpp contract/libdevcrypto/*.h contract/libdevcrypto/*.cpp contract/libethashseal/*.h contract/libethashseal/*.cpp contract/libethcore/*.h contract/libethcore/*.cpp contract/libethereum/*.h contract/libethereum/*.cpp contract/libevm/*.h contract/libevm/*.cpp contract/utils/*.h contract/utils/*.cpp) 
-	$(AM_V_at)$(MAKE)  $(AM_MAKEFLAGS)  -C contract/  
-
-$(LIBCONTRACT_API):$(wildcard contract_api/*.h contract_api/*.cpp) 
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C contract_api/
-
-$(LIBJSONCPP): $(wildcard jsoncpp/src/lib_json/*.cpp jsoncpp/src/lib_json/*.h) 
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C jsoncpp/
-
-$(LIBSCRYPT): $(wildcard libscrypt/*.[ch]) 
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) $(@F) CC="$(CC)"
- 
-$(LIBSNAPPY): $(wildcard snappy/*.h snappy/*.cc) 
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) 
-
-$(LIBFF): $(wildcard libff/libff/common/* libff/libff/common/*/* libff/libff/algebra/*/*/*) 
-	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D)
 
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:

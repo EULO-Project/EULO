@@ -300,7 +300,7 @@ bool ContractInit()
         globalState->setRoot(dev::sha3(dev::rlp("")));
         globalState->setRootUTXO(dev::sha3(dev::rlp("")));
         //globalState->populateFrom(cp.genesisState);
-        LogPrintf("globalState:%s\globalUtxo:%s\n",h256Touint(dev::sha3(dev::rlp(""))).GetHex().c_str(),h256Touint(dev::sha3(dev::rlp(""))).GetHex().c_str());
+        LogPrintf("globalState:%s globalUtxo:%s\n",h256Touint(dev::sha3(dev::rlp(""))).GetHex().c_str(),h256Touint(dev::sha3(dev::rlp(""))).GetHex().c_str());
 
     }
 
