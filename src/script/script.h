@@ -174,6 +174,7 @@ enum opcodetype
     OP_CALL = 0xc4,
     OP_SPEND = 0xc5,
     OP_VM_STATE = 0xc6,  //eulo-vm
+    OP_EXT_DATA = 0xc7,
 
     // template matching params
     OP_HASH_STATE_ROOT = 0xf3,    //eulo-vm

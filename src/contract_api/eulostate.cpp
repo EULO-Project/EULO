@@ -1,5 +1,7 @@
+#include <map>
 #include <sstream>
 #include <util.h>
+#include "main.h"
 #include "chainparams.h"
 #include "eulostate.h"
 #include "utilstrencodings.h"
@@ -206,6 +208,144 @@ void EuloState::transferBalance(dev::Address const &_from, dev::Address const &_
         LogPrint("EuloState::transferBalance ", "_value=%s", _value.str(0, std::ios_base::hex).c_str()); //eulo debug
         transfers.push_back({_from, _to, _value});
     }
+}
+
+bool findExtendedKeyData(CScript script, const std::string strKey, std::vector<uint8_t>& value)
+{
+    uint32_t        u32Offset;
+    uint32_t        u32SecLens;
+    uint32_t        u32SecType;
+    uint32_t        u32TotalLens;
+    uint32_t        u32TotalCounts;
+
+    if (script.empty())
+    {
+        return false;
+    }
+    uint8_t *pu8Params = script.data();
+
+    //  check script.
+    u32TotalLens = (pu8Params[0] << 8) | (pu8Params[1]);
+    u32TotalCounts = pu8Params[2];
+    u32Offset = 3;
+
+    //  lens not the same.
+    if (u32TotalLens >= script.size())
+    {
+        return false;
+    }
+
+    while (u32Offset < u32TotalLens && u32TotalCounts > 0)
+    {
+        u32SecLens = (pu8Params[u32Offset] << 8) | (pu8Params[u32Offset]);
+        u32TotalCounts--;
+
+        u32Offset += u32SecLens;
+    }
+
+    if (u32Offset != u32TotalLens || 0 != u32TotalCounts)
+    {
+        return false;
+    }
+
+    u32Offset = 3;
+    while (u32Offset < u32TotalLens)
+    {
+        std::string strSecKey;
+
+        uint32_t    u32SecKeyLens = 32;
+
+        u32SecLens = (pu8Params[u32Offset] << 8) | (pu8Params[u32Offset + 1]);
+        u32SecType = pu8Params[u32Offset + 2];
+
+        if (strlen((char *)(pu8Params + u32Offset + 3)) <= u32SecKeyLens)
+            u32SecKeyLens = strlen((char *)(pu8Params + u32Offset + 3));
+
+        strSecKey = std::string((char *)(pu8Params + u32Offset + 3), u32SecKeyLens);
+
+        if (0 == strKey.compare(strSecKey) && u32SecLens > 35)
+        {
+            value.resize(u32SecLens - 35);
+            memcpy(value.data(), pu8Params + u32Offset + 35, value.size());
+            
+            return true;
+        }
+        u32Offset += u32SecLens;
+    }
+
+    return false;
+}
+
+//uint32_t EuloState::getData(uint32_t height, dev::u256 key, std::vector<uint8_t>& value)
+uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const std::string strKey, std::vector<uint8_t>& value)
+{
+    if (height > chainActive.Tip()->nHeight || NULL == chainActive[height])
+    {
+        return 0;
+    }
+
+    bool            find;
+
+    CBlock          block;
+
+    CBlockIndex *pindex = chainActive[height];
+
+    if (!ReadBlockFromDisk(block, pindex))
+        return 0;
+
+    CCoinsView      coinView;
+    CCoinsViewCache viewCache(&coinView);
+
+    find = false;
+
+    //  Search tx and vout script.
+    for (auto tx : block.vtx)
+    {
+        if (tx.vin.size() > 0)
+        {
+            CScript     sender;
+            CScript     receiver;
+
+            const CCoins* pcoins = viewCache.AccessCoins(tx.vin[0].prevout.hash);
+            if (NULL == pcoins)
+                continue;
+            
+            sender = pcoins->vout[tx.vin[0].prevout.n].scriptPubKey;
+
+            CTxDestination txSender;
+            txnouttype txType = TX_NONSTANDARD;
+            if (ExtractDestination(sender, txSender, &txType))
+            {
+                if ((txType == TX_PUBKEY || txType == TX_PUBKEYHASH) && txSender.type() == typeid(CKeyID))
+                {
+                    CKeyID senderAddress(boost::get<CKeyID>(txSender));
+
+                    if (senderAddress.size() == dev::Address::size && 0 == memcmp(senderAddress.begin(), _owner.data(), dev::Address::size))
+                    {
+                        for (auto txOut : tx.vout)
+                        {
+                            if (txOut.scriptPubKey.Find(OP_EXT_DATA))
+                            {
+                                receiver = txOut.scriptPubKey;
+
+                                find = findExtendedKeyData(receiver, strKey, value);
+                                if (find)
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (find)
+            break;
+    }
+
+    if (find)
+        return 1;
+    else
+        return 0;
 }
 
 Vin const *EuloState::vin(dev::Address const &_a) const

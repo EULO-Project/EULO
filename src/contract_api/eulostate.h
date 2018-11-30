@@ -124,6 +124,8 @@ private:
 
     void transferBalance(dev::Address const &_from, dev::Address const &_to, dev::u256 const &_value);
 
+    uint32_t getData(uint32_t _height, dev::Address const& _owner, const std::string _key, std::vector<uint8_t>& _value);
+
     Vin const *vin(dev::Address const &_a) const;
 
     Vin *vin(dev::Address const &_addr);
