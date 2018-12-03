@@ -237,7 +237,7 @@ bool findExtendedKeyData(CScript script, const std::string strKey, std::vector<u
 
     while (u32Offset < u32TotalLens && u32TotalCounts > 0)
     {
-        u32SecLens = (pu8Params[u32Offset] << 8) | (pu8Params[u32Offset]);
+        u32SecLens = (pu8Params[u32Offset] << 8) | (pu8Params[u32Offset + 1]);
         u32TotalCounts--;
 
         u32Offset += u32SecLens;
