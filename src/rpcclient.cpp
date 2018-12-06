@@ -108,7 +108,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"sendtocontract", 4},
         {"sendtocontract", 6},
         {"sendtocontract", 7},
-
+        {"sendextenddata", 0},        
         {"listcontracts", 0},
         {"listcontracts", 1},
         {"getstorage", 2},

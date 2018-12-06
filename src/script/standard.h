@@ -67,7 +67,8 @@ enum txnouttype
 
     TX_CREATE,   // eulo-vm
     TX_CALL,
-    TX_VM_STATE
+    TX_VM_STATE,
+    TX_EXT_DATA
 
 };
 

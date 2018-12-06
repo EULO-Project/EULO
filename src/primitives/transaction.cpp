@@ -85,7 +85,7 @@ bool COutPoint::IsMasternodeReward(const CTransaction* tx) const
     }
     else
     {
-        bIsMnReward = (tx->vout.size() >= 4) && (tx->vout[3].scriptPubKey != tx->vout[n].scriptPubKey) && (tx->vout[3].scriptPubKey == tx->vout[n - 1].scriptPubKey);
+        bIsMnReward = (tx->vout.size() >= 4) && (tx->vout[2].scriptPubKey != tx->vout[n].scriptPubKey) && (tx->vout[2].scriptPubKey == tx->vout[n - 1].scriptPubKey);
     }
 
     return bIsMnReward;

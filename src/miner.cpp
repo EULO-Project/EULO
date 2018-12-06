@@ -182,7 +182,7 @@ void RebuildRefundTransaction(CBlock *pblock,CAmount &nFees)
 {
     CMutableTransaction contrTx(originalRewardTx);
 
-    contrTx.vout[3].nValue -= bceResult.refundSender;
+    contrTx.vout[2].nValue -= bceResult.refundSender;
 
     //note, this will need changed for MPoS
     int i = contrTx.vout.size();
@@ -779,7 +779,7 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
             if (pblock->nVersion < SMART_CONTRACT_VERSION)
                 txCoinStake.vout[1].nValue += nFees;
             else
-                txCoinStake.vout[3].nValue += nFees;
+                txCoinStake.vout[2].nValue += nFees;
 
 
 

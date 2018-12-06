@@ -265,6 +265,7 @@ void Shutdown()
     }
     // Shutdown part 2: Stop TOR thread and delete wallet instance
     StopTorControl();
+    ComponentShutdown();
 #ifdef ENABLE_WALLET
     delete pwalletMain;
     pwalletMain = NULL;

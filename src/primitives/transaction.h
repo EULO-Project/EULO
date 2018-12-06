@@ -172,7 +172,7 @@ public:
         size_t nSize = GetSerializeSize(SER_DISK,0)+148u;
         //FixMe: Is this add on correct? // eulo-vm
         return (nValue < 3*minRelayTxFee.GetFee(nSize) && !scriptPubKey.HasOpCreate() &&
-                !scriptPubKey.HasOpCall());
+                !scriptPubKey.HasOpCall() && !scriptPubKey.HasOpExtData());
     }
 
     bool IsZerocoinMint() const

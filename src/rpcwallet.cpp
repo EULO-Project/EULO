@@ -2694,6 +2694,245 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     return result;
 }
 
+UniValue sendextenddata(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+            "sendextenddata [{\"key\":\"name\",\"value\":\"data\"},...] senderaddress\n"
+            "Create a transaction with extend data spending the given addresses.\n"
+            "\nResult:\n"
+            "\"hex\"             (string) The transaction hash in hex\n"
+            "\nExamples:\n"
+            "\nCreate and send a transaction with extend data\n" +
+            HelpExampleCli("sendextenddata", "\"[{\\\"key\\\" : \\\"name1\\\",\\\"value\\\":\"data1\"}]\" \"senderaddress\"\n"));
+
+    if (!params[0].isArray())
+        throw runtime_error("extend data is not array\n");
+
+    UniValue jsonData = params[0].get_array();
+
+    uint8_t     u8Temp;
+    uint8_t     u8Count;
+    
+    uint32_t    u32Size;
+
+    std::vector<unsigned char>  bindata;
+
+    CBitcoinAddress senderAddress;
+
+    //  bin data size and count:
+    bindata.push_back(0);
+    bindata.push_back(0);
+    bindata.push_back(0);
+
+    u8Count = 0;
+    for (unsigned int index = 0; index < jsonData.size(); index++)
+    {
+        uint8_t  u8Type;
+
+        uint256  u256Name;
+
+        std::string strName;
+        std::string strData;
+
+        const UniValue& keyvalue = jsonData[index];
+
+        const UniValue& key = find_value(keyvalue, "key");
+        const UniValue& value = find_value(keyvalue, "value");
+
+        if (!key.isNull() && (key.isStr() || key.isNum()) && !value.isNull() && (value.isStr() || value.isNum()))
+        {
+            if (key.isStr())
+                strName = key.get_str();
+            else
+                strName = key.write(2);
+
+            if (value.isStr())
+                strData = value.get_str();
+            else
+                strData = value.write(2);
+        }
+        else
+        {
+            if (key.isNull())
+                throw runtime_error("key is null\n");
+            else if (!(key.isStr() || key.isNum()))
+                throw runtime_error("key is not string or number\n");
+            else if (value.isNull())
+                throw runtime_error("value is null\n");
+            else if (!(value.isStr() || value.isNum()))
+                throw runtime_error("value is not string or number\n");
+            else
+                throw runtime_error("unknown key/value error\n");
+        }
+
+        if (strName.size() && strName.size() <= u256Name.size() && strData.size() && strData.size() <= USHRT_MAX)
+        {
+            u8Type = 0;
+            u32Size = 3;
+            u256Name.SetNull();
+            
+            memcpy(u256Name.begin(), strName.data(), strName.size());
+            u32Size += u256Name.size();
+            u32Size += strData.size();
+            
+            u8Temp = (u32Size >> 8) & 0xFF;
+            bindata.push_back(u8Temp);
+            u8Temp = (u32Size & 0xFF);
+            bindata.push_back(u8Temp);
+
+            u8Temp = u8Type;
+            bindata.push_back(u8Temp);
+
+            bindata.insert(bindata.end(), u256Name.begin(), u256Name.end());
+            bindata.insert(bindata.end(), strData.begin(), strData.end());
+            u8Count++;
+        }
+        else
+        {
+            if (!strName.size())
+                throw runtime_error("min key size is 1\n");
+            else if (strName.size() > u256Name.size())
+                throw runtime_error("max key size is " + std::to_string(u256Name.size()) + "\n");
+            else if (!strData.size() || strData.size() > USHRT_MAX)
+                throw runtime_error("key " + strName + " data size is " + std::to_string(strData.size()) + "\n");
+            else
+                throw runtime_error("unknown name/data error\n");
+        }
+    }
+
+    if (u8Count != jsonData.size())
+        throw runtime_error("name/data pair error\n");
+
+    if(bindata.size() > USHRT_MAX)
+        throw runtime_error("Length of extend data(" + std::to_string(bindata.size()) + ") exceeds the limit:" + std::to_string(USHRT_MAX) + "\n");
+
+    u32Size = bindata.size();
+
+    bindata[0] = (u32Size >> 8) & 0xFF;
+    bindata[1] = (u32Size & 0xFF);
+    bindata[2] = u8Count;
+
+    senderAddress.SetString(params[1].get_str());
+    if (!senderAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid eulo address to send from");
+
+    CCoinControl coinControl;
+
+    UniValue results(UniValue::VARR);
+    std::vector<COutput> vecOutputs;
+    
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
+
+    coinControl.fAllowOtherInputs = true;
+    assert(pwalletMain != NULL);
+    pwalletMain->AvailableCoins(vecOutputs, true, NULL, false);
+    
+    for (const COutput &out : vecOutputs)
+    {
+        CTxDestination address;
+        const CScript &scriptPubKey = out.tx->vout[out.i].scriptPubKey;
+        bool fValidAddress = ExtractDestination(scriptPubKey, address);
+    
+        CBitcoinAddress destAdress(address);
+    
+        if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+            continue;
+    
+        coinControl.Select(COutPoint(out.tx->GetHash(), out.i));
+    
+        break;
+    }
+    
+    if (!coinControl.HasSelected())
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+    }
+    coinControl.destChange = senderAddress.Get();
+
+    CWalletTx wtx;
+
+    wtx.nTimeSmart = GetAdjustedTime();
+
+    int height = chainActive.Tip()->nHeight;
+
+    CAmount curBalance = pwalletMain->GetBalance();
+    if (curBalance <= 0)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    CScript  script;
+
+    {
+        if (bindata.size() < OP_PUSHDATA1) {
+            script.insert(script.end(), (unsigned char)bindata.size());
+        } else if (bindata.size() <= 0xff) {
+            script.insert(script.end(), OP_PUSHDATA1);
+            script.insert(script.end(), (unsigned char)bindata.size());
+        } else if (bindata.size() <= 0xffff) {
+            script.insert(script.end(), OP_PUSHDATA2);
+            unsigned short nSize = bindata.size();
+            script.insert(script.end(), (unsigned char)((nSize >> 8) & 0xff));
+            script.insert(script.end(), (unsigned char)(nSize & 0xff));
+        } else {
+            throw runtime_error("Length of extend data(" + std::to_string(bindata.size()) + ") exceeds the limit:" + std::to_string(USHRT_MAX) + "\n");
+        }
+        script.insert(script.end(), bindata.begin(), bindata.end());
+    }
+    script << OP_EXT_DATA;
+
+    // Create and send the transaction
+    CReserveKey reservekey(pwalletMain);
+    CAmount nFeeRequired;
+    std::string strError;
+    std::vector<std::pair<CScript, CAmount>> vecSend;
+    int nChangePosRet = -1;
+
+    vecSend.push_back(std::make_pair(script, 0));
+
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, 1, true))
+    {
+        if (nFeeRequired > pwalletMain->GetBalance())
+            strError = strprintf(
+                    "Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!",
+                    FormatMoney(nFeeRequired));
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    CTxDestination txSenderDest;
+    ExtractDestination(pwalletMain->mapWallet[wtx.vin[0].prevout.hash].vout[wtx.vin[0].prevout.n].scriptPubKey, txSenderDest);
+
+    if (!(senderAddress.Get() == txSenderDest))
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+    }
+
+    CValidationState state;
+
+    if (!CheckTransaction(wtx, height >= Params().Zerocoin_StartHeight(), false, state)) // state filled in by CheckTransaction
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+    }
+    
+    CCoinsView dummy;
+    CCoinsViewCache view(&dummy);
+
+    LOCK(mempool.cs);
+    CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+    view.SetBackend(viewMemPool);
+    
+    if (!wtx.CheckSenderScript(view))
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+    }
+
+    if (!pwalletMain->CommitTransaction(wtx, reservekey, "sendextenddata"))
+        throw JSONRPCError(RPC_WALLET_ERROR,
+                           "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+
+    return wtx.GetHash().GetHex();
+}
+
 UniValue printMultiSend()
 {
     UniValue ret(UniValue::VARR);

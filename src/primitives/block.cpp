@@ -191,7 +191,7 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
     }
     else
     {
-        const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[3];
+        const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[2];
 
         if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
             LogPrintf("Solver failed: %s\n", txout.scriptPubKey.ToString().c_str());
@@ -251,7 +251,7 @@ bool CBlock::CheckBlockSignature() const
     std::vector<valtype> vSolutions;
     txnouttype whichType;
 
-    const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[3];
+    const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[2];
 
     if (!Solver(txout.scriptPubKey, whichType, vSolutions))
         return false;

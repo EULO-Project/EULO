@@ -37,6 +37,7 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_CREATE: return "create";
     case TX_CALL: return "call";
     case TX_VM_STATE: return "vm_state";
+    case TX_EXT_DATA: return "ext_data";
     }
     return NULL;
 }
@@ -97,6 +98,40 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.end());
         vSolutionsRet.push_back(hashBytes);
         return true;
+    }
+
+    if (scriptPubKey.HasOpExtData() && scriptPubKey.size() > 5) {
+        typeRet = TX_EXT_DATA;
+
+        uint8_t     u8Offset;
+        uint32_t    u32VecSize;
+        uint32_t    u32DataSize;
+
+        u8Offset = 1;
+        if (scriptPubKey[0] < OP_PUSHDATA1) {
+            u32VecSize = scriptPubKey[0];
+            u32DataSize = (scriptPubKey[1] << 8) | scriptPubKey[2];
+        } else if (scriptPubKey[0] == OP_PUSHDATA1) {
+            u8Offset = 2;
+            u32VecSize = scriptPubKey[1];
+            u32DataSize = (scriptPubKey[2] << 8) | scriptPubKey[3];
+        } else if (scriptPubKey[0] == OP_PUSHDATA2) {            
+            u8Offset = 3;
+            u32VecSize = (scriptPubKey[1] << 8) | scriptPubKey[2];
+            u32DataSize = (scriptPubKey[3] << 8) | scriptPubKey[4];
+        } else {
+            return false;
+        }
+
+        if (u32VecSize == u32DataSize && u32VecSize < scriptPubKey.size()) {
+            std::vector<unsigned char> vExtData;
+
+            vExtData.resize(u32VecSize);
+            memcpy(vExtData.data(), scriptPubKey.data() + u8Offset, u32VecSize);
+            vSolutionsRet.push_back(vExtData);
+        }
+
+        return (u32VecSize == u32DataSize && u32VecSize < scriptPubKey.size());
     }
 
     // Provably prunable, data-carrying output

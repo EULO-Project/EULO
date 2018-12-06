@@ -174,6 +174,7 @@ enum opcodetype
     OP_CALL = 0xc4,
     OP_SPEND = 0xc5,
     OP_VM_STATE = 0xc6,  //eulo-vm
+
     OP_EXT_DATA = 0xc7,
 
     // template matching params
@@ -183,6 +184,8 @@ enum opcodetype
     OP_VERSION = 0xf6,
     OP_GAS_LIMIT = 0xf7,
     OP_DATA = 0xf8,         //eulo-vm
+
+    OP_OUT_DATA = 0xf9,
 
     // template matching params
     OP_SMALLINTEGER = 0xfa,
@@ -679,6 +682,11 @@ public:
     bool HasOpSpend() const
     {
         return size() == 1 && *begin() == OP_SPEND;
+    }
+
+    bool HasOpExtData() const
+    {
+        return (size() > 0) && (1 == Find(OP_EXT_DATA));
     }
 
     /////////////////////////////////////////

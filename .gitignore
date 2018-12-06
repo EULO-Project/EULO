@@ -154,3 +154,5 @@ src/univalue/stamp-h1
 src/univalue/univalue-config\.h
 
 src/univalue/univalue-config\.h\.in
+
+lz4/lib/

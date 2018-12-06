@@ -1942,6 +1942,9 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
 
             nValueRet += out.tx->vout[out.i].nValue;
             setCoinsRet.insert(make_pair(out.tx, out.i));
+
+            if (nValueRet >= nTargetValue)
+                return true;
         }
         return (nValueRet >= nTargetValue);
     }
@@ -2580,10 +2583,8 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
         LogPrintf("POS stateRoot: %s, utxoRoot: %s\n", stateRoot.GetHex().c_str(), utxoRoot.GetHex().c_str());
 
         CScript vmstate = CScript() << ParseHex(stateRoot.GetHex().c_str()) << ParseHex(utxoRoot.GetHex().c_str()) << OP_VM_STATE;
-        CScript coinprice = CScript() << ParseHex("0") << ParseHex("0") << OP_RETURN;
         
         txNew.vout.push_back(CTxOut(0, vmstate));
-        txNew.vout.push_back(CTxOut(0, coinprice));
     }
 
     // Choose coins to use
@@ -2733,7 +2734,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, CBlock* pblock, int64_t
     nCredit += nReward;
 
     CAmount nMinFee = 0;
-    size_t statesize = (pblock->nVersion < SMART_CONTRACT_VERSION) ? 0 : 2;
+    size_t statesize = (pblock->nVersion < SMART_CONTRACT_VERSION) ? 0 : 1;
     // Set output amount
     if (txNew.vout.size() == (3 + statesize)) {
         txNew.vout[1 + statesize].nValue = (nCredit / 2 / CENT) * CENT;

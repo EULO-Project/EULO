@@ -210,7 +210,7 @@ void EuloState::transferBalance(dev::Address const &_from, dev::Address const &_
     }
 }
 
-bool findExtendedKeyData(CScript script, const std::string strKey, std::vector<uint8_t>& value)
+bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std::string strKey, std::vector<uint8_t>& value)
 {
     uint32_t        u32Offset;
     uint32_t        u32SecLens;
@@ -218,11 +218,11 @@ bool findExtendedKeyData(CScript script, const std::string strKey, std::vector<u
     uint32_t        u32TotalLens;
     uint32_t        u32TotalCounts;
 
-    if (script.empty())
+    if (vExtendData.empty())
     {
         return false;
     }
-    uint8_t *pu8Params = script.data();
+    uint8_t *pu8Params = (uint8_t *)vExtendData.data();
 
     //  check script.
     u32TotalLens = (pu8Params[0] << 8) | (pu8Params[1]);
@@ -230,7 +230,7 @@ bool findExtendedKeyData(CScript script, const std::string strKey, std::vector<u
     u32Offset = 3;
 
     //  lens not the same.
-    if (u32TotalLens >= script.size())
+    if (u32TotalLens > vExtendData.size())
     {
         return false;
     }
@@ -293,9 +293,6 @@ uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const s
     if (!ReadBlockFromDisk(block, pindex))
         return 0;
 
-    CCoinsView      coinView;
-    CCoinsViewCache viewCache(&coinView);
-
     find = false;
 
     //  Search tx and vout script.
@@ -306,11 +303,14 @@ uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const s
             CScript     sender;
             CScript     receiver;
 
-            const CCoins* pcoins = viewCache.AccessCoins(tx.vin[0].prevout.hash);
-            if (NULL == pcoins)
+            uint256     prevhash;
+
+            CTransaction prevtx;
+
+            if (!GetTransaction(tx.vin[0].prevout.hash, prevtx, prevhash, true))  {
                 continue;
-            
-            sender = pcoins->vout[tx.vin[0].prevout.n].scriptPubKey;
+            }
+            sender = prevtx.vout[tx.vin[0].prevout.n].scriptPubKey;
 
             CTxDestination txSender;
             txnouttype txType = TX_NONSTANDARD;
@@ -324,13 +324,18 @@ uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const s
                     {
                         for (auto txOut : tx.vout)
                         {
-                            if (txOut.scriptPubKey.Find(OP_EXT_DATA))
+                            if (txOut.scriptPubKey.HasOpExtData())
                             {
-                                receiver = txOut.scriptPubKey;
+                                txnouttype whichType = TX_NONSTANDARD;
+                                std::vector<std::vector<unsigned char>> vSolutions;
 
-                                find = findExtendedKeyData(receiver, strKey, value);
-                                if (find)
-                                    break;
+                                receiver = txOut.scriptPubKey;
+                                if (Solver(receiver, whichType, vSolutions, true) && (TX_EXT_DATA == whichType) && (vSolutions.size() > 0))
+                                {
+                                    find = findExtendedKeyData(vSolutions[0], strKey, value);
+                                    if (find)
+                                        break;
+                                }
                             }
                         }
                     }

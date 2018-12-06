@@ -159,6 +159,7 @@ const char* GetOpName(opcodetype opcode)
     case OP_CALL                   : return "OP_CALL";
     case OP_SPEND                  : return "OP_SPEND";
     case OP_VM_STATE               : return "OP_VM_STATE";
+    case OP_EXT_DATA               : return "OP_EXT_DATA";
 
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
