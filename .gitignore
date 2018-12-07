@@ -156,3 +156,7 @@ src/univalue/univalue-config\.h
 src/univalue/univalue-config\.h\.in
 
 lz4/lib/
+
+installDir/
+
+depends/packages/packages\.mk

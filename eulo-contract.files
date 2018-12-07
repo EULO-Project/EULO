@@ -14840,6 +14840,7 @@ src/protocol.cpp
 src/protocol.h
 src/pubkey.cpp
 src/pubkey.h
+src/qt/abifunctionfield.cpp
 src/qt/addressbookpage.cpp
 src/qt/addressbookpage.h
 src/qt/addresstablemodel.cpp
