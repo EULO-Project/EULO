@@ -498,3 +498,11 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
     script << CScript::EncodeOP_N(keys.size()) << OP_CHECKMULTISIG;
     return script;
 }
+
+
+bool IsValidContractSenderAddress(const CTxDestination &dest)
+{
+    const CKeyID *keyID = boost::get<CKeyID>(&dest);
+    return keyID != 0;
+}
+
