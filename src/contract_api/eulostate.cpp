@@ -277,7 +277,7 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
 }
 
 //uint32_t EuloState::getData(uint32_t height, dev::u256 key, std::vector<uint8_t>& value)
-uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const std::string strKey, std::vector<uint8_t>& value)
+bool getData(uint32_t height, const std::string strKey, std::vector<uint8_t>& value, dev::Address const& _owner)
 {
     if (height > chainActive.Tip()->nHeight || NULL == chainActive[height])
     {
@@ -287,7 +287,9 @@ uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const s
     bool            find;
 
     CBlock          block;
-
+    
+    dev::Address    invalid;
+    
     CBlockIndex *pindex = chainActive[height];
 
     if (!ReadBlockFromDisk(block, pindex))
@@ -320,7 +322,8 @@ uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const s
                 {
                     CKeyID senderAddress(boost::get<CKeyID>(txSender));
 
-                    if (senderAddress.size() == dev::Address::size && 0 == memcmp(senderAddress.begin(), _owner.data(), dev::Address::size))
+                    if ((0 == memcmp(invalid.data(), _owner.data(), dev::Address::size)) ||
+                        (0 == memcmp(senderAddress.begin(), _owner.data(), dev::Address::size)))
                     {
                         for (auto txOut : tx.vout)
                         {
@@ -347,11 +350,14 @@ uint32_t EuloState::getData(uint32_t height, dev::Address const& _owner, const s
             break;
     }
 
-    if (find)
-        return 1;
-    else
-        return 0;
+    return find;
 }
+
+bool EuloState::getData(uint32_t height, const std::string strKey, std::vector<uint8_t>& value, dev::Address const& owner)
+{
+    return getData(height, strKey, value, owner);
+}
+
 
 Vin const *EuloState::vin(dev::Address const &_a) const
 {

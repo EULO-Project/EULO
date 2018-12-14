@@ -72,6 +72,8 @@ namespace eulo
 
 class CondensingTX;
 
+bool getData(uint32_t _height, const std::string _key, std::vector<uint8_t>& _value, dev::Address const& _owner = dev::Address());
+
 class EuloState : public dev::eth::State
 {
 
@@ -124,7 +126,7 @@ private:
 
     void transferBalance(dev::Address const &_from, dev::Address const &_to, dev::u256 const &_value);
 
-    uint32_t getData(uint32_t _height, dev::Address const& _owner, const std::string _key, std::vector<uint8_t>& _value);
+    bool getData(uint32_t _height, const std::string _key, std::vector<uint8_t>& _value, dev::Address const& _owner = dev::Address());
 
     Vin const *vin(dev::Address const &_a) const;
 
