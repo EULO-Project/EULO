@@ -258,8 +258,6 @@ public:
 	/// Delete an account (used for processing suicides).
 	virtual void kill(Address _a);
 
-    virtual bool getData(uint32_t _height, const std::string _key, std::vector<uint8_t>& _value, Address const& _owner = Address()) { return 0; };
-
 	/// Get the storage of an account.
 	/// @note This is expensive. Don't use it unless you need to.
 	/// @returns map of hashed keys to key-value pairs or empty map if no account exists at that address.

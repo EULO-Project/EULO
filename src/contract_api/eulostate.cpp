@@ -210,15 +210,16 @@ void EuloState::transferBalance(dev::Address const &_from, dev::Address const &_
     }
 }
 
-bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std::string strKey, std::vector<uint8_t>& value)
+bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std::string strKey, uint8_t & type, std::vector<uint8_t>& value)
 {
+    uint8_t         u8Type;
+    
     uint32_t        u32Offset;
     uint32_t        u32SecLens;
-    uint32_t        u32SecType;
     uint32_t        u32TotalLens;
     uint32_t        u32TotalCounts;
 
-    if (vExtendData.empty())
+    if (vExtendData.empty() || 0 == strKey.size())
     {
         return false;
     }
@@ -256,7 +257,7 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
         uint32_t    u32SecKeyLens = 32;
 
         u32SecLens = (pu8Params[u32Offset] << 8) | (pu8Params[u32Offset + 1]);
-        u32SecType = pu8Params[u32Offset + 2];
+        u8Type = pu8Params[u32Offset + 2];
 
         if (strlen((char *)(pu8Params + u32Offset + 3)) <= u32SecKeyLens)
             u32SecKeyLens = strlen((char *)(pu8Params + u32Offset + 3));
@@ -265,6 +266,7 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
 
         if (0 == strKey.compare(strSecKey) && u32SecLens > 35)
         {
+            type = u8Type;
             value.resize(u32SecLens - 35);
             memcpy(value.data(), pu8Params + u32Offset + 35, value.size());
             
@@ -277,7 +279,7 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
 }
 
 //uint32_t EuloState::getData(uint32_t height, dev::u256 key, std::vector<uint8_t>& value)
-bool getData(uint32_t height, const std::string strKey, std::vector<uint8_t>& value, dev::Address const& _owner)
+bool getData(uint32_t height, const std::string & strKey, uint8_t & type, std::vector<uint8_t>& value, dev::Address const& _owner)
 {
     if (height > chainActive.Tip()->nHeight || NULL == chainActive[height])
     {
@@ -335,7 +337,7 @@ bool getData(uint32_t height, const std::string strKey, std::vector<uint8_t>& va
                                 receiver = txOut.scriptPubKey;
                                 if (Solver(receiver, whichType, vSolutions, true) && (TX_EXT_DATA == whichType) && (vSolutions.size() > 0))
                                 {
-                                    find = findExtendedKeyData(vSolutions[0], strKey, value);
+                                    find = findExtendedKeyData(vSolutions[0], strKey, type, value);
                                     if (find)
                                         break;
                                 }
@@ -352,12 +354,6 @@ bool getData(uint32_t height, const std::string strKey, std::vector<uint8_t>& va
 
     return find;
 }
-
-bool EuloState::getData(uint32_t height, const std::string strKey, std::vector<uint8_t>& value, dev::Address const& owner)
-{
-    return getData(height, strKey, value, owner);
-}
-
 
 Vin const *EuloState::vin(dev::Address const &_a) const
 {

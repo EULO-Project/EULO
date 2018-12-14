@@ -2704,7 +2704,7 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
             "\"hex\"             (string) The transaction hash in hex\n"
             "\nExamples:\n"
             "\nCreate and send a transaction with extend data\n" +
-            HelpExampleCli("sendextenddata", "\"[{\\\"key\\\" : \\\"name1\\\",\\\"value\\\":\"data1\"}]\" \"senderaddress\"\n"));
+            HelpExampleCli("sendextenddata", "\"[{\\\"key\\\" : \\\"name1\\\",\\\"type\\\":type1,\\\"value\\\":\"data1\"}]\" \"senderaddress\"\n"));
 
     if (!params[0].isArray())
         throw runtime_error("extend data is not array\n");
@@ -2738,19 +2738,34 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
         const UniValue& keyvalue = jsonData[index];
 
         const UniValue& key = find_value(keyvalue, "key");
+        const UniValue& type = find_value(keyvalue, "type");
         const UniValue& value = find_value(keyvalue, "value");
 
-        if (!key.isNull() && (key.isStr() || key.isNum()) && !value.isNull() && (value.isStr() || value.isNum()))
+        if ((key.isStr() || key.isNum()) && 
+            (type.isNum() && (0 <= type.get_int()) && (type.get_int() <= UCHAR_MAX)) &&
+            (value.isStr() || value.isNum()))
         {
             if (key.isStr())
                 strName = key.get_str();
             else
                 strName = key.write(2);
 
+            if (0 == strName.size())
+                throw runtime_error("key is null\n");
+            else if (strName.size() > 32)
+                throw runtime_error("key is too long(Max 32 bytes)\n");
+
+            u8Type = type.get_int();
+            if (u8Type >= EXT_DATA_RESERVED)
+               throw runtime_error("invalid value type\n");
+
             if (value.isStr())
                 strData = value.get_str();
             else
                 strData = value.write(2);
+
+            if (0 == strData.size())
+                throw runtime_error("value is null\n");
         }
         else
         {
@@ -2758,6 +2773,10 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
                 throw runtime_error("key is null\n");
             else if (!(key.isStr() || key.isNum()))
                 throw runtime_error("key is not string or number\n");
+            else if (!type.isNum())
+                throw runtime_error("value type is not number\n");
+            else if (type.get_int() < 0 || type.get_int() > UCHAR_MAX)
+                throw runtime_error("invalid value type\n");
             else if (value.isNull())
                 throw runtime_error("value is null\n");
             else if (!(value.isStr() || value.isNum()))
@@ -2768,7 +2787,6 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
 
         if (strName.size() && strName.size() <= u256Name.size() && strData.size() && strData.size() <= USHRT_MAX)
         {
-            u8Type = 0;
             u32Size = 3;
             u256Name.SetNull();
             
