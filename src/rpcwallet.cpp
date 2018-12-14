@@ -2963,6 +2963,8 @@ UniValue getextenddata(const UniValue& params, bool fHelp)
             "\nGet extended value of key from a transaction with extend data\n" +
             HelpExampleCli("getextenddata", "1000 \"key\" \"SenderAddress\"\n"));
 
+    uint8_t         type;
+    
     int32_t         height;
 
     std::string     strKey;
@@ -3004,7 +3006,7 @@ UniValue getextenddata(const UniValue& params, bool fHelp)
     strKey = params[1].get_str();
 
     std::vector<uint8_t> value;
-    if (getData(height, strKey, value, Sender)) {
+    if (getData(height, strKey, type, value, Sender)) {
         strValue = std::string((const char *)value.data(), value.size());
     }
 

@@ -84,9 +84,11 @@ enum eExtendDataType {
     EXT_DATA_UINT32     = 0x08,     //  8
     EXT_DATA_INT64      = 0x09,     //  9
     EXT_DATA_UINT64     = 0x0a,     //  10
-    EXT_DATA_INT256     = 0x0b,     //  11
-    EXT_DATA_UINT256    = 0x0c,     //  12
-    EXT_DATA_RESERVED   = 0x0d,     //  13
+    EXT_DATA_INT128     = 0x0b,     //  11
+    EXT_DATA_UINT128    = 0x0c,     //  12
+    EXT_DATA_INT256     = 0x0d,     //  13
+    EXT_DATA_UINT256    = 0x0e,     //  14
+    EXT_DATA_RESERVED   = 0x0f,     //  15
 };
 
 bool getData(uint32_t _height, const std::string & _key, uint8_t & _type, std::vector<uint8_t>& _value, dev::Address const& _owner = dev::Address());
