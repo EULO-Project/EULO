@@ -2420,7 +2420,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
                         "3. \"amount\"      (numeric or string, optional) The amount in EULO to send. eg 0.1, default: 0\n"
                         "4. gasLimit  (numeric or string, optional) gasLimit, default: " +
                 i64tostr(DEFAULT_GAS_LIMIT_OP_SEND) + ", max: " + i64tostr(blockGasLimit) + "\n"
-                        "5. gasPrice  (numeric or string, optional) gasPrice Qtum price per gas unit, default: " +
+                        "5. gasPrice  (numeric or string, optional) gasPrice Ulo price per gas unit, default: " +
                 FormatMoney(nGasPrice) + ", min:" + FormatMoney(minGasPrice) + "\n"
                         "6. \"senderaddress\" (string, optional) The eulo address that will be used as sender.\n"
                         "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
@@ -2517,7 +2517,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     {
         senderAddress.SetString(params[5].get_str());
         if (!senderAddress.IsValid())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address to send from");
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Eulo address to send from");
         else
             fHasSender = true;
     }

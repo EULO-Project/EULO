@@ -229,7 +229,7 @@ bool ContractInit()
 {
     //FixME: Comment this is not right?
 
-    ////////////////////////////////////////////////////////////////////// // qtum
+    ////////////////////////////////////////////////////////////////////// // eulo
         dev::g_logPost = [&](std::string const& s, char const* c){ LogPrintStr(s + '\n', true); };
         dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
         //LogPrintStr("\n\n\n\n\n\n\nnnnnnnnnnnnnnnnnnnnnn",true);
