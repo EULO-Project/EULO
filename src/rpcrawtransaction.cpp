@@ -763,18 +763,13 @@ UniValue gethexaddress(const UniValue& params, bool fHelp) {
 
     CBitcoinAddress dest(params[0].get_str());
     if (!dest.IsValid()) {
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Qtum address");
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Eulo address");
     }
 
-    CKeyID invkeyID;
-    dest.GetKeyID(invkeyID);
+    CKeyID keyID;
+    dest.GetKeyID(keyID);
 
-    std::vector<unsigned char> hexaddr(invkeyID.begin(), invkeyID.end());
-    std::reverse(hexaddr.begin(), hexaddr.end());
-
-    uint160 keyID(hexaddr);
-
-    return keyID.GetHex();
+    return keyID.ToStringReverseEndian();
 }
 
 UniValue fromhexaddress(const UniValue& params, bool fHelp) {

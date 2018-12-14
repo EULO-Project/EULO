@@ -2933,6 +2933,67 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
     return wtx.GetHash().GetHex();
 }
 
+UniValue getextenddata(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 2 || params.size() > 3)
+        throw runtime_error(
+            "getextenddata height key\n"
+            "\nReturns value of key in best-block-chain at height provided.\n"
+            "\nResult:\n"
+            "\"value\"          (string) The value of key in string\n"
+            "\nExamples:\n"
+            "\nGet extended value of key from a transaction with extend data\n" +
+            HelpExampleCli("getextenddata", "1000 \"key\" \"SenderAddress\"\n"));
+
+    int32_t         height;
+
+    std::string     strKey;
+    std::string     strValue;
+
+    bool            hasSender;
+
+    dev::Address    Sender;
+
+    if (!params[0].isNum())
+        throw runtime_error("height is not number\n");
+
+    if (!params[1].isStr())
+        throw runtime_error("key is not string\n");
+
+    hasSender = false;
+    if (params.size() > 2) {
+        hasSender = true;
+        if (!params[2].isStr())
+            throw runtime_error("address is not string\n");
+
+        CKeyID keyID;
+        CBitcoinAddress txSender;
+
+        txSender.SetString(params[2].get_str());
+        
+        if (!txSender.IsValid()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Eulo address");
+        }
+        txSender.GetKeyID(keyID);
+        memcpy(Sender.data(), keyID.begin(), dev::Address::size);
+        std::cout << "keyid " << keyID.ToString() << std::endl;
+    }
+
+    height = params[0].get_int();
+    if (height < 0 || height > chainActive.Height())
+        return strValue;
+
+    strKey = params[1].get_str();
+
+    std::vector<uint8_t> value;
+    if (getData(height, strKey, value, Sender)) {
+        strValue = std::string((const char *)value.data(), value.size());
+    }
+
+    return strValue;
+}
+
+
 UniValue printMultiSend()
 {
     UniValue ret(UniValue::VARR);
