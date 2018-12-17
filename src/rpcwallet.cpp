@@ -2728,7 +2728,7 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
     u8Count = 0;
     for (unsigned int index = 0; index < jsonData.size(); index++)
     {
-        uint8_t  u8Type;
+        int32_t  s32Type;
 
         uint256  u256Name;
 
@@ -2755,8 +2755,8 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
             else if (strName.size() > 32)
                 throw runtime_error("key is too long(Max 32 bytes)\n");
 
-            u8Type = type.get_int();
-            if (u8Type >= EXT_DATA_RESERVED)
+            s32Type = type.get_int();
+            if (s32Type < 0 || s32Type >= EXT_DATA_RESERVED)
                throw runtime_error("invalid value type\n");
 
             if (value.isStr())
@@ -2799,7 +2799,7 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
             u8Temp = (u32Size & 0xFF);
             bindata.push_back(u8Temp);
 
-            u8Temp = u8Type;
+            u8Temp = (s32Type & 0xFF);
             bindata.push_back(u8Temp);
 
             bindata.insert(bindata.end(), u256Name.begin(), u256Name.end());
