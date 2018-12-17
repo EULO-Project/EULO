@@ -1938,13 +1938,31 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
                 int rounds = GetInputObfuscationRounds(vin);
                 // make sure it's actually anonymized
                 if (rounds < nZeromintPercentage) continue;
+            } else if (coinControl->IsSelected(out.tx->GetHash(), out.i)) {
+                nValueRet += out.tx->vout[out.i].nValue;
+                setCoinsRet.insert(make_pair(out.tx, out.i));
+
+                if (nValueRet >= nTargetValue)
+                    return true;
             }
+        }
+        
+        BOOST_FOREACH (const COutput& out, vCoins) {
+            if (!out.fSpendable)
+                continue;
 
-            nValueRet += out.tx->vout[out.i].nValue;
-            setCoinsRet.insert(make_pair(out.tx, out.i));
+            if (coin_type == ONLY_DENOMINATED) {
+                CTxIn vin = CTxIn(out.tx->GetHash(), out.i);
+                int rounds = GetInputObfuscationRounds(vin);
+                // make sure it's actually anonymized
+                if (rounds < nZeromintPercentage) continue;
+            } else if (!coinControl->IsSelected(out.tx->GetHash(), out.i)) {
+                nValueRet += out.tx->vout[out.i].nValue;
+                setCoinsRet.insert(make_pair(out.tx, out.i));
 
-            if (nValueRet >= nTargetValue)
-                return true;
+                if (nValueRet >= nTargetValue)
+                    return true;
+            }
         }
         return (nValueRet >= nTargetValue);
     }
