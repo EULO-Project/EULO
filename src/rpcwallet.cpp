@@ -2908,7 +2908,7 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
 
     vecSend.push_back(std::make_pair(script, 0));
 
-    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, 1, true))
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, 0, true))
     {
         if (nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf(
