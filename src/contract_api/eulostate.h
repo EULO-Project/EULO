@@ -91,7 +91,7 @@ enum eExtendDataType {
     EXT_DATA_RESERVED   = 0x0f,     //  15
 };
 
-bool getData(uint32_t _height, const std::string & _key, uint8_t & _type, std::vector<uint8_t>& _value, dev::Address const& _owner = dev::Address());
+bool getData(uint32_t _height, const std::string & _key, eExtendDataType & _type, std::vector<uint8_t>& _value, dev::Address const& _owner = dev::Address());
 
 class EuloState : public dev::eth::State
 {

@@ -11,6 +11,10 @@ using namespace std;
 using namespace dev;
 using namespace dev::eth;
 
+#define HDR_LEN_SIZE    (2)
+#define HDR_TYPE_SIZE   (1)
+#define HDR_KEY_SIZE    (32)
+
 static const size_t MAX_CONTRACT_VOUTS = 1000;
 
 EuloState::EuloState(u256 const &_accountStartNonce, OverlayDB const &_db, const string &_path, BaseState _bs) :
@@ -210,10 +214,8 @@ void EuloState::transferBalance(dev::Address const &_from, dev::Address const &_
     }
 }
 
-bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std::string strKey, uint8_t & type, std::vector<uint8_t>& value)
+static bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std::string strKey, eExtendDataType & type, std::vector<uint8_t>& value)
 {
-    uint8_t         u8Type;
-    
     uint32_t        u32Offset;
     uint32_t        u32SecLens;
     uint32_t        u32TotalLens;
@@ -241,6 +243,52 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
         u32SecLens = (pu8Params[u32Offset] << 8) | (pu8Params[u32Offset + 1]);
         u32TotalCounts--;
 
+        //  check type.
+        switch (eExtendDataType(pu8Params[u32Offset + 2]))
+        {
+            case EXT_DATA_STRING:
+            case EXT_DATA_DOUBLE:
+                break;
+
+            case EXT_DATA_BOOL:
+                if ((HDR_LEN_SIZE + HDR_TYPE_SIZE + HDR_KEY_SIZE + sizeof(int8_t)) != u32SecLens) return false;
+                break;
+
+            case EXT_DATA_INT8:
+            case EXT_DATA_UINT8:
+                if ((HDR_LEN_SIZE + HDR_TYPE_SIZE + HDR_KEY_SIZE + sizeof(int8_t)) != u32SecLens) return false;
+                break;
+
+            case EXT_DATA_INT16:
+            case EXT_DATA_UINT16:
+                if ((HDR_LEN_SIZE + HDR_TYPE_SIZE + HDR_KEY_SIZE + sizeof(int16_t)) != u32SecLens) return false;
+                break;
+
+            case EXT_DATA_INT32:
+            case EXT_DATA_UINT32:
+                if ((HDR_LEN_SIZE + HDR_TYPE_SIZE + HDR_KEY_SIZE + sizeof(int32_t)) != u32SecLens) return false;
+                break;
+
+            case EXT_DATA_INT64:
+            case EXT_DATA_UINT64:
+                if ((HDR_LEN_SIZE + HDR_TYPE_SIZE + HDR_KEY_SIZE + sizeof(int64_t)) != u32SecLens) return false;
+                break;
+
+            case EXT_DATA_INT128:
+            case EXT_DATA_UINT128:
+                if ((HDR_LEN_SIZE + HDR_TYPE_SIZE + HDR_KEY_SIZE + 16 * sizeof(int8_t)) != u32SecLens) return false;
+                break;
+
+            case EXT_DATA_INT256:
+            case EXT_DATA_UINT256:
+                if ((HDR_LEN_SIZE + HDR_TYPE_SIZE + HDR_KEY_SIZE + 32 * sizeof(int8_t)) != u32SecLens) return false;
+                break;
+
+            default:
+                return false;
+                break;
+        }
+
         u32Offset += u32SecLens;
     }
 
@@ -252,12 +300,14 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
     u32Offset = 3;
     while (u32Offset < u32TotalLens)
     {
-        std::string strSecKey;
+        std::string         strSecKey;
 
-        uint32_t    u32SecKeyLens = 32;
+        uint32_t            u32SecKeyLens = 32;
+
+        eExtendDataType     eType;
 
         u32SecLens = (pu8Params[u32Offset] << 8) | (pu8Params[u32Offset + 1]);
-        u8Type = pu8Params[u32Offset + 2];
+        eType = eExtendDataType(pu8Params[u32Offset + 2]);
 
         if (strlen((char *)(pu8Params + u32Offset + 3)) <= u32SecKeyLens)
             u32SecKeyLens = strlen((char *)(pu8Params + u32Offset + 3));
@@ -266,7 +316,7 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
 
         if (0 == strKey.compare(strSecKey) && u32SecLens > 35)
         {
-            type = u8Type;
+            type = eType;
             value.resize(u32SecLens - 35);
             memcpy(value.data(), pu8Params + u32Offset + 35, value.size());
             
@@ -278,8 +328,7 @@ bool findExtendedKeyData(const std::vector<unsigned char> vExtendData, const std
     return false;
 }
 
-//uint32_t EuloState::getData(uint32_t height, dev::u256 key, std::vector<uint8_t>& value)
-bool getData(uint32_t height, const std::string & strKey, uint8_t & type, std::vector<uint8_t>& value, dev::Address const& _owner)
+bool getData(uint32_t height, const std::string & strKey, eExtendDataType & type, std::vector<uint8_t>& value, dev::Address const& _owner)
 {
     if (height > chainActive.Tip()->nHeight || NULL == chainActive[height])
     {

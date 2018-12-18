@@ -2694,6 +2694,27 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     return result;
 }
 
+static bool parsehexdata(std::string strData, std::vector<uint8_t>& vecData, size_t Bytes)
+{
+    bool    bSuccess    = false;
+
+    std::vector<unsigned char>  vData;
+
+    if (strData.size() == 2 * Bytes && IsHex(strData)) {
+        bSuccess = true;
+        vData = ParseHex(strData);
+        vecData.insert(vecData.end(), vData.begin(), vData.end());
+    } else if (strData.size() == (2 + 2 * Bytes) && (0 == strData.find("0x") || 0 == strData.find("0X")) && 
+               IsHex(strData.substr(2)))
+    {
+        bSuccess = true;
+        vData = ParseHex(strData.substr(2));
+        vecData.insert(vecData.end(), vData.begin(), vData.end());
+    }
+
+    return bSuccess;
+}
+
 UniValue sendextenddata(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 2)
@@ -2728,12 +2749,15 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
     u8Count = 0;
     for (unsigned int index = 0; index < jsonData.size(); index++)
     {
-        int32_t  s32Type;
-
         uint256  u256Name;
 
         std::string strName;
         std::string strData;
+        std::string strType;
+
+        std::vector<uint8_t> vecData;
+
+        eExtendDataType eType;
 
         const UniValue& keyvalue = jsonData[index];
 
@@ -2748,23 +2772,181 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
             if (key.isStr())
                 strName = key.get_str();
             else
-                strName = key.write(2);
+                strName = key.write();
 
             if (0 == strName.size())
                 throw runtime_error("key is null\n");
             else if (strName.size() > 32)
                 throw runtime_error("key is too long(Max 32 bytes)\n");
 
-            s32Type = type.get_int();
-            if (s32Type < 0 || s32Type >= EXT_DATA_RESERVED)
+            eType = eExtendDataType(type.get_int());
+            if (eType < EXT_DATA_STRING || eType >= EXT_DATA_RESERVED)
                throw runtime_error("invalid value type\n");
 
-            if (value.isStr())
-                strData = value.get_str();
-            else
-                strData = value.write(2);
+            switch (eType) {
+                case EXT_DATA_STRING:
+                    if (value.isStr()) {
+                        strData = value.get_str();
+                        vecData.insert(vecData.end(), strData.begin(), strData.end());
+                    } else {
+                        throw runtime_error("invalid value of string\n");
+                    }
+                    break;
+                
+                case EXT_DATA_DOUBLE:
+                    if (value.isNum()) {
+                        strData = value.write();
+                        vecData.insert(vecData.end(), strData.begin(), strData.end());
+                    } else {
+                        throw runtime_error("invalid value of double\n");
+                    }
+                    break;
 
-            if (0 == strData.size())
+                //  BOOL: 为bool或者整形
+                case EXT_DATA_BOOL:
+                    if (value.isBool()) {
+                        if (value.get_bool())
+                            vecData.push_back(1);
+                        else
+                            vecData.push_back(0);
+                    } else if (value.isNum()) {
+                        if (value.get_int())
+                            vecData.push_back(1);
+                        else
+                            vecData.push_back(0);
+                    }else {
+                        throw runtime_error("invalid value of bool\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT8:
+                case EXT_DATA_UINT8:
+                    strType = (EXT_DATA_INT8 == eType) ? "INT8" : "UINT8";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT8 == eType && SCHAR_MIN <= value.get_int() && value.get_int() <= CHAR_MAX) ||
+                            (EXT_DATA_UINT8 == eType && 0 <= value.get_int() && value.get_int() <= UCHAR_MAX)) {
+                            vecData.push_back(value.get_int());
+                        } else {
+                            throw runtime_error("Exceeding the range of " + strType + "\n");
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int8_t)))
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT16:
+                case EXT_DATA_UINT16:
+                    strType = (EXT_DATA_INT16 == eType) ? "INT16" : "UINT16";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT16 == eType && SHRT_MIN <= value.get_int() && value.get_int() <= SHRT_MAX) ||
+                            (EXT_DATA_UINT16 == eType && 0 <= value.get_int() && value.get_int() <= USHRT_MAX)) {
+                            uint16_t u16Value = value.get_int();
+                            
+                            vecData.push_back(u16Value >> 8);
+                            vecData.push_back(u16Value % 256);
+                        } else {
+                            throw runtime_error("Exceeding the range of "+ strType + "\n");
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int16_t))) {
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+                
+                case EXT_DATA_INT32:
+                case EXT_DATA_UINT32:
+                    strType = (EXT_DATA_INT32 == eType) ? "INT32" : "UINT32";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT32 == eType && INT_MIN <= value.get_int() && value.get_int() <= INT_MAX) ||
+                            (EXT_DATA_UINT32 == eType && 0 <= value.get_int64() && value.get_int64() <= UINT_MAX)) {
+                            uint64_t u64Value = value.get_int64();
+                            
+                            vecData.push_back((u64Value >> 24) & 0xFF);
+                            vecData.push_back((u64Value >> 16) & 0xFF);
+                            vecData.push_back((u64Value >>  8) & 0xFF);
+                            vecData.push_back((u64Value >>  0) & 0xFF);
+                        } else {
+                            throw runtime_error("Exceeding the range of "+ strType + "\n");
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int32_t))) {
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT64:
+                case EXT_DATA_UINT64:
+                    strType = (EXT_DATA_INT64 == eType) ? "INT64" : "UINT64";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT64 == eType && LONG_MIN <= value.get_int64() && value.get_int64() <= LONG_MAX) || 
+                            (EXT_DATA_UINT64 == eType && 0 <= value.get_int64() && value.get_int64() <= ULONG_MAX)) {
+                            uint64_t u64Value = value.get_int64();
+                            
+                            vecData.push_back((u64Value >> 56) & 0xFF);
+                            vecData.push_back((u64Value >> 48) & 0xFF);
+                            vecData.push_back((u64Value >> 40) & 0xFF);
+                            vecData.push_back((u64Value >> 32) & 0xFF);
+                            vecData.push_back((u64Value >> 24) & 0xFF);
+                            vecData.push_back((u64Value >> 16) & 0xFF);
+                            vecData.push_back((u64Value >>  8) & 0xFF);
+                            vecData.push_back((u64Value >>  0) & 0xFF);
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int64_t))) {
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT128:
+                case EXT_DATA_UINT128:
+                    strType = (EXT_DATA_INT128 == eType) ? "INT128" : "UINT128";
+
+                    if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int64_t))) {
+                            throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT256:
+                case EXT_DATA_UINT256:
+                    strType = (EXT_DATA_INT64 == eType) ? "INT256" : "UINT256";
+
+                    if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int64_t))) {
+                            throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                    }
+                    break;
+            }
+            
+            if (0 == vecData.size())
                 throw runtime_error("value is null\n");
         }
         else
@@ -2785,25 +2967,24 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
                 throw runtime_error("unknown key/value error\n");
         }
 
-        if (strName.size() && strName.size() <= u256Name.size() && strData.size() && strData.size() <= USHRT_MAX)
+        if (strName.size() && strName.size() <= u256Name.size() && vecData.size() && vecData.size() <= USHRT_MAX)
         {
             u32Size = 3;
             u256Name.SetNull();
             
             memcpy(u256Name.begin(), strName.data(), strName.size());
             u32Size += u256Name.size();
-            u32Size += strData.size();
+            u32Size += vecData.size();
             
             u8Temp = (u32Size >> 8) & 0xFF;
             bindata.push_back(u8Temp);
             u8Temp = (u32Size & 0xFF);
             bindata.push_back(u8Temp);
 
-            u8Temp = (s32Type & 0xFF);
-            bindata.push_back(u8Temp);
+            bindata.push_back(eType);
 
             bindata.insert(bindata.end(), u256Name.begin(), u256Name.end());
-            bindata.insert(bindata.end(), strData.begin(), strData.end());
+            bindata.insert(bindata.end(), vecData.begin(), vecData.end());
             u8Count++;
         }
         else
@@ -2812,8 +2993,8 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
                 throw runtime_error("min key size is 1\n");
             else if (strName.size() > u256Name.size())
                 throw runtime_error("max key size is " + std::to_string(u256Name.size()) + "\n");
-            else if (!strData.size() || strData.size() > USHRT_MAX)
-                throw runtime_error("key " + strName + " data size is " + std::to_string(strData.size()) + "\n");
+            else if (!vecData.size() || vecData.size() > USHRT_MAX)
+                throw runtime_error("key " + strName + " data size is " + std::to_string(vecData.size()) + "\n");
             else
                 throw runtime_error("unknown name/data error\n");
         }
@@ -2963,16 +3144,16 @@ UniValue getextenddata(const UniValue& params, bool fHelp)
             "\nGet extended value of key from a transaction with extend data\n" +
             HelpExampleCli("getextenddata", "1000 \"key\" \"SenderAddress\"\n"));
 
-    uint8_t         type;
+    bool                hasSender;
+
+    int32_t             height;
+
+    std::string         strKey;
+    std::string         strValue;
+
+    dev::Address        Sender;
     
-    int32_t         height;
-
-    std::string     strKey;
-    std::string     strValue;
-
-    bool            hasSender;
-
-    dev::Address    Sender;
+    eExtendDataType     Type;
 
     if (!params[0].isNum())
         throw runtime_error("height is not number\n");
@@ -3006,7 +3187,7 @@ UniValue getextenddata(const UniValue& params, bool fHelp)
     strKey = params[1].get_str();
 
     std::vector<uint8_t> value;
-    if (getData(height, strKey, type, value, Sender)) {
+    if (getData(height, strKey, Type, value, Sender)) {
         strValue = std::string((const char *)value.data(), value.size());
     }
 
