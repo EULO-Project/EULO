@@ -558,7 +558,8 @@ void EuloState::printfErrorLog(const dev::eth::TransactionException er)
 {
     std::stringstream ss;
     ss << er;
-    LogPrint("EuloState::printfErrorLog ", "VM exception: %s\n", ss.str().c_str());
+    LogPrintf("EuloState::printfErrorLog  VM exception: %s\n", ss.str().c_str());
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

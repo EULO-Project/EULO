@@ -1677,6 +1677,209 @@ void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValu
     entry.push_back(Pair("log", logEntries));
 }
 
+
+//////-------eulo
+
+
+
+
+size_t parseUInt(const UniValue &val, size_t defaultVal)
+{
+    if (val.isNull())
+    {
+        return defaultVal;
+    } else
+    {
+        int n = val.get_int();
+        if (n < 0)
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer");
+        }
+
+        return n;
+    }
+}
+
+int parseBlockHeight(const UniValue &val)
+{
+    if (val.isStr())
+    {
+        auto blockKey = val.get_str();
+
+        if (blockKey == "latest")
+        {
+            return chainActive.Height();;
+        } else
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
+        }
+    }
+
+    if (val.isNum())
+    {
+        int blockHeight = val.get_int();
+
+        if (blockHeight < 0)
+        {
+            return chainActive.Height();;
+        }
+
+        return blockHeight;
+    }
+
+    throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
+}
+
+
+int parseBlockHeight(const UniValue &val, int defaultVal)
+{
+    if (val.isNull())
+    {
+        return defaultVal;
+    } else
+    {
+        return parseBlockHeight(val);
+    }
+}
+dev::h160 parseParamH160(const UniValue &val)
+{
+    if (!val.isStr())
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160");
+    }
+
+    auto addrStr = val.get_str();
+
+    if (addrStr.length() != 40 || !IsHex(addrStr))
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string");
+    }
+    return dev::h160(addrStr);
+}
+
+void parseParam(const UniValue &val, std::vector<dev::h160> &h160s)
+{
+    if (val.isNull())
+    {
+        return;
+    }
+
+    // Treat a string as an array of length 1
+    if (val.isStr())
+    {
+        h160s.push_back(parseParamH160(val.get_str()));
+        return;
+    }
+
+    if (!val.isArray())
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 160 strings");
+    }
+
+    auto vals = val.getValues();
+    h160s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h160s.begin(), [](UniValue val) -> dev::h160
+    {
+        return parseParamH160(val);
+    });
+}
+
+void parseParam(const UniValue &val, std::set<dev::h160> &h160s)
+{
+    std::vector<dev::h160> v;
+    parseParam(val, v);
+    h160s.insert(v.begin(), v.end());
+}
+
+void parseParam(const UniValue &val, std::vector<boost::optional<dev::h256>> &h256s)
+{
+    if (val.isNull())
+    {
+        return;
+    }
+
+    if (!val.isArray())
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 256 strings");
+    }
+
+    auto vals = val.getValues();
+    h256s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h256s.begin(), [](UniValue val) -> boost::optional<dev::h256>
+    {
+        if (val.isNull())
+        {
+            return boost::optional<dev::h256>();
+        }
+
+        if (!val.isStr())
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        auto addrStr = val.get_str();
+
+        if (addrStr.length() != 64 || !IsHex(addrStr))
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        return boost::optional<dev::h256>(dev::h256(addrStr));
+    });
+}
+
+class SearchLogsParams
+{
+public:
+    size_t fromBlock;
+    size_t toBlock;
+    size_t minconf;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    SearchLogsParams(const UniValue &params)
+    {
+      //  std::unique_lock<std::mutex> lock(cs_blockchange);
+
+        setFromBlock(params[0]);
+        setToBlock(params[1]);
+
+        parseParam(params[2]["addresses"], addresses);
+        parseParam(params[3]["topics"], topics);
+
+        minconf = parseUInt(params[4], 0);
+    }
+
+private:
+    void setFromBlock(const UniValue &val)
+    {
+        if (!val.isNull())
+        {
+            fromBlock = parseBlockHeight(val);
+        } else
+        {
+            fromBlock = chainActive.Height();;
+        }
+    }
+
+    void setToBlock(const UniValue &val)
+    {
+        if (!val.isNull())
+        {
+            toBlock = parseBlockHeight(val);
+        } else
+        {
+            toBlock = chainActive.Height();;
+        }
+    }
+
+};
+/// ----------eulo
+
+
 UniValue searchlogs(const UniValue& params, bool fHelp)
 {
     bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
@@ -1706,105 +1909,15 @@ UniValue searchlogs(const UniValue& params, bool fHelp)
 
     LOCK(cs_main);
 
-    size_t  fromBlock = 0;
-    size_t  toBlock = 0;
-    size_t  minconf = 0;
+    SearchLogsParams params_(params);
 
-    std::set<dev::h160> addresses;
-    std::vector<boost::optional<dev::h256>> topics;
 
-    if (params[0].isNum() && params[0].get_int() >= 0)
-        fromBlock = params[0].get_int();
-    else if (params[0].isNull() || (params[0].isStr() && !params[0].get_str().compare("latest")))
-        fromBlock = chainActive.Height();
-    else
-        throw JSONRPCError(RPC_INVALID_PARAMS, "invalid from block number");
-
-    if (params[1].isNum() && params[1].get_int() >= 0)
-        toBlock = params[1].get_int();
-    else if (params[1].isNull() || (params[1].isStr() && !params[1].get_str().compare("latest")))
-        toBlock = chainActive.Height();
-    else
-        throw JSONRPCError(RPC_INVALID_PARAMS, "invalid to block number");
-
-    if (params.size() > 2 && !params[2]["addresses"].isNull())
-    {
-        if (params[2]["addresses"].isStr())
-        {
-            std::string address = params[2]["addresses"].get_str();
-
-            if (address.length() != 40 || !IsHex(address))
-                throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string address");
-
-            addresses.insert(dev::h160(address));
-        }
-        else if (params[2]["addresses"].isArray())
-        {
-            auto value = params[2]["addresses"].getValues();
-
-            for (size_t index = 0; index < value.size(); index++)
-            {            
-                std::string address;
-                
-                if (!value[index].isStr())
-                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string in address array");
-                
-                address = value[index].get_str();
-                if (address.length() != 40 || !IsHex(address))
-                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string or size in address array");
-
-                addresses.insert(dev::h160(address));
-            }
-        }
-        else
-            throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an string or array of hex 160 strings address");
-    }
-
-    if(params.size() > 3 && !params[3]["topics"].isNull())
-    {
-        if (params[3]["topics"].isStr())
-        {
-            std::string topic = params[3]["topics"].get_str();
-
-            if (topic.length() != 40 || !IsHex(topic))
-                throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string topics");
-
-            topics.push_back(boost::optional<dev::h256>(dev::h256(topic)));
-        }
-        else if (params[3]["topics"].isArray())
-        {
-            auto value = params[3]["topics"].getValues();
-
-            for (size_t index = 0; index < value.size(); index++)
-            {
-                std::string topic;
-            
-                if (!value[index].isStr())
-                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string in address array");
-            
-                topic = value[index].get_str();
-                if (topic.length() != 40 || !IsHex(topic))
-                    throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string or size in address array");
-            
-                topics.push_back(boost::optional<dev::h256>(dev::h256(topic)));;
-            }
-        }
-        else
-            throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an string or array of hex 160 strings topics");
-    }
-
-    if (params.size() > 4)
-    {
-        if (params[4].isNum() && params[4].get_int() >= 0)
-            minconf = params[4].get_int();
-        else
-            throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer of minconf");
-    }
 
     std::vector<std::vector<uint256>> hashesToBlock;
-    curheight = pblocktree->ReadHeightIndex(fromBlock, toBlock, minconf,
-                                                              hashesToBlock,
-                                                              addresses);
+    curheight = pblocktree->ReadHeightIndex(params_.fromBlock, params_.toBlock, params_.minconf,
+                                            hashesToBlock,
+                                            params_.addresses);
+
 
     if (curheight == -1)
     {
@@ -1812,6 +1925,7 @@ UniValue searchlogs(const UniValue& params, bool fHelp)
     }
 
     UniValue result(UniValue::VARR);
+    auto topics = params_.topics;
 
     for (const auto &hashesTx : hashesToBlock)
     {
