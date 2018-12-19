@@ -1385,15 +1385,16 @@ bool AppInit2(boost::thread_group& threadGroup)
 
 
 
-                if (fLogEvents != GetBoolArg("-logevents", false) && !fLogEvents) {
+                if (fLogEvents != GetBoolArg("-logevents", true) && !fLogEvents) {
                     strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
                     break;
                 }
 
-                if (!GetBoolArg("-logevents", false))
+                if (!GetBoolArg("-logevents", true))
                 {
                     pblocktree->WipeHeightIndex();
                     fLogEvents = false;
+
                     pblocktree->WriteFlag("logevents", fLogEvents);
                 }
 
