@@ -2954,6 +2954,8 @@ UniValue getextenddata(const UniValue& params, bool fHelp)
 
     dev::Address    Sender;
 
+    eExtendDataType eType;
+
     if (!params[0].isNum())
         throw runtime_error("height is not number\n");
 
@@ -2986,7 +2988,7 @@ UniValue getextenddata(const UniValue& params, bool fHelp)
     strKey = params[1].get_str();
 
     std::vector<uint8_t> value;
-    if (getData(height, strKey, value, Sender)) {
+    if (getData(height, strKey, eType, value, Sender)) {
         strValue = std::string((const char *)value.data(), value.size());
     }
 
