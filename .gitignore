@@ -160,3 +160,7 @@ lz4/lib/
 installDir/
 
 depends/packages/packages\.mk
+
+depends/funcs\.mk
+
+eulo_master\.creator\.user

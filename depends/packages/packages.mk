@@ -1,4 +1,4 @@
-packages:=boost openssl libevent zeromq gmp
+packages:=boost openssl libevent zeromq gmp qml
 native_packages := native_ccache
 
 qt_native_packages = native_protobuf
