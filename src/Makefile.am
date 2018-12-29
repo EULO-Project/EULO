@@ -733,6 +733,7 @@ clean-local:
 	-$(MAKE) -C cryptopp clean
 	rm -f leveldb/*/*.gcno leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
+	rm -rf qml/build 
 
 .rc.o:
 	@test -f $(WINDRES)
@@ -754,6 +755,23 @@ if ENABLE_QT
 include Makefile.qt.include
 endif
 
+
 if ENABLE_QT_TESTS
 include Makefile.qttest.include
 endif
+
+if ENABLE_QML
+  $(call qml_make_cmds)
+endif
+
+
+define qml_make_cmds
+  cd qml && \
+  mkdir -p build && \
+  $(srcdir)/../depends/x86_64-pc-linux-gnu/native/bin/lupdate qml.pro && \
+  cd build  && \
+  $(srcdir)/../depends/x86_64-pc-linux-gnu/native/bin/qmake ../qml.pro && \
+  $(MAKE)			
+endef
+
+

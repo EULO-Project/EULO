@@ -1,0 +1,210 @@
+﻿import QtQuick 2.10
+import QtQuick.Window 2.3
+import QtQuick.Controls 2.3
+import QtQuick.Layouts 1.3
+import QtQuick.Controls.Material 2.3
+import QtQuick.Controls.Material.impl 2.3
+import QtQuick.Controls 1.4 as Controls_1_4
+import QtGraphicalEffects 1.0
+import QtQuick.Controls 1.1 as Controls_1_1
+import "../app_items"
+import "../app_dialogs"
+
+Controls_1_4.Tab {
+
+    Rectangle {
+        id:root
+        anchors.fill:parent
+
+        radius: 0
+        color: "#FAFAFA"
+
+        function cleatAll()
+        {
+            while(target_listview.count>1)
+            {
+                target_listview.model.remove(1)
+                target_listview.contentItem.children[1].targetItem.destroy()
+            }
+
+            target_listview.contentItem.children[0].targetItem.clearFirst()
+        }
+
+
+
+
+
+        ListView {
+            id:target_listview
+            clip: true
+            width:parent.width
+            anchors.top:root.top
+            anchors.topMargin: 15
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 28
+            anchors.bottom: transaction_fee.top
+            anchors.bottomMargin: 18
+            property int triggerPickAddressIndex: -1
+
+            boundsBehavior:Flickable.StopAtBounds
+            spacing: 20
+            cacheBuffer: 2000
+
+            currentIndex: -1
+
+            delegate:ItemDelegate {
+                height:140
+                hoverEnabled: false
+                property alias targetItem: targetItem
+                TargetItem {
+                    id:targetItem
+
+                    width: target_listview.width - 20
+
+                    onDeleteTarget:
+                    {
+                        if(target_listview.count > 1)
+                        {
+                            target_listview.model.remove(index)
+                            targetItem.destroy()
+
+                        }
+                        else
+                            clearFirst()
+                    }
+
+                    onPickAddress:
+                    {
+                        target_listview.triggerPickAddressIndex = index
+                        sendAddressDialog.show()
+                    }
+                }
+
+            }
+
+            model: ListModel {
+                ListElement { title: ""; }
+
+
+            }
+            ScrollBar.vertical: MyScrollBar {
+                id: scrollBar
+                width:10
+                height:30
+                anchors.right: target_listview.right
+                policy:ScrollBar.AsNeeded
+                visible: target_listview.count * 140 > target_listview.height
+                handle.implicitHeight: 100
+            }
+        }
+
+        TransactionFeeItem
+        {
+            id:transaction_fee
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: 30
+
+        }
+        CommonButton
+        {
+            id:sending_btn
+            color: "#469AAC"
+            anchors.right: clear_btn.left
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 8
+            width: 83
+            height: 32
+            radius: 3
+            text:"发送"
+            textSize:12
+            letterSpacing:0
+
+            onClicked:
+            {
+                if(!checkTargetItemsAreReady())
+                    return
+
+            }
+
+        }
+
+        function checkTargetItemsAreReady()
+        {
+
+            for(var i = 0;i<target_listview.count;i++)
+            {
+                if(!target_listview.contentItem.children[i].targetItem.infoIsReady())
+                    return false
+            }
+
+            return true
+
+        }
+
+        CommonButton
+        {
+            id:clear_btn
+            color: "#1E5569"
+            anchors.right: add_btn.left
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 8
+            width: 83
+            height: 32
+            radius: 3
+            text:"清除全部"
+            textSize:12
+            letterSpacing:0
+
+            onClicked:
+            {
+                root.cleatAll()
+            }
+        }
+
+        CommonButton
+        {
+            id:add_btn
+            color: "#EE637F"
+            anchors.right: parent.right
+            anchors.rightMargin: 30
+            anchors.bottom: parent.bottom
+            width: 83
+            height: 32
+            radius: 3
+            text:"增加收件人"
+            textSize:12
+            letterSpacing:0
+
+            onClicked:
+            {
+                if(target_listview.count <= 10)
+                    target_listview.model.append({ "title": ""})
+                else{
+                    root_window.warningDialog.content_text = "最多添加10个地址"
+                    root_window.warningDialog.show()
+                }
+            }
+
+        }
+
+        SendAddressDialog
+        {
+            id:sendAddressDialog
+            modality:Qt.ApplicationModal
+            forPicking: true
+            selectionMode:Controls_1_1.SelectionMode.SingleSelection
+
+            onPickAddress:
+            {
+                target_listview.contentItem.children[target_listview.triggerPickAddressIndex].targetItem.setAddress(address)
+            }
+        }
+
+    }
+
+
+
+}
