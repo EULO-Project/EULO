@@ -64,7 +64,6 @@ src/qt/test/moc*.cpp
 *.pyc
 *.o
 *.o-*
-*.patch
 .eulo
 *.a
 *.pb.cc

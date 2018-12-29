@@ -7,6 +7,7 @@ $(qml_package)_file_name=qt-$($(qml_package)_suffix)
 $(qml_package)_sha256_hash=05ffba7b811b854ed558abf2be2ddbd3bb6ddd0b60ea4b5da75d277ac15e740a
 $(package)_dependencies=openssl zlib
 $(package)_linux_dependencies=freetype fontconfig libxcb libX11 xproto libXext
+$(package)_patches=xcb.patch
 
 define $(qml_package)_set_vars
 $(qml_package)_config_opts_release = -release
@@ -116,7 +117,11 @@ define $(qml_package)_fetch_cmds
 
 endef
 
-
+define $(package)_preprocess_cmds
+  cd $($(qml_package)_version) && \
+  patch -p1 < $($(package)_patch_dir)/xcb.patch  && \
+  cd ../
+endef
 
 
 define $(qml_package)_extract_cmds
