@@ -37,7 +37,7 @@ $(qml_package)_config_opts += -qt-zlib
 $(qml_package)_config_opts += -qt-libpng
 $(qml_package)_config_opts += -qt-libjpeg
 $(qml_package)_config_opts += -qt-pcre
-$(qml_package)_config_opts += -openssl-linked -I "../x86_64-pc-linux-gnu/lib"  -L "../x86_64-pc-linux-gnu/include" 
+$(qml_package)_config_opts += -openssl-linked -I "$(host_prefix)/lib"  -L "$(host_prefix)/include" 
 ifeq ($(build_os),mingw32)
 OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
 endif
