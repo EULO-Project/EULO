@@ -33,11 +33,18 @@ $(qml_package)_config_opts += -skip webengine
 $(qml_package)_config_opts += -skip websockets
 $(qml_package)_config_opts += -skip webview
 $(qml_package)_config_opts += -skip remoteobjects
-$(qml_package)_config_opts += -system-zlib
+$(qml_package)_config_opts += -qt-zlib
 $(qml_package)_config_opts += -qt-libpng
 $(qml_package)_config_opts += -qt-libjpeg
 $(qml_package)_config_opts += -qt-pcre
-$(qml_package)_config_opts += -openssl-linked
+$(qml_package)_config_opts += -openssl-linked -I "../x86_64-pc-linux-gnu/lib"  -L "../x86_64-pc-linux-gnu/include" 
+ifeq ($(build_os),mingw32)
+OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
+endif
+ifeq ($(build_os),linux)
+OPENSSL_LIBS="-lssl -lcrypto"
+endif
+
 $(qml_package)_config_opts += -no-icu
 $(qml_package)_config_opts += -no-iconv
 $(qml_package)_config_opts += -no-alsa
@@ -122,7 +129,7 @@ endef
 
 
 define $(qml_package)_config_cmds
-  export PKG_CONFIG_SYSROOT_DIR=/$(host_prefix) && \
+  export PKG_CONFIG_SYSROOT_DIR=/ && \
   export PKG_CONFIG_LIBDIR=$(host_prefix)/lib/pkgconfig && \
   export PKG_CONFIG_PATH=$(host_prefix)/share/pkgconfig  && \
   cd $($(qml_package)_version) && \
