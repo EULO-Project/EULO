@@ -29,6 +29,7 @@ Common `host-platform-triplets` for cross compilation are:
 No other options are needed, the paths are automatically configured.
 
 Install the required dependencies: Ubuntu & Debian
+sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git
 --------------------------------------------------
 
 For macOS cross compilation:
@@ -37,11 +38,8 @@ For macOS cross compilation:
 
 For Win32/Win64 native msys2 compilation:
 
-    ./configure 
-
-    change BOOSTLIBDIR define to BOOSTLIBDIR=/mingw32/i686-w64-mingw32/lib or anywhere you put your libs
-    
-    change all "-fstack-protector-all" to "-fno-stack-protector"
+    refer to cross compile
+   
 
 For Win32/Win64 cross compilation:
 

@@ -37,12 +37,12 @@ $(qml_package)_config_opts += -qt-zlib
 $(qml_package)_config_opts += -qt-libpng
 $(qml_package)_config_opts += -qt-libjpeg
 $(qml_package)_config_opts += -qt-pcre
-$(qml_package)_config_opts += -openssl-linked -I "$(host_prefix)/lib"  -L "$(host_prefix)/include" 
+$(qml_package)_config_opts += -openssl-linked OPENSSL_PREFIX=$(host_prefix)
 ifeq ($(build_os),mingw32)
-OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
+$(qml_package)_config_opts += OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
 endif
 ifeq ($(build_os),linux)
-OPENSSL_LIBS="-lssl -lcrypto"
+$(qml_package)_config_opts += OPENSSL_LIBS="-lssl -lcrypto"
 endif
 
 $(qml_package)_config_opts += -no-icu
