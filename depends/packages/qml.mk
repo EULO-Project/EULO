@@ -127,15 +127,15 @@ define $(qml_package)_build_cmds
   $(MAKE) && \
   mkdir -p $(host_prefix)/qml && \
   $(MAKE) install && \
-  cp qtbase/bin/qmake $(host_prefix)/qml/bin
-  cp qtbase/bin/moc $(host_prefix)/qml/bin
-  cp qtbase/bin/rcc $(host_prefix)/qml/bin
-  cp qtbase/bin/uic $(host_prefix)/qml/bin
-  cp qtbase/bin/qt.conf $(host_prefix)/qml/bin
-  cp -r qtbase/mkspecs $(host_prefix)/qml
-  cp qtbase/bin/moc $(host_prefix)/native/bin
-  cp qtbase/bin/rcc $(host_prefix)/native/bin
-  cp qtbase/bin/uic $(host_prefix)/native/bin
-  cp -r qtbase/mkspecs $(host_prefix)/native
+  cp qtbase/bin/qmake $(host_prefix)/qml/bin && \
+  cp qtbase/bin/moc $(host_prefix)/qml/bin && \
+  cp qtbase/bin/rcc $(host_prefix)/qml/bin && \
+  cp qtbase/bin/uic $(host_prefix)/qml/bin && \
+  cp qtbase/bin/qt.conf $(host_prefix)/qml/bin && \
+  cp -r qtbase/mkspecs $(host_prefix)/qml && \
+  cp qtbase/bin/moc $(host_prefix)/native/bin && \
+  cp qtbase/bin/rcc $(host_prefix)/native/bin && \
+  cp qtbase/bin/uic $(host_prefix)/native/bin && \
+  cp -r qtbase/mkspecs $(host_prefix)/native && \
   cp $(host_prefix)/qml/bin/lrelease $(host_prefix)/native/bin
 endef
