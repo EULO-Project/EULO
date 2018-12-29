@@ -9,6 +9,8 @@ $(package)_dependencies=openssl zlib
 $(package)_linux_dependencies=freetype fontconfig libxcb libX11 xproto libXext
 
 define $(qml_package)_set_vars
+$(qml_package)_config_opts_release = -release
+$(qml_package)_config_opts_debug = -debug
 $(qml_package)_config_opts += -hostprefix $(build_prefix)
 $(qml_package)_config_opts += -opensource
 $(qml_package)_config_opts += -c++std c++14
@@ -36,7 +38,6 @@ $(qml_package)_config_opts += -qt-libpng
 $(qml_package)_config_opts += -qt-libjpeg
 $(qml_package)_config_opts += -qt-pcre
 $(qml_package)_config_opts += -openssl-linked
-$(qml_package)_config_opts += -pkg-config
 $(qml_package)_config_opts += -no-icu
 $(qml_package)_config_opts += -no-iconv
 $(qml_package)_config_opts += -no-alsa
@@ -68,7 +69,7 @@ $(qml_package)_config_opts += -no-xinput2
 
 $(qml_package)_config_opts += -optimized-qmake
 $(qml_package)_config_opts += -pch
-
+$(qml_package)_config_opts += -pkg-config
 $(qml_package)_config_opts += -prefix $(host_prefix)/qml
 
 $(qml_package)_config_opts += -reduce-exports
@@ -121,7 +122,7 @@ endef
 
 
 define $(qml_package)_config_cmds
-  export PKG_CONFIG_SYSROOT_DIR=/ && \
+  export PKG_CONFIG_SYSROOT_DIR=/$(host_prefix) && \
   export PKG_CONFIG_LIBDIR=$(host_prefix)/lib/pkgconfig && \
   export PKG_CONFIG_PATH=$(host_prefix)/share/pkgconfig  && \
   cd $($(qml_package)_version) && \
