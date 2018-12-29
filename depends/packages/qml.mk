@@ -5,13 +5,14 @@ $(qml_package)_download_path=http://download.qt.io/archive/qt/5.10/5.10.1/single
 $(qml_package)_suffix=everywhere-src-$($(qml_package)_version).tar.xz
 $(qml_package)_file_name=qt-$($(qml_package)_suffix)
 $(qml_package)_sha256_hash=05ffba7b811b854ed558abf2be2ddbd3bb6ddd0b60ea4b5da75d277ac15e740a
+$(package)_dependencies=openssl zlib freetype xcb fontconfig
 
 define $(qml_package)_set_vars
 $(qml_package)_config_opts += -hostprefix $(build_prefix)
 $(qml_package)_config_opts += -opensource
 $(qml_package)_config_opts += -c++std c++14
 $(qml_package)_config_opts += -confirm-license
-$(qml_package)_config_opts += -opengl desktop
+#$(qml_package)_config_opts += -opengl desktop
 $(qml_package)_config_opts += -nomake examples
 $(qml_package)_config_opts += -nomake tests
 $(qml_package)_config_opts += -dbus-runtime
