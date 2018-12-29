@@ -69,7 +69,7 @@ $(qml_package)_config_opts += -pch
 $(qml_package)_config_opts += -prefix $(host_prefix)/qml
 
 $(qml_package)_config_opts += -reduce-exports
-#$(qml_package)_config_opts += -static
+$(qml_package)_config_opts += -static
 $(qml_package)_config_opts += -silent
 $(qml_package)_config_opts += -v
 #$(qml_package)_config_opts += -no-feature-printer

@@ -1014,11 +1014,11 @@ dnl these are only used when qt is enabled
 if test x$bitcoin_enable_qt != xno; then
   BUILD_QT=qt
   dnl enable dbus support
-  AC_MSG_CHECKING([whether to build GUI with support for D-Bus])
-  if test x$bitcoin_enable_qt_dbus != xno; then
-    AC_DEFINE([USE_DBUS],[1],[Define if dbus support should be compiled in])
-  fi
-  AC_MSG_RESULT($bitcoin_enable_qt_dbus)
+dnl  AC_MSG_CHECKING([whether to build GUI with support for D-Bus])
+dnl  if test x$bitcoin_enable_qt_dbus != xno; then
+dnl    AC_DEFINE([USE_DBUS],[1],[Define if dbus support should be compiled in])
+dnl  fi
+dnl  AC_MSG_RESULT($bitcoin_enable_qt_dbus)
 
   dnl enable qr support
   AC_MSG_CHECKING([whether to build GUI with support for QR codes])
@@ -1079,13 +1079,18 @@ AM_CONDITIONAL([ENABLE_TESTS],[test x$use_tests = xyes])
 dnl AM_CONDITIONAL([ENABLE_QT],[test x$bitcoin_enable_qt = xyes])
 dnl AM_CONDITIONAL([HAVE_QT5], [test x$bitcoin_qt_got_major_vers = x5])
 dnl AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$use_tests$bitcoin_enable_qt_test = xyesyes])
+AM_CONDITIONAL([ENABLE_QT],[false])
+AM_CONDITIONAL([HAVE_QT5], [false])
+AM_CONDITIONAL([ENABLE_QT_TESTS],[false])
 AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
 AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS],[test x$use_comparison_tool_reorg_test != xno])
 AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
 AM_CONDITIONAL([USE_LIBSECP256K1],[test x$use_libsecp256k1 = xyes])
-AM_CONDITIONAL([ENABLE_QML],[test x1 = 1])
+AM_CONDITIONAL([ENABLE_QML],[true])
+EULO_QML_BIN="eulo-qml"
+AC_SUBST(EULO_QML_BIN)
 
 AC_DEFINE(CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MAJOR, [Major version])
 AC_DEFINE(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR, [Minor version])

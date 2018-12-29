@@ -17,7 +17,7 @@ TARGET = eulo-qml
 
 #--------------ENV  start------------------------------
 
-SYSROOT_PREFIX = $$PWD/../../depends/x86_64-pc-linux-gnu
+SYSROOT_PREFIX = $$depends_prefix
 QT_INCLUDEPATH_PREFIX = $$SYSROOT_PREFIX/qml/include
 QT_LIBPATH_PREFIX = $$SYSROOT_PREFIX/qml/lib
 
@@ -40,7 +40,6 @@ INCLUDEPATH += $$PWD/../contract
 INCLUDEPATH += $$PWD/../contract/utils
 
 #--------------ENV  Stop------------------------------
-
 
 
 

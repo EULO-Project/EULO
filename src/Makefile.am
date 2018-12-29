@@ -1,5 +1,10 @@
 DIST_SUBDIRS = secp256k1 univalue
+
+
 AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS)
+
+depends_prefix = ${prefix}
+export depends_prefix
 
 if EMBEDDED_UNIVALUE
 LIBUNIVALUE = univalue/libunivalue.la
@@ -57,6 +62,10 @@ $(LIBLZ4): $(wildcard lz4/lib/*.[ch])
 $(LIBCRYPTOPP): $(wildcard cryptopp/*.cpp cryptopp/*.h) 
 	$(AM_V_at)$(MAKE) $(AM_MAKEFLAGS) -C $(@D) -f GNUmakefile $(@F) CC="$(CC)" CXX="$(CXX)" AR="$(AR)"
 
+
+
+
+
 # Make is not made aware of per-object dependencies to avoid limiting building parallelization
 # But to build the less dependent modules first, we manually select their order here:
 EXTRA_LIBRARIES = \
@@ -88,6 +97,8 @@ TESTS =
 if BUILD_BITCOIND
   bin_PROGRAMS += eulod
 endif
+
+
 
 if BUILD_BITCOIN_UTILS
   bin_PROGRAMS += eulo-cli eulo-tx
@@ -725,6 +736,14 @@ DISTCLEANFILES = obj/build.h
 
 EXTRA_DIST = leveldb
 
+
+
+if ENABLE_QML
+SUBDIRS = qml
+endif
+
+
+
 clean-local:
 	-$(MAKE) -C leveldb clean
 	-$(MAKE) -C secp256k1 clean
@@ -760,18 +779,10 @@ if ENABLE_QT_TESTS
 include Makefile.qttest.include
 endif
 
-if ENABLE_QML
-  $(call qml_make_cmds)
-endif
 
 
-define qml_make_cmds
-  cd qml && \
-  mkdir -p build && \
-  $(srcdir)/../depends/x86_64-pc-linux-gnu/native/bin/lupdate qml.pro && \
-  cd build  && \
-  $(srcdir)/../depends/x86_64-pc-linux-gnu/native/bin/qmake ../qml.pro && \
-  $(MAKE)			
-endef
+
+
+
 
 
