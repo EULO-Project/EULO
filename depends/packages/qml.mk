@@ -143,18 +143,17 @@ endef
 
 define $(qml_package)_build_cmds
   cd $($(qml_package)_version) && \
-  $(MAKE) && \
-  mkdir -p $(host_prefix)/qml && \
-  $(MAKE) install && \
-  cp qtbase/bin/qmake $(host_prefix)/qml/bin && \
-  cp qtbase/bin/moc $(host_prefix)/qml/bin && \
-  cp qtbase/bin/rcc $(host_prefix)/qml/bin && \
-  cp qtbase/bin/uic $(host_prefix)/qml/bin && \
-  cp qtbase/bin/qt.conf $(host_prefix)/qml/bin && \
-  cp -r qtbase/mkspecs $(host_prefix)/qml && \
-  cp qtbase/bin/moc $(host_prefix)/native/bin && \
-  cp qtbase/bin/rcc $(host_prefix)/native/bin && \
-  cp qtbase/bin/uic $(host_prefix)/native/bin && \
-  cp -r qtbase/mkspecs $(host_prefix)/native && \
-  cp $(host_prefix)/qml/bin/lrelease $(host_prefix)/native/bin
+  $(MAKE)
 endef
+
+define $(package)_stage_cmds
+  cd $($(qml_package)_version) && \
+  $(MAKE) INSTALL_ROOT=$($(package)_staging_dir) install && \
+  cp qtbase/bin/qmake $($(package)_staging_dir)/bin && \
+  cp qtbase/bin/moc $($(package)_staging_dir)/bin && \
+  cp qtbase/bin/rcc $($(package)_staging_dir)/bin && \
+  cp qtbase/bin/qt.conf $($(package)_staging_dir)/bin && \
+  cp -r qtbase/mkspecs $($(package)_staging_dir)
+endef
+
+
