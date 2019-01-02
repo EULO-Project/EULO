@@ -1,5 +1,5 @@
 QT += quick quickcontrols2 widgets network
-CONFIG += c++11
+CONFIG += c++11 static
 
 
 # The following define makes your compiler emit warnings if you use

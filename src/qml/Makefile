@@ -6,5 +6,9 @@ eulo-qml:
 	${depends_prefix}/qml/bin/lrelease qml.pro && \
 	cd build  && \
 	${depends_prefix}/qml/bin/qmake ../qml.pro  "depends_prefix=$${depends_prefix}" && \
-	make
+	$(MAKE)
 	cd ../
+clean:
+	rm -rf build
+	rm -rf qt_native/paymentrequest.pb.cc
+	rm -rf qt_native/paymentrequest.pb.h

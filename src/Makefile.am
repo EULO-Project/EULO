@@ -739,7 +739,7 @@ EXTRA_DIST = leveldb
 
 
 if ENABLE_QML
-SUBDIRS = qml
+SUBDIRS = . qml
 endif
 
 
@@ -752,8 +752,6 @@ clean-local:
 	-$(MAKE) -C cryptopp clean
 	rm -f leveldb/*/*.gcno leveldb/helpers/memenv/*.gcno
 	-rm -f config.h
-	rm -rf qml/build 
-
 .rc.o:
 	@test -f $(WINDRES)
 	$(AM_V_GEN) $(WINDRES) -DWINDRES_PREPROC -i $< -o $@

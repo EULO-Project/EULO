@@ -28,9 +28,13 @@ Common `host-platform-triplets` for cross compilation are:
 
 No other options are needed, the paths are automatically configured.
 
-Install the required dependencies: Ubuntu & Debian
-sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git
 --------------------------------------------------
+Install the required dependencies: 
+--------------------------------------------------
+
+For Ubuntu & Debian
+    sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git libgl1-mesa-dev
+
 
 For macOS cross compilation:
 
