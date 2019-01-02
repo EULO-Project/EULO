@@ -12,7 +12,7 @@ $(package)_patches=xcb.patch
 define $(qml_package)_set_vars
 $(qml_package)_config_opts_release = -release
 $(qml_package)_config_opts_debug = -debug
-$(qml_package)_config_opts += -hostprefix $(build_prefix)
+#$(qml_package)_config_opts += -hostprefix $(build_prefix)
 $(qml_package)_config_opts += -opensource
 $(qml_package)_config_opts += -c++std c++14
 $(qml_package)_config_opts += -confirm-license
@@ -148,12 +148,11 @@ endef
 
 define $(package)_stage_cmds
   cd $($(qml_package)_version) && \
-  $(MAKE) INSTALL_ROOT=$($(package)_staging_dir) install && \
-  cp qtbase/bin/qmake $($(package)_staging_dir)/bin && \
-  cp qtbase/bin/moc $($(package)_staging_dir)/bin && \
-  cp qtbase/bin/rcc $($(package)_staging_dir)/bin && \
-  cp qtbase/bin/qt.conf $($(package)_staging_dir)/bin && \
-  cp -r qtbase/mkspecs $($(package)_staging_dir)
+  $(MAKE) INSTALL_ROOT=$($(package)_staging_dir) install
+#  cp qtbase/bin/qmake $($(package)_staging_dir)/$(host_prefix)/bin && \
+#  cp qtbase/bin/moc $($(package)_staging_dir)/$(host_prefix)/bin && \
+#  cp qtbase/bin/rcc $($(package)_staging_dir)/$(host_prefix)/bin && \
+#  cp qtbase/bin/qt.conf $($(package)_staging_dir)/$(host_prefix)/bin && \
+#  cp -r qtbase/mkspecs $($(package)_staging_dir)/$(host_prefix) && \
+#  exit 0
 endef
-
-

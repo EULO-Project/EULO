@@ -118,6 +118,7 @@ qa/pull-tester/cache/*
 qa/pull-tester/test.*/*
 
 !src/leveldb*/Makefile
+!src/qml/Makefile
 
 .cproject
 .project
