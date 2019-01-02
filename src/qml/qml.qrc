@@ -120,32 +120,8 @@
         <file>qml/app_items/TokenReceiveItem.qml</file>
         <file>qml/app_items/TokenSendField.qml</file>
         <file>images/icons/app.png</file>
-        <file>locale/eulo_bg.qm</file>
-        <file>locale/eulo_ca.qm</file>
-        <file>locale/eulo_cs.qm</file>
-        <file>locale/eulo_da.qm</file>
-        <file>locale/eulo_de.qm</file>
         <file>locale/eulo_en.qm</file>
-        <file>locale/eulo_en_US.qm</file>
-        <file>locale/eulo_es.qm</file>
-        <file>locale/eulo_fi.qm</file>
-        <file>locale/eulo_fr_FR.qm</file>
-        <file>locale/eulo_hr.qm</file>
-        <file>locale/eulo_it.qm</file>
-        <file>locale/eulo_ja.qm</file>
-        <file>locale/eulo_ko_KR.qm</file>
-        <file>locale/eulo_nl.qm</file>
-        <file>locale/eulo_pl.qm</file>
-        <file>locale/eulo_pt.qm</file>
-        <file>locale/eulo_pt_BR.qm</file>
-        <file>locale/eulo_ro_RO.qm</file>
-        <file>locale/eulo_ru.qm</file>
-        <file>locale/eulo_sk.qm</file>
-        <file>locale/eulo_sv.qm</file>
-        <file>locale/eulo_tr.qm</file>
-        <file>locale/eulo_uk.qm</file>
         <file>locale/eulo_zh_CN.qm</file>
-        <file>locale/eulo_zh_TW.qm</file>
         <file>qml/app_dialogs/MenuDialog.qml</file>
         <file>qml/app_dialogs/StartUpDialog.qml</file>
         <file>README.md</file>
