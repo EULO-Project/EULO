@@ -106,6 +106,9 @@ $(qml_package)_config_opts_linux += OPENSSL_LIBS="-lssl -lcrypto"
 $(qml_package)_config_opts_mingw32  += -xplatform win32-g++ -device-option CROSS_COMPILE="$(host)-"
 $(qml_package)_config_opts_mingw32 += OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
 
+$(qml_package)_config_opts_mingw32 += -skip qtactiveqt
+
+
 endef
 
 define $(qml_package)_fetch_cmds

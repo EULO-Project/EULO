@@ -30,7 +30,7 @@
 #ifdef Q_OS_WIN32
 
 #include <dwmapi.h>
-#include <WinUser.h>
+#include <winuser.h>
 #include "nativeeventfilter.h"
 
 #pragma comment (lib,"user32.lib")

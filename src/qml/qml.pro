@@ -195,7 +195,7 @@ HEADERS += \
 #QMAKE_CXXFLAGS += -std=c++11 -pipe -O2
 
 win32{
-QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread -mwindows -static -Wl,--large-address-aware -Wl,--dynamicbase -Wl,--nxcompat
+QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread -mwindows -static -Wl,--dynamicbase -Wl,--nxcompat
 }
 
 unix:!macx{

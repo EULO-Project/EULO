@@ -32,9 +32,9 @@ No other options are needed, the paths are automatically configured.
 Install the required dependencies: 
 --------------------------------------------------
 
-For Ubuntu & Debian
-    sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git libgl1-mesa-dev
+For Ubuntu 18.04.1 & Debian:
 
+    sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git libgl1-mesa-dev python
 
 For macOS cross compilation:
 
@@ -45,9 +45,9 @@ For Win32/Win64 native msys2 compilation:
     refer to cross compile
    
 
-For Win32/Win64 cross compilation:
+For Win32/Win64 cross compilation in Ubuntu 18.04.1:
 
-	sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git
+	sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git python
 
 The first step is to install the mingw-w64 cross-compilation tool chain. 
 Due to different Ubuntu packages for each distribution and problems with the Xenial packages the steps for each are different.
