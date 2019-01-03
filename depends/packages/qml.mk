@@ -39,12 +39,6 @@ $(qml_package)_config_opts += -qt-libpng
 $(qml_package)_config_opts += -qt-libjpeg
 $(qml_package)_config_opts += -qt-pcre
 $(qml_package)_config_opts += -openssl-linked OPENSSL_PREFIX=$(host_prefix)
-ifeq ($(build_os),mingw32)
-$(qml_package)_config_opts += OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
-endif
-ifeq ($(build_os),linux)
-$(qml_package)_config_opts += OPENSSL_LIBS="-lssl -lcrypto"
-endif
 
 $(qml_package)_config_opts += -no-icu
 $(qml_package)_config_opts += -no-iconv
@@ -80,7 +74,7 @@ $(qml_package)_config_opts += -pch
 $(qml_package)_config_opts += -pkg-config
 $(qml_package)_config_opts += -prefix $(host_prefix)/qml
 
-$(qml_package)_config_opts += -reduce-exports
+
 $(qml_package)_config_opts += -static
 $(qml_package)_config_opts += -silent
 $(qml_package)_config_opts += -v
@@ -98,17 +92,19 @@ $(qml_package)_config_opts_darwin += -device-option MAC_TARGET=$(host)
 $(qml_package)_config_opts_darwin += -device-option MAC_LD64_VERSION=$(LD64_VERSION)
 endif
 
-ifeq ($(build_os),linux)
-$(qml_package)_config_opts += -fontconfig
-$(qml_package)_config_opts += -system-freetype
-$(qml_package)_config_opts += -no-sm
-$(qml_package)_config_opts += -qt-xkbcommon
-$(qml_package)_config_opts += -qt-xcb
-endif
 
-ifeq ($(build_os),mingw32)
-$(qml_package)_config_opts  += -xplatform win32-g++ -device-option CROSS_COMPILE="$(host)-"
-endif
+$(qml_package)_config_opts_linux  = -qt-xkbcommon
+$(qml_package)_config_opts_linux += -qt-xcb
+$(qml_package)_config_opts_linux += -system-freetype
+$(qml_package)_config_opts_linux += -no-sm
+$(qml_package)_config_opts_linux += -fontconfig
+
+$(qml_package)_config_opts_linux += -reduce-exports
+$(qml_package)_config_opts_linux += OPENSSL_LIBS="-lssl -lcrypto"
+
+
+$(qml_package)_config_opts_mingw32  += -xplatform win32-g++ -device-option CROSS_COMPILE="$(host)-"
+$(qml_package)_config_opts_mingw32 += OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
 
 endef
 
