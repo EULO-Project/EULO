@@ -39,7 +39,7 @@
 
 
 
-ImageProvider imageProvider;
+ImageProvider *imageProvider = NULL;
 
 static bool fDaemon;
 
@@ -396,7 +396,7 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("mousePosition", &mousePosProvider);
     engine.rootContext()->setContextProperty("bitcoinapp", &app);
-    engine.addImageProvider("ReQuestURI",&imageProvider);
+    engine.addImageProvider("ReQuestURI",imageProvider = new ImageProvider());
 
     app.root_context = engine.rootContext();
 

@@ -302,7 +302,7 @@ void CreateContractPage::callContractClicked(int functionIndex,
         }
         else
         {
-            emit notifyContractResult("Create contract",true,function.errorMessage(errors, false),1,"");
+            emit notifyContractResult("Call contract",true,function.errorMessage(errors, false),1,"");
             return;
         }
 
@@ -310,14 +310,13 @@ void CreateContractPage::callContractClicked(int functionIndex,
 
         m_lastResult = resultStr;
 
-        //qDebug()<<"m_lastResult:"<<m_lastResult;
 
-        emit notifyContractResult("Create contract",false,errorMessage,1,resultStr);
+        emit notifyContractResult("Call contract",false,errorMessage,1,resultStr);
 
     }
     else
     {
-        emit notifyContractResult("Create contract",true,errorMessage,1,"");
+        emit notifyContractResult("Call contract",true,errorMessage,1,"");
 
     }
 
@@ -841,8 +840,6 @@ void CreateContractPage::createContractClicked(QString gasLimitStr,
     //    // Append params to the list
 
     byteCode = byteCode + toDataHex(func, errorMessage,paramList);
-
-    qDebug()<<"byteCode:"<<byteCode;
 
 
     ExecRPCCommand::appendParam(lstParams, PARAM_BYTECODE, byteCode);

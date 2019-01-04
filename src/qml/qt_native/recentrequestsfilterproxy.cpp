@@ -10,7 +10,7 @@
 
 #include "imageprovider.h"
 
-extern ImageProvider imageProvider;
+extern ImageProvider *imageProvider;
 
 
 RecentRequestsFilterProxy::RecentRequestsFilterProxy(QObject *parent):QSortFilterProxyModel(parent)
@@ -146,7 +146,7 @@ void RecentRequestsFilterProxy::prepareQRCode()
 
         myImage = myImage.scaled(300,300);
 
-        imageProvider.setImage(myImage);
+        imageProvider->setImage(myImage);
         m_img = myImage;
     }
 

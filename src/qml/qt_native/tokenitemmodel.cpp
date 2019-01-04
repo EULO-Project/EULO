@@ -17,7 +17,7 @@
 
 #include "optionsmodel.h"
 
-extern ImageProvider imageProvider;
+extern ImageProvider *imageProvider;
 
 class TokenItemEntry
 {
@@ -426,7 +426,7 @@ QVariantList TokenItemModel::updateReceiveImg(int modelIndex)
 
     myImage = myImage.scaled(300,300);
 
-    imageProvider.setImage(myImage);
+    imageProvider->setImage(myImage);
 
     returnList.append(symbol);
     returnList.append(address);

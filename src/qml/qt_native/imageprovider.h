@@ -3,13 +3,14 @@
 
 #include <QQuickImageProvider>
 #include <QImage>
+
+
 #include "walletmodel.h"
 
 class ImageProvider: public QQuickImageProvider
 {
 public:
     ImageProvider();
-    ~ImageProvider();
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 
     void setImage(QImage &img);

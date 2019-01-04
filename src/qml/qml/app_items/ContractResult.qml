@@ -64,8 +64,9 @@ Rectangle
                 anchors.top:resultRec.top
                 anchors.left:resultRec.left
                 anchors.right:resultRec.right
+                anchors.bottom: resultRec.bottom
                 anchors.margins: 20
-                color: "#333333"
+                textColor: "#333333"
                 textFormat:Text.RichText
                 text:root.resultStr
                 readOnly: true
