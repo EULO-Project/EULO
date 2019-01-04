@@ -2789,14 +2789,6 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
                     if (value.isStr()) {
                         strData = value.get_str();
                         vecData.insert(vecData.end(), strData.begin(), strData.end());
-                    } else if (value.isNum()) {
-                        strData = value.write();
-                        vecData.insert(vecData.end(), strData.begin(), strData.end());
-                    } else if (value.isBool()) {
-                        if (value.getBool())
-                            vecData.push_back(1);
-                        else
-                            vecData.push_back(0);
                     } else {
                         throw runtime_error("invalid value of string\n");
                     }
