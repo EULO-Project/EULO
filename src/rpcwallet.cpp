@@ -2455,7 +2455,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     if (params.size() > 2)
     {
         nAmount = AmountFromValue(params[2]);
-        if (nAmount <= 0)
+        if (nAmount < 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
     }
 
