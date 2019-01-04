@@ -30,62 +30,26 @@ Rectangle
         text:"合约执行结果"
     }
 
-
-
-    ScrollView
+    CommonTextArea
     {
-        clip:true
-        id:scrollArea
-
-
+        id:resultText
+        font.weight: Font.Bold
+        font.pixelSize:15
         anchors.top:title.bottom
-        anchors.topMargin: 10
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
 
-        contentHeight: resultRec.height
+        anchors.margins: 20
+        anchors.topMargin: 10
 
-
-        Rectangle
-        {
-            id:resultRec
-            color: "#FAFAFA"
-
-            width:  scrollArea.width
-            height: resultText.contentHeight
-
-
-            CommonTextArea
-            {
-                id:resultText
-                font.weight: Font.Bold
-                font.pixelSize:15
-                anchors.top:resultRec.top
-                anchors.left:resultRec.left
-                anchors.right:resultRec.right
-                anchors.bottom: resultRec.bottom
-                anchors.margins: 20
-                textColor: "#333333"
-                textFormat:Text.RichText
-                text:root.resultStr
-                readOnly: true
-            }
-        }
-
-        ScrollBar.vertical: MyScrollBar {
-            id: scrollBar3
-            width:10
-            height:scrollArea.height
-            anchors.right: scrollArea.right
-            policy:ScrollBar.AsNeeded
-            visible: resultRec.height > scrollArea.height
-            handle.implicitHeight: 150
-        }
-
-
-
+        textColor: "#333333"
+        textFormat:Text.RichText
+        text:root.resultStr
+        readOnly: true
     }
+
+
 
 
 
