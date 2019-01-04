@@ -2455,7 +2455,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     if (params.size() > 2)
     {
         nAmount = AmountFromValue(params[2]);
-        if (nAmount <= 0)
+        if (nAmount < 0)
             throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
     }
 
@@ -2786,7 +2786,7 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
             eType = eExtendDataType(s32Type);
             switch (eType) {
                 case EXT_DATA_STRING:
-                    if (value.isStr()) {
+                    if (value.isStr() || value.isNum() || value.isBool()) {
                         strData = value.get_str();
                         vecData.insert(vecData.end(), strData.begin(), strData.end());
                     } else {
