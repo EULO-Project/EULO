@@ -189,6 +189,19 @@ WalletModel::WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* p
 
 
 
+   coinControlModel = new CoinControlModel(wallet, this);
+
+
+   coinControlProxy_ = new CoinControlProxy(this);
+   coinControlProxy_->setSourceModel(coinControlModel);
+   coinControlProxy_->setSortRole(Qt::EditRole);
+   coinControlProxy_->setDynamicSortFilter(true);
+   coinControlProxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
+   coinControlProxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+   coinControlProxy_->sort(CoinControlModel::Date,Qt::DescendingOrder);
+
+
+
    // This timer will be fired repeatedly to update the balance
    pollTimer = new QTimer(this);
    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));

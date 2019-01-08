@@ -22,6 +22,7 @@ Rectangle{
     property alias maximum_btn: maximum_btn
     property alias coinTypeBtn: coin_type_btn
     property alias naviPanel: naviPanel
+    property alias optionsDialog: optionsDialog
 
     objectName: "title"
     property bool opened: help_menu.opened || coin_type_btn.opened ||tool_menu.opened|| set_menu.opened ||file_menu.opened
@@ -397,6 +398,10 @@ Rectangle{
         id:aboutDialog
     }
 
+    OptionsDialog
+    {
+        id:optionsDialog
+    }
 
     BlockExplorerDialog
     {

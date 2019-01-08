@@ -12,12 +12,14 @@ import "../app_dialogs"
 
 Controls_1_4.Tab {
 
+
     Rectangle {
         id:root
         anchors.fill:parent
 
         radius: 0
         color: "#FAFAFA"
+        property bool showCoincontrol:false
 
         function cleatAll()
         {
@@ -31,6 +33,35 @@ Controls_1_4.Tab {
         }
 
 
+        function showCoinControl()
+        {
+            showCoincontrol = true
+        }
+
+        function hideCoinControl()
+        {
+            showCoincontrol = false
+        }
+
+        CoinControlItem
+        {
+            id:coinControlItem
+            anchors.top:root.top
+            anchors.topMargin: 20
+            width:parent.width
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 28
+
+            Component.onCompleted:
+            {
+                console.log("height:"+coinControlItem.height)
+                console.log("width:"+coinControlItem.width)
+
+            }
+
+        }
 
 
 
@@ -38,8 +69,8 @@ Controls_1_4.Tab {
             id:target_listview
             clip: true
             width:parent.width
-            anchors.top:root.top
-            anchors.topMargin: 15
+            anchors.top:coinControlItem.visible? coinControlItem.bottom : root.top
+            anchors.topMargin: 20
             anchors.left: parent.left
             anchors.leftMargin: 20
             anchors.right: parent.right

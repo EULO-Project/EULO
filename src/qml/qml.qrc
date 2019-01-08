@@ -125,5 +125,10 @@
         <file>qml/app_dialogs/MenuDialog.qml</file>
         <file>qml/app_dialogs/StartUpDialog.qml</file>
         <file>README.md</file>
+        <file>qml/app_dialogs/OptionsDialog.qml</file>
+        <file>qml/app_items/CoinControlItem.qml</file>
+        <file>qml/app_dialogs/CoinControlDialog.qml</file>
+        <file>images/icons/locked.png</file>
+        <file>images/icons/unlocked.png</file>
     </qresource>
 </RCC>

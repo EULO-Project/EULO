@@ -16,7 +16,7 @@ TARGET = eulo-qml
 
 
 #--------------ENV  start------------------------------
-
+#depends_prefix=/home/eulo/EULO/EULO_UBUNTU/EULO/depends/x86_64-pc-linux-gnu
 SYSROOT_PREFIX = $$depends_prefix
 QT_INCLUDEPATH_PREFIX = $$SYSROOT_PREFIX/qml/include
 QT_LIBPATH_PREFIX = $$SYSROOT_PREFIX/qml/lib
@@ -110,7 +110,9 @@ SOURCES += main.cpp \
     qt_native/eventlog.cpp \
     qt_native/notificator.cpp \
     qt_native/intro.cpp \
-    qt_native/peertableproxy.cpp
+    qt_native/peertableproxy.cpp \
+    qt_native/coincontrolmodel.cpp \
+    qt_native/coincontrolproxy.cpp
 
 RESOURCES += qml.qrc
 
@@ -190,7 +192,9 @@ HEADERS += \
     qt_native/notificator.h \
     qt_native/intro.h \
     qt_native/ui_intro.h \
-    qt_native/peertableproxy.h
+    qt_native/peertableproxy.h \
+    qt_native/coincontrolmodel.h \
+    qt_native/coincontrolproxy.h
 
 #QMAKE_CXXFLAGS += -std=c++11 -pipe -O2
 

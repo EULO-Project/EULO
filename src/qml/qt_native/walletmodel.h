@@ -18,6 +18,8 @@
 #include "contractfilterproxy.h"
 #include "tokenfilterproxy.h"
 
+#include "coincontrolproxy.h"
+
 #include <map>
 #include <vector>
 
@@ -128,6 +130,7 @@ class WalletModel : public QObject
     Q_PROPERTY(TokenFilterProxy *tokenfilterproxy MEMBER tokenfilterproxy_ CONSTANT)
     Q_PROPERTY(TokenItemModel *tokenItemModel MEMBER tokenItemModel_ CONSTANT)
 
+    Q_PROPERTY(CoinControlProxy *coinControlProxy MEMBER coinControlProxy_ CONSTANT)
 
 public:
     explicit WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* parent = 0);
@@ -334,7 +337,8 @@ private:
     TokenTransactionTableModel *tokenTransactionTableModel;
     TokenFilterProxy *tokenfilterproxy_;
 
-
+    CoinControlModel *coinControlModel;
+    CoinControlProxy *coinControlProxy_;
 
 
     // Cache some values to be able to detect changes
