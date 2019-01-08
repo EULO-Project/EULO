@@ -117,7 +117,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
             u32DataSize = (scriptPubKey[2] << 8) | scriptPubKey[3];
         } else if (scriptPubKey[0] == OP_PUSHDATA2) {            
             u8Offset = 3;
-            u32VecSize = (scriptPubKey[1] << 8) | scriptPubKey[2];
+            u32VecSize = *(unsigned short *)(scriptPubKey.data() + 1);
             u32DataSize = (scriptPubKey[3] << 8) | scriptPubKey[4];
         } else {
             return false;

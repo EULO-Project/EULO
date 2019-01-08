@@ -3072,8 +3072,7 @@ UniValue sendextenddata(const UniValue& params, bool fHelp)
         } else if (bindata.size() <= 0xffff) {
             script.insert(script.end(), OP_PUSHDATA2);
             unsigned short nSize = bindata.size();
-            script.insert(script.end(), (unsigned char)((nSize >> 8) & 0xff));
-            script.insert(script.end(), (unsigned char)(nSize & 0xff));
+            script.insert(script.end(), (unsigned char*)&nSize, (unsigned char*)&nSize + sizeof(nSize));
         } else {
             throw runtime_error("Length of extend data(" + std::to_string(bindata.size()) + ") exceeds the limit:" + std::to_string(USHRT_MAX) + "\n");
         }
