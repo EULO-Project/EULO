@@ -2602,7 +2602,7 @@ UniValue sendtocontract(const UniValue& params, bool fHelp)
     std::vector<std::pair<CScript, CAmount>> vecSend;
     int nChangePosRet = -1;
 
-    vecSend.push_back(std::make_pair(scriptPubKey, 0));
+    vecSend.push_back(std::make_pair(scriptPubKey, nAmount));
 
     if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, nGasFee, fHasSender))
     {
