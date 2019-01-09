@@ -64,6 +64,7 @@ enum class Instruction: uint8_t
 	BYTE,               ///< retrieve single byte from word
 
 	SHA3 = 0x20,        ///< compute SHA3-256 hash
+	EULOINFO,           ///< get the info of eulo
 
 	ADDRESS = 0x30,     ///< get address of currently executing account
 	BALANCE,            ///< get balance of the given account

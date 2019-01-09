@@ -182,7 +182,7 @@ namespace eth
 			&&INVALID,  \
 			&&INVALID,  \
 			&&SHA3,          /* 20, */  \
-			&&INVALID,  \
+			&&EULOINFO,  \
 			&&INVALID,  \
 			&&INVALID,  \
 			&&INVALID,  \

@@ -20,6 +20,7 @@
  */
 
 #include <libethereum/ExtVM.h>
+#include <eulostate.h>
 #include "VMConfig.h"
 #include "VM.h"
 using namespace std;
@@ -313,6 +314,31 @@ void VM::interpretCases()
 			*++m_SP = (u256)sha3(bytesConstRef(m_mem.data() + inOff, inSize));
 		}
 		NEXT
+
+		CASE(EULOINFO)
+                {
+                        ON_OP();
+                        updateIOGas();
+
+                        eExtendDataType  _type;
+                        Address _owner = asAddress(*m_SP--);
+                        u256   _need = u256(*m_SP--);
+                        h256   _bytes = h256(*m_SP--);
+                        u256   _height = u256(*m_SP--);
+                        vector<uint8_t> _value;
+                        bool ret;
+                        u256 result = u256(0);
+
+                        ret = getData((uint32_t)_height, (char*)_bytes.data(), _type, _value, _owner);
+                        if (ret && (_value.size() > 0) && (_type == (uint8_t)_need)) {
+                                for (const auto & _v : _value) {
+                                        result = (result << 8) | _v;
+                                }
+                        }
+
+                        *++m_SP = result << 8 * (32 - _value.size());
+                }
+                NEXT
 
 		CASE(LOG0)
 		{
