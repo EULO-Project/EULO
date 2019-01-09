@@ -10,6 +10,7 @@ class TransactionRecord;
 class TransactionTablePriv;
 class WalletModel;
 class ClientModel;
+class CCoinControl;
 
 class CWallet;
 
@@ -49,7 +50,16 @@ public:
 
 
 
-    void updateView();
+    bool fSplitBlock;
+
+    void updateView(QVariantList payAmountList);
+    void toggle();
+    void selectAll();
+    void updateSplitUtxo(bool checked,const QString &utxo, const QString &afterFee);
+    QString updatecustomChangeAddress(bool checked, const QString &address);
+    void setValue(int index, QVariant value, QVariantList payAmountList);
+
+    QVariant getValue(int index);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -57,9 +67,14 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     bool setData(const QModelIndex& index, const QVariant& value, int role);
+    void callUpdateLabels(QVariantList returnList);
 
+    static QList<CAmount> payAmounts;
+    static CCoinControl* coinControl;
+    static int nSplitBlockDummy;
 
     static QString getPriorityLabel(double dPriority, double mempoolEstimatePriority);
+    static void updateLabelsFunc(WalletModel* model, std::map<QString, bool> &mapSelection, CoinControlModel *obj);
 
 protected:
     QHash<int, QByteArray> roleNames() const ;
@@ -77,6 +92,9 @@ private:
 
     QString strPad(QString s, int nPadLength, QString sPadding) const;
 
+signals:
+    void updateLabels(QVariantList msg);
+    void updateLabelBlockSize(QString size);
 };
 
 #endif // COINCONTROLMODEL_H

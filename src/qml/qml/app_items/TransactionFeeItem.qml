@@ -127,7 +127,19 @@ Item {
         anchors.verticalCenter: confirmation_time_label.verticalCenter
         enabled: recommended_btn.checked
         visible:!minimized
+        from: 0
+        stepSize: 1
+        to: 24
+        Component.onCompleted:
+        {
+            value = walletModel.coinControlProxy.getValue(3)
+        }
 
+
+        onMoved:
+        {
+            console.log("moving!!!")
+        }
     }
 
     Label{

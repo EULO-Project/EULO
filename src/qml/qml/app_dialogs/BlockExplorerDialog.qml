@@ -149,7 +149,7 @@ CommonDialog
             textSize:11
             onClicked:
             {
-                blockExplorer.onSearch(text)
+                blockExplorer.onSearch(input_filed.text)
             }
         }
 

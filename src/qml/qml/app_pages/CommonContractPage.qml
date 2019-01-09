@@ -562,7 +562,7 @@ Rectangle
         anchors.right: parent.right
         anchors.rightMargin: 20
         showDropImg:true
-        readOnly: true
+        //readOnly: true
 
         hintmodel: walletModel.contractfilterproxy.addressList
     }

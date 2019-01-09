@@ -17,11 +17,16 @@ Item
 
     property int upORdown: 0
 
-    property int factor: 100000
+    property int factor: walletModel.getFeePerkilo()
 
     Component.onCompleted:
     {
         root_window.unitNameChanged.connect(coinTypeChange)
+    }
+
+    function getFiledAmount()
+    {
+        return walletModel.getFiledAmount(coinTypeBtn.index,amountField.text)
     }
 
     Timer{

@@ -127,6 +127,7 @@ CommonDialog
 
             onClicked:
             {
+                addressDialog.editing = false
                 addressDialog.show()
             }
 

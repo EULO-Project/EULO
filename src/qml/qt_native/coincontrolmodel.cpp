@@ -9,17 +9,114 @@
 #include "coincontrol.h"
 #include "obfuscation.h"
 #include "wallet.h"
+#include "utilmoneystr.h"
 
 #include <QDebug>
+#include <QSettings>
 
+
+QList<CAmount> CoinControlModel::payAmounts;
+int CoinControlModel::nSplitBlockDummy;
+CCoinControl* CoinControlModel::coinControl = new CCoinControl();
 
 CoinControlModel::CoinControlModel(CWallet* wallet, WalletModel* parent, bool MultisigEnabled) :
     QAbstractListModel(parent),
     model(parent),
     fMultisigEnabled(MultisigEnabled)
 {
+    QSettings settings;
+    if (!settings.contains("bUseObfuScation"))
+        settings.setValue("bUseObfuScation", false);
+    if (!settings.contains("bUseSwiftTX"))
+        settings.setValue("bUseSwiftTX", false);
+
+    if (!settings.contains("fFeeSectionMinimized"))
+        settings.setValue("fFeeSectionMinimized", true);
+    if (!settings.contains("nFeeRadio") && settings.contains("nTransactionFee") && settings.value("nTransactionFee").toLongLong() > 0) // compatibility
+        settings.setValue("nFeeRadio", true);                                                                                             // custom
+    if (!settings.contains("nFeeRadio"))
+        settings.setValue("nFeeRadio", false);                                                                                                   // recommended
+    if (!settings.contains("nCustomFeeRadio") && settings.contains("nTransactionFee") && settings.value("nTransactionFee").toLongLong() > 0) // compatibility
+        settings.setValue("nCustomFeeRadio", true);                                                                                             // total at least
+    if (!settings.contains("nCustomFeeRadio"))
+        settings.setValue("nCustomFeeRadio", false); // per kilobyte
+    if (!settings.contains("nSmartFeeSliderPosition"))
+        settings.setValue("nSmartFeeSliderPosition", 0);
+    if (!settings.contains("nTransactionFee"))
+        settings.setValue("nTransactionFee", (qint64)DEFAULT_TRANSACTION_FEE);
+    if (!settings.contains("fPayOnlyMinFee"))
+        settings.setValue("fPayOnlyMinFee", false);
+    if (!settings.contains("fSendFreeTransactions"))
+        settings.setValue("fSendFreeTransactions", false);
+
 
 }
+
+QVariant CoinControlModel::getValue(int index)
+{
+    QSettings settings;
+    switch(index)
+    {
+    case 0:
+        return settings.value("fFeeSectionMinimized").toBool();
+    case 1:
+        return settings.value("nFeeRadio").toBool();
+    case 2:
+        return settings.value("nCustomFeeRadio").toBool();
+    case 3:
+        return settings.value("nSmartFeeSliderPosition").toBool();
+    case 4:
+        return settings.value("nTransactionFee").toLongLong();
+    case 5:
+        return settings.value("fPayOnlyMinFee").toBool();
+    case 6:
+        return  settings.value("fSendFreeTransactions").toBool();
+    }
+}
+
+
+void CoinControlModel::setValue(int index, QVariant value, QVariantList payAmountList)
+{
+    QSettings settings;
+    switch(index)
+    {
+    case 0:
+        settings.setValue("fFeeSectionMinimized", value.toBool());
+        break;
+    case 1:
+        settings.setValue("nFeeRadio", value.toBool());
+        break;
+    case 2:
+        settings.setValue("nCustomFeeRadio", value.toBool());
+        break;
+    case 3:
+        settings.setValue("nSmartFeeSliderPosition", value.toInt());
+        break;
+    case 4:
+        settings.setValue("nTransactionFee", value.toLongLong());
+        break;
+    case 5:
+        settings.setValue("fPayOnlyMinFee", value.toBool());
+        break;
+    case 6:
+        settings.setValue("fSendFreeTransactions", value.toBool());
+        break;
+    }
+
+
+    CoinControlModel::payAmounts.clear();
+
+    for(int i = 0;i<payAmountList.size();i++)
+        CoinControlModel::payAmounts.append(payAmountList[i].toLongLong());
+
+    if (CoinControlModel::coinControl->HasSelected())
+    {
+        // actual coin control calculation
+        CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+    }
+
+}
+
 
 int CoinControlModel::rowCount(const QModelIndex &parent) const
 {
@@ -45,6 +142,153 @@ QModelIndex CoinControlModel::index(int row, int column, const QModelIndex &pare
 
 }
 
+void CoinControlModel::updateLabelsFunc(WalletModel* model, std::map<QString,bool> &mapSelection,CoinControlModel *obj)
+{
+    if (!model)
+        return;
+
+    // nPayAmount
+    CAmount nPayAmount = 0;
+    bool fDust = false;
+    CMutableTransaction txDummy;
+    foreach (const CAmount& amount, CoinControlModel::payAmounts) {
+        nPayAmount += amount;
+
+        if (amount > 0) {
+            CTxOut txout(amount, (CScript)vector<unsigned char>(24, 0));
+            txDummy.vout.push_back(txout);
+            if (txout.IsDust(::minRelayTxFee))
+                fDust = true;
+        }
+    }
+
+    QString sPriorityLabel = tr("none");
+    CAmount nAmount = 0;
+    CAmount nPayFee = 0;
+    CAmount nAfterFee = 0;
+    CAmount nChange = 0;
+    unsigned int nBytes = 0;
+    unsigned int nBytesInputs = 0;
+    double dPriority = 0;
+    double dPriorityInputs = 0;
+    unsigned int nQuantity = 0;
+    int nQuantityUncompressed = 0;
+    bool fAllowFree = false;
+
+    vector<COutPoint> vCoinControl;
+    vector<COutput> vOutputs;
+    coinControl->ListSelected(vCoinControl);
+    model->getOutputs(vCoinControl, vOutputs);
+
+    BOOST_FOREACH (const COutput& out, vOutputs) {
+        // unselect already spent, very unlikely scenario, this could happen
+        // when selected are spent elsewhere, like rpc or another computer
+        uint256 txhash = out.tx->GetHash();
+        COutPoint outpt(txhash, out.i);
+        if (model->isSpent(outpt)) {
+            coinControl->UnSelect(outpt);
+            mapSelection[QString::fromStdString(out.ToString())] = false;
+            continue;
+        }
+
+        // Quantity
+        nQuantity++;
+
+        // Amount
+        nAmount += out.tx->vout[out.i].nValue;
+
+        // Priority
+        dPriorityInputs += (double)out.tx->vout[out.i].nValue * (out.nDepth + 1);
+
+        // Bytes
+        CTxDestination address;
+        if (ExtractDestination(out.tx->vout[out.i].scriptPubKey, address)) {
+            CPubKey pubkey;
+            CKeyID* keyid = boost::get<CKeyID>(&address);
+            if (keyid && model->getPubKey(*keyid, pubkey)) {
+                nBytesInputs += (pubkey.IsCompressed() ? 148 : 180);
+                if (!pubkey.IsCompressed())
+                    nQuantityUncompressed++;
+            } else
+                nBytesInputs += 148; // in all error cases, simply assume 148 here
+        } else
+            nBytesInputs += 148;
+    }
+
+    // calculation
+    if (nQuantity > 0) {
+        // Bytes
+        nBytes = nBytesInputs + ((CoinControlModel::payAmounts.size() > 0 ? CoinControlModel::payAmounts.size() + max(1, CoinControlModel::nSplitBlockDummy) : 2) * 34) + 10; // always assume +1 output for change here
+
+        // Priority
+        double mempoolEstimatePriority = mempool.estimatePriority(nTxConfirmTarget);
+        dPriority = dPriorityInputs / (nBytes - nBytesInputs + (nQuantityUncompressed * 29)); // 29 = 180 - 151 (uncompressed public keys are over the limit. max 151 bytes of the input are ignored for priority)
+        sPriorityLabel = CoinControlModel::getPriorityLabel(dPriority, mempoolEstimatePriority);
+
+        // Fee
+        nPayFee = CWallet::GetMinimumFee(nBytes, nTxConfirmTarget, mempool);
+
+        // IX Fee
+        if (coinControl->useSwiftTX) nPayFee = max(nPayFee, CENT);
+        // Allow free?
+        double dPriorityNeeded = mempoolEstimatePriority;
+        if (dPriorityNeeded <= 0)
+            dPriorityNeeded = AllowFreeThreshold(); // not enough data, back to hard-coded
+        fAllowFree = (dPriority >= dPriorityNeeded);
+
+        if (fSendFreeTransactions)
+            if (fAllowFree && nBytes <= MAX_FREE_TRANSACTION_CREATE_SIZE)
+                nPayFee = 0;
+
+        if (nPayAmount > 0) {
+            nChange = nAmount - nPayFee - nPayAmount;
+
+            // Never create dust outputs; if we would, just add the dust to the fee.
+            if (nChange > 0 && nChange < CENT) {
+                CTxOut txout(nChange, (CScript)vector<unsigned char>(24, 0));
+                if (txout.IsDust(::minRelayTxFee)) {
+                    nPayFee += nChange;
+                    nChange = 0;
+                }
+            }
+
+            if (nChange == 0)
+                nBytes -= 34;
+        }
+
+        // after fee
+        nAfterFee = nAmount - nPayFee;
+        if (nAfterFee < 0)
+            nAfterFee = 0;
+    }
+
+    // actually update labels
+    int nDisplayUnit = BitcoinUnits::ULO;
+    if (model && model->getOptionsModel())
+        nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
+
+    QVariantList returnList;
+    bool needReverse = nPayFee > 0 && !(payTxFee.GetFeePerK() > 0 && fPayAtLeastCustomFee && nBytes < 1000);
+    // stats
+    returnList.append(QString::number(nQuantity));// Quantity
+    returnList.append(BitcoinUnits::formatWithUnit(nDisplayUnit, nAmount));// Amount
+    returnList.append(needReverse?("~" + BitcoinUnits::formatWithUnit(nDisplayUnit, nPayFee)):BitcoinUnits::formatWithUnit(nDisplayUnit, nPayFee));// Fee
+    returnList.append(needReverse?("~" + BitcoinUnits::formatWithUnit(nDisplayUnit, nAfterFee)):BitcoinUnits::formatWithUnit(nDisplayUnit, nAfterFee));// After Fee
+    returnList.append(((nBytes > 0) ? "~" : "") + QString::number(nBytes));// Bytes
+    returnList.append(sPriorityLabel);// Priority
+    returnList.append(fDust ? tr("yes") : tr("no"));// Dust
+    returnList.append((needReverse && (nChange > 0))?("~" + BitcoinUnits::formatWithUnit(nDisplayUnit, nChange)):BitcoinUnits::formatWithUnit(nDisplayUnit, nChange));// Change
+
+
+    obj->callUpdateLabels(returnList);
+
+}
+
+void CoinControlModel::callUpdateLabels(QVariantList returnList)
+{
+    emit updateLabels(returnList);
+}
+
 
 bool CoinControlModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
@@ -58,11 +302,14 @@ bool CoinControlModel::setData(const QModelIndex& index, const QVariant& value, 
         {
             model->lockCoin(outpt);
             mapSelection[QString::fromStdString(out.ToString())] = false;
+            coinControl->UnSelect(outpt);
         }
         else
         {
             model->unlockCoin(outpt);
         }
+
+
 
     }
     else if (role == CoinControlModel::SelectionRole)
@@ -70,19 +317,24 @@ bool CoinControlModel::setData(const QModelIndex& index, const QVariant& value, 
         if(status == "1")
         {
             mapSelection[QString::fromStdString(out.ToString())] = true;
+            coinControl->Select(outpt);
+
         }
         else
         {
             mapSelection[QString::fromStdString(out.ToString())] = false;
+            coinControl->UnSelect(outpt);
         }
 
-        qDebug()<<"changed";
     }
 
 
 
 
     emit dataChanged(index, index);
+
+    CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+
 }
 
 QVariant CoinControlModel::data(const QModelIndex &index, int role) const
@@ -250,16 +502,89 @@ QHash<int, QByteArray> CoinControlModel::roleNames() const {
     return roles;
 }
 
-void CoinControlModel::updateView()
+
+void CoinControlModel::selectAll()
+{
+    bool hasSelected = false;
+
+    for(int row = 0 ;row< vecOuts.size();row++)
+    {
+        COutput  out =  vecOuts.at(row).first;
+
+        if(mapSelection[QString::fromStdString(out.ToString())])
+        {
+            hasSelected = true;
+            break;
+        }
+
+    }
+
+    for(int row = 0 ;row< vecOuts.size();row++){
+
+        COutput  out =  vecOuts.at(row).first;
+        COutPoint outpt(out.tx->GetHash(), out.i);
+
+        bool locked =  model->isLockedCoin(out.tx->GetHash(), out.i);
+
+        if(!locked)
+        {
+            if(hasSelected)
+            {
+                mapSelection[QString::fromStdString(out.ToString())] = false;
+                coinControl->UnSelect(outpt);
+            }
+            else
+            {
+                mapSelection[QString::fromStdString(out.ToString())] = true;
+                coinControl->Select(outpt);
+
+            }
+
+        }
+
+
+    }
+
+
+    emit dataChanged(index(0,0), index(vecOuts.size()-1,0));
+
+    CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+}
+
+void CoinControlModel::toggle()
+{
+    for(int row = 0 ;row< vecOuts.size();row++){
+
+        COutput  out =  vecOuts.at(row).first;
+        COutPoint outpt(out.tx->GetHash(), out.i);
+        bool locked =  model->isLockedCoin(out.tx->GetHash(), out.i);
+
+        if(locked)
+        {
+            model->unlockCoin(outpt);
+        }
+        else
+        {
+            model->lockCoin(outpt);
+            mapSelection[QString::fromStdString(out.ToString())] = false;
+            coinControl->UnSelect(outpt);
+
+        }
+
+    }
+
+    emit dataChanged(index(0,0), index(vecOuts.size()-1,0));
+    CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+
+}
+
+void CoinControlModel::updateView(QVariantList payAmountList)
 {
     beginRemoveRows(QModelIndex(), 0, vecOuts.size() - 1);
     mapCoins.clear();
     vecOuts.clear();
     model->listCoins(mapCoins);
     endRemoveRows();
-
-    qDebug()<<"mapCoins.size:"<<mapCoins.size();
-    qDebug()<<"fMultisigEnabled:"<<fMultisigEnabled;
 
     BOOST_FOREACH (PAIRTYPE(QString, vector<COutput>) coins, mapCoins)
     {
@@ -271,10 +596,7 @@ void CoinControlModel::updateView()
         {
             isminetype mine = pwalletMain->IsMine(out.tx->vout[out.i]);
             bool fMultiSigUTXO = (mine & ISMINE_MULTISIG);
-            // when multisig is enabled, it will only display outputs from multisig addresses
-            qDebug()<<"mine:"<<mine;
-            qDebug()<<"fMultiSigUTXO:"<<fMultiSigUTXO;
-
+            // when multisig is enabled, it will only display outputs from multisig addresses            if (fMultisigEnabled && !fMultiSigUTXO)
             if (fMultisigEnabled && !fMultiSigUTXO)
                 continue;
 
@@ -286,6 +608,89 @@ void CoinControlModel::updateView()
 
     endInsertRows();
 
-    qDebug()<<"vecOuts.size:"<<vecOuts.size();
+    CoinControlModel::payAmounts.clear();
+
+    for(int i = 0;i<payAmountList.size();i++)
+        CoinControlModel::payAmounts.append(payAmountList[i].toLongLong());
+
+    if (CoinControlModel::coinControl->HasSelected())
+    {
+        // actual coin control calculation
+        CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+    }
+
+}
+
+void CoinControlModel::updateSplitUtxo(bool checked,const QString &utxo,const QString &afterFee)
+{
+
+    CoinControlModel::coinControl->fSplitBlock = checked;
+    fSplitBlock = checked;
+
+    if(!checked)
+    {
+        return;
+    }
+
+    QString qAfterFee = afterFee.left(afterFee.indexOf(" ")).replace("~", "").simplified().replace(" ", "");
+
+    //convert to CAmount
+    CAmount nAfterFee;
+    ParseMoney(qAfterFee.toStdString().c_str(), nAfterFee);
+
+    //if greater than 0 then divide after fee by the amount of blocks
+    CAmount nSize = nAfterFee;
+    int nBlocks = utxo.toInt();
+    if (nAfterFee && nBlocks)
+        nSize = nAfterFee / nBlocks;
+
+    //assign to split block dummy, which is used to recalculate the fee amount more outputs
+    CoinControlModel::nSplitBlockDummy = nBlocks;
+
+    //update labels
+    emit updateLabelBlockSize(QString::fromStdString(FormatMoney(nSize)));
+
+
+}
+
+
+QString CoinControlModel::updatecustomChangeAddress(bool checked,const QString &address)
+{
+    CoinControlModel::coinControl->destChange = CNoDestination();
+
+    if(!checked) return "";
+
+    CBitcoinAddress addr = CBitcoinAddress(address.toStdString());
+
+    if (address.isEmpty()) // Nothing entered
+    {
+        return "empty";
+    } else if (!addr.IsValid()) // Invalid address
+    {
+        return "Invalid address";
+    } else // Valid address
+    {
+        CPubKey pubkey;
+        CKeyID keyid;
+        addr.GetKeyID(keyid);
+        if (!model->getPubKey(keyid, pubkey)) // Unknown change address
+        {
+            return "Unknown change address";
+        } else // Known change address
+        {
+
+            // Query label
+            QString associatedLabel = model->getAddressTableModel()->labelForAddress(address);
+            CoinControlModel::coinControl->destChange = addr.Get();
+
+            if (!associatedLabel.isEmpty())
+                return associatedLabel;
+            else
+                return tr("(no label)");
+
+
+        }
+    }
+
 }
 

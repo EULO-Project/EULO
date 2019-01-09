@@ -28,11 +28,40 @@ CommonDialog
     property int tableMode:1
     property int viewMode:tableMode
 
-
     onVisibleChanged:
     {
         if(visible)
-            walletModel.coinControlProxy.updateView()
+        {
+            walletModel.coinControlProxy.updateView(getPaymentList())
+        }
+
+    }
+
+    onConfirmed:
+    {
+        root.close()
+    }
+
+    onClosing:
+    {
+        walletModel.coinControlProxy.updateSendingPage()
+    }
+
+    Connections
+    {
+        target:walletModel.coinControlProxy
+
+        onUpdateLabels:
+        {
+            quantityContent.text = msg[0];
+            amountContent.text = msg[1];
+            feeContent.text = msg[2];
+            afterFeeContent.text = msg[3];
+            byteContent.text = msg[4];
+            priorityContent.text = msg[5];
+            dustContent.text = msg[6];
+            changeContent.text = msg[7];
+        }
 
     }
 
@@ -71,7 +100,7 @@ CommonDialog
                 font.pixelSize:14
                 font.letterSpacing: 0.355
                 anchors.left: quantityLabel.left
-                anchors.leftMargin: 60
+                anchors.leftMargin: 70
                 anchors.verticalCenter: quantityLabel.verticalCenter
                 color: "#333333"
                 text:""
@@ -97,7 +126,7 @@ CommonDialog
                 font.pixelSize:14
                 font.letterSpacing: 0.355
                 anchors.left: byteLabel.left
-                anchors.leftMargin: 60
+                anchors.leftMargin: 70
                 anchors.verticalCenter: byteLabel.verticalCenter
                 color: "#333333"
                 text:""
@@ -222,7 +251,7 @@ CommonDialog
                 font.pixelSize:14
                 font.letterSpacing: 0.355
                 anchors.left: afterFeeLabel.left
-                anchors.leftMargin: 60
+                anchors.leftMargin: 70
                 anchors.verticalCenter: quantityLabel.verticalCenter
                 color: "#333333"
                 text:""
@@ -247,7 +276,7 @@ CommonDialog
                 font.pixelSize:14
                 font.letterSpacing: 0.355
                 anchors.left: changeLabel.left
-                anchors.leftMargin: 60
+                anchors.leftMargin: 70
                 anchors.verticalCenter: byteLabel.verticalCenter
                 color: "#333333"
                 text:""
@@ -269,6 +298,7 @@ CommonDialog
 
             onClicked:
             {
+                coinControlTable.model.selectAll()
             }
 
         }
@@ -286,14 +316,17 @@ CommonDialog
 
             onClicked:
             {
-                if(!root.viewMode !==  root.tableMode)
-                {
-                    root_window.warningDialog.title = qsTr("注意")
-                    root_window.warningDialog.content_text = qsTr("Please switch to \"List Mode\" to use this function.")
-                    root_window.warningDialog.dim_back = false
-                    root_window.warningDialog.show()
-                    return
-                }
+//                if(!root.viewMode !==  root.tableMode)
+//                {
+//                    root_window.warningDialog.title = qsTr("注意")
+//                    root_window.warningDialog.content_text = qsTr("Please switch to \"List Mode\" to use this function.")
+//                    root_window.warningDialog.dim_back = false
+//                    root_window.warningDialog.show()
+//                    return
+//                }
+
+                coinControlTable.model.toggle()
+
             }
 
         }

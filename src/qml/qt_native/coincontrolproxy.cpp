@@ -1,4 +1,5 @@
 #include "coincontrolproxy.h"
+#include "coincontrol.h"
 
 CoinControlProxy::CoinControlProxy(QObject *parent) :
     QSortFilterProxyModel(parent)
@@ -7,10 +8,10 @@ CoinControlProxy::CoinControlProxy(QObject *parent) :
 }
 
 
-void CoinControlProxy::updateView()
+void CoinControlProxy::updateView(QVariantList payAmountList)
 {
     CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
-    sourceModel_->updateView();
+    sourceModel_->updateView(payAmountList);
 }
 
 void CoinControlProxy::setData_(int sourceRow, QString value,int mode)
@@ -23,9 +24,53 @@ void CoinControlProxy::setData_(int sourceRow, QString value,int mode)
         sourceModel_->setData(index_, value, CoinControlModel::StatusRole);
     else
         sourceModel_->setData(index_, value, CoinControlModel::SelectionRole);
+}
 
 
+void CoinControlProxy::selectAll()
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    sourceModel_->selectAll();
+}
 
+void CoinControlProxy::toggle()
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    sourceModel_->toggle();
+}
+
+
+void CoinControlProxy::updateSendingPage()
+{
+    if(CoinControlModel::coinControl->HasSelected())
+        emit showCoinControl(true);
+    else
+        emit showCoinControl(false);
+}
+
+void CoinControlProxy::updateSplitUtxo(bool checked, const QString &utxo, const QString &afterFee)
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    sourceModel_->updateSplitUtxo(checked,utxo,afterFee);
+}
+
+QString CoinControlProxy::updatecustomChangeAddress(bool checked,const QString &address)
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    return sourceModel_->updatecustomChangeAddress(checked,address);
+}
+
+
+void CoinControlProxy::setValue(int index, QVariant value, QVariantList payAmountList)
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    sourceModel_->setValue(index,value,payAmountList);
+}
+
+QVariant CoinControlProxy::getValue(int index)
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    return sourceModel_->getValue(index);
 }
 
 

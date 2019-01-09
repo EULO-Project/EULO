@@ -54,12 +54,6 @@ Controls_1_4.Tab {
             anchors.right: parent.right
             anchors.rightMargin: 28
 
-            Component.onCompleted:
-            {
-                console.log("height:"+coinControlItem.height)
-                console.log("width:"+coinControlItem.width)
-
-            }
 
         }
 
@@ -161,6 +155,19 @@ Controls_1_4.Tab {
             }
 
         }
+
+        function getPaymentList()
+        {
+            var paymentList = new Array
+
+            for(var i = 0;i<target_listview.count;i++)
+            {
+                paymentList.push(target_listview.contentItem.children[i].targetItem.getPayMent().toString())
+            }
+
+            return paymentList
+        }
+
 
         function checkTargetItemsAreReady()
         {

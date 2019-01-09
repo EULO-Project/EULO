@@ -23,6 +23,36 @@ Item
     }
 
 
+    Connections
+    {
+        target:walletModel.coinControlProxy
+
+        onUpdateLabels:
+        {
+            quantityContent.text = msg[0];
+            amountContent.text = msg[1];
+            feeContent.text = msg[2];
+            afterFeeContent.text = msg[3];
+            byteContent.text = msg[4];
+            priorityContent.text = msg[5];
+            dustContent.text = msg[6];
+            changeContent.text = msg[7];
+        }
+
+        onShowCoinControl:
+        {
+            autoHint.visible = !show
+        }
+
+        onUpdateLabelBlockSize:
+        {
+            uuxoSizeLabel.text = "UTXO Size: " + size
+            walletModel.coinControlProxy.updateView(getPaymentList())
+        }
+
+    }
+
+
     Label {
         id:coinControlTitle
         font.weight: Font.Medium
@@ -95,7 +125,7 @@ Item
             font.pixelSize:14
             font.letterSpacing: 0.355
             anchors.left: quantityLabel.left
-            anchors.leftMargin: 60
+            anchors.leftMargin: 70
             anchors.verticalCenter: quantityLabel.verticalCenter
             color: "#333333"
             text:""
@@ -121,7 +151,7 @@ Item
             font.pixelSize:14
             font.letterSpacing: 0.355
             anchors.left: byteLabel.left
-            anchors.leftMargin: 60
+            anchors.leftMargin: 70
             anchors.verticalCenter: byteLabel.verticalCenter
             color: "#333333"
             text:""
@@ -246,7 +276,7 @@ Item
             font.pixelSize:14
             font.letterSpacing: 0.355
             anchors.left: afterFeeLabel.left
-            anchors.leftMargin: 60
+            anchors.leftMargin: 70
             anchors.verticalCenter: quantityLabel.verticalCenter
             color: "#333333"
             text:""
@@ -271,12 +301,29 @@ Item
             font.pixelSize:14
             font.letterSpacing: 0.355
             anchors.left: changeLabel.left
-            anchors.leftMargin: 60
+            anchors.leftMargin: 70
             anchors.verticalCenter: byteLabel.verticalCenter
             color: "#333333"
             text:""
         }
 
+    }
+
+    CommonCheckBox
+    {
+        id:customChangeAddressCheckBox
+        font.weight: Font.Light
+        font.pixelSize: 11
+        font.letterSpacing: 0.5
+        anchors.verticalCenter: customChangeAddressLabel.verticalCenter
+        anchors.left: openCoinControlBtn.left
+        anchors.leftMargin:5
+
+
+        onClicked:
+        {
+            customChangeAddressHint.text = walletModel.coinControlProxy.updatecustomChangeAddress(checked,customChangeAddressField.text)
+        }
     }
 
     Label
@@ -285,8 +332,8 @@ Item
         font.weight: Font.Normal
         font.pixelSize:14
         font.letterSpacing: 0.355
-        anchors.left: openCoinControlBtn.left
-        anchors.leftMargin:15
+        anchors.left: customChangeAddressCheckBox.right
+        anchors.leftMargin:0
         anchors.top: autoHint.visivle ? autoHint.bottom : statusTable.bottom
         anchors.topMargin:10
         color: "#333333"
@@ -302,9 +349,42 @@ Item
         anchors.leftMargin: 20
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
         placeholderText: "Enter a EULO address (e.g. Uek2swfjkwerwherjhbk32)"
-        width: 250
-        enabled:false
-     }
+        width: 300
+        enabled:customChangeAddressCheckBox.checked
+
+        onTextChanged:
+        {
+            customChangeAddressHint.text = walletModel.coinControlProxy.updatecustomChangeAddress(true,customChangeAddressField.text)
+        }
+    }
+
+    Label
+    {
+        id:customChangeAddressHint
+        font.weight: Font.Normal
+        font.pixelSize:10
+        font.letterSpacing: 0.355
+        anchors.left: customChangeAddressField.left
+        anchors.top: customChangeAddressField.bottom
+        anchors.topMargin:2
+        color: "#333333"
+    }
+
+    CommonCheckBox
+    {
+        id:splitUtxoCheckBox
+        font.weight: Font.Light
+        font.pixelSize: 11
+        font.letterSpacing: 0.5
+        anchors.verticalCenter: customChangeAddressLabel.verticalCenter
+        anchors.left: customChangeAddressField.right
+        anchors.leftMargin:30
+        onClicked:
+        {
+            walletModel.coinControlProxy.updateSplitUtxo(checked,splitUtxoField.text,afterFeeContent.text)
+        }
+
+    }
 
 
     Label
@@ -313,8 +393,8 @@ Item
         font.weight: Font.Normal
         font.pixelSize:14
         font.letterSpacing: 0.355
-        anchors.left: customChangeAddressField.right
-        anchors.leftMargin:30
+        anchors.left: splitUtxoCheckBox.right
+        anchors.leftMargin:0
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
         color: "#333333"
         text: "Split UTXO"
@@ -330,7 +410,13 @@ Item
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
         placeholderText: "# of outputs"
         width: 100
-     }
+        enabled:splitUtxoCheckBox.checked
+
+        onTextChanged:
+        {
+            walletModel.coinControlProxy.updateSplitUtxo(true,splitUtxoField.text,afterFeeContent.text)
+        }
+    }
 
     Label
     {
@@ -343,6 +429,8 @@ Item
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
         color: "#333333"
         text: "UTXO Size: 0.000"
+
+
     }
 
 }

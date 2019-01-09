@@ -23,6 +23,11 @@ Item {
         sending_textFiled.text = address
     }
 
+    function getPayMent()
+    {
+        return amountField.getFiledAmount()
+    }
+
 
     function infoIsReady()
     {

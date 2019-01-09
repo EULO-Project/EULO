@@ -150,6 +150,10 @@ public:
     Q_INVOKABLE QString getAmount(int currentUnit, int unit, QString text, int direction, int factor=100000);
     Q_INVOKABLE QVariant getClipBoard(const QString &type);
     Q_INVOKABLE void setClipBoard(QVariant variant);
+    Q_INVOKABLE int getFeePerkilo();
+
+
+    Q_INVOKABLE qint64 getFiledAmount(int uint,QString amountText);
 
     // Check address for validity
     Q_INVOKABLE bool validateAddress(const QString& address);

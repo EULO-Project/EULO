@@ -199,6 +199,8 @@ WalletModel::WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* p
    coinControlProxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
    coinControlProxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
    coinControlProxy_->sort(CoinControlModel::Date,Qt::DescendingOrder);
+   connect(coinControlModel,SIGNAL(updateLabels(QVariantList)),coinControlProxy_,SIGNAL(updateLabels(QVariantList)));
+   connect(coinControlModel,SIGNAL(updateLabelBlockSize(QString)),coinControlProxy_,SIGNAL(updateLabelBlockSize(QString)));
 
 
 
@@ -344,6 +346,22 @@ void WalletModel::setClipBoard(QVariant variant)
         break;
     }
 }
+
+
+int WalletModel::getFeePerkilo()
+{
+    return CWallet::minTxFee.GetFeePerK();
+}
+
+
+qint64 WalletModel::getFiledAmount(int uint,QString amountText)
+{
+    CAmount amount = 0;
+    BitcoinUnits::parse(uint, amountText, &amount);
+
+    return (qint64)amount;
+}
+
 
 QString WalletModel::getAmount(int currentUnit,int unit,QString text,int direction,int factor)
 {
