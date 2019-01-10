@@ -33,6 +33,8 @@ class WalletModelTransaction;
 class ContractTableModel;
 class TokenItemModel;
 class TokenTransactionTableModel;
+class ClientModel;
+class CoinControlModel;
 
 
 class CreateContractPage;
@@ -146,11 +148,11 @@ public:
     Q_INVOKABLE void changedAmount(QString amount);
     Q_INVOKABLE qint64 getlockedCoins();
 
-    Q_INVOKABLE QString formatAmount(qint64 amount);
+    Q_INVOKABLE QString formatAmount(qint64 amount, int unit = -1);
     Q_INVOKABLE QString getAmount(int currentUnit, int unit, QString text, int direction, int factor=100000);
     Q_INVOKABLE QVariant getClipBoard(const QString &type);
     Q_INVOKABLE void setClipBoard(QVariant variant);
-    Q_INVOKABLE int getFeePerkilo();
+    Q_INVOKABLE qint64 getFeePerkilo();
 
 
     Q_INVOKABLE qint64 getFiledAmount(int uint,QString amountText);
@@ -210,6 +212,8 @@ public:
     bool removeTokenEntry(const std::string &sHash);
     bool isUnspentAddress(const std::string &qtumAddress) const;
     bool addTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
+    void setClientModel(ClientModel* clientModel);
+
 
 
     CAmount getBalance(const CCoinControl* coinControl = NULL) const;

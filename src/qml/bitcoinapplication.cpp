@@ -381,11 +381,13 @@ void BitcoinApplication::initializeResult(int retval)
 #ifdef ENABLE_WALLET
         if (pwalletMain) {
             walletModel = new WalletModel(pwalletMain, optionsModel);
+
+
             qDebug()<<"OK set walletModel";
             root_context->setContextProperty("walletModel", walletModel);
             //root_context->setContextProperty("clientModel", clientModel);
             root_context->setContextProperty("optionsModel", optionsModel);
-
+            walletModel->setClientModel(clientModel);
             //window->addWallet(BitcoinApplication::DEFAULT_WALLET, walletModel);
 
 

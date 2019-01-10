@@ -13,7 +13,8 @@ import "../app_dialogs"
 Controls_1_4.Tab {
 
 
-    Rectangle {
+    Rectangle
+    {
         id:root
         anchors.fill:parent
 
@@ -94,10 +95,18 @@ Controls_1_4.Tab {
                         {
                             target_listview.model.remove(index)
                             targetItem.destroy()
-
                         }
                         else
                             clearFirst()
+
+                        coinControlItem.updateCoinControlLabelsOnce()
+                    }
+
+                    onUpdateSeveral:
+                    {
+                        coinControlItem.updateCoinControlLabelsOnce()
+                        coinControlItem.updateInnerViewOnce()
+
                     }
 
                     onPickAddress:
@@ -152,6 +161,12 @@ Controls_1_4.Tab {
                 if(!checkTargetItemsAreReady())
                     return
 
+                walletModel.coinControlProxy.sendButtonClicked(getRecipient(),
+                                                               coinControlItem.splitBlockCheckBoxChecked,
+                                                               coinControlItem.splitUtxoSize,
+                                                               transaction_fee.swiftTxChecked)
+
+
             }
 
         }
@@ -182,6 +197,20 @@ Controls_1_4.Tab {
 
         }
 
+        function getRecipient()
+        {
+            var array = new Array
+            for(var i = 0;i<target_listview.count;i++)
+            {
+                array.push(target_listview.contentItem.children[i].targetItem.getRecipient())
+            }
+
+            return array
+        }
+
+
+
+
         CommonButton
         {
             id:clear_btn
@@ -199,6 +228,8 @@ Controls_1_4.Tab {
             onClicked:
             {
                 root.cleatAll()
+
+                coinControlItem.updateCoinControlLabelsOnce()
             }
         }
 
@@ -224,6 +255,7 @@ Controls_1_4.Tab {
                     root_window.warningDialog.content_text = "最多添加10个地址"
                     root_window.warningDialog.show()
                 }
+
             }
 
         }
@@ -239,6 +271,97 @@ Controls_1_4.Tab {
             {
                 target_listview.contentItem.children[target_listview.triggerPickAddressIndex].targetItem.setAddress(address)
             }
+        }
+
+
+
+
+        Connections
+        {
+            target:walletModel.coinControlProxy
+
+
+            onNotifySendingResult:
+            {
+
+                if(type == -1)
+                {
+                    root_window.warningDialog.title = title
+                    root_window.warningDialog.dim_back = false
+                    root_window.warningDialog.content_text = msg
+                    root_window.warningDialog.show()
+                }
+                else if(type == 0)
+                {
+                    root_window.warningDialog.title = title
+                    root_window.warningDialog.dim_back = false
+                    root_window.warningDialog.content_text = msg
+                    root_window.warningDialog.show()
+                    coinControlItem.splitUtxoCheckBox.checked = false
+                }
+                else
+                {
+                    waitDialog.title = title
+                    waitDialog.content_text = msg
+                    waitDialog.timeLeft = 3
+                    waitDialog.confrim_btn_text = "确认" + "  (" + waitDialog.timeLeft + ")"
+                    waitDialog.countDownTimer.start()
+                    waitDialog.show()
+
+                }
+
+            }
+
+
+
+        }
+
+
+
+
+
+        CommonDialog
+        {
+            id:waitDialog
+            modality: Qt.ApplicationModal
+            property int timeLeft: 3
+            property alias countDownTimer: countDownTimer
+            width:500
+            height:600
+
+            Timer
+            {
+                id:countDownTimer
+                interval: 1000
+                onTriggered:
+                {
+                    if(waitDialog.timeLeft > 1)
+                    {
+                        waitDialog.timeLeft--
+                        waitDialog.confrim_btn_text = "是" + "  (" + waitDialog.timeLeft + ")"
+                        countDownTimer.start()
+                    }
+                    else
+                    {
+                        waitDialog.confrim_btn_text = "是"
+                        waitDialog.confrim_btn_enabled = true
+                    }
+
+                }
+            }
+
+
+            onCanceled:
+            {
+                countDownTimer.stop()
+            }
+
+            onConfirmed:
+            {
+                waitDialog.close()
+                walletModel.coinControlProxy.confirmSending()
+            }
+
         }
 
     }

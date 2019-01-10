@@ -4,7 +4,6 @@
 #include "guiutil.h"
 #include "init.h"
 #include "optionsmodel.h"
-#include "walletmodel.h"
 
 #include "coincontrol.h"
 #include "obfuscation.h"
@@ -19,7 +18,7 @@ QList<CAmount> CoinControlModel::payAmounts;
 int CoinControlModel::nSplitBlockDummy;
 CCoinControl* CoinControlModel::coinControl = new CCoinControl();
 
-CoinControlModel::CoinControlModel(CWallet* wallet, WalletModel* parent, bool MultisigEnabled) :
+CoinControlModel::CoinControlModel(WalletModel* parent, bool MultisigEnabled) :
     QAbstractListModel(parent),
     model(parent),
     fMultisigEnabled(MultisigEnabled)
@@ -29,17 +28,16 @@ CoinControlModel::CoinControlModel(CWallet* wallet, WalletModel* parent, bool Mu
         settings.setValue("bUseObfuScation", false);
     if (!settings.contains("bUseSwiftTX"))
         settings.setValue("bUseSwiftTX", false);
-
     if (!settings.contains("fFeeSectionMinimized"))
         settings.setValue("fFeeSectionMinimized", true);
     if (!settings.contains("nFeeRadio") && settings.contains("nTransactionFee") && settings.value("nTransactionFee").toLongLong() > 0) // compatibility
-        settings.setValue("nFeeRadio", true);                                                                                             // custom
+        settings.setValue("nFeeRadio", 1);     //custom                                                                                        // custom
     if (!settings.contains("nFeeRadio"))
-        settings.setValue("nFeeRadio", false);                                                                                                   // recommended
+        settings.setValue("nFeeRadio", 0);                                                                                                   // recommended
     if (!settings.contains("nCustomFeeRadio") && settings.contains("nTransactionFee") && settings.value("nTransactionFee").toLongLong() > 0) // compatibility
-        settings.setValue("nCustomFeeRadio", true);                                                                                             // total at least
+        settings.setValue("nCustomFeeRadio", 1);                                                                                             // total at least
     if (!settings.contains("nCustomFeeRadio"))
-        settings.setValue("nCustomFeeRadio", false); // per kilobyte
+        settings.setValue("nCustomFeeRadio", 0); // per kilobyte
     if (!settings.contains("nSmartFeeSliderPosition"))
         settings.setValue("nSmartFeeSliderPosition", 0);
     if (!settings.contains("nTransactionFee"))
@@ -60,11 +58,11 @@ QVariant CoinControlModel::getValue(int index)
     case 0:
         return settings.value("fFeeSectionMinimized").toBool();
     case 1:
-        return settings.value("nFeeRadio").toBool();
+        return settings.value("nFeeRadio").toInt();
     case 2:
-        return settings.value("nCustomFeeRadio").toBool();
+        return settings.value("nCustomFeeRadio").toInt();
     case 3:
-        return settings.value("nSmartFeeSliderPosition").toBool();
+        return settings.value("nSmartFeeSliderPosition").toInt();
     case 4:
         return settings.value("nTransactionFee").toLongLong();
     case 5:
@@ -75,28 +73,47 @@ QVariant CoinControlModel::getValue(int index)
 }
 
 
-void CoinControlModel::setValue(int index, QVariant value, QVariantList payAmountList)
+void CoinControlModel::setValue(int index, QVariant value)
 {
     QSettings settings;
+    bool needUpdateSmartFeeLabel = false;
+    bool needUpdateGlobalFeeVariables = false;
+    bool needCoinControlUpdateLabels = false;
+
+
+
     switch(index)
     {
     case 0:
         settings.setValue("fFeeSectionMinimized", value.toBool());
+        if(value.toBool())
+            updateSmartFeeLabel();
         break;
     case 1:
-        settings.setValue("nFeeRadio", value.toBool());
+        settings.setValue("nFeeRadio", value.toInt());
+        needCoinControlUpdateLabels = true;
+        needUpdateGlobalFeeVariables = true;
         break;
     case 2:
-        settings.setValue("nCustomFeeRadio", value.toBool());
+        settings.setValue("nCustomFeeRadio", value.toInt());
+        needCoinControlUpdateLabels = true;
+        needUpdateGlobalFeeVariables = true;
         break;
     case 3:
         settings.setValue("nSmartFeeSliderPosition", value.toInt());
+        needUpdateSmartFeeLabel = true;
+        needCoinControlUpdateLabels = true;
+        needUpdateGlobalFeeVariables = true;
         break;
     case 4:
         settings.setValue("nTransactionFee", value.toLongLong());
+        needCoinControlUpdateLabels = true;
+        needUpdateGlobalFeeVariables = true;
         break;
     case 5:
         settings.setValue("fPayOnlyMinFee", value.toBool());
+        needCoinControlUpdateLabels = true;
+        needUpdateGlobalFeeVariables = true;
         break;
     case 6:
         settings.setValue("fSendFreeTransactions", value.toBool());
@@ -104,6 +121,66 @@ void CoinControlModel::setValue(int index, QVariant value, QVariantList payAmoun
     }
 
 
+    if(needUpdateSmartFeeLabel)
+        updateSmartFeeLabel();
+
+    if(needCoinControlUpdateLabels)
+        emit updateCoinControlLabelsSig();
+
+    if(needUpdateGlobalFeeVariables)
+        updateGlobalFeeVariables();
+
+}
+
+void CoinControlModel::updateGlobalFeeVariables()
+{
+    QSettings settings;
+
+    if (settings.value("nFeeRadio").toInt() == 0) {
+        nTxConfirmTarget = (int)25 - (int)std::max(0, std::min(24, settings.value("nSmartFeeSliderPosition").toInt()));
+        payTxFee = CFeeRate(0);
+    } else {
+        nTxConfirmTarget = 25;
+        payTxFee = CFeeRate((CAmount)(settings.value("nTransactionFee").toLongLong()));
+        fPayAtLeastCustomFee = (settings.value("nCustomFeeRadio").toInt() == 1);
+    }
+
+    fSendFreeTransactions = settings.value("fSendFreeTransactions").toBool();
+}
+
+
+void CoinControlModel::updateSmartFeeLabel()
+{
+    QVariantList labelList;
+    QSettings settings;
+
+
+    int nBlocksToConfirm = (int)25 - (int)std::max(0, std::min(24, settings.value("nSmartFeeSliderPosition").toInt()));
+    CFeeRate feeRate = mempool.estimateFee(nBlocksToConfirm);
+    if (feeRate <= CFeeRate(0)) // not enough data => minfee
+    {
+        labelList.append(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), CWallet::minTxFee.GetFeePerK()) + "/kB");
+        labelList.append(tr("Smart fee not initialized yet. This usually takes a few blocks..."));
+        labelList.append("");
+    } else {
+        labelList.append(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), feeRate.GetFeePerK()) + "/kB");
+        labelList.append("");
+        labelList.append(tr("Estimated to begin confirmation within %n block(s).", "", nBlocksToConfirm));
+    }
+
+
+    if (settings.value("nFeeRadio").toInt() == 0)
+        labelList.append(labelList.at(0));
+    else {
+        labelList.append(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), settings.value("nTransactionFee").toLongLong()) +
+                         ((settings.value("nCustomFeeRadio").toInt() == 0) ? "/kB" : ""));
+    }
+
+    emit updateSmartFeeLabels(labelList);
+}
+
+QVariantList CoinControlModel::updateCoinControlLabels(QVariantList payAmountList)
+{
     CoinControlModel::payAmounts.clear();
 
     for(int i = 0;i<payAmountList.size();i++)
@@ -112,16 +189,16 @@ void CoinControlModel::setValue(int index, QVariant value, QVariantList payAmoun
     if (CoinControlModel::coinControl->HasSelected())
     {
         // actual coin control calculation
-        CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+        return CoinControlModel::updateLabelsFunc(model,mapSelection);
     }
 
+    return QVariantList();
 }
 
 
 int CoinControlModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    qDebug()<<"vecOuts.size called:"<<vecOuts.size();
 
     return vecOuts.size();
 }
@@ -142,10 +219,10 @@ QModelIndex CoinControlModel::index(int row, int column, const QModelIndex &pare
 
 }
 
-void CoinControlModel::updateLabelsFunc(WalletModel* model, std::map<QString,bool> &mapSelection,CoinControlModel *obj)
+QVariantList CoinControlModel::updateLabelsFunc(WalletModel* model, std::map<QString,bool> &mapSelection)
 {
     if (!model)
-        return;
+        return QVariantList();
 
     // nPayAmount
     CAmount nPayAmount = 0;
@@ -280,13 +357,9 @@ void CoinControlModel::updateLabelsFunc(WalletModel* model, std::map<QString,boo
     returnList.append((needReverse && (nChange > 0))?("~" + BitcoinUnits::formatWithUnit(nDisplayUnit, nChange)):BitcoinUnits::formatWithUnit(nDisplayUnit, nChange));// Change
 
 
-    obj->callUpdateLabels(returnList);
+    return returnList;
 
-}
 
-void CoinControlModel::callUpdateLabels(QVariantList returnList)
-{
-    emit updateLabels(returnList);
 }
 
 
@@ -332,8 +405,7 @@ bool CoinControlModel::setData(const QModelIndex& index, const QVariant& value, 
 
 
     emit dataChanged(index, index);
-
-    CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+    emit updateCoinControlLabelsSig();
 
 }
 
@@ -547,8 +619,7 @@ void CoinControlModel::selectAll()
 
 
     emit dataChanged(index(0,0), index(vecOuts.size()-1,0));
-
-    CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+    emit updateCoinControlLabelsSig();
 }
 
 void CoinControlModel::toggle()
@@ -574,11 +645,11 @@ void CoinControlModel::toggle()
     }
 
     emit dataChanged(index(0,0), index(vecOuts.size()-1,0));
-    CoinControlModel::updateLabelsFunc(model,mapSelection,this);
+    emit updateCoinControlLabelsSig();
 
 }
 
-void CoinControlModel::updateView(QVariantList payAmountList)
+QVariantList CoinControlModel::updateView(QVariantList payAmountList)
 {
     beginRemoveRows(QModelIndex(), 0, vecOuts.size() - 1);
     mapCoins.clear();
@@ -608,16 +679,7 @@ void CoinControlModel::updateView(QVariantList payAmountList)
 
     endInsertRows();
 
-    CoinControlModel::payAmounts.clear();
-
-    for(int i = 0;i<payAmountList.size();i++)
-        CoinControlModel::payAmounts.append(payAmountList[i].toLongLong());
-
-    if (CoinControlModel::coinControl->HasSelected())
-    {
-        // actual coin control calculation
-        CoinControlModel::updateLabelsFunc(model,mapSelection,this);
-    }
+    return  updateCoinControlLabels(payAmountList);
 
 }
 
@@ -691,6 +753,286 @@ QString CoinControlModel::updatecustomChangeAddress(bool checked,const QString &
 
         }
     }
+
+}
+
+
+
+void CoinControlModel::sendButtonClicked(QVariantList recipientsArray,
+                                         bool splitBlockCheckBoxChecked,
+                                         int splitBlockSize,
+                                         bool swiftTXChecked)
+{
+    QList<SendCoinsRecipient> recipients;
+
+    qDebug()<<"recipientsArray:"<<recipientsArray;
+
+
+    for (int i = 0; i < recipientsArray.count(); ++i) {
+
+        QVariantList thisRecipient = recipientsArray.at(i).toList();
+
+        //UTXO splitter - address should be our own
+        CBitcoinAddress address = thisRecipient.at(0).toString().toStdString();
+        if (!model->isMine(address) && splitBlockCheckBoxChecked) {
+            CoinControlModel::coinControl->fSplitBlock = false;
+            emit notifySendingResult(0,tr("Send Coins"),tr("The split block tool does not work when sending to outside addresses. Try again."));
+            return;
+        }
+
+        SendCoinsRecipient recipient;
+        recipient.address = thisRecipient.at(0).toString();
+        recipient.label = thisRecipient.at(1).toString();
+        recipient.amount = thisRecipient.at(2).toLongLong();
+
+        qDebug()<<"thisRecipient.at(2).toLongLong():"<<thisRecipient.at(2).toLongLong();
+        recipient.message = thisRecipient.at(3).toString();
+        recipients.append(recipient);
+    }
+
+    //set split block in model
+    CoinControlModel::coinControl->fSplitBlock = splitBlockCheckBoxChecked;
+
+    if (recipientsArray.count() > 1 && splitBlockCheckBoxChecked) {
+        CoinControlModel::coinControl->fSplitBlock = false;
+        emit notifySendingResult(0,tr("Send Coins"),tr("The split block tool does not work with multiple addresses. Try again."));
+        return;
+    }
+
+    if (CoinControlModel::coinControl->fSplitBlock)
+        CoinControlModel::coinControl->nSplitBlock = int(splitBlockSize);
+
+    QString strFunds = tr("using") + " <b>" + tr("anonymous funds") + "</b>";
+    QString strFee = "";
+    recipients[0].inputType = ALL_COINS;
+    strFunds = tr("using") + " <b>" + tr("any available funds (not recommended)") + "</b>";
+
+    if (swiftTXChecked) {
+        recipients[0].useSwiftTX = true;
+        strFunds += " ";
+        strFunds += tr("and SwiftX");
+    } else {
+        recipients[0].useSwiftTX = false;
+    }
+
+
+    // Format confirmation message
+    QStringList formatted;
+    foreach (const SendCoinsRecipient& rcp, recipients) {
+        // generate bold amount string
+        QString amount = "<b>" + BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
+        amount.append("</b> ").append(strFunds);
+
+        // generate monospace address string
+        QString address = "<span style='font-family: monospace;'>" + rcp.address;
+        address.append("</span>");
+
+        QString recipientElement;
+
+        if (!rcp.paymentRequest.IsInitialized()) // normal payment
+        {
+            if (rcp.label.length() > 0) // label with address
+            {
+                recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.label));
+                recipientElement.append(QString(" (%1)").arg(address));
+            } else // just address
+            {
+                recipientElement = tr("%1 to %2").arg(amount, address);
+            }
+        } else if (!rcp.authenticatedMerchant.isEmpty()) // secure payment request
+        {
+            recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
+        } else // insecure payment request
+        {
+            recipientElement = tr("%1 to %2").arg(amount, address);
+        }
+
+        if (fSplitBlock) {
+            recipientElement.append(tr(" split into %1 outputs using the UTXO splitter.").arg(CoinControlModel::coinControl->nSplitBlock));
+        }
+
+        formatted.append(recipientElement);
+    }
+
+    fNewRecipientAllowed = false;
+
+    // request unlock only if was locked or unlocked for mixing:
+    // this way we let users unlock by walletpassphrase or by menu
+    // and make many transactions while unlocking through this dialog
+    // will call relock
+    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
+    if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
+        WalletModel::UnlockContext ctx(model->requestUnlock(true));
+        if (!ctx.isValid()) {
+            // Unlock wallet was cancelled
+            fNewRecipientAllowed = true;
+            return;
+        }
+        send(recipients, strFee, formatted);
+        return;
+    }
+    // already unlocked or not encrypted at all
+    send(recipients, strFee, formatted);
+}
+
+
+void CoinControlModel::processSendCoinsReturn(const WalletModel::SendCoinsReturn& sendCoinsReturn, const QString& msgArg, bool fPrepare)
+{
+    bool fAskForUnlock = false;
+
+    QPair<QString, CClientUIInterface::MessageBoxFlags> msgParams;
+    // Default to a warning message, override if error message is needed
+    msgParams.second = CClientUIInterface::MSG_WARNING;
+
+    // This comment is specific to SendCoinsDialog usage of WalletModel::SendCoinsReturn.
+    // WalletModel::TransactionCommitFailed is used only in WalletModel::sendCoins()
+    // all others are used only in WalletModel::prepareTransaction()
+    switch (sendCoinsReturn.status) {
+    case WalletModel::InvalidAddress:
+        msgParams.first = tr("The recipient address is not valid, please recheck.");
+        break;
+    case WalletModel::InvalidAmount:
+        msgParams.first = tr("The amount to pay must be larger than 0.");
+        break;
+    case WalletModel::AmountExceedsBalance:
+        msgParams.first = tr("The amount exceeds your balance.");
+        break;
+    case WalletModel::AmountWithFeeExceedsBalance:
+        msgParams.first = tr("The total exceeds your balance when the %1 transaction fee is included.").arg(msgArg);
+        break;
+    case WalletModel::DuplicateAddress:
+        msgParams.first = tr("Duplicate address found, can only send to each address once per send operation.");
+        break;
+    case WalletModel::TransactionCreationFailed:
+        msgParams.first = tr("Transaction creation failed!");
+        msgParams.second = CClientUIInterface::MSG_ERROR;
+        break;
+    case WalletModel::TransactionCommitFailed:
+        msgParams.first = tr("The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of wallet.dat and coins were spent in the copy but not marked as spent here.");
+        msgParams.second = CClientUIInterface::MSG_ERROR;
+        break;
+    case WalletModel::AnonymizeOnlyUnlocked:
+        // Unlock is only need when the coins are send
+        if(!fPrepare)
+            fAskForUnlock = true;
+        else
+            msgParams.first = tr("Error: The wallet was unlocked only to anonymize coins.");
+        break;
+
+    case WalletModel::InsaneFee:
+        msgParams.first = tr("A fee %1 times higher than %2 per kB is considered an insanely high fee.").arg(10000).arg(BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), ::minRelayTxFee.GetFeePerK()));
+        break;
+        // included to prevent a compiler warning.
+    case WalletModel::OK:
+    default:
+        return;
+    }
+
+    // Unlock wallet if it wasn't fully unlocked already
+    if(fAskForUnlock) {
+        model->requestUnlock(false);
+        if(model->getEncryptionStatus () != WalletModel::Unlocked) {
+            msgParams.first = tr("Error: The wallet was unlocked only to anonymize coins. Unlock canceled.");
+        }
+        else {
+            // Wallet unlocked
+            return;
+        }
+    }
+
+    emit notifySendingResult(-1,tr("Send Coins"), msgParams.first);
+}
+
+void CoinControlModel::send(QList<SendCoinsRecipient> recipients, QString strFee, QStringList formatted)
+{
+    // prepare transaction for getting txFee earlier
+    if(currentTransaction) delete currentTransaction;
+
+    currentTransaction = new WalletModelTransaction(recipients);
+    WalletModel::SendCoinsReturn prepareStatus;
+    if (model->getOptionsModel()->getCoinControlFeatures()) // coin control enabled
+        prepareStatus = model->prepareTransaction(*currentTransaction, CoinControlModel::coinControl);
+    else
+        prepareStatus = model->prepareTransaction(*currentTransaction);
+
+    // process prepareStatus and on error generate message shown to user
+    processSendCoinsReturn(prepareStatus,
+                           BitcoinUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction->getTransactionFee()), true);
+
+    if (prepareStatus.status != WalletModel::OK) {
+        fNewRecipientAllowed = true;
+        return;
+    }
+
+    CAmount txFee = currentTransaction->getTransactionFee();
+    QString questionString = tr("Are you sure you want to send?");
+    questionString.append("<br /><br />%1");
+
+    if (txFee > 0) {
+        // append fee string if a fee is required
+        questionString.append("<hr /><span style='color:#aa0000;'>");
+        questionString.append(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
+        questionString.append("</span> ");
+        questionString.append(tr("are added as transaction fee"));
+        questionString.append(" ");
+        questionString.append(strFee);
+
+        // append transaction size
+        questionString.append(" (" + QString::number((double)(currentTransaction->getTransactionSize()) / 1000) + " kB)");
+    }
+
+    // add total amount in all subdivision units
+    questionString.append("<hr />");
+    CAmount totalAmount = currentTransaction->getTotalTransactionAmount() + txFee;
+    QStringList alternativeUnits;
+    foreach (BitcoinUnits::Unit u, BitcoinUnits::availableUnits()) {
+        if (u != model->getOptionsModel()->getDisplayUnit())
+            alternativeUnits.append(BitcoinUnits::formatHtmlWithUnit(u, totalAmount));
+    }
+
+    // Show total amount + all alternative units
+    questionString.append(tr("Total Amount = <b>%1</b><br />= %2")
+                          .arg(BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount))
+                          .arg(alternativeUnits.join("<br />= ")));
+
+    // Limit number of displayed entries
+    int messageEntries = formatted.size();
+    int displayedEntries = 0;
+    for (int i = 0; i < formatted.size(); i++) {
+        if (i >= MAX_SEND_POPUP_ENTRIES) {
+            formatted.removeLast();
+            i--;
+        } else {
+            displayedEntries = i + 1;
+        }
+    }
+    questionString.append("<hr />");
+    questionString.append(tr("<b>(%1 of %2 entries displayed)</b>").arg(displayedEntries).arg(messageEntries));
+
+    emit notifySendingResult(1,tr("Confirm send coins"), questionString.arg(formatted.join("<br />")));
+
+}
+
+
+void CoinControlModel::confirmSending()
+{
+    // now send the prepared transaction
+    WalletModel::SendCoinsReturn sendStatus = model->sendCoins(*currentTransaction);
+    // process sendStatus and on error generate message shown to user
+    processSendCoinsReturn(sendStatus);
+
+    if (sendStatus.status == WalletModel::OK)
+    {
+        for(int row = 0 ;row< vecOuts.size();row++)
+        {
+            COutput  out =  vecOuts.at(row).first;
+            mapSelection[QString::fromStdString(out.ToString())] = false;
+        }
+
+        CoinControlModel::coinControl->UnSelectAll();
+        emit updateCoinControlLabelsSig();
+    }
+    fNewRecipientAllowed = true;
 
 }
 

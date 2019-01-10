@@ -13,6 +13,9 @@
 #include "transactionfilterproxy.h"
 #include "transactionrecord.h"
 
+
+#include "coincontrolmodel.h"
+
 #include "tokenitemmodel.h"
 #include "tokentransactiontablemodel.h"
 
@@ -29,6 +32,8 @@
 #include <stdint.h>
 #include "guiutil.h"
 #include "csvmodelwriter.h"
+
+#include "clientmodel.h"
 
 #include <QDebug>
 #include <QSet>
@@ -189,7 +194,7 @@ WalletModel::WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* p
 
 
 
-   coinControlModel = new CoinControlModel(wallet, this);
+   coinControlModel = new CoinControlModel(this);
 
 
    coinControlProxy_ = new CoinControlProxy(this);
@@ -199,9 +204,10 @@ WalletModel::WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* p
    coinControlProxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
    coinControlProxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
    coinControlProxy_->sort(CoinControlModel::Date,Qt::DescendingOrder);
-   connect(coinControlModel,SIGNAL(updateLabels(QVariantList)),coinControlProxy_,SIGNAL(updateLabels(QVariantList)));
    connect(coinControlModel,SIGNAL(updateLabelBlockSize(QString)),coinControlProxy_,SIGNAL(updateLabelBlockSize(QString)));
-
+   connect(coinControlModel,SIGNAL(updateCoinControlLabelsSig()),coinControlProxy_,SIGNAL(updateCoinControlLabelsSig()));
+   connect(coinControlModel,SIGNAL(updateSmartFeeLabels(QVariantList)),coinControlProxy_,SIGNAL(updateSmartFeeLabels(QVariantList)));
+   connect(coinControlModel,SIGNAL(notifySendingResult(int,QString,QString)),coinControlProxy_,SIGNAL(notifySendingResult(int,QString,QString)));
 
 
    // This timer will be fired repeatedly to update the balance
@@ -288,6 +294,11 @@ bool WalletModel::addTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose)
     return wallet->AddTokenTxEntry(tokenTx, fFlushOnClose);
 }
 
+void WalletModel::setClientModel(ClientModel* clientModel)
+{
+    connect(clientModel, SIGNAL(numBlocksChanged(int)), coinControlModel, SLOT(updateSmartFeeLabel()));
+}
+
 
 bool WalletModel::isUnspentAddress(const std::string &qtumAddress) const
 {
@@ -319,9 +330,13 @@ QString WalletModel::getTxDescription(int row)
 
 }
 
-QString WalletModel::formatAmount(qint64 amount)
+QString WalletModel::formatAmount(qint64 amount,int uint)
 {
-    return  BitcoinUnits::format(getOptionsModel()->getDisplayUnit(), amount, false, BitcoinUnits::separatorAlways);
+    if(uint  == -1)
+        return  BitcoinUnits::format(getOptionsModel()->getDisplayUnit(), amount, false, BitcoinUnits::separatorAlways);
+    else
+        return  BitcoinUnits::format(uint, amount, false, BitcoinUnits::separatorAlways);
+
 }
 
 
@@ -348,7 +363,7 @@ void WalletModel::setClipBoard(QVariant variant)
 }
 
 
-int WalletModel::getFeePerkilo()
+qint64 WalletModel::getFeePerkilo()
 {
     return CWallet::minTxFee.GetFeePerK();
 }

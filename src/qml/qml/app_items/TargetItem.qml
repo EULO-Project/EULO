@@ -10,6 +10,7 @@ Item {
 
     signal  deleteTarget()
     signal  pickAddress()
+    signal updateSeveral()
 
     function clearFirst()
     {
@@ -33,7 +34,7 @@ Item {
     {
        if(!walletModel.validateAddress(sending_textFiled.text))
        {
-            sending_textFiled.critical = true
+           sending_textFiled.critical = true
            return false
        }
 
@@ -44,6 +45,19 @@ Item {
        }
 
        return true
+
+    }
+
+    function getRecipient()
+    {
+        var array = new Array
+
+        array.push(sending_textFiled.text)
+        array.push(tag_textFiled.text)
+        array.push(walletModel.getFiledAmount(amountField.coinTypeBtn.index, amountField.valueAmount))
+        array.push("")
+
+        return array
 
     }
 
@@ -73,6 +87,7 @@ Item {
         onTextChanged:
         {
           tag_textFiled.text = walletModel.sendingAddressProxyModel.updateLabel(sending_textFiled.text)
+          updateSeveral()
         }
 
         placeholderText: "Enter a EULO address (e.g. u7VFR83SQbiezrW72hjcWJtcfip5krte2Z)"

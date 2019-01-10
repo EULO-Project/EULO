@@ -16,6 +16,8 @@ Item
     property int currentUnit: 0
 
     property int upORdown: 0
+    property alias valueAmount:amountField.text
+
 
     property int factor: walletModel.getFeePerkilo()
 

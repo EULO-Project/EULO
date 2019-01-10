@@ -7,6 +7,7 @@ Item {
     property var rec_unit
     property var rec_block
     property bool minimized: false
+    property bool swiftTxChecked: swiftx_btn.checked
 
     implicitHeight: !minimized?(swiftx_btn.y + swiftx_btn.height):(transaction_fee_btn.y+transaction_fee_btn.height + swiftx_btn.height)
 
@@ -14,6 +15,8 @@ Item {
     Component.onCompleted:
     {
         root_window.unitNameChanged.connect(coinTypeChange)
+
+
     }
 
 
@@ -35,6 +38,23 @@ Item {
     }
 
 
+    Connections
+    {
+        target:walletModel.coinControlProxy
+
+        onUpdateSmartFeeLabels:
+        {
+
+            if(returnList.length > 0)
+            {
+                recommended_btn.text = "Recommended " + returnList[0] + "   " +  returnList[1] + "    " + returnList[2]
+                transaction_fee.text = returnList[3];
+            }
+
+        }
+
+    }
+
 
     Label{
         id:transaction_fee_label
@@ -55,8 +75,8 @@ Item {
         anchors.leftMargin: 10
         anchors.verticalCenter: transaction_fee_label.verticalCenter
         color: "#1E5569"
-        text:  recommended_btn.checked?"0.10000" + root_window.unitName + "/kB":(perkilo_btn.checked?"0.001/kB":"0.001" + root_window.unitName)
         visible: minimized
+
 
     }
 
@@ -77,6 +97,12 @@ Item {
         onClicked:
         {
             minimized = !minimized
+            walletModel.coinControlProxy.setValue(0,minimized)
+        }
+
+        Component.onCompleted:
+        {
+            minimized = walletModel.coinControlProxy.getValue(0)
         }
     }
 
@@ -94,7 +120,6 @@ Item {
         anchors.top:transaction_fee_btn.bottom
         anchors.topMargin: 20
         anchors.left: transaction_fee_label.left
-        text: "Recommended " + rec_unit + " ULO/kB  " + "Estimated to begin confirmation within " + rec_block + " block(s)."
         ButtonGroup.group: radioGroup
         font.weight: Font.Medium
         font.pixelSize: 12
@@ -103,6 +128,15 @@ Item {
 
         visible:!minimized
 
+        onClicked:
+        {
+            walletModel.coinControlProxy.setValue(1,0)
+        }
+
+        Component.onCompleted:
+        {
+            checked = !walletModel.coinControlProxy.getValue(1)
+        }
     }
 
     Label{
@@ -130,15 +164,22 @@ Item {
         from: 0
         stepSize: 1
         to: 24
+        property int lastValue
         Component.onCompleted:
         {
             value = walletModel.coinControlProxy.getValue(3)
         }
 
 
-        onMoved:
+        onPressedChanged:
         {
-            console.log("moving!!!")
+            if(pressed)
+                lastValue = value
+            else
+            {
+                if(lastValue !== value)
+                    walletModel.coinControlProxy.setValue(3,value)
+            }
         }
     }
 
@@ -182,7 +223,15 @@ Item {
         font.weight: Font.Medium
         font.pixelSize: 12
         visible:!minimized
+        onClicked:
+        {
+            walletModel.coinControlProxy.setValue(1,1)
+        }
 
+        Component.onCompleted:
+        {
+            checked = walletModel.coinControlProxy.getValue(1)
+        }
     }
 
 
@@ -198,7 +247,15 @@ Item {
         font.pixelSize: 12
         visible:!minimized
         enabled:custom_btn.checked
+        onClicked:
+        {
+            walletModel.coinControlProxy.setValue(2,0)
+        }
 
+        Component.onCompleted:
+        {
+            checked = !walletModel.coinControlProxy.getValue(2)
+        }
     }
 
     CommonCheckBox {
@@ -214,6 +271,29 @@ Item {
         visible:!minimized
         enabled:custom_btn.checked
 
+        onClicked:
+        {
+            if(checked)
+            {
+                perkilo_btn.checked = true
+                total_btn.checked = false
+                total_btn.enabled = false
+                amountField.valueAmount = walletModel.formatAmount(walletModel.getFeePerkilo(),amountField.coinTypeBtn.index)
+            }
+            else
+            {
+                total_btn.enabled = true
+            }
+
+            walletModel.coinControlProxy.setValue(5,checked)
+
+        }
+
+        Component.onCompleted:
+        {
+            checked = walletModel.coinControlProxy.getValue(5)
+        }
+
     }
 
     CommonRadioButton
@@ -227,9 +307,15 @@ Item {
         font.weight: Font.Medium
         font.pixelSize: 12
         visible:!minimized
-        enabled:custom_btn.checked
-
-
+        enabled:custom_btn.checked && !pay_minimum_checkbox.checked
+        onClicked:
+        {
+            walletModel.coinControlProxy.setValue(2,1)
+        }
+        Component.onCompleted:
+        {
+            checked = walletModel.coinControlProxy.getValue(2)
+        }
     }
 
     AmountField
@@ -241,7 +327,18 @@ Item {
         anchors.leftMargin: 10
         anchors.left: total_btn.right
         visible:!minimized
-        enabled:custom_btn.checked
+        enabled:custom_btn.checked && !pay_minimum_checkbox.checked
+
+
+        onValueAmountChanged:
+        {
+            walletModel.coinControlProxy.setValue(4,walletModel.getFiledAmount(amountField.coinTypeBtn.index,valueAmount))
+        }
+
+        Component.onCompleted:
+        {
+            valueAmount = walletModel.formatAmount(walletModel.coinControlProxy.getValue(4),amountField.coinTypeBtn.index)
+        }
     }
 
 
@@ -258,7 +355,15 @@ Item {
         text: "Send ad zero-free transaction if possible (confirmation may take longer)"
 
         visible:!minimized
+        onClicked:
+        {
+            walletModel.coinControlProxy.setValue(6,checked)
+        }
 
+        Component.onCompleted:
+        {
+            checked = walletModel.coinControlProxy.getValue(6)
+        }
     }
 
     CommonCheckBox {

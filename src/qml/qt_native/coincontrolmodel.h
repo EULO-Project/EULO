@@ -1,18 +1,16 @@
 #ifndef COINCONTROLMODEL_H
 #define COINCONTROLMODEL_H
-#include "bitcoinunits.h"
-#include "wallet.h"
+#include "walletmodel.h"
 
 #include <QAbstractTableModel>
 #include <QStringList>
 
-class TransactionRecord;
-class TransactionTablePriv;
-class WalletModel;
-class ClientModel;
+
+static const int MAX_SEND_POPUP_ENTRIES = 10;
+
+
 class CCoinControl;
 
-class CWallet;
 
 class CoinControlModel : public QAbstractListModel
 {
@@ -20,7 +18,7 @@ class CoinControlModel : public QAbstractListModel
 
 
 public:
-   explicit CoinControlModel(CWallet *wallet, WalletModel *parent = 0,bool MultisigEnabled = false);
+   explicit CoinControlModel( WalletModel *parent = 0,  bool MultisigEnabled = false);
 
 
     enum ColumnIndex {
@@ -52,14 +50,20 @@ public:
 
     bool fSplitBlock;
 
-    void updateView(QVariantList payAmountList);
+    QVariantList updateView(QVariantList payAmountList);
     void toggle();
     void selectAll();
     void updateSplitUtxo(bool checked,const QString &utxo, const QString &afterFee);
     QString updatecustomChangeAddress(bool checked, const QString &address);
-    void setValue(int index, QVariant value, QVariantList payAmountList);
+    void setValue(int index, QVariant value);
+    void sendButtonClicked(QVariantList recipientsArray,
+                           bool splitBlockCheckBoxChecked,
+                           int splitBlockSize,
+                           bool swiftTXChecked);
 
+    void confirmSending();
     QVariant getValue(int index);
+    QVariantList updateCoinControlLabels(QVariantList payAmountList);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -67,34 +71,46 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     bool setData(const QModelIndex& index, const QVariant& value, int role);
-    void callUpdateLabels(QVariantList returnList);
 
     static QList<CAmount> payAmounts;
     static CCoinControl* coinControl;
     static int nSplitBlockDummy;
 
     static QString getPriorityLabel(double dPriority, double mempoolEstimatePriority);
-    static void updateLabelsFunc(WalletModel* model, std::map<QString, bool> &mapSelection, CoinControlModel *obj);
+    static QVariantList updateLabelsFunc(WalletModel* model, std::map<QString, bool> &mapSelection);
 
 protected:
     QHash<int, QByteArray> roleNames() const ;
 
 
 
+private slots:
+    void updateSmartFeeLabel();
+
+
 private:
     WalletModel* model;
     bool fMultisigEnabled;
-
+    bool fNewRecipientAllowed;
+    WalletModelTransaction *currentTransaction = NULL;
     std::map<QString, std::vector<COutput>> mapCoins;
     std::vector<std::pair<COutput,QString>> vecOuts;
 
     std::map<QString,bool> mapSelection;
 
     QString strPad(QString s, int nPadLength, QString sPadding) const;
+    void updateFeeMinimizedLabel(int value);
+    void updateGlobalFeeVariables();
+    void send(QList<SendCoinsRecipient> recipients, QString strFee, QStringList formatted);
+    void processSendCoinsReturn(const WalletModel::SendCoinsReturn& sendCoinsReturn, const QString& msgArg = QString(), bool fPrepare = false);
+
 
 signals:
-    void updateLabels(QVariantList msg);
     void updateLabelBlockSize(QString size);
+    void updateCoinControlLabelsSig();
+    void updateSmartFeeLabels(QVariantList returnList);
+    void notifySendingResult(int type,QString title,QString msg);
+
 };
 
 #endif // COINCONTROLMODEL_H

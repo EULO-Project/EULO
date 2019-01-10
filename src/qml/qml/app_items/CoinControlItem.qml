@@ -15,6 +15,9 @@ Item
 {
     id:root
     height:customChangeAddressLabel.y+50
+    property alias splitUtxoCheckBox:splitUtxoCheckBox
+    property alias splitBlockCheckBoxChecked:splitUtxoCheckBox.checked
+    property alias splitUtxoSize:splitUtxoField.text
 
     CoinControlDialog
     {
@@ -22,12 +25,11 @@ Item
 
     }
 
-
-    Connections
+    function updateCoinControlLabelsOnce()
     {
-        target:walletModel.coinControlProxy
-
-        onUpdateLabels:
+        var msg
+        msg = walletModel.coinControlProxy.updateCoinControlLabels(getPaymentList())
+        if(msg.length > 0)
         {
             quantityContent.text = msg[0];
             amountContent.text = msg[1];
@@ -39,6 +41,36 @@ Item
             changeContent.text = msg[7];
         }
 
+    }
+
+    function updateInnerViewOnce()
+    {
+        var msg = walletModel.coinControlProxy.updateView(getPaymentList())
+
+        if(msg.length > 0)
+        {
+            quantityContent.text = msg[0];
+            amountContent.text = msg[1];
+            feeContent.text = msg[2];
+            afterFeeContent.text = msg[3];
+            byteContent.text = msg[4];
+            priorityContent.text = msg[5];
+            dustContent.text = msg[6];
+            changeContent.text = msg[7];
+
+        }
+
+        coinControlDialog.updateDialogViewOnce()
+
+    }
+
+
+
+
+    Connections
+    {
+        target:walletModel.coinControlProxy
+
         onShowCoinControl:
         {
             autoHint.visible = !show
@@ -47,8 +79,15 @@ Item
         onUpdateLabelBlockSize:
         {
             uuxoSizeLabel.text = "UTXO Size: " + size
-            walletModel.coinControlProxy.updateView(getPaymentList())
+            updateInnerViewOnce()
         }
+
+        onUpdateCoinControlLabelsSig:
+        {
+            updateCoinControlLabelsOnce()
+        }
+
+
 
     }
 

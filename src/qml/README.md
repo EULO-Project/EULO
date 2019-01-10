@@ -1,21 +1,23 @@
-<h1>EULO测试版1.0.2</h1>
+<h1>EULO测试版1.0.3</h1>
 
 <h4>您现在正在使用的是EULO测试版本，本版本现在有一些已知BUG和部分细微功能缺失。如果您在使用中发现有任何未知Bug，或者对程序有其他建议，请联系开发人员，请不要在公开场合讨论和评价BUG，谢谢！</h4>
 
 <h4>本次新增功能:</h4>
 <ul>
-<li>1、CoinControl的部分功能</li>
+<li>1、CoinControl和Sending的功能(待测试)</li>
 </ul>
 
 <h4>本次修复Bug:</h4>
 <ul>
-<li>1、blockexplorerDialog中serach按键没有反应的bug</li>
-<li>2、receivingDialog中新增时，修改原有记录而不能新增的bug</li>
+
 
 </ul>
 
-<h4>历史修复Bug:</h4>
+<h4>历史变动:</h4>
 <ul>
+<li>测试版1.0.2</li>
+<li>1、blockexplorerDialog中serach按键没有反应的bug</li>
+<li>2、receivingDialog中新增时，修改原有记录而不能新增的bug</li>
 <li>测试版1.0.1</li>
 <li>1、修复合约在某种情况下执行出错的Bug</li>
 <li>测试版1.0.0</li>
@@ -35,14 +37,13 @@
 
 <h4>待开发功能:</h4>
 
-<ul><li>1、CoinControl功能，</li>
-<li>2、multiSignature功能，</li>
-<li>3、发送功能，与CoinControl功能相关（请使用控制台sendto address 的相关对应功能），</li>
-<li>4、BIP加密，</li>
-<li>5、钱包加密，</li>
-<li>6、选项（请使用conf文件），</li>
-<li>7、Masternode功能，</li>
-<li>8、ZeroCoin相关功能（暂未开启）。</li></ul>
+<ul>
+<li>1、multiSignature功能，</li>
+<li>2、BIP加密，</li>
+<li>3、钱包加密，</li>
+<li>4、选项（请使用conf文件），</li>
+<li>5、Masternode功能，</li>
+<li>6、ZeroCoin相关功能（暂未开启）。</li></ul>
 
 <h4>待关闭功能:</h4>
 

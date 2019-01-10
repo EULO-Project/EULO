@@ -1,5 +1,6 @@
 #include "coincontrolproxy.h"
 #include "coincontrol.h"
+#include "coincontrolmodel.h"
 
 CoinControlProxy::CoinControlProxy(QObject *parent) :
     QSortFilterProxyModel(parent)
@@ -8,10 +9,10 @@ CoinControlProxy::CoinControlProxy(QObject *parent) :
 }
 
 
-void CoinControlProxy::updateView(QVariantList payAmountList)
+QVariantList CoinControlProxy::updateView(QVariantList payAmountList)
 {
     CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
-    sourceModel_->updateView(payAmountList);
+    return sourceModel_->updateView(payAmountList);
 }
 
 void CoinControlProxy::setData_(int sourceRow, QString value,int mode)
@@ -61,10 +62,35 @@ QString CoinControlProxy::updatecustomChangeAddress(bool checked,const QString &
 }
 
 
-void CoinControlProxy::setValue(int index, QVariant value, QVariantList payAmountList)
+void CoinControlProxy::setValue(int index, QVariant value)
 {
     CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
-    sourceModel_->setValue(index,value,payAmountList);
+    sourceModel_->setValue(index,value);
+}
+
+void CoinControlProxy::sendButtonClicked(QVariantList recipientsArray,
+                                         bool splitBlockCheckBoxChecked,
+                                         int splitBlockSize,
+                                         bool swiftTXChecked)
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    sourceModel_->sendButtonClicked(recipientsArray,
+                                    splitBlockCheckBoxChecked,
+                                    splitBlockSize,
+                                    swiftTXChecked);
+}
+
+
+void CoinControlProxy::confirmSending()
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    return sourceModel_->confirmSending();
+}
+
+QVariantList CoinControlProxy::updateCoinControlLabels(QVariantList payAmountList)
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    return sourceModel_->updateCoinControlLabels(payAmountList);
 }
 
 QVariant CoinControlProxy::getValue(int index)

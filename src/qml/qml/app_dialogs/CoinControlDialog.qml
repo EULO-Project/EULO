@@ -28,11 +28,30 @@ CommonDialog
     property int tableMode:1
     property int viewMode:tableMode
 
+    function updateDialogViewOnce()
+    {
+        var msg = walletModel.coinControlProxy.updateView(getPaymentList())
+
+        if(msg.length > 0)
+        {
+            quantityContent.text = msg[0];
+            amountContent.text = msg[1];
+            feeContent.text = msg[2];
+            afterFeeContent.text = msg[3];
+            byteContent.text = msg[4];
+            priorityContent.text = msg[5];
+            dustContent.text = msg[6];
+            changeContent.text = msg[7];
+
+        }
+
+    }
+
     onVisibleChanged:
     {
         if(visible)
         {
-            walletModel.coinControlProxy.updateView(getPaymentList())
+            updateInnerViewOnce()
         }
 
     }
@@ -47,23 +66,7 @@ CommonDialog
         walletModel.coinControlProxy.updateSendingPage()
     }
 
-    Connections
-    {
-        target:walletModel.coinControlProxy
 
-        onUpdateLabels:
-        {
-            quantityContent.text = msg[0];
-            amountContent.text = msg[1];
-            feeContent.text = msg[2];
-            afterFeeContent.text = msg[3];
-            byteContent.text = msg[4];
-            priorityContent.text = msg[5];
-            dustContent.text = msg[6];
-            changeContent.text = msg[7];
-        }
-
-    }
 
     Item{
 
