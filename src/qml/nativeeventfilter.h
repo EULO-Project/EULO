@@ -70,8 +70,8 @@ public:
 
                     QMetaObject::invokeMethod(model,"setMargin",Qt::DirectConnection,
                                               Q_RETURN_ARG(QVariant,retValue),
-                                              Q_ARG(QVariant,QVariant::fromValue(10)),
-                                              Q_ARG(QVariant,QVariant::fromValue(0))
+                                              Q_ARG(QVariant,QVariant::fromValue(20)),
+                                              Q_ARG(QVariant,QVariant::fromValue(8))
                                               );
 
                     from_maxmized=false;
@@ -119,7 +119,7 @@ public:
             if(maxmized)
                 padding=6;
             else
-                padding=8;
+                padding=26;
 
 
             //left border

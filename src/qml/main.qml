@@ -57,8 +57,8 @@ ApplicationWindow {
     onVisibilityChanged:
     {
 
-        //if( Qt.platform.os !== "windows")
-       // {
+        if( Qt.platform.os !== "windows")
+        {
             if(visibility === Window.Windowed)
             {
                 title_item.maximum_btn.source = "images/icons/mainwindow_maximum.png"
@@ -69,7 +69,7 @@ ApplicationWindow {
                 title_item.maximum_btn.source = "images/icons/mainwindow_restore.png"
                 is_Maximized = true
             }
-       // }
+        }
     }
 
     Connections
@@ -125,7 +125,7 @@ ApplicationWindow {
         color: "transparent"
         radius: radius_all == undefined? 2:radius_all
         objectName: "background"
-        anchors.margins:is_Maximized?0:( Qt.platform.os === "windows"?3:0)
+        //anchors.margins:is_Maximized?0:( Qt.platform.os === "windows"?3:0)
 
 
         function setMargin(margin,radius) {
