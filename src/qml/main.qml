@@ -38,7 +38,7 @@ ApplicationWindow {
 
         onStopped:
         {
-            if(!walletModel.alreadyShowed("1.0.4"))
+            if(!walletModel.alreadyShowed("1.0.3"))
                 msgDialog.show()
         }
     }
