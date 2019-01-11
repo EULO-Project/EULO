@@ -5,11 +5,14 @@
 <h4>本次新增功能:</h4>
 <ul>
 <li>1、CoinControl和Sending的功能(待测试)</li>
+<li>2、MasterNode(待测试)</li>
 </ul>
 
 <h4>本次修复Bug:</h4>
 <ul>
-<li>1、不显示pos阶段挖矿奖励的bug</li>
+<li>1、交易记录中不显示pos阶段挖矿奖励的bug</li>
+<li>2、Windows7中，窗体阴影的处理，在Areo效果打开和关闭下的差异。</li>
+
 </ul>
 
 <h4>历史变动:</h4>
@@ -24,29 +27,29 @@
 <li>2、修复ImageProvider 引起的双释放问题</li>
 </ul>
 
-
-
 <h4>已知未修复Bug:</h4>
-
-<ul><li>1、网络流量和节点列表有一个未知冲突，导致clientmodel的内存异常，暂时只开启节点列表功能，网络流量功能屏蔽。</li>
+<ul>
+<li>1、网络流量和节点列表有一个未知冲突，导致clientmodel的内存异常，暂时只开启节点列表功能，网络流量功能屏蔽。</li>
 <li>2、Windows环境中，偶尔出现程序异常退出。重启后需要重建区块索引，和重新扫描钱包，请按提示点击即可。</li>
-<li>3、Windows7中，窗体阴影的处理，在Areo效果打开和关闭下的差异，请待适配。</li>
-<li>4、调试控制台的输入框提示列表下拉长度在ubuntu中只能显示1行。windows中可以显示多行，但下方窗体大小调整的位置和窗体边缘不一致。</li>
-<li>5、Ubuntu18.04环境中,无法拖动边框改变窗体大小，这是由于Ubuntu18.04摒弃了Unity桌面管理而重新使用Gnome的原因，请待适配。</li></ul>
+<li>3、调试控制台的输入框提示列表下拉长度在ubuntu中只能显示1行。windows中可以显示多行，但下方窗体大小调整的位置和窗体边缘不一致。</li>
+<li>4、Ubuntu18.04环境中,无法拖动边框改变窗体大小，这是由于Ubuntu18.04摒弃了Unity桌面管理而重新使用Gnome的原因，请待适配。</li>
+</ul>
 
 <h4>待开发功能:</h4>
-
 <ul>
 <li>1、multiSignature功能，</li>
 <li>2、BIP加密，</li>
 <li>3、钱包加密，</li>
 <li>4、选项（请使用conf文件），</li>
-<li>5、Masternode功能，</li>
-<li>6、ZeroCoin相关功能（暂未开启）。</li></ul>
+<li>5、ZeroCoin相关功能（暂未开启）。</li>
+</ul>
 
 <h4>待关闭功能:</h4>
+<ul>
+<li>1、QML Debug</li>
+</ul>
 
-<ul><li>1、QML Debug</li></ul>
 <h4>开发者</h4>
-
-<ul><li>请喊我</li></ul>
+<ul>
+<li>请喊我</li>
+</ul>

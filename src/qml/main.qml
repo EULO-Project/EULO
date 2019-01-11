@@ -38,7 +38,8 @@ ApplicationWindow {
 
         onStopped:
         {
-            msgDialog.show()
+            if(!walletModel.alreadyShowed("1.0.4"))
+                msgDialog.show()
         }
     }
 
@@ -190,7 +191,7 @@ ApplicationWindow {
 
 
             IndexPage{id:indexPage}
-            SendingPage {}
+            SendingPage {id:sendingPage}
             ReceivingPage {}
             TransactionRecordPage {id:txPage}
             PrivacyPage {}
@@ -200,6 +201,8 @@ ApplicationWindow {
 
             currentIndex: 0
         }
+
+
 
 
         Footer
@@ -228,6 +231,12 @@ ApplicationWindow {
         visible: false
     }
 
+
+    function changeCoincontrol(show)
+    {
+        sendingPage.item.showCoincontrol = show
+        walletModel.coinControlProxy.setEnabled(show)
+    }
 
     function set_progress_message(title_str,context_str,value_double,tip_str)
     {

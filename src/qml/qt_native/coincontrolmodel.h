@@ -61,6 +61,9 @@ public:
                            int splitBlockSize,
                            bool swiftTXChecked);
 
+    void setEnabled(bool enable);
+
+
     void confirmSending();
     QVariant getValue(int index);
     QVariantList updateCoinControlLabels(QVariantList payAmountList);
@@ -81,8 +84,6 @@ public:
 
 protected:
     QHash<int, QByteArray> roleNames() const ;
-
-
 
 private slots:
     void updateSmartFeeLabel();

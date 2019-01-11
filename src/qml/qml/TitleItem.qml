@@ -215,6 +215,20 @@ Rectangle{
         }
 
 
+
+
+
+        onMenu_triggered:
+        {
+            switch (index)
+            {
+            case 4:optionsDialog.show();break;
+            default:break;
+
+            }
+
+        }
+
         onHoveredChanged:
         {
             if(hovered && (help_menu.opened || tool_menu.opened || file_menu.opened))

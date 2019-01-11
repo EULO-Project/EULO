@@ -23,6 +23,9 @@ public:
     Q_INVOKABLE void setValue(int index, QVariant value);
     Q_INVOKABLE QVariant getValue(int index);
     Q_INVOKABLE QVariantList updateCoinControlLabels(QVariantList payAmountList);
+    Q_INVOKABLE void setEnabled(bool enable);
+
+
 
     Q_INVOKABLE void sendButtonClicked(QVariantList recipientsArray,
                                              bool splitBlockCheckBoxChecked,

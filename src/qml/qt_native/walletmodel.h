@@ -19,6 +19,7 @@
 #include "tokenfilterproxy.h"
 
 #include "coincontrolproxy.h"
+#include "masternodetableproxy.h"
 
 #include <map>
 #include <vector>
@@ -39,6 +40,7 @@ class CoinControlModel;
 
 class CreateContractPage;
 
+class MasterNodeTableModel;
 
 class CCoinControl;
 class CKeyID;
@@ -134,6 +136,10 @@ class WalletModel : public QObject
 
     Q_PROPERTY(CoinControlProxy *coinControlProxy MEMBER coinControlProxy_ CONSTANT)
 
+    Q_PROPERTY(MasterNodeTableProxy *masternodetableproxy MEMBER masternodetableproxy_ CONSTANT)
+
+
+
 public:
     explicit WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* parent = 0);
     ~WalletModel();
@@ -154,6 +160,7 @@ public:
     Q_INVOKABLE void setClipBoard(QVariant variant);
     Q_INVOKABLE qint64 getFeePerkilo();
 
+    Q_INVOKABLE bool alreadyShowed(const QString &version);
 
     Q_INVOKABLE qint64 getFiledAmount(int uint,QString amountText);
 
@@ -335,6 +342,8 @@ private:
     ContractFilterProxy* contractfilterproxy_;
     CreateContractPage* contractPage_;
 
+    MasterNodeTableModel *masterNodeTableModel;
+    MasterNodeTableProxy *masternodetableproxy_;
 
 
     RecentRequestsTableModel* recentRequestsTableModel;

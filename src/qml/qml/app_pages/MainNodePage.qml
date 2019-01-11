@@ -12,10 +12,14 @@ import "../app_items"
 Controls_1_4.Tab {
 
     Rectangle {
+        id:root
         anchors.fill:parent
 
         radius: 0
+
         color: "#FAFAFA"
+
+        property int timeLeft:60
 
         Rectangle
         {
@@ -41,11 +45,58 @@ Controls_1_4.Tab {
 
         }
 
+        Component.onCompleted:
+        {
+
+            countDownTimer.start()
+
+        }
+
+
+
+        Connections
+        {
+            target:walletModel.masternodetableproxy
+
+            onSetTimer:
+            {
+                root.timeLeft = time
+                if(root.timeLeft === 60)
+                    countDownTimer.start()
+            }
+
+            onMessage:
+            {
+                root_window.warningDialog.title = title
+                root_window.warningDialog.content_text = msg
+                root_window.warningDialog.dim_back = false
+                root_window.warningDialog.show()
+            }
+        }
+
+        Timer
+        {
+            id:countDownTimer
+            interval: 1000
+            repeat:true
+            onTriggered:
+            {
+                root.timeLeft--
+                status_label.text = "Status will be updated automatically in(sec): " + root.timeLeft
+                if(root.timeLeft === 0)
+                {
+                    walletModel.masternodetableproxy.updateMyNodeList(false);
+                    countDownTimer.stop()
+                }
+
+            }
+        }
+
 
 
         CommonTableView
         {
-            id:history_table
+            id:masterodeTable
             anchors.top:top_s.bottom
             anchors.left: parent.left
             anchors.leftMargin: 30
@@ -54,80 +105,27 @@ Controls_1_4.Tab {
             anchors.rightMargin: 30
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 80
-            roles:  ["alias","address","protocol","status","activate","last_seen","pubkey"]
+            roles:  ["alias","address","protocol","status","activated","lastseen","pubkey"]
             titles: ["Alias","地址","Protocol","Status","激活","Last Seen(UTC)","Pubkey"]
             widths: [80,150,150,150,150,200,width-920]
 
+            model: walletModel.masternodetableproxy
+            selectionMode:Controls_1_4.SelectionMode.SingleSelection
 
-            model: ListModel {
-
+            menuModel:ListModel
+            {
                 ListElement
                 {
-                    alias: "MN2";
-                    address: "192.168.2.22:58802"
-                    protocol: "-1"
-                    status: "MISSING"
-                    activate:"00m:00s"
-                    last_seen:"1920-02-19 14:22:00"
-                    pubkey:"123456789"
+                    itemData: "Start Alias"
                 }
-                ListElement
-                {
-                    alias: "MN2";
-                    address: "192.168.2.22:58802"
-                    protocol: "-1"
-                    status: "MISSING"
-                    activate:"00m:00s"
-                    last_seen:"1920-02-19 14:22:00"
-                    pubkey:"123456789"
-                }
-                ListElement
-                {
-                    alias: "MN2";
-                    address: "192.168.2.22:58802"
-                    protocol: "-1"
-                    status: "MISSING"
-                    activate:"00m:00s"
-                    last_seen:"1920-02-19 14:22:00"
-                    pubkey:"123456789"
-                }
-                ListElement
-                {
-                    alias: "MN2";
-                    address: "192.168.2.22:58802"
-                    protocol: "-1"
-                    status: "MISSING"
-                    activate:"00m:00s"
-                    last_seen:"1920-02-19 14:22:00"
-                    pubkey:"123456789"
-                }
-                ListElement
-                {
-                    alias: "MN2";
-                    address: "192.168.2.22:58802"
-                    protocol: "-1"
-                    status: "MISSING"
-                    activate:"00m:00s"
-                    last_seen:"1920-02-19 14:22:00"
-                    pubkey:"123456789"
-                }
-                ListElement
-                {
-                    alias: "MN2";
-                    address: "192.168.2.22:58802"
-                    protocol: "-1"
-                    status: "MISSING"
-                    activate:"00m:00s"
-                    last_seen:"1920-02-19 14:22:00"
-                    pubkey:"123456789"
-                }
-
-
             }
 
+            onMenuPicked:
+            {
+                if(masterodeTable.currentRow < 0) return
+                walletModel.masternodetableproxy.startButtonClicked(masterodeTable.currentRow)
+            }
         }
-
-
 
         CommonButton
         {
@@ -142,7 +140,11 @@ Controls_1_4.Tab {
             text:"开始别名"
             textSize:11
             letterSpacing:0
-
+            onClicked:
+            {
+                if(masterodeTable.currentRow < 0) return
+                walletModel.masternodetableproxy.startButtonClicked(masterodeTable.currentRow)
+            }
         }
 
         CommonButton
@@ -158,6 +160,11 @@ Controls_1_4.Tab {
             text:"开始全部"
             textSize:11
             letterSpacing:0
+
+            onClicked:
+            {
+                walletModel.masternodetableproxy.startAll()
+            }
         }
 
         CommonButton
@@ -173,6 +180,12 @@ Controls_1_4.Tab {
             text:"开始MISSING"
             textSize:11
             letterSpacing:0
+
+            onClicked:
+            {
+                walletModel.masternodetableproxy.startMissing()
+            }
+
         }
 
         CommonButton
@@ -188,6 +201,12 @@ Controls_1_4.Tab {
             text:"更新状态"
             textSize:11
             letterSpacing:0
+
+
+            onClicked:
+            {
+                walletModel.masternodetableproxy.updateMyNodeList()
+            }
         }
 
 
@@ -200,7 +219,6 @@ Controls_1_4.Tab {
             anchors.verticalCenter: renew_btn.verticalCenter
             anchors.leftMargin: 11
             color: "#333333"
-            text:"Status will be updated automatically in(sec): 0"
         }
 
     }

@@ -85,6 +85,8 @@ Item
         onUpdateCoinControlLabelsSig:
         {
             updateCoinControlLabelsOnce()
+            coinControlDialog.updateDialogViewOnce()
+
         }
 
 

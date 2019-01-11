@@ -72,6 +72,17 @@ QVariant CoinControlModel::getValue(int index)
     }
 }
 
+void CoinControlModel::setEnabled(bool enable)
+{
+    if (!enable && model) // coin control features disabled
+        CoinControlModel::coinControl->SetNull();
+
+    if (enable)
+        emit updateCoinControlLabelsSig();
+
+}
+
+
 
 void CoinControlModel::setValue(int index, QVariant value)
 {
@@ -568,8 +579,6 @@ QHash<int, QByteArray> CoinControlModel::roleNames() const {
     roles[ConfirmedRole] = "confirmations";
     roles[PriorityRole] = "priority";
     roles[TxHashRole] = "txid";
-
-
 
     return roles;
 }

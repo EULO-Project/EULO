@@ -68,6 +68,13 @@ void CoinControlProxy::setValue(int index, QVariant value)
     sourceModel_->setValue(index,value);
 }
 
+void CoinControlProxy::setEnabled(bool enable)
+{
+    CoinControlModel  *sourceModel_ = static_cast<CoinControlModel *> (sourceModel());
+    sourceModel_->setEnabled(enable);
+}
+
+
 void CoinControlProxy::sendButtonClicked(QVariantList recipientsArray,
                                          bool splitBlockCheckBoxChecked,
                                          int splitBlockSize,

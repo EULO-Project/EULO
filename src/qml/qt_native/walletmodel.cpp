@@ -15,6 +15,7 @@
 
 
 #include "coincontrolmodel.h"
+#include "masternodetablemodel.h"
 
 #include "tokenitemmodel.h"
 #include "tokentransactiontablemodel.h"
@@ -50,12 +51,12 @@
 using namespace std;
 
 WalletModel::WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* parent) : QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0),
-                                                                                         transactionTableModel(0),
-                                                                                         recentRequestsTableModel(0),
-                                                                                         cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
-                                                                                         cachedZerocoinBalance(0), cachedUnconfirmedZerocoinBalance(0), cachedImmatureZerocoinBalance(0),
-                                                                                         cachedEncryptionStatus(Unencrypted),
-                                                                                         cachedNumBlocks(0)
+    transactionTableModel(0),
+    recentRequestsTableModel(0),
+    cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
+    cachedZerocoinBalance(0), cachedUnconfirmedZerocoinBalance(0), cachedImmatureZerocoinBalance(0),
+    cachedEncryptionStatus(Unencrypted),
+    cachedNumBlocks(0)
 {
     fHaveWatchOnly = wallet->HaveWatchOnly();
     fHaveMultiSig = wallet->HaveMultiSig();
@@ -78,155 +79,183 @@ WalletModel::WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* p
 
     contractPage_ = new CreateContractPage(this);
 
-   receivingAddressProxyModel_ = new AddressFilterProxy(this);
-   sendingAddressProxyModel_ = new AddressFilterProxy(this);
+    receivingAddressProxyModel_ = new AddressFilterProxy(this);
+    sendingAddressProxyModel_ = new AddressFilterProxy(this);
 
-   receivingAddressProxyModel_->setSourceModel(addressTableModel);
-   sendingAddressProxyModel_->setSourceModel(addressTableModel);
+    receivingAddressProxyModel_->setSourceModel(addressTableModel);
+    sendingAddressProxyModel_->setSourceModel(addressTableModel);
 
-   sendingAddressProxyModel_->setSortCaseSensitivity(Qt::CaseInsensitive);
-   receivingAddressProxyModel_->setSortCaseSensitivity(Qt::CaseInsensitive);
+    sendingAddressProxyModel_->setSortCaseSensitivity(Qt::CaseInsensitive);
+    receivingAddressProxyModel_->setSortCaseSensitivity(Qt::CaseInsensitive);
 
-   sendingAddressProxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-   receivingAddressProxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    sendingAddressProxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    receivingAddressProxyModel_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-   sendingAddressProxyModel_->setDynamicSortFilter(true);
-   receivingAddressProxyModel_->setDynamicSortFilter(true);
+    sendingAddressProxyModel_->setDynamicSortFilter(true);
+    receivingAddressProxyModel_->setDynamicSortFilter(true);
 
-   receivingAddressProxyModel_->setFilterRole(AddressTableModel::TypeRole);
-   receivingAddressProxyModel_->setFilterFixedString(AddressTableModel::Receive);
+    receivingAddressProxyModel_->setFilterRole(AddressTableModel::TypeRole);
+    receivingAddressProxyModel_->setFilterFixedString(AddressTableModel::Receive);
 
-   sendingAddressProxyModel_->setFilterRole(AddressTableModel::TypeRole);
-   sendingAddressProxyModel_->setFilterFixedString(AddressTableModel::Send);
+    sendingAddressProxyModel_->setFilterRole(AddressTableModel::TypeRole);
+    sendingAddressProxyModel_->setFilterFixedString(AddressTableModel::Send);
 
-   sendingAddressProxyModel_->setSortRole(Qt::EditRole);
-   receivingAddressProxyModel_->setSortRole(Qt::EditRole);
-
-
-
-   transactionTableModel = new TransactionTableModel(wallet, this);
-
-   transactionProxyModel = new TransactionFilterProxy(this);
-   transactionProxyModel->setSourceModel(transactionTableModel);
-   transactionProxyModel->setSortRole(Qt::EditRole);
-   transactionProxyModel->setDynamicSortFilter(true);
-   transactionProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-   transactionProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-   transactionProxyModel->sort(TransactionTableModel::Date,Qt::DescendingOrder);
+    sendingAddressProxyModel_->setSortRole(Qt::EditRole);
+    receivingAddressProxyModel_->setSortRole(Qt::EditRole);
 
 
 
-   transactionProxyModelOverView = new TransactionFilterProxy(this);
-   transactionProxyModelOverView->setSourceModel(transactionTableModel);
-   transactionProxyModelOverView->setSortRole(Qt::EditRole);
+    transactionTableModel = new TransactionTableModel(wallet, this);
 
-   transactionProxyModelOverView->setLimit(NUM_ITEMS);
-   transactionProxyModelOverView->setDynamicSortFilter(true);
+    transactionProxyModel = new TransactionFilterProxy(this);
+    transactionProxyModel->setSourceModel(transactionTableModel);
+    transactionProxyModel->setSortRole(Qt::EditRole);
+    transactionProxyModel->setDynamicSortFilter(true);
+    transactionProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    transactionProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-
-
-   transactionProxyModelOverView->setShowInactive(false);
-   transactionProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
-   transactionProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-
-   transactionProxyModelOverView->sort(TransactionTableModel::Date,Qt::DescendingOrder);
+    transactionProxyModel->sort(TransactionTableModel::Date,Qt::DescendingOrder);
 
 
+
+    transactionProxyModelOverView = new TransactionFilterProxy(this);
+    transactionProxyModelOverView->setSourceModel(transactionTableModel);
+    transactionProxyModelOverView->setSortRole(Qt::EditRole);
+
+    transactionProxyModelOverView->setLimit(NUM_ITEMS);
+    transactionProxyModelOverView->setDynamicSortFilter(true);
+
+
+
+    transactionProxyModelOverView->setShowInactive(false);
+    transactionProxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
+    transactionProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+
+    transactionProxyModelOverView->sort(TransactionTableModel::Date,Qt::DescendingOrder);
 
 
 
 
 
-   typeList.push_back( 0xFFFFFFFF);
-   typeList.push_back( 0x000003FFF);
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::RecvWithAddress) | TransactionFilterProxy::TYPE(TransactionRecord::RecvFromOther));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::SendToAddress) | TransactionFilterProxy::TYPE(TransactionRecord::SendToOther));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::Obfuscated));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationMakeCollaterals));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationCreateDenominations));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationDenominate));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationCollateralPayment));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::SendToSelf));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ContractRecv));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ContractSend));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::Generated));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::StakeMint));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::MNReward));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::RecvFromZerocoinSpend));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinMint));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinSpend));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinSpend_Change_zUlo));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinSpend_FromMe));
-   typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::Other));
 
 
-   dateList.push_back( All);
-   dateList.push_back( Today);
-   dateList.push_back( ThisWeek);
-   dateList.push_back( ThisMonth);
-   dateList.push_back( LastMonth);
-   dateList.push_back( ThisYear);
-   dateList.push_back( Range);
-
-   recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
-   recentRequestsFilterProxy_ = new RecentRequestsFilterProxy(this);
-   recentRequestsFilterProxy_->setSourceModel(recentRequestsTableModel);
-   recentRequestsFilterProxy_->setSortRole(Qt::EditRole);
-   recentRequestsFilterProxy_->setDynamicSortFilter(true);
-   recentRequestsFilterProxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
-   recentRequestsFilterProxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-   recentRequestsFilterProxy_->sort(RecentRequestsTableModel::Date,Qt::DescendingOrder);
-
-   tokenItemModel_ = new TokenItemModel(wallet, this);
-   tokenTransactionTableModel = new TokenTransactionTableModel(wallet, this);
-
-
-   tokenfilterproxy_ = new TokenFilterProxy(this);
-   tokenfilterproxy_->setSourceModel(tokenTransactionTableModel);
-   tokenfilterproxy_->setSortRole(Qt::EditRole);
-   tokenfilterproxy_->setDynamicSortFilter(true);
-   tokenfilterproxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
-   tokenfilterproxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-   tokenfilterproxy_->sort(TokenTransactionTableModel::Date,Qt::DescendingOrder);
-   tokenfilterproxy_->setWalletModel(this);
-   tokenfilterproxy_->setWallet(wallet);
+    typeList.push_back( 0xFFFFFFFF);
+    typeList.push_back( 0x000003FFF);
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::RecvWithAddress) | TransactionFilterProxy::TYPE(TransactionRecord::RecvFromOther));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::SendToAddress) | TransactionFilterProxy::TYPE(TransactionRecord::SendToOther));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::Obfuscated));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationMakeCollaterals));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationCreateDenominations));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationDenominate));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ObfuscationCollateralPayment));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::SendToSelf));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ContractRecv));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ContractSend));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::Generated));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::StakeMint));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::MNReward));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::RecvFromZerocoinSpend));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinMint));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinSpend));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinSpend_Change_zUlo));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::ZerocoinSpend_FromMe));
+    typeList.push_back( TransactionFilterProxy::TYPE(TransactionRecord::Other));
 
 
+    dateList.push_back( All);
+    dateList.push_back( Today);
+    dateList.push_back( ThisWeek);
+    dateList.push_back( ThisMonth);
+    dateList.push_back( LastMonth);
+    dateList.push_back( ThisYear);
+    dateList.push_back( Range);
 
-   coinControlModel = new CoinControlModel(this);
+    recentRequestsTableModel = new RecentRequestsTableModel(wallet, this);
+    recentRequestsFilterProxy_ = new RecentRequestsFilterProxy(this);
+    recentRequestsFilterProxy_->setSourceModel(recentRequestsTableModel);
+    recentRequestsFilterProxy_->setSortRole(Qt::EditRole);
+    recentRequestsFilterProxy_->setDynamicSortFilter(true);
+    recentRequestsFilterProxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
+    recentRequestsFilterProxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    recentRequestsFilterProxy_->sort(RecentRequestsTableModel::Date,Qt::DescendingOrder);
+
+    tokenItemModel_ = new TokenItemModel(wallet, this);
+    tokenTransactionTableModel = new TokenTransactionTableModel(wallet, this);
 
 
-   coinControlProxy_ = new CoinControlProxy(this);
-   coinControlProxy_->setSourceModel(coinControlModel);
-   coinControlProxy_->setSortRole(Qt::EditRole);
-   coinControlProxy_->setDynamicSortFilter(true);
-   coinControlProxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
-   coinControlProxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-   coinControlProxy_->sort(CoinControlModel::Date,Qt::DescendingOrder);
-   connect(coinControlModel,SIGNAL(updateLabelBlockSize(QString)),coinControlProxy_,SIGNAL(updateLabelBlockSize(QString)));
-   connect(coinControlModel,SIGNAL(updateCoinControlLabelsSig()),coinControlProxy_,SIGNAL(updateCoinControlLabelsSig()));
-   connect(coinControlModel,SIGNAL(updateSmartFeeLabels(QVariantList)),coinControlProxy_,SIGNAL(updateSmartFeeLabels(QVariantList)));
-   connect(coinControlModel,SIGNAL(notifySendingResult(int,QString,QString)),coinControlProxy_,SIGNAL(notifySendingResult(int,QString,QString)));
-
-
-   // This timer will be fired repeatedly to update the balance
-   pollTimer = new QTimer(this);
-   connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
-   pollTimer->start(MODEL_UPDATE_DELAY);
-
-   connect(optionsModel,SIGNAL(displayUnitChanged(int)),this,SLOT(emitBalanceChanged()));
+    tokenfilterproxy_ = new TokenFilterProxy(this);
+    tokenfilterproxy_->setSourceModel(tokenTransactionTableModel);
+    tokenfilterproxy_->setSortRole(Qt::EditRole);
+    tokenfilterproxy_->setDynamicSortFilter(true);
+    tokenfilterproxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
+    tokenfilterproxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    tokenfilterproxy_->sort(TokenTransactionTableModel::Date,Qt::DescendingOrder);
+    tokenfilterproxy_->setWalletModel(this);
+    tokenfilterproxy_->setWallet(wallet);
 
 
 
-   QTimer::singleShot(500, this, SLOT(checkForInvalidTokens()));
+    coinControlModel = new CoinControlModel(this);
 
-   subscribeToCoreSignals();
+
+    coinControlProxy_ = new CoinControlProxy(this);
+    coinControlProxy_->setSourceModel(coinControlModel);
+    coinControlProxy_->setSortRole(Qt::EditRole);
+    coinControlProxy_->setDynamicSortFilter(true);
+    coinControlProxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
+    coinControlProxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    coinControlProxy_->sort(CoinControlModel::Date,Qt::DescendingOrder);
+    connect(coinControlModel,SIGNAL(updateLabelBlockSize(QString)),coinControlProxy_,SIGNAL(updateLabelBlockSize(QString)));
+    connect(coinControlModel,SIGNAL(updateCoinControlLabelsSig()),coinControlProxy_,SIGNAL(updateCoinControlLabelsSig()));
+    connect(coinControlModel,SIGNAL(updateSmartFeeLabels(QVariantList)),coinControlProxy_,SIGNAL(updateSmartFeeLabels(QVariantList)));
+    connect(coinControlModel,SIGNAL(notifySendingResult(int,QString,QString)),coinControlProxy_,SIGNAL(notifySendingResult(int,QString,QString)));
+
+
+    masterNodeTableModel = new MasterNodeTableModel(this);
+    masternodetableproxy_ = new MasterNodeTableProxy(this);
+    masternodetableproxy_->setSourceModel(masterNodeTableModel);
+    masternodetableproxy_->setSortRole(Qt::EditRole);
+    masternodetableproxy_->setDynamicSortFilter(true);
+    masternodetableproxy_->setSortCaseSensitivity(Qt::CaseInsensitive);
+    masternodetableproxy_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    masternodetableproxy_->sort(MasterNodeTableModel::Alias,Qt::DescendingOrder);
+    connect(masterNodeTableModel,SIGNAL(message(QString,QString)),masternodetableproxy_,SIGNAL(message(QString,QString)));
+    connect(masterNodeTableModel,SIGNAL(setTimer(int)),masternodetableproxy_,SIGNAL(setTimer(int)));
+
+
+    // This timer will be fired repeatedly to update the balance
+    pollTimer = new QTimer(this);
+    connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
+    pollTimer->start(MODEL_UPDATE_DELAY);
+
+    connect(optionsModel,SIGNAL(displayUnitChanged(int)),this,SLOT(emitBalanceChanged()));
+
+
+
+    QTimer::singleShot(500, this, SLOT(checkForInvalidTokens()));
+
+    subscribeToCoreSignals();
 }
 
 WalletModel::~WalletModel()
 {
     unsubscribeFromCoreSignals();
+}
+
+
+
+bool WalletModel::alreadyShowed(const QString &version)
+{
+    QSettings settings;
+
+    if(settings.value("alreadyShowed").toString() != version)
+    {
+        settings.setValue("alreadyShowed", version);
+        return false;
+    }
+
+    return true;
+
 }
 
 void WalletModel::checkForInvalidTokens()
@@ -297,6 +326,7 @@ bool WalletModel::addTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose)
 void WalletModel::setClientModel(ClientModel* clientModel)
 {
     connect(clientModel, SIGNAL(numBlocksChanged(int)), coinControlModel, SLOT(updateSmartFeeLabel()));
+    masterNodeTableModel->setClientModel(clientModel);
 }
 
 
@@ -445,8 +475,8 @@ void WalletModel::exportClicked()
 {
     // CSV is currently the only supported format
     QString filename = GUIUtil::getSaveFileName(NULL,
-        tr("Export Transaction History"), QString(),
-        tr("Comma separated file (*.csv)"), NULL);
+                                                tr("Export Transaction History"), QString(),
+                                                tr("Comma separated file (*.csv)"), NULL);
 
     if (filename.isNull())
         return;
@@ -455,19 +485,19 @@ void WalletModel::exportClicked()
     bool fExport = false;
 
 
-        // name, column, role
-        writer.setModel(transactionProxyModel);
-        writer.addColumn(tr("Confirmed"), 0, TransactionTableModel::ConfirmedRole);
-        if (this->haveWatchOnly())
-            writer.addColumn(tr("Watch-only"), TransactionTableModel::Watchonly);
-        writer.addColumn(tr("Date"), 0, TransactionTableModel::DateRole);
-        writer.addColumn(tr("Type"), TransactionTableModel::Type, Qt::EditRole);
-        writer.addColumn(tr("Label"), 0, TransactionTableModel::LabelRole);
-        writer.addColumn(tr("Address"), 0, TransactionTableModel::AddressRole);
-        writer.addColumn(BitcoinUnits::getAmountColumnTitle(this->getOptionsModel()->getDisplayUnit()), 0, TransactionTableModel::FormattedAmountRole);
-        writer.addColumn(tr("ID"), 0, TransactionTableModel::TxIDRole);
+    // name, column, role
+    writer.setModel(transactionProxyModel);
+    writer.addColumn(tr("Confirmed"), 0, TransactionTableModel::ConfirmedRole);
+    if (this->haveWatchOnly())
+        writer.addColumn(tr("Watch-only"), TransactionTableModel::Watchonly);
+    writer.addColumn(tr("Date"), 0, TransactionTableModel::DateRole);
+    writer.addColumn(tr("Type"), TransactionTableModel::Type, Qt::EditRole);
+    writer.addColumn(tr("Label"), 0, TransactionTableModel::LabelRole);
+    writer.addColumn(tr("Address"), 0, TransactionTableModel::AddressRole);
+    writer.addColumn(BitcoinUnits::getAmountColumnTitle(this->getOptionsModel()->getDisplayUnit()), 0, TransactionTableModel::FormattedAmountRole);
+    writer.addColumn(tr("ID"), 0, TransactionTableModel::TxIDRole);
 
-        fExport = writer.write();
+    fExport = writer.write();
 
 
     if (fExport) {
@@ -486,7 +516,7 @@ void WalletModel::chooseType(int idx)
     if (!transactionProxyModel)
         return;
     transactionProxyModel->setTypeFilter(
-        typeList.at(idx));
+                typeList.at(idx));
     // Persist settings
     QSettings settings;
     settings.setValue("transactionType", idx);
@@ -498,46 +528,46 @@ void WalletModel::chooseDate(int idx)
     if (!transactionProxyModel)
         return;
     QDate current = QDate::currentDate();
-   // dateRangeWidget->setVisible(false);
+    // dateRangeWidget->setVisible(false);
 
     switch (dateList.at(idx)) {
     case All:
         transactionProxyModel->setDateRange(
-            TransactionFilterProxy::MIN_DATE,
-            TransactionFilterProxy::MAX_DATE);
+                    TransactionFilterProxy::MIN_DATE,
+                    TransactionFilterProxy::MAX_DATE);
         break;
     case Today:
         transactionProxyModel->setDateRange(
-            QDateTime(current),
-            TransactionFilterProxy::MAX_DATE);
+                    QDateTime(current),
+                    TransactionFilterProxy::MAX_DATE);
         break;
     case ThisWeek: {
         // Find last Monday
         QDate startOfWeek = current.addDays(-(current.dayOfWeek() - 1));
         transactionProxyModel->setDateRange(
-            QDateTime(startOfWeek),
-            TransactionFilterProxy::MAX_DATE);
+                    QDateTime(startOfWeek),
+                    TransactionFilterProxy::MAX_DATE);
 
     } break;
     case ThisMonth:
         transactionProxyModel->setDateRange(
-            QDateTime(QDate(current.year(), current.month(), 1)),
-            TransactionFilterProxy::MAX_DATE);
+                    QDateTime(QDate(current.year(), current.month(), 1)),
+                    TransactionFilterProxy::MAX_DATE);
         break;
     case LastMonth:
         transactionProxyModel->setDateRange(
-            QDateTime(QDate(current.year(), current.month() - 1, 1)),
-            QDateTime(QDate(current.year(), current.month(), 1)));
+                    QDateTime(QDate(current.year(), current.month() - 1, 1)),
+                    QDateTime(QDate(current.year(), current.month(), 1)));
         break;
     case ThisYear:
         transactionProxyModel->setDateRange(
-            QDateTime(QDate(current.year(), 1, 1)),
-            TransactionFilterProxy::MAX_DATE);
+                    QDateTime(QDate(current.year(), 1, 1)),
+                    TransactionFilterProxy::MAX_DATE);
         break;
-//    case Range:
-//        dateRangeWidget->setVisible(true);
-//        dateRangeChanged();
-//        break;
+        //    case Range:
+        //        dateRangeWidget->setVisible(true);
+        //        dateRangeChanged();
+        //        break;
     }
     // Persist settings
     if (dateList.at(idx) != Range) {
@@ -551,8 +581,8 @@ void WalletModel::dateRangeChanged(QString fromDate,QString toDate)
     if (!transactionProxyModel)
         return;
     transactionProxyModel->setDateRange(
-        QDateTime::fromString(fromDate,"yyyy-MM-dd"),
-            QDateTime::fromString(toDate,"yyyy-MM-dd").addDays(1));
+                QDateTime::fromString(fromDate,"yyyy-MM-dd"),
+                QDateTime::fromString(toDate,"yyyy-MM-dd").addDays(1));
 }
 
 void WalletModel::changedPrefix(QString prefix)
@@ -594,7 +624,7 @@ CAmount WalletModel::getBalance(const CCoinControl* coinControl) const
         std::vector<COutput> vCoins;
         wallet->AvailableCoins(vCoins, true, coinControl);
         BOOST_FOREACH (const COutput& out, vCoins)
-            if (out.fSpendable)
+                if (out.fSpendable)
                 nBalance += out.tx->vout[out.i].nValue;
 
         return nBalance;
@@ -711,7 +741,7 @@ void WalletModel::checkTokenBalanceChanged()
 void WalletModel::emitBalanceChanged()
 {
     // Force update of UI elements even when no values have changed
-    emit balanceChanged(cachedBalance, cachedUnconfirmedBalance, cachedImmatureBalance, 
+    emit balanceChanged(cachedBalance, cachedUnconfirmedBalance, cachedImmatureBalance,
                         cachedZerocoinBalance, cachedUnconfirmedZerocoinBalance, cachedImmatureZerocoinBalance,
                         cachedWatchOnlyBalance, cachedWatchUnconfBalance, cachedWatchImmatureBalance);
 }
@@ -743,9 +773,9 @@ void WalletModel::checkBalanceChanged()
     }
 
     if (cachedBalance != newBalance || cachedUnconfirmedBalance != newUnconfirmedBalance || cachedImmatureBalance != newImmatureBalance ||
-        cachedZerocoinBalance != newZerocoinBalance || cachedUnconfirmedZerocoinBalance != newUnconfirmedZerocoinBalance || cachedImmatureZerocoinBalance != newImmatureZerocoinBalance ||
-        cachedWatchOnlyBalance != newWatchOnlyBalance || cachedWatchUnconfBalance != newWatchUnconfBalance || cachedWatchImmatureBalance != newWatchImmatureBalance ||
-        cachedTxLocks != nCompleteTXLocks ) {
+            cachedZerocoinBalance != newZerocoinBalance || cachedUnconfirmedZerocoinBalance != newUnconfirmedZerocoinBalance || cachedImmatureZerocoinBalance != newImmatureZerocoinBalance ||
+            cachedWatchOnlyBalance != newWatchOnlyBalance || cachedWatchUnconfBalance != newWatchUnconfBalance || cachedWatchImmatureBalance != newWatchImmatureBalance ||
+            cachedTxLocks != nCompleteTXLocks ) {
         cachedBalance = newBalance;
         cachedUnconfirmedBalance = newUnconfirmedBalance;
         cachedImmatureBalance = newImmatureBalance;
@@ -756,7 +786,7 @@ void WalletModel::checkBalanceChanged()
         cachedWatchOnlyBalance = newWatchOnlyBalance;
         cachedWatchUnconfBalance = newWatchUnconfBalance;
         cachedWatchImmatureBalance = newWatchImmatureBalance;
-        emit balanceChanged(newBalance, newUnconfirmedBalance, newImmatureBalance, 
+        emit balanceChanged(newBalance, newUnconfirmedBalance, newImmatureBalance,
                             newZerocoinBalance, newUnconfirmedZerocoinBalance, newImmatureZerocoinBalance,
                             newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance);
     }
@@ -812,122 +842,122 @@ qint64 WalletModel::validateAmount(int currentUnit,const QString& text)
 
 void WalletModel::sendtoAddresses()
 {
-//    QList<SendCoinsRecipient> recipients;
-//    bool valid = true;
+    //    QList<SendCoinsRecipient> recipients;
+    //    bool valid = true;
 
-//    for (int i = 0; i < ui->entries->count(); ++i) {
-//        SendCoinsEntry* entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
+    //    for (int i = 0; i < ui->entries->count(); ++i) {
+    //        SendCoinsEntry* entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
 
-//        //UTXO splitter - address should be our own
-//        CBitcoinAddress address = entry->getValue().address.toStdString();
-//        if (!model->isMine(address) && ui->splitBlockCheckBox->checkState() == Qt::Checked) {
-//            CoinControlDialog::coinControl->fSplitBlock = false;
-//            ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
-//            QMessageBox::warning(this, tr("Send Coins"),
-//                                 tr("The split block tool does not work when sending to outside addresses. Try again."),
-//                                 QMessageBox::Ok, QMessageBox::Ok);
-//            return;
-//        }
+    //        //UTXO splitter - address should be our own
+    //        CBitcoinAddress address = entry->getValue().address.toStdString();
+    //        if (!model->isMine(address) && ui->splitBlockCheckBox->checkState() == Qt::Checked) {
+    //            CoinControlDialog::coinControl->fSplitBlock = false;
+    //            ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
+    //            QMessageBox::warning(this, tr("Send Coins"),
+    //                                 tr("The split block tool does not work when sending to outside addresses. Try again."),
+    //                                 QMessageBox::Ok, QMessageBox::Ok);
+    //            return;
+    //        }
 
-//        if (entry) {
-//            if (entry->validate()) {
-//                recipients.append(entry->getValue());
-//            } else {
-//                valid = false;
-//            }
-//        }
-//    }
+    //        if (entry) {
+    //            if (entry->validate()) {
+    //                recipients.append(entry->getValue());
+    //            } else {
+    //                valid = false;
+    //            }
+    //        }
+    //    }
 
-//    if (!valid || recipients.isEmpty()) {
-//        return;
-//    }
+    //    if (!valid || recipients.isEmpty()) {
+    //        return;
+    //    }
 
-//    //set split block in model
-//    CoinControlDialog::coinControl->fSplitBlock = ui->splitBlockCheckBox->checkState() == Qt::Checked;
+    //    //set split block in model
+    //    CoinControlDialog::coinControl->fSplitBlock = ui->splitBlockCheckBox->checkState() == Qt::Checked;
 
-//    if (ui->entries->count() > 1 && ui->splitBlockCheckBox->checkState() == Qt::Checked) {
-//        CoinControlDialog::coinControl->fSplitBlock = false;
-//        ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
-//        QMessageBox::warning(this, tr("Send Coins"),
-//                             tr("The split block tool does not work with multiple addresses. Try again."),
-//                             QMessageBox::Ok, QMessageBox::Ok);
-//        return;
-//    }
+    //    if (ui->entries->count() > 1 && ui->splitBlockCheckBox->checkState() == Qt::Checked) {
+    //        CoinControlDialog::coinControl->fSplitBlock = false;
+    //        ui->splitBlockCheckBox->setCheckState(Qt::Unchecked);
+    //        QMessageBox::warning(this, tr("Send Coins"),
+    //                             tr("The split block tool does not work with multiple addresses. Try again."),
+    //                             QMessageBox::Ok, QMessageBox::Ok);
+    //        return;
+    //    }
 
-//    if (CoinControlDialog::coinControl->fSplitBlock)
-//        CoinControlDialog::coinControl->nSplitBlock = int(ui->splitBlockLineEdit->text().toInt());
+    //    if (CoinControlDialog::coinControl->fSplitBlock)
+    //        CoinControlDialog::coinControl->nSplitBlock = int(ui->splitBlockLineEdit->text().toInt());
 
-//    QString strFunds = tr("using") + " <b>" + tr("anonymous funds") + "</b>";
-//    QString strFee = "";
-//    recipients[0].inputType = ALL_COINS;
-//    strFunds = tr("using") + " <b>" + tr("any available funds (not recommended)") + "</b>";
+    //    QString strFunds = tr("using") + " <b>" + tr("anonymous funds") + "</b>";
+    //    QString strFee = "";
+    //    recipients[0].inputType = ALL_COINS;
+    //    strFunds = tr("using") + " <b>" + tr("any available funds (not recommended)") + "</b>";
 
-//    if (ui->checkSwiftTX->isChecked()) {
-//        recipients[0].useSwiftTX = true;
-//        strFunds += " ";
-//        strFunds += tr("and SwiftX");
-//    } else {
-//        recipients[0].useSwiftTX = false;
-//    }
+    //    if (ui->checkSwiftTX->isChecked()) {
+    //        recipients[0].useSwiftTX = true;
+    //        strFunds += " ";
+    //        strFunds += tr("and SwiftX");
+    //    } else {
+    //        recipients[0].useSwiftTX = false;
+    //    }
 
 
-//    // Format confirmation message
-//    QStringList formatted;
-//    foreach (const SendCoinsRecipient& rcp, recipients) {
-//        // generate bold amount string
-//        QString amount = "<b>" + BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
-//        amount.append("</b> ").append(strFunds);
+    //    // Format confirmation message
+    //    QStringList formatted;
+    //    foreach (const SendCoinsRecipient& rcp, recipients) {
+    //        // generate bold amount string
+    //        QString amount = "<b>" + BitcoinUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
+    //        amount.append("</b> ").append(strFunds);
 
-//        // generate monospace address string
-//        QString address = "<span style='font-family: monospace;'>" + rcp.address;
-//        address.append("</span>");
+    //        // generate monospace address string
+    //        QString address = "<span style='font-family: monospace;'>" + rcp.address;
+    //        address.append("</span>");
 
-//        QString recipientElement;
+    //        QString recipientElement;
 
-//        if (!rcp.paymentRequest.IsInitialized()) // normal payment
-//        {
-//            if (rcp.label.length() > 0) // label with address
-//            {
-//                recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.label));
-//                recipientElement.append(QString(" (%1)").arg(address));
-//            } else // just address
-//            {
-//                recipientElement = tr("%1 to %2").arg(amount, address);
-//            }
-//        } else if (!rcp.authenticatedMerchant.isEmpty()) // secure payment request
-//        {
-//            recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
-//        } else // insecure payment request
-//        {
-//            recipientElement = tr("%1 to %2").arg(amount, address);
-//        }
+    //        if (!rcp.paymentRequest.IsInitialized()) // normal payment
+    //        {
+    //            if (rcp.label.length() > 0) // label with address
+    //            {
+    //                recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.label));
+    //                recipientElement.append(QString(" (%1)").arg(address));
+    //            } else // just address
+    //            {
+    //                recipientElement = tr("%1 to %2").arg(amount, address);
+    //            }
+    //        } else if (!rcp.authenticatedMerchant.isEmpty()) // secure payment request
+    //        {
+    //            recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.authenticatedMerchant));
+    //        } else // insecure payment request
+    //        {
+    //            recipientElement = tr("%1 to %2").arg(amount, address);
+    //        }
 
-//        if (fSplitBlock) {
-//            recipientElement.append(tr(" split into %1 outputs using the UTXO splitter.").arg(CoinControlDialog::coinControl->nSplitBlock));
-//        }
+    //        if (fSplitBlock) {
+    //            recipientElement.append(tr(" split into %1 outputs using the UTXO splitter.").arg(CoinControlDialog::coinControl->nSplitBlock));
+    //        }
 
-//        formatted.append(recipientElement);
-//    }
+    //        formatted.append(recipientElement);
+    //    }
 
-//    fNewRecipientAllowed = false;
+    //    fNewRecipientAllowed = false;
 
-//    // request unlock only if was locked or unlocked for mixing:
-//    // this way we let users unlock by walletpassphrase or by menu
-//    // and make many transactions while unlocking through this dialog
-//    // will call relock
-//    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
-//    if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
-//        WalletModel::UnlockContext ctx(model->requestUnlock(true));
-//        if (!ctx.isValid()) {
-//            // Unlock wallet was cancelled
-//            fNewRecipientAllowed = true;
-//            return;
-//        }
-//        send(recipients, strFee, formatted);
-//        return;
-//    }
-//    // already unlocked or not encrypted at all
-//    send(recipients, strFee, formatted);
+    //    // request unlock only if was locked or unlocked for mixing:
+    //    // this way we let users unlock by walletpassphrase or by menu
+    //    // and make many transactions while unlocking through this dialog
+    //    // will call relock
+    //    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
+    //    if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
+    //        WalletModel::UnlockContext ctx(model->requestUnlock(true));
+    //        if (!ctx.isValid()) {
+    //            // Unlock wallet was cancelled
+    //            fNewRecipientAllowed = true;
+    //            return;
+    //        }
+    //        send(recipients, strFee, formatted);
+    //        return;
+    //    }
+    //    // already unlocked or not encrypted at all
+    //    send(recipients, strFee, formatted);
 
 
 }
@@ -1006,7 +1036,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
         if (recipients[0].useSwiftTX && total > GetSporkValue(SPORK_5_MAX_VALUE) * COIN) {
             emit message(tr("Send Coins"), tr("SwiftX doesn't support sending values that high yet. Transactions are currently limited to %1 ULO.").arg(GetSporkValue(SPORK_5_MAX_VALUE)),
-                CClientUIInterface::MSG_ERROR);
+                         CClientUIInterface::MSG_ERROR);
             return TransactionCreationFailed;
         }
 
@@ -1015,7 +1045,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
 
         if (recipients[0].useSwiftTX && newTx->GetValueOut() > GetSporkValue(SPORK_5_MAX_VALUE) * COIN) {
             emit message(tr("Send Coins"), tr("SwiftX doesn't support sending values that high yet. Transactions are currently limited to %1 ULO.").arg(GetSporkValue(SPORK_5_MAX_VALUE)),
-                CClientUIInterface::MSG_ERROR);
+                         CClientUIInterface::MSG_ERROR);
             return TransactionCreationFailed;
         }
 
@@ -1024,7 +1054,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
                 return SendCoinsReturn(AmountWithFeeExceedsBalance);
             }
             emit message(tr("Send Coins"), QString::fromStdString(strFailReason),
-                CClientUIInterface::MSG_ERROR);
+                         CClientUIInterface::MSG_ERROR);
             return TransactionCreationFailed;
         }
 
@@ -1211,11 +1241,11 @@ static void NotifyAddressBookChanged(WalletModel* walletmodel, CWallet* wallet, 
 
     qDebug() << "NotifyAddressBookChanged : " + strAddress + " " + strLabel + " isMine=" + QString::number(isMine) + " purpose=" + strPurpose + " status=" + QString::number(status);
     QMetaObject::invokeMethod(walletmodel, "updateAddressBook", Qt::QueuedConnection,
-        Q_ARG(QString, strAddress),
-        Q_ARG(QString, strLabel),
-        Q_ARG(bool, isMine),
-        Q_ARG(QString, strPurpose),
-        Q_ARG(int, status));
+                              Q_ARG(QString, strAddress),
+                              Q_ARG(QString, strLabel),
+                              Q_ARG(bool, isMine),
+                              Q_ARG(QString, strPurpose),
+                              Q_ARG(int, status));
 }
 
 // queue notifications to show a non freezing progress dialog e.g. for rescan
@@ -1232,26 +1262,26 @@ static void NotifyTransactionChanged(WalletModel* walletmodel, CWallet* wallet, 
 
     qDebug() << "NotifyTransactionChanged : " + strHash + " status= " + QString::number(status);
     QMetaObject::invokeMethod(walletmodel, "updateTransaction", Qt::QueuedConnection /*,
-                              Q_ARG(QString, strHash),
-                              Q_ARG(int, status)*/);
+                                                        Q_ARG(QString, strHash),
+                                                        Q_ARG(int, status)*/);
 }
 
 static void ShowProgress(WalletModel* walletmodel, const std::string& title, int nProgress)
 {
     // emits signal "showProgress"
     QMetaObject::invokeMethod(walletmodel, "showProgress", Qt::QueuedConnection,
-        Q_ARG(QString, QString::fromStdString(title)),
-        Q_ARG(int, nProgress));
+                              Q_ARG(QString, QString::fromStdString(title)),
+                              Q_ARG(int, nProgress));
 }
 
 static void NotifyWatchonlyChanged(WalletModel* walletmodel, bool fHaveWatchonly)
 {
     QMetaObject::invokeMethod(walletmodel, "updateWatchOnlyFlag", Qt::QueuedConnection,
-        Q_ARG(bool, fHaveWatchonly));
+                              Q_ARG(bool, fHaveWatchonly));
 }
 
 static void NotifyContractBookChanged(WalletModel *walletmodel, CWallet *wallet,
-        const std::string &address, const std::string &label, const std::string &abi, ChangeType status)
+                                      const std::string &address, const std::string &label, const std::string &abi, ChangeType status)
 {
     QString strAddress = QString::fromStdString(address);
     QString strLabel = QString::fromStdString(label);
@@ -1337,7 +1367,7 @@ WalletModel::UnlockContext::UnlockContext(bool valid, bool relock) : valid(valid
 
 WalletModel::UnlockContext::~UnlockContext()
 {
-/*
+    /*
     if (valid && relock) {
         wallet->setWalletLocked(true);
     }
@@ -1446,9 +1476,9 @@ void WalletModel::loadReceiveRequests(std::vector<std::string>& vReceiveRequests
 {
     LOCK(wallet->cs_wallet);
     BOOST_FOREACH (const PAIRTYPE(CTxDestination, CAddressBookData) & item, wallet->mapAddressBook)
-        BOOST_FOREACH (const PAIRTYPE(std::string, std::string) & item2, item.second.destdata)
+            BOOST_FOREACH (const PAIRTYPE(std::string, std::string) & item2, item.second.destdata)
             if (item2.first.size() > 2 && item2.first.substr(0, 2) == "rr") // receive request
-                vReceiveRequests.push_back(item2.second);
+            vReceiveRequests.push_back(item2.second);
 }
 
 bool WalletModel::saveReceiveRequest(const std::string& sAddress, const int64_t nId, const std::string& sRequest)
