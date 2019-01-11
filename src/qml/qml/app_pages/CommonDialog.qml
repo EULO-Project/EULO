@@ -86,7 +86,7 @@ Window{
         opacity: 1
         color: "#FFFFFF"
         scale:0.8
-        anchors.margins: Qt.platform.os === "windows"?1:0
+        anchors.margins:is_Maximized?0:( Qt.platform.os === "windows"?3:0)
 
         MouseArea{
             anchors.fill: parent

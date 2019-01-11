@@ -125,7 +125,7 @@ ApplicationWindow {
         color: "transparent"
         radius: radius_all == undefined? 2:radius_all
         objectName: "background"
-        anchors.margins: Qt.platform.os === "windows"?1:0
+        anchors.margins:is_Maximized?0:( Qt.platform.os === "windows"?3:0)
 
 
         function setMargin(margin,radius) {
