@@ -112,7 +112,9 @@ SOURCES += main.cpp \
     qt_native/intro.cpp \
     qt_native/peertableproxy.cpp \
     qt_native/coincontrolmodel.cpp \
-    qt_native/coincontrolproxy.cpp
+    qt_native/coincontrolproxy.cpp \
+    qt_native/masternodetablemodel.cpp \
+    qt_native/masternodetableproxy.cpp
 
 RESOURCES += qml.qrc
 
@@ -194,7 +196,9 @@ HEADERS += \
     qt_native/ui_intro.h \
     qt_native/peertableproxy.h \
     qt_native/coincontrolmodel.h \
-    qt_native/coincontrolproxy.h
+    qt_native/coincontrolproxy.h \
+    qt_native/masternodetablemodel.h \
+    qt_native/masternodetableproxy.h
 
 #QMAKE_CXXFLAGS += -std=c++11 -pipe -O2
 
