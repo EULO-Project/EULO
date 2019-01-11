@@ -55,7 +55,7 @@ public:
 
                 QMetaObject::invokeMethod(model,"setMargin",Qt::DirectConnection,
                                           Q_RETURN_ARG(QVariant,retValue),
-                                          Q_ARG(QVariant,QVariant::fromValue(2)),
+                                          Q_ARG(QVariant,QVariant::fromValue(8)),
                                           Q_ARG(QVariant,QVariant::fromValue(0))
                                           );
 
@@ -70,7 +70,7 @@ public:
 
                     QMetaObject::invokeMethod(model,"setMargin",Qt::DirectConnection,
                                               Q_RETURN_ARG(QVariant,retValue),
-                                              Q_ARG(QVariant,QVariant::fromValue(2)),
+                                              Q_ARG(QVariant,QVariant::fromValue(10)),
                                               Q_ARG(QVariant,QVariant::fromValue(0))
                                               );
 

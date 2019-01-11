@@ -23,7 +23,9 @@ ApplicationWindow {
     height: Screen.height-300
 
     title: qsTr("Eulo Core")
-    color: Qt.platform.os === "windows"?"transparent":"white"
+    //color: Qt.platform.os === "windows"?"transparent":"white"
+    color: "white"
+
     opacity: 0
     Material.elevation: 8
     property bool is_Maximized: false
@@ -56,8 +58,8 @@ ApplicationWindow {
     onVisibilityChanged:
     {
 
-        if( Qt.platform.os !== "windows")
-        {
+        //if( Qt.platform.os !== "windows")
+       // {
             if(visibility === Window.Windowed)
             {
                 title_item.maximum_btn.source = "images/icons/mainwindow_maximum.png"
@@ -68,7 +70,7 @@ ApplicationWindow {
                 title_item.maximum_btn.source = "images/icons/mainwindow_restore.png"
                 is_Maximized = true
             }
-        }
+       // }
     }
 
     Connections

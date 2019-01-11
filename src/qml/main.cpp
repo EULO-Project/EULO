@@ -427,21 +427,21 @@ int main(int argc, char *argv[])
 
 
 #ifdef Q_OS_WIN32
-    HWND hwnd = (HWND)(window->winId());
-    DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
-    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
+//    HWND hwnd = (HWND)(window->winId());
+//    DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
+//    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
 
-    RECT rect;
-    SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
-    int window_height = rect.bottom - rect.top;
-    int window_width = rect.right - rect.left;
+//    RECT rect;
+//    SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
+//    int window_height = rect.bottom - rect.top;
+//    int window_width = rect.right - rect.left;
 
-    NativeEventFilter *nativeeventfilter = new NativeEventFilter();
-    nativeeventfilter->winId = hwnd;
-    nativeeventfilter->desktop_height = window_height;
-    nativeeventfilter->desktop_width = window_width;
-    nativeeventfilter->main_window = window;
-    app.installNativeEventFilter(nativeeventfilter);
+//    NativeEventFilter *nativeeventfilter = new NativeEventFilter();
+//    nativeeventfilter->winId = hwnd;
+//    nativeeventfilter->desktop_height = window_height;
+//    nativeeventfilter->desktop_width = window_width;
+//    nativeeventfilter->main_window = window;
+//    app.installNativeEventFilter(nativeeventfilter);
 #endif
 
 

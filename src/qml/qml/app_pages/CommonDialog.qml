@@ -32,7 +32,8 @@ Window{
     property bool cancel_btn_visible: true
     property bool dim_back: false
 
-    color: Qt.platform.os === "windows"?"transparent":"white"
+   // color: Qt.platform.os === "windows"?"transparent":"white"
+     color: "white"
     signal closed()
     signal confirmed()
     signal canceled()
@@ -86,7 +87,8 @@ Window{
         opacity: 1
         color: "#FFFFFF"
         scale:0.8
-        anchors.margins: Qt.platform.os === "windows"?20:0
+        //anchors.margins: Qt.platform.os === "windows"?20:0
+        anchors.margins: 0
 
         MouseArea{
             anchors.fill: parent
