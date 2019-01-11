@@ -23,8 +23,7 @@ ApplicationWindow {
     height: Screen.height-300
 
     title: qsTr("Eulo Core")
-    //color: Qt.platform.os === "windows"?"transparent":"white"
-    color: "white"
+    color: Qt.platform.os === "windows"?"transparent":"white"
 
     opacity: 0
     Material.elevation: 8
@@ -126,7 +125,7 @@ ApplicationWindow {
         color: "transparent"
         radius: radius_all == undefined? 2:radius_all
         objectName: "background"
-        //anchors.margins: 8
+        anchors.margins: Qt.platform.os === "windows"?1:0
 
 
         function setMargin(margin,radius) {
