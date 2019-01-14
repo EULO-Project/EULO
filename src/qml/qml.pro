@@ -324,7 +324,7 @@ LIBS += -L$$TOOLCHAIN_LIB_PATH \
         -lzmq
 
 win32{
-    LIBS += -lshlwapi -lcomctl32 -lole32 -lws2_32 -lmswsock  -lgdi32 -liphlpapi -luuid -lmingwthrd -lDwmapi
+    LIBS += -lshlwapi -lcomctl32 -lole32 -lws2_32 -lmswsock  -lgdi32 -liphlpapi -luuid -lmingwthrd -ldwmapi
 }
 
 unix:!macx{
