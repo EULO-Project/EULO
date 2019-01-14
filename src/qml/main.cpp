@@ -441,9 +441,9 @@ int main(int argc, char *argv[])
     if(!m_aeroEnabled)
         style |= CS_DROPSHADOW;
 
-   // ::SetClassLong(hwnd, GWL_STYLE, style);
+    ::SetClassLong(hwnd, GWL_STYLE, style);
 
-     ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
+    // ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
 
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
