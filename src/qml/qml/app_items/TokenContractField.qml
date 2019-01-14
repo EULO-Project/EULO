@@ -169,7 +169,6 @@ Item {
         anchors.right: root.right
         anchors.rightMargin: 20
         showDropImg:true
-        readOnly: true
 
         hintmodel: walletModel.receivingAddressProxyModel
     }

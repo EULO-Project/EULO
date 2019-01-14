@@ -94,6 +94,11 @@ ApplicationWindow {
         txPage.item.historyTable.selection.select(txPage.item.historyTable.currentRow)
     }
 
+    function gotoReceivepage()
+    {
+        title_item.naviPanel.gotoReceivepage()
+    }
+
     onClosing:
     {
         exit_dialog.show()

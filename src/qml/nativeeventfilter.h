@@ -34,6 +34,12 @@ public:
         MSG* msg = (MSG *)message;
         switch (msg->message)
         {
+        case WM_NCCALCSIZE:
+        {
+            //this kills the window frame and title bar we added with WS_THICKFRAME and WS_CAPTION
+            *result = 0;
+            return true;
+        }
         case WM_NCPAINT:
         {
             if (m_aeroEnabled)

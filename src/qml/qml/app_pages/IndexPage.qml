@@ -117,6 +117,11 @@ Controls_1_4.Tab {
                 width:24
             }
 
+            onClicked:
+            {
+                gotoReceivepage()
+            }
+
         }
 
         Label {
@@ -219,7 +224,7 @@ Controls_1_4.Tab {
 
                 onClicked:
                 {
-                    tab_change(3)
+                    //tab_change(3)
                     gotoTransactionPage(recent_transaction_info_listView.model.mapToSource(recent_transaction_info_listView.model.index(index,0)))
                 }
 

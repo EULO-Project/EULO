@@ -121,5 +121,12 @@ Row{
         tab_change(3)
     }
 
+    function gotoReceivepage()
+    {
+        reset_all_items()
+        receive.picked = true
+        tab_change(2)
+    }
+
 
 }

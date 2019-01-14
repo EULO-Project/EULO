@@ -94,7 +94,7 @@ Rectangle
                     text:progressbar_context
                     font.weight: Font.Bold
                     font.pixelSize: 10
-                    color: "#FFD39B"
+                    color: "#333333"
                     anchors.centerIn: parent
                 }
             }

@@ -1,22 +1,24 @@
-<h1>EULO测试版1.0.3</h1>
+<h1>EULO测试版1.0.4</h1>
 
 <h4>您现在正在使用的是EULO测试版本，本版本现在有一些已知BUG和部分细微功能缺失。如果您在使用中发现有任何未知Bug，或者对程序有其他建议，请联系开发人员，请不要在公开场合讨论和评价BUG，谢谢！</h4>
 
 <h4>本次新增功能:</h4>
 <ul>
-<li>1、CoinControl和Sending的功能(待测试)</li>
-<li>2、MasterNode(待测试)</li>
+<li></li>
 </ul>
 
 <h4>本次修复Bug:</h4>
 <ul>
-<li>1、交易记录中不显示pos阶段挖矿奖励的bug</li>
-<li>2、Windows7中，窗体阴影的处理，在Areo效果打开和关闭下的差异。</li>
-
+<li></li>
 </ul>
 
 <h4>历史变动:</h4>
 <ul>
+<li>测试版1.0.3</li>
+<li>1、CoinControl和Sending的功能(待测试)</li>
+<li>2、MasterNode(待测试)</li>
+<li>3、交易记录中不显示pos阶段挖矿奖励的bug</li>
+<li>4、Windows7中，窗体阴影的处理，在Areo效果打开和关闭下的差异。</li>
 <li>测试版1.0.2</li>
 <li>1、blockexplorerDialog中serach按键没有反应的bug</li>
 <li>2、receivingDialog中新增时，修改原有记录而不能新增的bug</li>
