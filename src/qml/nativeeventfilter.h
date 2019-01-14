@@ -10,6 +10,9 @@
 #include <QDebug>
 #include <QQuickWindow>
 
+#include <dwmapi.h>
+#include <winuser.h>
+
 class NativeEventFilter: public QAbstractNativeEventFilter
 {
 public:
@@ -17,72 +20,31 @@ public:
 
 
     HWND winId;
-    bool maxmized;
     int desktop_width;
     int desktop_height;
     QQuickWindow *main_window;
     quint64 count = 0;
 
-    bool from_maxmized = true;
+
+    const MARGINS shadow = { 1, 1, 1, 1 };
+    bool m_aeroEnabled;
 
     virtual bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE
     {
-
-
-
-
         MSG* msg = (MSG *)message;
-
-
         switch (msg->message)
         {
-        case WM_NCCALCSIZE:
+        case WM_NCPAINT:
         {
-            //this kills the window frame and title bar we added with WS_THICKFRAME and WS_CAPTION
-            *result = 0;
-            return true;
-        }
-        case WM_GETMINMAXINFO:
-        {
+            if (m_aeroEnabled)
+                   {
+                       int v = 2;
+                       DwmSetWindowAttribute(msg->hwnd, 2,&v, 4);
+                       DwmExtendFrameIntoClientArea(msg->hwnd,&shadow);
+                   }
 
+            return false;
 
-            if (::IsZoomed(msg->hwnd)) {
-                maxmized=true;
-                from_maxmized = true;
-
-                QObject *model=main_window->findChild<QObject*>("background");
-                QVariant retValue;
-
-                QMetaObject::invokeMethod(model,"setMargin",Qt::DirectConnection,
-                                          Q_RETURN_ARG(QVariant,retValue),
-                                          Q_ARG(QVariant,QVariant::fromValue(8)),
-                                          Q_ARG(QVariant,QVariant::fromValue(0))
-                                          );
-
-            }
-            else {
-                maxmized=false;
-
-                if(from_maxmized){
-
-                    QObject *model=main_window->findChild<QObject*>("background");
-                    QVariant retValue;
-
-                    QMetaObject::invokeMethod(model,"setMargin",Qt::DirectConnection,
-                                              Q_RETURN_ARG(QVariant,retValue),
-                                              Q_ARG(QVariant,QVariant::fromValue(20)),
-                                              Q_ARG(QVariant,QVariant::fromValue(8))
-                                              );
-
-                    from_maxmized=false;
-
-                }
-
-            }
-
-
-            //       *result = ::DefWindowProc(msg->hwnd, msg->message, msg->wParam, msg->lParam);
-            return true;
         }
         case WM_NCHITTEST:
         {
@@ -97,16 +59,6 @@ public:
             }
 
 
-            HWND active_window= GetActiveWindow();
-            int padding=0;
-
-
-            //qDebug()<<"active_window:"<<active_window;
-
-          //  if(active_window!=winId) return false; //GH BUG: qml中open新window 当window把底层窗体遮挡时，如果鼠标移动到下层窗体边缘，居然可以变更上层窗体大小。。
-
-
-
             RECT winrect;
             GetWindowRect(msg->hwnd, &winrect);
 
@@ -114,12 +66,9 @@ public:
             long y = GET_Y_LPARAM(msg->lParam);
 
             int width = winrect.right - winrect.left;
-            int height = winrect.bottom - winrect.top;
+            //int height = winrect.bottom - winrect.top;
 
-            if(maxmized)
-                padding=6;
-            else
-                padding=26;
+             int padding=6;
 
 
             //left border
@@ -170,17 +119,6 @@ public:
                 *result = HTTOPRIGHT;
             }
 
-
-            //            qDebug()<<"winrect.top:"<<winrect.top;
-            //            qDebug()<<"winrect.height:"<<winrect.bottom-winrect.top;
-            //            qDebug()<<"window_height:"<<window_height;
-
-            //            qDebug()<<"winrect.top:"<<winrect.top;
-
-            //            qDebug()<<"y:"<<y;
-            //            qDebug()<<"padding:"<<padding;
-
-           // if(msg->hwnd != winId) return false; //Dialogs don't need a HTCAPTION
 
             // Here is for coin_type_btn
             if(x - winrect.left >= width - 100 - padding

@@ -23,7 +23,7 @@ ApplicationWindow {
     height: Screen.height-300
 
     title: qsTr("Eulo Core")
-    color: Qt.platform.os === "windows"?"transparent":"white"
+    color: "white"
 
     opacity: 0
     Material.elevation: 8
@@ -56,19 +56,15 @@ ApplicationWindow {
 
     onVisibilityChanged:
     {
-
-        if( Qt.platform.os !== "windows")
+        if(visibility === Window.Windowed)
         {
-            if(visibility === Window.Windowed)
-            {
-                title_item.maximum_btn.source = "images/icons/mainwindow_maximum.png"
-                is_Maximized = false
-            }
-            else if(visibility === Window.Maximized)
-            {
-                title_item.maximum_btn.source = "images/icons/mainwindow_restore.png"
-                is_Maximized = true
-            }
+            title_item.maximum_btn.source = "images/icons/mainwindow_maximum.png"
+            is_Maximized = false
+        }
+        else if(visibility === Window.Maximized)
+        {
+            title_item.maximum_btn.source = "images/icons/mainwindow_restore.png"
+            is_Maximized = true
         }
     }
 
@@ -85,7 +81,7 @@ ApplicationWindow {
     }
 
     function tab_change(index)
-    { 
+    {
         body.currentIndex = index
     }
 
@@ -125,32 +121,6 @@ ApplicationWindow {
         color: "transparent"
         radius: radius_all == undefined? 2:radius_all
         objectName: "background"
-        //anchors.margins:is_Maximized?0:( Qt.platform.os === "windows"?3:0)
-
-
-        function setMargin(margin,radius) {
-            if(margin === 20){
-                title_item.maximum_btn.source = "images/icons/mainwindow_restore.png"
-                is_Maximized = false
-            }
-            else{
-                title_item.maximum_btn.source = "images/icons/mainwindow_maximum.png"
-                is_Maximized = true
-            }
-
-            background.anchors.leftMargin = margin
-            background.anchors.rightMargin = margin
-            background.anchors.topMargin = margin
-            background.anchors.bottomMargin = margin
-            radius_all = radius
-        }
-
-
-
-        layer.enabled: true
-        layer.effect: ShadowEffect {
-            elevation: root_window.Material.elevation
-        }
 
         TitleItem
         {
@@ -182,7 +152,7 @@ ApplicationWindow {
 
                 onNumBlocksChanged:
                 {
-                     set_progress_message(title,msg,(progress/progress_max).toFixed(2),tooltip);
+                    set_progress_message(title,msg,(progress/progress_max).toFixed(2),tooltip);
                 }
 
 
@@ -301,45 +271,45 @@ ApplicationWindow {
 
 
 
-//    Button
-//    {
-//        id:root_btn
-//        anchors.centerIn: parent
+    //    Button
+    //    {
+    //        id:root_btn
+    //        anchors.centerIn: parent
 
 
-//        onClicked:
-//        {
-//            root_log.show()
-//        }
+    //        onClicked:
+    //        {
+    //            root_log.show()
+    //        }
 
-//    }
+    //    }
 
 
-//    MenuDialog
-//    {
+    //    MenuDialog
+    //    {
 
-//        id:root_log
-//        x:root_btn.x
+    //        id:root_log
+    //        x:root_btn.x
 
-//        y:root_btn.y+root_btn.height
+    //        y:root_btn.y+root_btn.height
 
-//        model:ListModel
-//        {
-//            ListElement {
-//                modelData: "Apple"
-//                cost: 2.45
-//            }
-//            ListElement {
-//                modelData: "Peerxcvfsxdsfsdfsdfsdfsdfsdfsdfsdf"
-//                cost: 2.45
-//            }
-//            ListElement {
-//                modelData: "Fuck"
-//                cost: 2.45
-//            }
+    //        model:ListModel
+    //        {
+    //            ListElement {
+    //                modelData: "Apple"
+    //                cost: 2.45
+    //            }
+    //            ListElement {
+    //                modelData: "Peerxcvfsxdsfsdfsdfsdfsdfsdfsdfsdf"
+    //                cost: 2.45
+    //            }
+    //            ListElement {
+    //                modelData: "Fuck"
+    //                cost: 2.45
+    //            }
 
-//        }
-//    }
+    //        }
+    //    }
 
 }
 

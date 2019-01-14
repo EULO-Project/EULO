@@ -28,13 +28,7 @@
 //#include "walletmanager.h"
 
 #ifdef Q_OS_WIN32
-
-#include <dwmapi.h>
-#include <winuser.h>
 #include "nativeeventfilter.h"
-
-#pragma comment (lib,"user32.lib")
-#pragma comment (lib,"Dwmapi.lib")
 #endif
 
 
@@ -252,9 +246,9 @@ static void initTranslations(QTranslator& qtTranslatorBase, QTranslator& qtTrans
     // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in eulo.qrc)
     if (translatorBase.load("eulo_" +lang, ":/locale/")){
 
-            qDebug()<<"okay1:";
+        qDebug()<<"okay1:";
         QApplication::installTranslator(&translatorBase);
-        }
+    }
 
     qDebug()<<"lang:"<<lang;
     qDebug()<<"lang_territory:"<<lang_territory;
@@ -269,6 +263,18 @@ static void initTranslations(QTranslator& qtTranslatorBase, QTranslator& qtTrans
 }
 
 
+#ifdef Q_OS_WIN32
+bool CheckAeroEnabled()
+{
+    if (QSysInfo::kernelVersion().split('.').at(0).toInt() >= 6)
+    {
+        int enabled = 0;
+        DwmIsCompositionEnabled(&enabled);
+        return (enabled == 1) ? true : false;
+    }
+    return false;
+}
+#endif
 
 
 
@@ -332,11 +338,11 @@ int main(int argc, char *argv[])
 
 
 
-//    QString dataDir = GUIUtil::boostPathToQString(GetDefaultDataDir());
-//    qDebug()<<"dataDir:"<<dataDir;
-//    QDir dir;
-//    if(!dir.exists(dataDir))
-//        dir.mkpath(dataDir);
+    //    QString dataDir = GUIUtil::boostPathToQString(GetDefaultDataDir());
+    //    qDebug()<<"dataDir:"<<dataDir;
+    //    QDir dir;
+    //    if(!dir.exists(dataDir))
+    //        dir.mkpath(dataDir);
 
 
     if (!boost::filesystem::is_directory(GetDataDir(false))) {
@@ -423,13 +429,21 @@ int main(int argc, char *argv[])
 
 
     QQuickWindow *window = qobject_cast<QQuickWindow *>(root);
-    window->setFlags(Qt::FramelessWindowHint|Qt::Window|Qt::WindowSystemMenuHint);
+    window->setFlags(Qt::FramelessWindowHint|Qt::Window);
 
 
 #ifdef Q_OS_WIN32
     HWND hwnd = (HWND)(window->winId());
+    bool m_aeroEnabled = CheckAeroEnabled();
+
     DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
-    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
+
+    if(!m_aeroEnabled)
+        style |= CS_DROPSHADOW;
+
+    ::SetClassLong(hwnd, GWL_STYLE, style);
+
+    // ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
 
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
@@ -441,6 +455,7 @@ int main(int argc, char *argv[])
     nativeeventfilter->desktop_height = window_height;
     nativeeventfilter->desktop_width = window_width;
     nativeeventfilter->main_window = window;
+    nativeeventfilter->m_aeroEnabled = m_aeroEnabled;
     app.installNativeEventFilter(nativeeventfilter);
 #endif
 

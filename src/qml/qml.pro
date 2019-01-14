@@ -323,16 +323,13 @@ LIBS += -L$$TOOLCHAIN_LIB_PATH \
         -lgmp \
         -lzmq
 
-
 win32{
-    LIBS += -lshlwapi -lcomctl32 -lole32 -lws2_32 -lmswsock  -lgdi32 -liphlpapi -luuid -lmingwthrd
+    LIBS += -lshlwapi -lcomctl32 -lole32 -lws2_32 -lmswsock  -lgdi32 -liphlpapi -luuid -lmingwthrd -lDwmapi
 }
 
 unix:!macx{
     LIBS +=  -lanl
 }
-
-
 
 TR_EXCLUDE += $$PWD/../*
 
