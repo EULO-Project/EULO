@@ -153,6 +153,7 @@ public:
         assert(hashGenesisBlock == uint256("0x00000013ea705af4ed8b40a86250bc6d78b982c604eef80a908cec7f11abbdd1"));
         assert(genesis.hashMerkleRoot == uint256("0x4df5d8d4db708df49c4f911a0946991d5a7628e2e93dfe22b76f9233a9492426"));
 
+        vSeeds.push_back(CDNSSeedData("node.eulo.io", "node.eulo.io"));         // node
         vSeeds.push_back(CDNSSeedData("seed1.eulo.io", "seed1.eulo.io"));       // seed1
         vSeeds.push_back(CDNSSeedData("seed2.eulo.io", "seed2.eulo.io"));       // seed2
         vSeeds.push_back(CDNSSeedData("seed3.eulo.io", "seed3.eulo.io"));       // seed3
