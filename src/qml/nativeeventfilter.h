@@ -100,6 +100,9 @@ public:
             }
 
 
+            if(msg->hwnd != winId) return false; //Dialogs don't need a HTCAPTION
+
+
             //bottom left corner
             if (x >= winrect.left && x < winrect.left + padding &&
                     y < winrect.bottom && y >= winrect.bottom - padding)

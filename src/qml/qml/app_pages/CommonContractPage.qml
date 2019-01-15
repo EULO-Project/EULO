@@ -613,17 +613,23 @@ Rectangle
             byteCodeText.text = ""
             contractAddressField.text = ""
             abiCodeText.text = ""
-            amountField.amountField.text = ""
 
-            if(pageType === create)
-                gasLimitSpin.amountField.text = walletModel.contractPage.getDefaultGasLimitOpCreate()
-            else
-                gasLimitSpin.amountField.text = walletModel.contractPage.getDefaultGasLimitOpSend()
-
-            senderField.text = ""
-            gasPriceField.amountField.text =  gasPriceField.coinTypeBtn.index === 0?0.0000004:gasPriceField.coinTypeBtn.index === 1?0.0004:0.4
+            clearAmount()
         }
 
+    }
+
+    function clearAmount()
+    {
+        amountField.amountField.text = ""
+
+        if(pageType === create)
+            gasLimitSpin.amountField.text = walletModel.contractPage.getDefaultGasLimitOpCreate()
+        else
+            gasLimitSpin.amountField.text = walletModel.contractPage.getDefaultGasLimitOpSend()
+
+        senderField.text = ""
+        gasPriceField.amountField.text =  gasPriceField.coinTypeBtn.index === 0?"0.0000004":gasPriceField.coinTypeBtn.index === 1?"0.0004":"0.4"
     }
 
 
@@ -687,6 +693,7 @@ Rectangle
 
 
 
+            clearAmount()
 
         }
 
@@ -794,6 +801,8 @@ Rectangle
                                                        constructRec.scrollLoader.item.getParams()
                                                        )
 
+
+        clearAmount()
     }
 
 
