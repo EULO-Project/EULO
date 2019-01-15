@@ -49,8 +49,10 @@ Item
         anchors.left: root.left
         horizontalAlignment:TextInput.AlignRight
         anchors.verticalCenter: root.verticalCenter
-        validator:IntValidator{
-            bottom: 10000; top: 9999999;
+        validator:DoubleValidator{
+            bottom: 0; top: 10000000000;
+            notation:DoubleValidator.StandardNotation
+            decimals:8
         }
 
         Component.onCompleted:
