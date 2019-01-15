@@ -3840,8 +3840,15 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         //check coinbase2 vout must contain all gas refund vouts.
         std::vector<CTxOut> vTempVouts = block.vtx[1].vout;
         std::vector<CTxOut>::iterator it;
+        LogPrintf("*****:: block.hash:%s\n",block.GetHash().GetHex().c_str()); //eulo debug
+
         for (size_t i = 0; i < checkVouts.size(); i++) {
             it = std::find(vTempVouts.begin(), vTempVouts.end(), checkVouts[i]);
+
+            LogPrintf("*****:: checkVouts[%d].scriptPubKey:%s\n",i,checkVouts[i].scriptPubKey.ToString()); //eulo debug
+
+
+
             if (it == vTempVouts.end()) {
                 return state.DoS(100, error("Gas refund missing"), REJECT_INVALID);
             } else {

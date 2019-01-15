@@ -1301,10 +1301,19 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult &resultBCE)
                                << OP_CHECKSIG);
                 tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
                 resultBCE.valueTransfers.push_back(CTransaction(tx));
+
+                LogPrintf("*****222:: gas[%d]:%ld\n",i,CAmount(txs[i].value())); //eulo debug
+
             }
             resultBCE.usedGas += gasUsed;
+
+
+
         } else
         {
+
+
+
             if (txs[i].gas() > UINT64_MAX ||
                     result[i].execRes.gasUsed > UINT64_MAX ||
                     txs[i].gasPrice() > UINT64_MAX)
@@ -1316,6 +1325,13 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult &resultBCE)
 
             resultBCE.usedGas += gasUsed;
             int64_t amount = (gas - gasUsed) * gasPrice;
+
+
+            LogPrintf("*****:: gas[%d]:%ld\n",i,gas); //eulo debug
+            LogPrintf("*****:: gasPrice[%d]:%ld\n",i,gasPrice); //eulo debug
+            LogPrintf("*****:: amount[%d]:%ld\n",i,amount); //eulo debug
+
+
             if (amount < 0)
             {
                 return false;
