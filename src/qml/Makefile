@@ -1,7 +1,7 @@
 all:eulo-qml
 
 MTime:=$(shell stat -c %Y qml.pro)
-LastTime:=$(shell cat qml.pro.time)
+LastTime:=$(shell cat qml.pro.time2)
 
 eulo-qml:
 	@echo "Building eulo-qml ...depends_prefix: " ${depends_prefix} && \

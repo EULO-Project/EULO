@@ -629,7 +629,7 @@ Rectangle
             gasLimitSpin.amountField.text = walletModel.contractPage.getDefaultGasLimitOpSend()
 
         senderField.text = ""
-        gasPriceField.amountField.text =  gasPriceField.coinTypeBtn.index === 0?"0.0000004":gasPriceField.coinTypeBtn.index === 1?"0.0004":"0.4"
+        gasPriceField.amountField.text =  gasPriceField.coinTypeBtn.index === 0?"0.00000041":gasPriceField.coinTypeBtn.index === 1?"0.0004":"0.4"
     }
 
 

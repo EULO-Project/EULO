@@ -100,7 +100,7 @@ public:
             }
 
 
-            if(msg->hwnd != winId) return false; //Dialogs don't need a HTCAPTION
+           // if(msg->hwnd != winId) return false; //Dialogs don't need a HTCAPTION
 
 
             //bottom left corner
@@ -130,20 +130,20 @@ public:
 
 
             // Here is for coin_type_btn
-            if(x - winrect.left >= width - 100 - padding
+            if((x - winrect.left >= width - 100 - padding
                     && x - winrect.left <= width - padding - 28
                     && y >= winrect.top + padding + 39
-                    && y <= winrect.top + 64 + padding)
+                    && y <= winrect.top + 64 + padding) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
             }
 
             // Here is for NaviPanel
-            if(x - winrect.left > width/2 - 333
+            if((x - winrect.left > width/2 - 333
                     && x - winrect.left < width/2 + 333
                     && y >= winrect.top + padding
-                    && y < winrect.top + 74 + padding)
+                    && y < winrect.top + 74 + padding) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
@@ -153,16 +153,16 @@ public:
             if((x > winrect.right - padding - 350
                 && x < winrect.right - padding
                 &&  y >= winrect.top + padding
-                && y < winrect.top + 28 + padding ))
+                && y < winrect.top + 28 + padding ) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
             }
 
-            if (y >= winrect.top + padding
+            if ((y >= winrect.top + padding
                     && y < winrect.top + 74 + padding
                     && x > winrect.left + padding
-                    && x < winrect.right - padding
+                    && x < winrect.right - padding) && msg->hwnd == winId
                     //&& !(x > winrect.right - padding-105 && x < winrect.right - padding &&  y >= winrect.top + padding && y < winrect.top + 28 + padding )
                     )
             {
