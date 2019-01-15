@@ -276,6 +276,13 @@ bool CheckAeroEnabled()
 }
 #endif
 
+#ifdef Q_OS_WIN32
+void SwitchOnDropShadow()
+{
+   SystemParametersInfo(SPI_SETDROPSHADOW,0, (PVOID)TRUE, 0);
+}
+#endif
+
 
 
 //------------------- Main -----------------------
@@ -436,14 +443,15 @@ int main(int argc, char *argv[])
     HWND hwnd = (HWND)(window->winId());
     bool m_aeroEnabled = CheckAeroEnabled();
 
+    SwitchOnDropShadow();
     DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
 
     if(!m_aeroEnabled)
         style |= CS_DROPSHADOW;
 
-    ::SetClassLong(hwnd, GWL_STYLE, style);
+   // ::SetClassLong(hwnd, GWL_STYLE, style);
 
-    // ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
+     ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
 
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
