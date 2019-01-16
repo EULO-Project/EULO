@@ -1231,6 +1231,11 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     env.setTimestamp(dev::u256(block.nTime));
     env.setDifficulty(dev::u256(block.nBits));
 
+
+    LogPrintf("*****BuildEVMEnvironment  tip.nHeight:%ld\n", tip->nHeight);
+    LogPrintf("*****BuildEVMEnvironment  blockGasLimit:%ld\n", blockGasLimit);
+
+
     dev::eth::LastHashes lh;
     lh.resize(256);
     for(int i=0;i<256;i++){
@@ -1277,6 +1282,11 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
             continue;
         }
         LogPrintStr("performByteCode start exec=====\n"); //eulo debug
+
+        LogPrintf("*****performByteCode stateRoot: %s, utxoRoot: %s\n", h256Touint(globalState->rootHashUTXO()).GetHex().c_str(), h256Touint(globalState->rootHash()).GetHex().c_str());
+
+
+
         result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
     }
     globalState->db().commit();
@@ -1326,6 +1336,7 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult &resultBCE)
             resultBCE.usedGas += gasUsed;
             int64_t amount = (gas - gasUsed) * gasPrice;
 
+            LogPrintf("*****:: gasUsed[%d]:%ld\n",i,gasUsed); //eulo debug
 
             LogPrintf("*****:: gas[%d]:%ld\n",i,gas); //eulo debug
             LogPrintf("*****:: gasPrice[%d]:%ld\n",i,gasPrice); //eulo debug

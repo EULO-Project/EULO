@@ -110,7 +110,6 @@ private:
     std::vector<ResultExecute> result;
 
     const CBlock &block;
-
     const uint64_t blockGasLimit;
 
 };
