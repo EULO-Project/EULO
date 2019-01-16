@@ -22,6 +22,7 @@ public:
     HWND winId;
     int desktop_width;
     int desktop_height;
+    double scale_rate = 0.0;
     QQuickWindow *main_window;
     quint64 count = 0;
 
@@ -130,39 +131,39 @@ public:
 
 
             // Here is for coin_type_btn
-            if((x - winrect.left >= width - 100 - padding
-                    && x - winrect.left <= width - padding - 28
-                    && y >= winrect.top + padding + 39
-                    && y <= winrect.top + 64 + padding) && msg->hwnd == winId)
+            if((x - winrect.left >= scale_rate*(width - 100 - padding)
+                    && x - winrect.left <= scale_rate*(width - padding - 28)
+                    && y >= scale_rate*(winrect.top + padding + 39)
+                    && y <= scale_rate*(winrect.top + 64 + padding) ) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
             }
 
             // Here is for NaviPanel
-            if((x - winrect.left > width/2 - 333
-                    && x - winrect.left < width/2 + 333
-                    && y >= winrect.top + padding
-                    && y < winrect.top + 74 + padding) && msg->hwnd == winId)
+            if((x - winrect.left > scale_rate*(width/2 - 333)
+                    && x - winrect.left < scale_rate*(width/2 + 333)
+                    && y >= scale_rate*(winrect.top + padding)
+                    && y < scale_rate*(winrect.top + 74 + padding)) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
             }
 
             // Here is for close min_mum buttons
-            if((x > winrect.right - padding - 350
-                && x < winrect.right - padding
-                &&  y >= winrect.top + padding
-                && y < winrect.top + 28 + padding ) && msg->hwnd == winId)
+            if((x > scale_rate*( winrect.right - padding - 350)
+                && x < scale_rate*(winrect.right - padding)
+                &&  y >=scale_rate*( winrect.top + padding)
+                && y <scale_rate*( winrect.top + 28 + padding )) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
             }
 
-            if ((y >= winrect.top + padding
-                    && y < winrect.top + 74 + padding
-                    && x > winrect.left + padding
-                    && x < winrect.right - padding) && msg->hwnd == winId
+            if ((y >= scale_rate*(  winrect.top + padding)
+                    && y <scale_rate*(  winrect.top + 74 + padding)
+                    && x >scale_rate*(  winrect.left + padding)
+                    && x <scale_rate*(  winrect.right - padding)) && msg->hwnd == winId
                     //&& !(x > winrect.right - padding-105 && x < winrect.right - padding &&  y >= winrect.top + padding && y < winrect.top + 28 + padding )
                     )
             {

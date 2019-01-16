@@ -13,7 +13,7 @@
 
 #include <QTranslator>
 
-
+#include <QScreen>
 #include "lightwallet.h"
 #include "qt_native/imageprovider.h"
 
@@ -61,6 +61,29 @@ void DetectShutdownThread(boost::thread_group* threadGroup)
 //
 
 
+double getScaleRate()
+{
+    double rate = 0;
+    QList<QScreen*> screens = QApplication::screens();
+    if (screens.size() > 0) {
+        QScreen* screen = screens[0];
+        double dpi = screen->logicalDotsPerInch();
+        rate = dpi / 96.0;
+
+        if (rate < 1.1) {
+            rate = 1.0;
+        } else if (rate < 1.4) {
+            rate = 1.25;
+        } else if (rate < 1.6) {
+            rate = 1.5;
+        } else if (rate < 1.8) {
+            rate = 1.75;
+        } else {
+            rate = 2.0;
+        }
+    }
+    return rate;
+}
 
 
 
@@ -461,9 +484,14 @@ int main(int argc, char *argv[])
     NativeEventFilter *nativeeventfilter = new NativeEventFilter();
     nativeeventfilter->winId = hwnd;
     nativeeventfilter->desktop_height = window_height;
+
     nativeeventfilter->desktop_width = window_width;
     nativeeventfilter->main_window = window;
     nativeeventfilter->m_aeroEnabled = m_aeroEnabled;
+
+    nativeeventfilter->scale_rate = getScaleRate();
+
+
     app.installNativeEventFilter(nativeeventfilter);
 #endif
 
