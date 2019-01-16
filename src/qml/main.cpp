@@ -12,7 +12,6 @@
 #include <QLibraryInfo>
 
 #include <QTranslator>
-#include <QDebug>
 
 #include <QScreen>
 #include "lightwallet.h"
@@ -83,9 +82,6 @@ double getScaleRate()
             rate = 2.0;
         }
     }
-
-    qDebug()<<"rate:"<<rate;
-
     return rate;
 }
 
