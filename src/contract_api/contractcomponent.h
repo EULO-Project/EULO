@@ -89,7 +89,7 @@ public:
     {
     }
 
-    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed);
+    bool performByteCode(dev::eth::Permanence type = dev::eth::Permanence::Committed,int nHeight = 0);
 
     bool processingResults(ByteCodeExecResult &result);
 
@@ -101,7 +101,7 @@ public:
 private:
 
 
-    dev::eth::EnvInfo BuildEVMEnvironment();
+    dev::eth::EnvInfo BuildEVMEnvironment(int nHeight);
 
     dev::Address EthAddrFromScript(const CScript &scriptIn);
 

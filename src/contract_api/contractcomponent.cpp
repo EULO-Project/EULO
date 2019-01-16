@@ -43,7 +43,7 @@ GetSenderAddress(const CTransaction &tx, const CCoinsViewCache *coinsView, const
         LogPrintf("tx vin size %d\n", tx.vin.size());
         if (tx.vin.size() > 0)
             LogPrintf("tx vin[0] hash %s, n %d", tx.vin[0].prevout.hash.GetHex().c_str(),
-                                                 tx.vin[0].prevout.n);
+                    tx.vin[0].prevout.n);
         
         LogPrintf("vtx size is %d\n\n", blockTxs->size());
         for (auto btx : *blockTxs)
@@ -230,9 +230,9 @@ bool ContractInit()
     //FixME: Comment this is not right?
 
     ////////////////////////////////////////////////////////////////////// // eulo
-        dev::g_logPost = [&](std::string const& s, char const* c){ LogPrintStr(s + '\n', true); };
-        dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
-        //LogPrintStr("\n\n\n\n\n\n\nnnnnnnnnnnnnnnnnnnnnn",true);
+    dev::g_logPost = [&](std::string const& s, char const* c){ LogPrintStr(s + '\n', true); };
+    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+    //LogPrintStr("\n\n\n\n\n\n\nnnnnnnnnnnnnnnnnnnnnn",true);
     //////////////////////////////////////////////////////////////////////
 
     if ((GetBoolArg("-dgpstorage", false) && GetBoolArg("-dgpevm", false)) ||
@@ -417,8 +417,8 @@ bool AddressInUse(string contractaddress)
 }
 
 bool CheckContractTx(const CTransaction tx,CAmount &nFees,
-                                         CAmount &nMinGasPrice, int &level,
-                                         string &errinfo, const CAmount nAbsurdFee, bool rawTx)
+                     CAmount &nMinGasPrice, int &level,
+                     string &errinfo, const CAmount nAbsurdFee, bool rawTx)
 {
     dev::u256 txMinGasPrice = 0;
 
@@ -574,12 +574,12 @@ bool CheckContractTx(const CTransaction tx,CAmount &nFees,
 }
 
 bool RunContractTx(CTransaction tx, CCoinsViewCache *v, CBlock *pblock,
-                                       uint64_t minGasPrice,
-                                       uint64_t hardBlockGasLimit,
-                                       uint64_t softBlockGasLimit,
-                                       uint64_t txGasLimit,
-                                       uint64_t usedGas,
-                                       ByteCodeExecResult &testExecResult)
+                   uint64_t minGasPrice,
+                   uint64_t hardBlockGasLimit,
+                   uint64_t softBlockGasLimit,
+                   uint64_t txGasLimit,
+                   uint64_t usedGas,
+                   ByteCodeExecResult &testExecResult)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -743,13 +743,13 @@ string GetExceptedInfo(uint32_t index)
 extern UniValue blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool txDetails);
 
 bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsViewCache *v,
-                                    const CBlock &block,
-                                    int nHeight,
-                                    ByteCodeExecResult &bcer,
-                                    bool bLogEvents,
-                                    bool fJustCheck,
-                                    std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
-                                    int &level, string &errinfo,uint64_t &countCumulativeGasUsed,uint64_t &blockGasUsed)
+                            const CBlock &block,
+                            int nHeight,
+                            ByteCodeExecResult &bcer,
+                            bool bLogEvents,
+                            bool fJustCheck,
+                            std::map<dev::Address, std::pair<CHeightTxIndexKey, std::vector<uint256>>> &heightIndexes,
+                            int &level, string &errinfo,uint64_t &countCumulativeGasUsed,uint64_t &blockGasUsed)
 {
     CBlockIndex* pblockindex = chainActive.Tip();
 
@@ -766,7 +766,7 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
     uint64_t minGasPrice = GetMinGasPrice(nHeight + 1);
     uint64_t blockGasLimit = GetBlockGasLimit(nHeight + 1);
 
-   // LogPrintf("before EuloTxConverter: vtx addr %p\n", &block.vtx); //eulo debug
+    // LogPrintf("before EuloTxConverter: vtx addr %p\n", &block.vtx); //eulo debug
     //LogPrintf("before EuloTxConverter: vtx size %d\n", block.vtx.size()); //eulo debug
 
     EuloTxConverter convert(tx, v, &block.vtx);
@@ -894,7 +894,7 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
     }
 
     LogPrintf("ContractTxConnectBlock() : before exec.performByteCode\n");
-    if (!exec.performByteCode())
+    if (!exec.performByteCode(dev::eth::Permanence::Committed,nHeight))
     {LogPrintf("ContractTxConnectBlock() : after exec.performByteCode fail\n");
         level = 100;
         errinfo = "bad-tx-unknown-error";
@@ -951,7 +951,7 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
     {
         if (re.execRes.newAddress != dev::Address() && !fJustCheck){
             LogPrint("Address : ","%s :", std::string(re.execRes.newAddress.hex()));
-        dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
+            dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
         }
     }
     return true;
@@ -1133,7 +1133,7 @@ std::vector<uint8_t> GetContractCode(dev::Address address)
 }
 
 bool GetContractVin(dev::Address address, dev::h256 &hash, uint32_t &nVout, dev::u256 &value,
-                                        uint8_t &alive)
+                    uint8_t &alive)
 {
     bool ret = false;
     bool IsEnabled =  [&]()->bool{
@@ -1199,7 +1199,7 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt &txRec)
 }
 
 void RPCCallContract(UniValue &result, const string addrContract, std::vector<unsigned char> opcode,
-                                         string sender, uint64_t gasLimit)
+                     string sender, uint64_t gasLimit)
 {
     bool IsEnabled =  [&]()->bool{
 
@@ -1224,25 +1224,25 @@ void RPCCallContract(UniValue &result, const string addrContract, std::vector<un
 }
 
 
-dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
+dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
     dev::eth::EnvInfo env;
     CBlockIndex* tip = chainActive.Tip();
     //env.setNumber(dev::u256(tip->nHeight + 1));
 
-    CBlockIndex *pblockindex = mapBlockIndex[block.GetHash()];
+    //  CBlockIndex *pblockindex = mapBlockIndex[block.GetHash()];
 
-    if(pblockindex){
+    if(nHeight == 0)
+    {
         env.setNumber(dev::u256(tip->nHeight + 1));
         LogPrintf("*****1\n");
-
     }
-    else{
-        env.setNumber(dev::u256(pblockindex->nHeight + 1));
+    else
+    {
+        env.setNumber(dev::u256(nHeight + 1));
         LogPrintf("*****2\n");
+    }
 
-        }
 
-    //env.setNumber(dev::u256(tip->nHeight + 1));
 
 
     env.setTimestamp(dev::u256(block.nTime));
@@ -1275,7 +1275,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
 
 
 
-bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
+bool ByteCodeExec::performByteCode(dev::eth::Permanence type, int nHeight)
 {
     for (EuloTransaction &tx : txs)
     {LogPrintf("performByteCode() : validate VM version\n");
@@ -1285,7 +1285,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
             return false;
         }LogPrintf("performByteCode() : validate VM version ok\n");
 
-        dev::eth::EnvInfo envInfo(BuildEVMEnvironment());
+        dev::eth::EnvInfo envInfo(BuildEVMEnvironment(nHeight));
 
         std::unique_ptr<dev::eth::SealEngineFace> se(dev::eth::ChainParams(dev::eth::genesisInfo(dev::eth::Network::HomesteadTest)).createSealEngine());
 
