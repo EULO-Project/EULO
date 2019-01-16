@@ -293,10 +293,8 @@ const double DEFAULT_DPI = 96.0;
 double getScaleRate()
 {
     HDC screen = GetDC(NULL);
-    double dpiX = static_cast<double>( GetDeviceCaps( screen, LOGPIXELSX ) );
+    FLOAT dpiX = static_cast<FLOAT>( GetDeviceCaps( screen, LOGPIXELSX ) );
     ReleaseDC( 0, screen );
-
-    qDebug()<<"dpiX:"<<dpiX;
 
     qDebug()<<"rate:"<<dpiX / DEFAULT_DPI;
     return dpiX / DEFAULT_DPI;
