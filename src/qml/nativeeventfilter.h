@@ -136,6 +136,7 @@ public:
                     && y >= scale_rate*(winrect.top + padding + 39)
                     && y <= scale_rate*(winrect.top + 64 + padding) ) && msg->hwnd == winId)
             {
+                qDebug()<<"for coin_type_btn";
                 *result = HTCLIENT;
                 return true;
             }
@@ -146,6 +147,8 @@ public:
                     && y >= scale_rate*(winrect.top + padding)
                     && y < scale_rate*(winrect.top + 74 + padding)) && msg->hwnd == winId)
             {
+                qDebug()<<"Here is for NaviPanel";
+
                 *result = HTCLIENT;
                 return true;
             }
@@ -156,6 +159,8 @@ public:
                 &&  y >=scale_rate*( winrect.top + padding)
                 && y <scale_rate*( winrect.top + 28 + padding )) && msg->hwnd == winId)
             {
+                qDebug()<<"Here is for close min_mum buttons";
+
                 *result = HTCLIENT;
                 return true;
             }
@@ -167,6 +172,8 @@ public:
                     //&& !(x > winrect.right - padding-105 && x < winrect.right - padding &&  y >= winrect.top + padding && y < winrect.top + 28 + padding )
                     )
             {
+                qDebug()<<"Last one";
+
                 *result = HTCAPTION;
             }
 
