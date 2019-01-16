@@ -1231,10 +1231,16 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
 
     CBlockIndex *pblockindex = mapBlockIndex[block.GetHash()];
 
-    if(pblockindex)
+    if(pblockindex){
         env.setNumber(dev::u256(tip->nHeight + 1));
-    else
+        LogPrintf("*****1\n");
+
+    }
+    else{
         env.setNumber(dev::u256(pblockindex->nHeight + 1));
+        LogPrintf("*****2\n");
+
+        }
 
     //env.setNumber(dev::u256(tip->nHeight + 1));
 
