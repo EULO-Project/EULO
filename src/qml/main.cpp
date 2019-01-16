@@ -62,6 +62,33 @@ void DetectShutdownThread(boost::thread_group* threadGroup)
 //
 
 
+double getScaleRate()
+{
+    double rate = 0;
+    QList<QScreen*> screens = QApplication::screens();
+    if (screens.size() > 0) {
+        QScreen* screen = screens[0];
+        double dpi = screen->logicalDotsPerInch();
+        rate = dpi / 96.0;
+
+        if (rate < 1.1) {
+            rate = 1.0;
+        } else if (rate < 1.4) {
+            rate = 1.25;
+        } else if (rate < 1.6) {
+            rate = 1.5;
+        } else if (rate < 1.8) {
+            rate = 1.75;
+        } else {
+            rate = 2.0;
+        }
+    }
+
+    qDebug()<<"rate:"<<rate;
+
+    return rate;
+}
+
 
 
 
@@ -283,25 +310,6 @@ void SwitchOnDropShadow()
 }
 #endif
 
-
-// Get desktop dc
-
-#ifdef Q_OS_WIN32
-
-
-const double DEFAULT_DPI = 96.0;
-double getScaleRate()
-{
-    HDC screen = GetDC(NULL);
-    FLOAT dpiX = static_cast<FLOAT>( GetDeviceCaps( screen, LOGPIXELSX ) );
-    ReleaseDC( 0, screen );
-
-    qDebug()<<"rate:"<<dpiX / DEFAULT_DPI;
-    return dpiX / DEFAULT_DPI;
-}
-
-
-#endif
 
 
 //------------------- Main -----------------------
