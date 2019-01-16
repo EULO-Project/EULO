@@ -12,6 +12,7 @@
 #include <QLibraryInfo>
 
 #include <QTranslator>
+#include <QDebug>
 
 #include <QScreen>
 #include "lightwallet.h"
@@ -70,7 +71,7 @@ double getScaleRate()
         double dpi = screen->logicalDotsPerInch();
 
 
-        qDebug()<<"devicePixelRatio:"<<screen->devicePixelRatio;
+        qDebug()<<"devicePixelRatio:"<<screen->devicePixelRatio();
         qDebug()<<"physicalDotsPerInch:"<<screen->physicalDotsPerInch();
 
         qDebug()<<"dpi:"<<dpi;
