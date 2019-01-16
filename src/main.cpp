@@ -3844,8 +3844,8 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
 
           for (size_t j = 0; j < vTempVouts.size(); j++) {
-              LogPrintf("*****:: vTempVouts[%d].scriptPubKey:%s\n",i,vTempVouts[j].scriptPubKey.ToString()); //eulo debug
-              LogPrintf("*****:: vTempVouts[%d].nValue:%ld\n",i,vTempVouts[j].nValue); //eulo debug
+              LogPrintf("*****:: vTempVouts[%d].scriptPubKey:%s\n",j,vTempVouts[j].scriptPubKey.ToString()); //eulo debug
+              LogPrintf("*****:: vTempVouts[%d].nValue:%ld\n",j,vTempVouts[j].nValue); //eulo debug
 
             }
 
