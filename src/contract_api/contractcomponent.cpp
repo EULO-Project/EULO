@@ -1238,7 +1238,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
     }
     else
     {
-        env.setNumber(dev::u256(nHeight + 1));
+        env.setNumber(dev::u256(nHeight));
         LogPrintf("*****2   nHeight:d%\n",nHeight);
     }
 
