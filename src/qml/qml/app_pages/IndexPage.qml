@@ -96,7 +96,7 @@ Controls_1_4.Tab {
             anchors.left: balance_label.left
             anchors.topMargin: 18
             color: "#333333"
-            text:"主节点:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<font color=\"#EE637F\">启用\<\/font\>"
+            text:"主节点:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<font color=\"#EE637F\">未知\<\/font\>"
         }
 
         CommonButton{

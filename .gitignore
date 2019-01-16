@@ -164,3 +164,15 @@ depends/packages/packages\.mk
 depends/funcs\.mk
 
 eulo_master\.creator\.user
+
+src/eulo_src\.config
+
+src/eulo_src\.includes
+
+src/eulo_src\.creator
+
+src/eulo_src\.creator\.user
+
+src/eulo_src\.files
+
+src/qml/qml\.pro\.time
