@@ -292,6 +292,7 @@ void SwitchOnDropShadow()
 const double DEFAULT_DPI = 96.0;
 double getScaleRate()
 {
+    SetProcessDpiAwareness()
     HDC screen = GetDC(NULL);
     double dpiX = static_cast<double>( GetDeviceCaps( screen, LOGPIXELSX ) );
     ReleaseDC( 0, screen );
@@ -316,6 +317,11 @@ int main(int argc, char *argv[])
     ParseParameters(argc, argv);
 
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+#ifdef  Q_OS_WIN32
+
+    SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+#endif
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
