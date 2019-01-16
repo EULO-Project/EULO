@@ -1231,6 +1231,8 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     env.setTimestamp(dev::u256(block.nTime));
     env.setDifficulty(dev::u256(block.nBits));
 
+    LogPrintf("*****BuildEVMEnvironment  block.nTime:%d\n", block.nTime);
+    LogPrintf("*****BuildEVMEnvironment  block.nBits:%d\n", block.nBits);
 
     LogPrintf("*****BuildEVMEnvironment  tip.nHeight:%ld\n", tip->nHeight);
     LogPrintf("*****BuildEVMEnvironment  blockGasLimit:%ld\n", blockGasLimit);
@@ -1285,9 +1287,12 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
 
         LogPrintf("*****performByteCode stateRoot: %s, utxoRoot: %s\n", h256Touint(globalState->rootHashUTXO()).GetHex().c_str(), h256Touint(globalState->rootHash()).GetHex().c_str());
 
+        ResultExecute res_ = globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc());
 
 
-        result.push_back(globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc()));
+        LogPrintStr("*****ResultExecute tx:%s\n",res_.tx.ToString()); //eulo debug
+
+        result.push_back(res_);
     }
     globalState->db().commit();
     globalState->dbUtxo().commit();
