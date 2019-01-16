@@ -1290,7 +1290,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type)
         ResultExecute res_ = globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc());
 
 
-        LogPrintStr("*****ResultExecute tx:%s\n",res_.tx.ToString()); //eulo debug
+        LogPrintf("*****ResultExecute tx:%s\n",res_.tx.ToString()); //eulo debug
 
         result.push_back(res_);
     }
