@@ -1227,7 +1227,18 @@ void RPCCallContract(UniValue &result, const string addrContract, std::vector<un
 dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(){
     dev::eth::EnvInfo env;
     CBlockIndex* tip = chainActive.Tip();
-    env.setNumber(dev::u256(tip->nHeight + 1));
+    //env.setNumber(dev::u256(tip->nHeight + 1));
+
+    CBlockIndex *pblockindex = mapBlockIndex[block.GetHash()];
+
+    if(pblockindex)
+        env.setNumber(dev::u256(tip->nHeight + 1));
+    else
+        env.setNumber(dev::u256(pblockindex->nHeight + 1));
+
+    //env.setNumber(dev::u256(tip->nHeight + 1));
+
+
     env.setTimestamp(dev::u256(block.nTime));
     env.setDifficulty(dev::u256(block.nBits));
 
