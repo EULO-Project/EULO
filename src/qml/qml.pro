@@ -331,7 +331,7 @@ unix:!macx{
     LIBS +=  -lanl
 }
 
-TR_EXCLUDE += $$PWD/../*
+#TR_EXCLUDE += $$PWD/../*
 
 
 lupdate_only{

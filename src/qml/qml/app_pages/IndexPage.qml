@@ -47,7 +47,7 @@ Controls_1_4.Tab {
                         watchUnconfBalance,
                         watchImmatureBalance)
     {
-        balance_label_str =  qsTr("余额: ") + walletModel.formatAmount(balance) + unitName
+        balance_label_str =  qsTr("Balance: ") + walletModel.formatAmount(balance) + unitName
         ulo_blance_can_get_label_str =  walletModel.formatAmount(balance-unconfirmedBalance-immatureBalance) + unitName
         ulo_blance_pending_amount_label_str = walletModel.formatAmount(unconfirmedBalance) + unitName
         ulo_blance_immature_amount_label_str = walletModel.formatAmount(immatureBalance) + unitName
@@ -96,7 +96,7 @@ Controls_1_4.Tab {
             anchors.left: balance_label.left
             anchors.topMargin: 18
             color: "#333333"
-            text:qsTr("主节点:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<font color=\"#EE637F\">未知\<\/font\>")
+            text:qsTr("MasterNode:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<font color=\"#EE637F\">Unknown\<\/font\>")
         }
 
         CommonButton{
