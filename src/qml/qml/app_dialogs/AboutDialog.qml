@@ -17,10 +17,10 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: qsTr("关于EULO Core")
+    title: qsTr("About EULO Core")
 
     confrim_btn_visible:true
-    confrim_btn_text: "确认"
+    confrim_btn_text: qsTr("Ok")
     cancel_btn_visible:false
     width:700
     height:800

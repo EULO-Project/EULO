@@ -71,7 +71,7 @@ Item {
         anchors.left: root.left
         anchors.leftMargin: 10
         color: "#333333"
-        text:"支付"
+        text:qsTr("Send")
     }
 
     CommonTextField
@@ -275,7 +275,7 @@ Item {
         anchors.leftMargin: 10
         anchors.topMargin: 28
         color: "#333333"
-        text:"标签"
+        text:qsTr("Label")
     }
 
 
@@ -289,7 +289,7 @@ Item {
         anchors.left: root.left
         anchors.leftMargin: 62
 
-        placeholderText: "Enter a label for this address to add it to your address book"
+        placeholderText: qsTr("Enter a label for this address to add it to your address book")
 
     }
 
@@ -313,7 +313,7 @@ Item {
             border.width:2
             radius: 2
         }
-        text:"总计"
+        text:qsTr("Total")
     }
 
 

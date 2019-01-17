@@ -50,13 +50,13 @@ Controls_1_4.Tab {
 
             model: ListModel
             {
-                ListElement { modelData: "ALL"; }
-                ListElement { modelData: "Today"; }
-                ListElement { modelData: "This week"; }
-                ListElement { modelData: "This month"; }
-                ListElement { modelData: "Last month"; }
-                ListElement { modelData: "This year"; }
-                ListElement { modelData: "Range..."; }
+                ListElement { modelData: qsTr("ALL"); }
+                ListElement { modelData: qsTr("Today"); }
+                ListElement { modelData: qsTr("This week"); }
+                ListElement { modelData: qsTr("This month"); }
+                ListElement { modelData: qsTr("Last month"); }
+                ListElement { modelData: qsTr("This year"); }
+                ListElement { modelData: qsTr("Range..."); }
             }
         }
 
@@ -76,27 +76,27 @@ Controls_1_4.Tab {
 
             model: ListModel
             {
-                ListElement { modelData: "ALL"; }
-                ListElement { modelData: "Most Common"; }
-                ListElement { modelData: "Received with"; }
-                ListElement { modelData: "Sent to"; }
-                ListElement { modelData: "Obfuscated"; }
-                ListElement { modelData: "Obfuscation Make Collateral Inputs"; }
-                ListElement { modelData: "Obfuscation Create Denominations"; }
-                ListElement { modelData: "Obfuscation Denominate"; }
-                ListElement { modelData: "Obfuscation Collateral Payment"; }
-                ListElement { modelData: "To yourself"; }
-                ListElement { modelData: "Contract receive"; }
-                ListElement { modelData: "Contract send"; }
-                ListElement { modelData: "Mined"; }
-                ListElement { modelData: "Minted"; }
-                ListElement { modelData: "Masternode Reward"; }
-                ListElement { modelData: "Received PIV from zPIV"; }
-                ListElement { modelData: "Zerocoin Mint"; }
-                ListElement { modelData: "Zerocoin Spend"; }
-                ListElement { modelData: "Zerocoin Spend, Change in zPIV"; }
-                ListElement { modelData: "Zerocoin Spend to Self"; }
-                ListElement { modelData: "Other"; }
+                ListElement { modelData: qsTr("ALL"); }
+                ListElement { modelData: qsTr("Most Common"); }
+                ListElement { modelData: qsTr("Received with"); }
+                ListElement { modelData: qsTr("Sent to"); }
+                ListElement { modelData: qsTr("Obfuscated"); }
+                ListElement { modelData: qsTr("Obfuscation Make Collateral Inputs"); }
+                ListElement { modelData: qsTr("Obfuscation Create Denominations"); }
+                ListElement { modelData: qsTr("Obfuscation Denominate"); }
+                ListElement { modelData: qsTr("Obfuscation Collateral Payment"); }
+                ListElement { modelData: qsTr("To yourself"); }
+                ListElement { modelData: qsTr("Contract receive"); }
+                ListElement { modelData: qsTr("Contract send"); }
+                ListElement { modelData: qsTr("Mined"); }
+                ListElement { modelData: qsTr("Minted"); }
+                ListElement { modelData: qsTr("Masternode Reward"); }
+                ListElement { modelData: qsTr("Received PIV from zPIV"); }
+                ListElement { modelData: qsTr("Zerocoin Mint"); }
+                ListElement { modelData: qsTr("Zerocoin Spend"); }
+                ListElement { modelData: qsTr("Zerocoin Spend, Change in zPIV"); }
+                ListElement { modelData: qsTr("Zerocoin Spend to Self"); }
+                ListElement { modelData: qsTr("Other"); }
 
 
             }
@@ -114,7 +114,7 @@ Controls_1_4.Tab {
             anchors.right: min_amount_textFiled.left
             anchors.rightMargin: 3
             anchors.verticalCenter: header_label.verticalCenter
-            placeholderText: "Enter address or label to search"
+            placeholderText: qsTr("Enter address or label to search")
 
             onTextChanged:walletModel.changedPrefix(text)
 
@@ -129,7 +129,7 @@ Controls_1_4.Tab {
             anchors.right: parent.right
             anchors.rightMargin: 30
             anchors.verticalCenter: header_label.verticalCenter
-            placeholderText: "Min amount"
+            placeholderText: qsTr("Min amount")
             validator: DoubleValidator
             {
                 bottom: 0
@@ -194,7 +194,7 @@ Controls_1_4.Tab {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 80
             roles:  ["status","date","type","address","amount"]
-            titles: ["状态","时间","类型","地址","数量(ULO)"]
+            titles: ["Status","Date","Type","Address","Amount(ULO)"]
             widths: [50,120,180,300,160,width-830]
 
             model: walletModel.transaction_ProxyModel
@@ -299,8 +299,8 @@ Controls_1_4.Tab {
             CommonDialog
             {
                 id:detail_dialog
-                title: "Transaction details"
-                cancel_btn_text: "Close"
+                title: qsTr("Transaction details")
+                cancel_btn_text: qsTr("Cancel")
                 content_text: "sssssss"
                 width:600
                 height: 400
@@ -356,7 +356,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"导出"
+            text:qsTr("Export")
             textSize:12
             letterSpacing:0
 
@@ -366,7 +366,7 @@ Controls_1_4.Tab {
         CommonDialog
         {
             id:export_dialog
-            cancel_btn_text: "Close"
+            cancel_btn_text: qsTr("Cancel")
             width:300
             height: 300
             modality: Qt.WindowModal

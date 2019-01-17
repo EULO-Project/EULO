@@ -18,7 +18,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: "发送地址"
+    title: qsTr("Sending Address")
 
     confrim_btn_visible:false
     cancel_btn_visible:false
@@ -53,8 +53,8 @@ CommonDialog
         AddressDialog
         {
             id:addressDialog
-            cancel_btn_text: "取消"
-            confrim_btn_text: "确认"
+            cancel_btn_text: qsTr("Cancel")
+            confrim_btn_text: qsTr("Ok")
             model:address_table.model
             forSending: true
         }
@@ -64,7 +64,7 @@ CommonDialog
             id:sign_label
             anchors.top:parent.top
             width:parent.width
-            text: "这是用于发送ULO的地址。在发送ULO之前，请认真核查发送金额和接收地址。"
+            text: qsTr("These are your EULO addresses for sending payments. Always check the amount and the receiving address before sending coins.")
             font.weight: Font.Light
             font.pixelSize: 11
             wrapMode: Text.WrapAnywhere
@@ -81,7 +81,7 @@ CommonDialog
             anchors.right: parent.right
             height:300
             roles:  ["label","address"]
-            titles: ["标签","地址"]
+            titles: ["Label","Address"]
             widths: [400,300,width-740]
 
             selectionMode: Controls_1_1.SelectionMode.SingleSelection
@@ -115,7 +115,7 @@ CommonDialog
             width: 80
             height: 32
             radius: 3
-            text:"新地址"
+            text:qsTr("New Address")
             textSize:11
             letterSpacing:0
 
@@ -136,7 +136,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"复制"
+            text:qsTr("Copy")
             textSize:11
             letterSpacing:0
             enabled:address_table.selection.count > 0
@@ -157,7 +157,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"删除"
+            text:qsTr("Delete")
             textSize:11
             letterSpacing:0
             enabled:address_table.selection.count > 0
@@ -186,7 +186,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"导出"
+            text:qsTr("Export")
             textSize:11
             letterSpacing:0
             visible: !forPicking
@@ -207,7 +207,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"关闭"
+            text:qsTr("Close")
             textSize:11
             letterSpacing:0
             visible: !forPicking
@@ -225,7 +225,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"选择"
+            text:qsTr("Select")
             textSize:11
             letterSpacing:0
             visible: forPicking

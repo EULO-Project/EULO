@@ -17,7 +17,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: "Options"
+    title: qsTr("Options")
     confrim_btn_visible:false
     cancel_btn_visible:false
     property alias current_index:tabview.currentIndex
@@ -45,7 +45,7 @@ CommonDialog
             anchors.bottomMargin: 90
 
             Controls_1_4.Tab {
-                title: "主"
+                title: qsTr("Main")
 
 
                 Rectangle{
@@ -58,7 +58,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "钱包"
+                title: qsTr("Wallet")
 
                 Rectangle{
                     id:tab2_rec
@@ -70,7 +70,7 @@ CommonDialog
                         id:expertTitle
                         anchors.top:parent.top
                         anchors.left: parent.left
-                        text:"Expert"
+                        text:qsTr("Expert")
                         font.weight: Font.Medium
                         font.pixelSize:14
                         font.letterSpacing:0.3
@@ -84,7 +84,7 @@ CommonDialog
                         font.letterSpacing: 0.5
                         height:20
                         checked: false
-                        text: "启用硬币控制功能"
+                        text: qsTr("Coin Control")
                         anchors.top:expertTitle.bottom
                         anchors.topMargin:20
                         anchors.left: parent.left
@@ -103,7 +103,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "网络"
+                title: qsTr("Net")
 
 
                 Rectangle{
@@ -121,7 +121,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "视窗"
+                title: qsTr("Window")
 
                 Rectangle
                 {
@@ -135,7 +135,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "显示"
+                title: qsTr("Display")
 
 
                 Rectangle
@@ -159,7 +159,7 @@ CommonDialog
             anchors.top:tabview.bottom
             anchors.topMargin:20
             anchors.left: tabview.left
-            text:"激活上述选项的命令行选项:"
+            text:qsTr("Active command-line options that override above options:")
             font.weight: Font.Medium
             font.pixelSize:13
             font.letterSpacing:0.3
@@ -171,7 +171,7 @@ CommonDialog
             anchors.top:avtiveCommandsTitle.bottom
             anchors.topMargin:20
             anchors.left: tabview.left
-            text:"无:"
+            text:qsTr("None:")
             font.weight: Font.Medium
             font.pixelSize:13
             font.letterSpacing:0.3
@@ -186,7 +186,7 @@ CommonDialog
             anchors.left:parent.left
             anchors.leftMargin:15
             anchors.bottom: parent.bottom
-            text:"重置选项"
+            text:qsTr("Reset Options")
             width: 100
             height: 28
             onClicked: {
@@ -203,7 +203,7 @@ CommonDialog
             anchors.right:parent.right
             anchors.bottom: parent.bottom
             anchors.rightMargin:15
-            text:"取消"
+            text:qsTr("Cancel")
             width: 70
             height: 28
             onClicked: {
@@ -221,7 +221,7 @@ CommonDialog
             anchors.rightMargin:10
             anchors.bottom: parent.bottom
 
-            text:"确认"
+            text:qsTr("Ok")
             width: 70
             height: 28
             onClicked: {

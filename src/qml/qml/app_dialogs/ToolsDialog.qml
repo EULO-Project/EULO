@@ -62,7 +62,7 @@ CommonDialog
 
 
             Controls_1_4.Tab {
-                title: "信息"
+                title: qsTr("Information")
 
 
                 Rectangle{
@@ -84,10 +84,10 @@ CommonDialog
                         width:200
                         wrapMode:Text.WrapAnywhere
                         font.letterSpacing:0.3
-                        text:"<b>General</b><br>Client name<br>Client version<br>&nbsp;&nbsp; \
+                        text:qsTr("<b>General</b><br>Client name<br>Client version<br>&nbsp;&nbsp; \
                              Using OpenSSL version<br>&nbsp;&nbsp;Using BerkeleyDB version<br>Build date<br>Startup time<br> \
                              <b>Network</b><br>Name<br>Number of connections<br>Number of Masternodes<br> \
-                             <b>Block chain</b><br>Current number of blocks<br>Last block time"
+                             <b>Block chain</b><br>Current number of blocks<br>Last block time")
                     }
 
                     TextEdit
@@ -124,7 +124,7 @@ CommonDialog
                         height:30
                         wrapMode:Text.WrapAnywhere
                         font.letterSpacing:0.3
-                        text:"<b>Debug log file</b>"
+                        text:qsTr("<b>Debug log file</b>")
                     }
 
                     CommonButton
@@ -134,7 +134,7 @@ CommonDialog
                         anchors.left: parent.left
                         anchors.bottom: parent.bottom
                         anchors.margins: 10
-                        text:"打开"
+                        text:qsTr("Open")
                         width: 100
                         height: 28
                         textSize:11
@@ -166,7 +166,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "调试台"
+                title: qsTr("Console")
 
 
                 Rectangle{
@@ -362,7 +362,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "网络流量"
+                title: qsTr("Net Info")
 
 
                 Rectangle{
@@ -476,7 +476,7 @@ CommonDialog
                         color: "#469AAC"
                         anchors.right: traffic_rec.right
                         anchors.verticalCenter: time_span_slider.verticalCenter
-                        text:"清除"
+                        text:qsTr("Clear")
                         width: 60
                         height: 28
                         textSize:12
@@ -494,7 +494,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "并列"
+                title: qsTr("Peer Info")
 
                 onVisibleChanged:
                 {
@@ -618,7 +618,7 @@ CommonDialog
             }
 
             Controls_1_4.Tab {
-                title: "修复钱包"
+                title: qsTr("Wallet Repair")
 
 
                 Rectangle
@@ -638,9 +638,9 @@ CommonDialog
                         font.pixelSize:14
                         font.letterSpacing:0.3
                         wrapMode: Label.WordWrap
-                        text:"<b>Wallet repair options.</b><br> \
+                        text:qsTr("<b>Wallet repair options.</b><br> \
                              The buttons below will restart the wallet with command-line options to repair the wallet, fix issues with corrput blockchain files or missing/obsolete transactions.<br>\
-                             Wallet In Use:  " + rpcConsole.getWalletPath()
+                             Wallet In Use:  ") + rpcConsole.getWalletPath()
 
                     }
 
@@ -651,7 +651,7 @@ CommonDialog
                             anchors.left: parent.left
                             anchors.top: wallet_repair_label.bottom
                             anchors.topMargin: 80
-                            text:"Salvage wallet"
+                            text:qsTr("Salvage wallet")
                             width: 220
                             height: 28
                             textSize:13
@@ -668,7 +668,7 @@ CommonDialog
                             anchors.left: parent.left
                             anchors.top: salvage_btn.bottom
                             anchors.topMargin: 15
-                            text:"Rescan blockchain files"
+                            text:qsTr("Rescan blockchain files")
                             width: 220
                             height: 28
                             textSize:13
@@ -685,7 +685,7 @@ CommonDialog
                             anchors.left: parent.left
                             anchors.top: rescan_block_btn.bottom
                             anchors.topMargin: 15
-                            text:"Recover transactions 1"
+                            text:qsTr("Recover transactions 1")
                             width: 220
                             height: 28
                             textSize:13
@@ -702,7 +702,7 @@ CommonDialog
                             anchors.left: parent.left
                             anchors.top: recover_tx_1_btn.bottom
                             anchors.topMargin: 15
-                            text:"Recover transactions 2"
+                            text:qsTr("Recover transactions 2")
                             width: 220
                             height: 28
                             textSize:13
@@ -719,7 +719,7 @@ CommonDialog
                             anchors.left: parent.left
                             anchors.top: recover_tx_2_btn.bottom
                             anchors.topMargin: 15
-                            text:"Upgrade wallet format"
+                            text:qsTr("Upgrade wallet format")
                             width: 220
                             height: 28
                             textSize:13
@@ -736,7 +736,7 @@ CommonDialog
                             anchors.left: parent.left
                             anchors.top: upgrade_format_btn.bottom
                             anchors.topMargin: 15
-                            text:"Rebuild index"
+                            text:qsTr("Rebuild index")
                             width: 220
                             height: 28
                             textSize:13
@@ -754,7 +754,7 @@ CommonDialog
                             anchors.left: parent.left
                             anchors.top: rebuild_index_btn.bottom
                             anchors.topMargin: 15
-                            text:"Delete local blockchain Folders"
+                            text:qsTr("Delete local blockchain Folders")
                             width: 220
                             height: 28
                             textSize:13
@@ -767,10 +767,10 @@ CommonDialog
                             CommonDialog
                             {
                                 id:confirm_dialog
-                                title: "resync wallet"
-                                confrim_btn_text: "Yes"
-                                cancel_btn_text: "No"
-                                content_text: "This will delete your local blockchain folders and the wallet will synchronize the complete Blockchain from scratch.\nConfirm?"
+                                title: qsTr("resync wallet")
+                                confrim_btn_text: qsTr("Yes")
+                                cancel_btn_text: qsTr("No")
+                                content_text: qsTr("This will delete your local blockchain folders and the wallet will synchronize the complete Blockchain from scratch.\nConfirm?")
                                 width:400
                                 height: 300
                                 modality: Qt.WindowModal
@@ -793,13 +793,13 @@ CommonDialog
                             font.pixelSize:14
                             font.letterSpacing:0.3
                             lineHeight: 2.18
-                            text:"-salvagewallet:
+                            text:qsTr("-salvagewallet:
 -rescan:
 -zapwallettxes=1:
 -zapwallettxes=2:
 -upgradewallet:
 -reindex:
--resync:"
+-resync:")
 
                         }
 
@@ -816,13 +816,13 @@ CommonDialog
                             font.letterSpacing:0.3
                             lineHeight: 0.97
                             wrapMode: Label.WordWrap
-                            text:"Attempt to recover private keys from a corrupt wallet.dat.
+                            text:qsTr("Attempt to recover private keys from a corrupt wallet.dat.
 Rescan the block chain for missing wallet transactions.
 Recover transactions from blockchain(keep meta-data e.g. account owner)
 Recover transactions from blockchain(drop meta-data)
 Upgrade wallet to latest format on startup.(Note:this is NOT an update of the wallet itself!)
 Rebuild block chain index from current blk001??.dat files.
-Deletes all local blockchain folders so the wallet synchronizes from scratch."
+Deletes all local blockchain folders so the wallet synchronizes from scratch.")
 
                         }
 

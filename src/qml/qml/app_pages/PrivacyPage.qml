@@ -28,7 +28,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 20
             anchors.leftMargin: 30
             color: "#333333"
-            text:"Zerocoin Actions:"
+            text:qsTr("Zerocoin Actions:")
         }
 
         //First Line
@@ -42,7 +42,7 @@ Controls_1_4.Tab {
             width: 110
             height: 32
             radius: 3
-            text:"Mint Zerocoin"
+            text:qsTr("Mint Zerocoin")
             textSize:12
             letterSpacing:0
         }
@@ -70,7 +70,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 8
             anchors.verticalCenter: mint_zero_btn.verticalCenter
             color: "#333333"
-            text:"zULO Available for Minting: 0.00 ULO"
+            text:qsTr("zULO Available for Minting: 0.00 ULO")
         }
 
         CommonButton
@@ -83,7 +83,7 @@ Controls_1_4.Tab {
             width: 65
             height: 32
             radius: 3
-            text:"Reset"
+            text:qsTr("Reset")
             textSize:12
             letterSpacing:0
         }
@@ -100,7 +100,7 @@ Controls_1_4.Tab {
             width: 110
             height: 32
             radius: 3
-            text:"Coin Control"
+            text:qsTr("Coin Control")
             textSize:12
             letterSpacing:0
         }
@@ -116,7 +116,7 @@ Controls_1_4.Tab {
             anchors.verticalCenter: coin_control_btn.verticalCenter
             anchors.verticalCenterOffset: -12
             color: "#333333"
-            text:"<b>Quantity:</b> Coins automatically selected"
+            text:qsTr("<b>Quantity:</b>") +qsTr("Coins automatically selected")
         }
 
         Label
@@ -130,7 +130,7 @@ Controls_1_4.Tab {
             anchors.verticalCenter: coin_control_btn.verticalCenter
             anchors.verticalCenterOffset: 12
             color: "#333333"
-            text:"<b>Amount:</b>&nbsp;&nbsp;Coins automatically selected"
+            text:qsTr("<b>Amount:</b>&nbsp;&nbsp;") + qsTr("Coins automatically selected")
         }
 
 
@@ -143,7 +143,7 @@ Controls_1_4.Tab {
             width: 65
             height: 32
             radius: 3
-            text:"ReScan"
+            text:qsTr("ReScan")
             textSize:12
             letterSpacing:0
         }
@@ -160,7 +160,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 30
             anchors.right: rescan_btn.right
             height: 101
-            text:"ResetMintZerocoin finished: 0 mints updated, 0 mints deleted\nDuration: 0 sec."
+            text:qsTr("ResetMintZerocoin finished: 0 mints updated, 0 mints deleted\nDuration: 0 sec.")
             topPadding: 8
             leftPadding: 10
             background: Rectangle
@@ -182,7 +182,7 @@ Controls_1_4.Tab {
             width: 110
             height: 32
             radius: 3
-            text:"zULO Control"
+            text:qsTr("zULO Control")
             textSize:12
             letterSpacing:0
         }
@@ -198,7 +198,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 28
             anchors.verticalCenter: zulo_control_btn.verticalCenter
             color: "#333333"
-            text:"zULO Selected: 0"
+            text:qsTr("zULO Selected:")+ "0"
         }
 
 
@@ -212,7 +212,7 @@ Controls_1_4.Tab {
             anchors.rightMargin: 5
             anchors.verticalCenter: zulo_control_btn.verticalCenter
             color: "#333333"
-            text:"Quantity Selected: 0"
+            text:qsTr("Quantity Selected:")+ "0"
         }
 
         //Fifth Line
@@ -227,7 +227,7 @@ Controls_1_4.Tab {
             width: 120
             height: 32
             radius: 3
-            text:"Spend Zerocoin"
+            text:qsTr("Spend Zerocoin")
             textSize:12
             letterSpacing:0
         }
@@ -243,7 +243,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 18
             anchors.verticalCenter: spend_zerocoin_btn.verticalCenter
             color: "#333333"
-            text:"Availabel Balance: <b>0&nbsp;&nbsp;zULO</b> "
+            text:qsTr("Availabel Balance: <b>")+ "0&nbsp;&nbsp;zULO</b> "
         }
 
 
@@ -257,7 +257,7 @@ Controls_1_4.Tab {
             anchors.rightMargin: 5
             anchors.verticalCenter: spend_zerocoin_btn.verticalCenter
             color: "#333333"
-            text:"Security level:"
+            text:qsTr("Security level:")
         }
 
         CommonTextField
@@ -294,7 +294,7 @@ Controls_1_4.Tab {
             anchors.top:target_item.bottom
             anchors.topMargin: 5
             checked: true
-            text: "Convert change to Zerocoin (might cost additional fees)"
+            text: qsTr("Convert change to Zerocoin (might cost additional fees)")
         }
 
         CommonCheckBox {
@@ -306,7 +306,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 90
             anchors.verticalCenter: convert_change_checkbox.verticalCenter
             checked: false
-            text: "Minimize change"
+            text: qsTr("Minimize change")
         }
 
         //Right Part
@@ -320,7 +320,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 20
             anchors.rightMargin: 480
             color: "#333333"
-            text:"Zerocoin Stats:"
+            text:qsTr("Zerocoin Stats:")
         }
 
         Label {
@@ -331,7 +331,7 @@ Controls_1_4.Tab {
             anchors.left: zero_stats_label.left
             anchors.topMargin: 20
             color: "#333333"
-            text:"Total Zerocoin Balance:"
+            text:qsTr("Total Zerocoin Balance:")
         }
 
         Label {
@@ -353,7 +353,7 @@ Controls_1_4.Tab {
             anchors.top:total_zero_balance_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>1</b>:"
+            text:qsTr("Denom. with value <b>1</b>:")
         }
 
         Label {
@@ -375,7 +375,7 @@ Controls_1_4.Tab {
             anchors.top:amount_1_title_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>5</b>:"
+            text:qsTr("Denom. with value <b>5</b>:")
         }
 
         Label {
@@ -397,7 +397,7 @@ Controls_1_4.Tab {
             anchors.top:amount_5_title_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>10</b>:"
+            text:qsTr("Denom. with value <b>10</b>:")
         }
 
         Label {
@@ -441,7 +441,7 @@ Controls_1_4.Tab {
             anchors.top:amount_50_title_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>100</b>:"
+            text:qsTr("Denom. with value <b>100</b>:")
         }
 
         Label {
@@ -464,7 +464,7 @@ Controls_1_4.Tab {
             anchors.top:amount_100_title_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>500</b>:"
+            text:qsTr("Denom. with value <b>500</b>:")
         }
 
         Label {
@@ -488,7 +488,7 @@ Controls_1_4.Tab {
             anchors.top:amount_500_title_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>1000</b>:"
+            text:qsTr("Denom. with value <b>1000</b>:")
         }
 
         Label {
@@ -511,7 +511,7 @@ Controls_1_4.Tab {
             anchors.top:amount_1000_title_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>5000</b>:"
+            text:qsTr("Denom. with value <b>5000</b>:")
         }
 
         Label {

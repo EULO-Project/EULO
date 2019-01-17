@@ -12,7 +12,7 @@ import "../app_items"
 
 Controls_1_4.Tab {
 
-    property string balance_label_str: "余额:  ------  "
+    property string balance_label_str: qsTr("Balance:  ------  ")
     property string ulo_blance_can_get_label_str: " ------  "
     property string ulo_blance_pending_amount_label_str: " ------  "
     property string ulo_blance_immature_amount_label_str: " ------  "
@@ -47,7 +47,7 @@ Controls_1_4.Tab {
                         watchUnconfBalance,
                         watchImmatureBalance)
     {
-        balance_label_str =  "余额: " + walletModel.formatAmount(balance) + unitName
+        balance_label_str =  qsTr("余额: ") + walletModel.formatAmount(balance) + unitName
         ulo_blance_can_get_label_str =  walletModel.formatAmount(balance-unconfirmedBalance-immatureBalance) + unitName
         ulo_blance_pending_amount_label_str = walletModel.formatAmount(unconfirmedBalance) + unitName
         ulo_blance_immature_amount_label_str = walletModel.formatAmount(immatureBalance) + unitName
@@ -96,7 +96,7 @@ Controls_1_4.Tab {
             anchors.left: balance_label.left
             anchors.topMargin: 18
             color: "#333333"
-            text:"主节点:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<font color=\"#EE637F\">未知\<\/font\>"
+            text:qsTr("主节点:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\<font color=\"#EE637F\">未知\<\/font\>")
         }
 
         CommonButton{
@@ -132,7 +132,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 11
             anchors.verticalCenter: receive_btn.verticalCenter
             color: "#333333"
-            text:"接收地址"
+            text:qsTr("Receiving Address")
         }
 
         Label{
@@ -143,7 +143,7 @@ Controls_1_4.Tab {
             anchors.top: receive_label.bottom
             anchors.topMargin: 82
             color: "#1E5569"
-            text:"Recent transactions"
+            text:qsTr("Recent transactions")
 
         }
 
@@ -266,7 +266,7 @@ Controls_1_4.Tab {
             anchors.top: parent.top
             anchors.topMargin: 35
             color: "#1E5569"
-            text:"ULO Balances"
+            text:qsTr("ULO Balances")
         }
 
 
@@ -276,7 +276,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 10
             anchors.left: ulo_blance_label.left
             font.pixelSize: 11
-            text:"可得到:"
+            text:qsTr("Available:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -303,7 +303,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 13
             anchors.left: ulo_blance_can_get_label.left
             font.pixelSize: 11
-            text:"Pending:"
+            text:qsTr("Pending:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -329,7 +329,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 13
             anchors.left: ulo_blance_pending_label.left
             font.pixelSize: 11
-            text:"Immature:"
+            text:qsTr("Immature:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -356,7 +356,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 13
             anchors.left: ulo_blance_immature_label.left
             font.pixelSize: 11
-            text:"Total:"
+            text:qsTr("Total:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -386,7 +386,7 @@ Controls_1_4.Tab {
             anchors.top: ulo_blance_total_amount_label.bottom
             anchors.topMargin: 75
             color: "#1E5569"
-            text:"Zerocoin Balance"
+            text:qsTr("Zerocoin Balance")
         }
 
 
@@ -396,7 +396,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 10
             anchors.left: zero_blance_label.left
             font.pixelSize: 11
-            text:"Total:"
+            text:qsTr("Total:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -422,7 +422,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 13
             anchors.left: zero_blance_label.left
             font.pixelSize: 11
-            text:"Unconfirmed:"
+            text:qsTr("Unconfirmed:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -449,7 +449,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 13
             anchors.left: zero_blance_label.left
             font.pixelSize: 11
-            text:"Immature:"
+            text:qsTr("Immature:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -477,7 +477,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 13
             anchors.left: zero_blance_label.left
             font.pixelSize: 11
-            text:"Mature:"
+            text:qsTr("Mature:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -509,7 +509,7 @@ Controls_1_4.Tab {
             anchors.top: zero_blance_mature_label.bottom
             anchors.topMargin: 20
             color: "#1E5569"
-            text:"Combined Balances"
+            text:qsTr("Combined Balances")
         }
 
 
@@ -519,7 +519,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 11
             anchors.left: combined_blance_label.left
             font.pixelSize: 11
-            text:"ULO:"
+            text:qsTr("ULO:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -546,7 +546,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 11
             anchors.left: combined_ulo_label.left
             font.pixelSize: 11
-            text:"Locked:"
+            text:qsTr("Locked:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -600,7 +600,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 11
             anchors.left: combined_unlocked_label.left
             font.pixelSize: 11
-            text:"zULO:"
+            text:qsTr("zULO:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5
@@ -626,7 +626,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 11
             anchors.left: combined_zulo_label.left
             font.pixelSize: 11
-            text:"Total:"
+            text:qsTr("Total:")
             color:"#5B5B5B"
             font.weight: Font.Light
             font.letterSpacing: 0.5

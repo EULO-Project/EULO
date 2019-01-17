@@ -16,7 +16,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: "签名-签署/验证消息"
+    title: qsTr("Signature-sign/verify message")
 
     confrim_btn_visible:false
     cancel_btn_visible:false
@@ -35,7 +35,7 @@ CommonDialog
             tab_width:80
 
             Controls_1_4.Tab {
-                title: "签名消息"
+                title: qsTr("Sign message")
 
 
                 Rectangle{
@@ -49,7 +49,7 @@ CommonDialog
                         anchors.top:parent.top
                         anchors.topMargin: 10
                         width:parent.width
-                        text: "您可以使用地址签名消息，以证明您拥有他们。 小心不要签名任何您不了解的，因为网络钓鱼攻击可能会试图欺骗您，以让您签名。 只能签署您熟悉并且了解和同意的。"
+                        text: qsTr("You can sign messages with your addresses to prove you own them. Be careful not to sign anything vague, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.")
                         font.weight: Font.Light
                         font.pixelSize: 9
                         wrapMode: Text.WrapAnywhere
@@ -200,7 +200,7 @@ CommonDialog
                         anchors.top: message_box.bottom
                         anchors.topMargin: 9
                         anchors.left: parent.left
-                        placeholderText: "点击 \"签名消息\" 生成一个签名"
+                        placeholderText: qsTr("Click \"Sign Message\" to generate signature")
                     }
 
                     Rectangle{
@@ -274,7 +274,7 @@ CommonDialog
                         anchors.right: del_btn.left
                         anchors.rightMargin: 8
                         anchors.verticalCenter: del_btn.verticalCenter
-                        text:"签名消息"
+                        text:qsTr("Sign")
                         height: 30
                         onClicked: {
                         }
@@ -289,7 +289,7 @@ CommonDialog
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 0
                         height: 30
-                        text:"清除全部"
+                        text:qsTr("Clear All")
                         onClicked: {
                         }
                     }
@@ -298,7 +298,7 @@ CommonDialog
 
             }
             Controls_1_4.Tab {
-                title: "验证消息"
+                title: qsTr("Verify Message")
 
 
                 Rectangle{
@@ -312,7 +312,7 @@ CommonDialog
                         anchors.top:parent.top
                         anchors.topMargin: 10
                         width:parent.width
-                        text: "输入签名地址，消息（确保您准确地复制换行符，空格，制表符等）和签名以验证消息。注意不要比签名的消息本身更多地阅读签名，以避免被中间人的袭击所欺骗。"
+                        text: qsTr("Enter the signing address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack.")
                         font.weight: Font.Light
                         font.pixelSize: 9
                         wrapMode: Text.WrapAnywhere
@@ -430,7 +430,7 @@ CommonDialog
                         anchors.right: del_btn2.left
                         anchors.rightMargin: 8
                         anchors.verticalCenter: del_btn2.verticalCenter
-                        text:"签名消息"
+                        text:qsTr("Verify")
                         height: 30
                         onClicked: {
                         }
@@ -445,7 +445,7 @@ CommonDialog
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 0
                         height: 30
-                        text:"清除全部"
+                        text:qsTr("Clear All")
                         onClicked: {
                         }
                     }

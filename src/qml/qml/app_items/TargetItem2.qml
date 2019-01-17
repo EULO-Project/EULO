@@ -15,7 +15,7 @@ Item {
         anchors.verticalCenter: sending_textFiled.verticalCenter
         anchors.left: root.left
         color: "#333333"
-        text:"支付"
+        text:qsTr("Sending")
     }
 
 
@@ -153,7 +153,7 @@ Item {
         anchors.left: root.left
         anchors.topMargin: 25
         color: "#333333"
-        text:"标签"
+        text:qsTr("Label")
     }
 
 
@@ -177,7 +177,7 @@ Item {
         anchors.left: root.left
         anchors.topMargin: 25
         color: "#333333"
-        text:"总计"
+        text:qsTr("Total")
     }
 
 

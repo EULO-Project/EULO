@@ -45,7 +45,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 20
             anchors.leftMargin: 94
             color: "#333333"
-            text:"Use this from to request payments. ALL fields are optional"
+            text:qsTr("Use this from to request payments. ALL fields are optional")
         }
 
 
@@ -58,7 +58,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 30
             anchors.topMargin: 18
             color: "#333333"
-            text:"标签"
+            text:qsTr("Label")
         }
 
 
@@ -84,7 +84,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 30
             anchors.topMargin: 28
             color: "#333333"
-            text:"总计"
+            text:qsTr("Total")
         }
 
 
@@ -108,7 +108,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 30
             anchors.topMargin: 28
             color: "#333333"
-            text:"消息"
+            text:qsTr("Message")
         }
 
 
@@ -136,7 +136,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 1
 
             checked: false
-            text: "R使用现有的地址接收(不推荐)"
+            text: qsTr("Use an existing receiving address (not recommended)")
         }
 
         CommonButton
@@ -150,7 +150,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"请求支付"
+            text:qsTr("Request payment")
             textSize:12
             letterSpacing:0
 
@@ -205,7 +205,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"清除全部"
+            text:qsTr("Clear All")
             textSize:12
             letterSpacing:0
 
@@ -228,7 +228,7 @@ Controls_1_4.Tab {
             anchors.top: asking_btn.bottom
             anchors.topMargin: 30
             color: "#1E5569"
-            text:"Requested payments history"
+            text:qsTr("Requested payments history")
 
         }
 
@@ -245,7 +245,7 @@ Controls_1_4.Tab {
             anchors.bottomMargin: 10
             property string amountTitle: root_window.unitName
             roles:  ["date","label","message","amount"]
-            titles: ["时间","标签","消息","Amount(" + amountTitle.trim() +")"]
+            titles: ["Date","Label","Message","Amount(" + amountTitle.trim() +")"]
             widths: [120,200,width-470,110]
             selectionMode: Controls_1_1.SelectionMode.ContiguousSelection
 
@@ -284,7 +284,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"Show"
+            text:qsTr("Show")
             textSize:12
             letterSpacing:0
             enabled: receiveAddressTable.selection.count>0?true:false
@@ -305,7 +305,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"Remove"
+            text:qsTr("Remove")
             textSize:12
             letterSpacing:0
             enabled: receiveAddressTable.selection.count>0

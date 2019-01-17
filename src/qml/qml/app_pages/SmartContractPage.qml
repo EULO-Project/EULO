@@ -32,7 +32,7 @@ Controls_1_4.Tab {
                 }
 
 
-                root.openPage(("执行结果 "+ (root.count-2)))
+                root.openPage((qsTr("Result ")+ (root.count-2)))
 
 
 
@@ -143,7 +143,7 @@ Controls_1_4.Tab {
 
             Controls_1_4.Tab
             {
-                title: "Create"
+                title: qsTr("Create")
 
                 CommonContractPage
                 {
@@ -158,7 +158,7 @@ Controls_1_4.Tab {
 
             Controls_1_4.Tab
             {
-                title: "Send To"
+                title: qsTr("Send To")
 
                 CommonContractPage
                 {
@@ -171,7 +171,7 @@ Controls_1_4.Tab {
 
             Controls_1_4.Tab
             {
-                title: "Call"
+                title: qsTr("Call")
 
                 CommonContractPage
                 {

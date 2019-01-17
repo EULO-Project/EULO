@@ -51,7 +51,7 @@ Window{
         anchors.verticalCenterOffset: -10
         wrapMode: Label.WordWrap
         font.letterSpacing: 2
-        text:"正在加载"
+        text:qsTr("Loading")
         font.weight: Font.Normal
         font.pixelSize: 18
         color: "#FFFFFFFF"

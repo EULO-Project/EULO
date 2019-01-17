@@ -152,7 +152,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"发送"
+            text:qsTr("Send")
             textSize:12
             letterSpacing:0
 
@@ -221,7 +221,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"清除全部"
+            text:qsTr("Clear All")
             textSize:12
             letterSpacing:0
 
@@ -243,7 +243,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"增加收件人"
+            text:qsTr("Add Recipient")
             textSize:12
             letterSpacing:0
 
@@ -252,7 +252,7 @@ Controls_1_4.Tab {
                 if(target_listview.count <= 10)
                     target_listview.model.append({ "title": ""})
                 else{
-                    root_window.warningDialog.content_text = "最多添加10个地址"
+                    root_window.warningDialog.content_text = qsTr("You can only add 10 recipients at most")
                     root_window.warningDialog.show()
                 }
 
@@ -304,7 +304,8 @@ Controls_1_4.Tab {
                     waitDialog.title = title
                     waitDialog.content_text = msg
                     waitDialog.timeLeft = 3
-                    waitDialog.confrim_btn_text = "确认" + "  (" + waitDialog.timeLeft + ")"
+                    waitDialog.confrim_btn_enabled = false
+                    waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                     waitDialog.countDownTimer.start()
                     waitDialog.show()
 
@@ -338,12 +339,12 @@ Controls_1_4.Tab {
                     if(waitDialog.timeLeft > 1)
                     {
                         waitDialog.timeLeft--
-                        waitDialog.confrim_btn_text = "是" + "  (" + waitDialog.timeLeft + ")"
+                        waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                         countDownTimer.start()
                     }
                     else
                     {
-                        waitDialog.confrim_btn_text = "是"
+                        waitDialog.confrim_btn_text = qsTr("Ok")
                         waitDialog.confrim_btn_enabled = true
                     }
 
@@ -360,6 +361,7 @@ Controls_1_4.Tab {
             {
                 waitDialog.close()
                 walletModel.coinControlProxy.confirmSending()
+                root.cleatAll()
             }
 
         }

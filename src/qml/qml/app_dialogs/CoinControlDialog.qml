@@ -19,7 +19,7 @@ CommonDialog
     width:900
     height: 600
 
-    confrim_btn_text: "确认"
+    confrim_btn_text: qsTr("Ok")
     cancel_btn_visible:false
 
     title: qsTr("Coin Selection")
@@ -93,7 +93,7 @@ CommonDialog
                 anchors.left: parent.left
                 anchors.top: parent.top
                 color: "#333333"
-                text:"Quantity:"
+                text:qsTr("Quantity:")
             }
 
 
@@ -119,7 +119,7 @@ CommonDialog
                 anchors.top: quantityLabel.bottom
                 anchors.topMargin: 20
                 color: "#333333"
-                text:"Bytes:"
+                text:qsTr("Bytes:")
             }
 
 
@@ -144,7 +144,7 @@ CommonDialog
                 anchors.leftMargin:180
                 anchors.verticalCenter: quantityLabel.verticalCenter
                 color: "#333333"
-                text:"Amount:"
+                text:qsTr("Amount:")
             }
 
 
@@ -168,7 +168,7 @@ CommonDialog
                 anchors.left: amountLabel.left
                 anchors.verticalCenter: byteLabel.verticalCenter
                 color: "#333333"
-                text:"Priority:"
+                text:qsTr("Priority:")
             }
 
 
@@ -194,7 +194,7 @@ CommonDialog
                 anchors.leftMargin:380
                 anchors.verticalCenter: quantityLabel.verticalCenter
                 color: "#333333"
-                text:"Fee:"
+                text:qsTr("Fee:")
             }
 
 
@@ -218,7 +218,7 @@ CommonDialog
                 anchors.left: feeLabel.left
                 anchors.verticalCenter: byteLabel.verticalCenter
                 color: "#333333"
-                text:"Dust:"
+                text:qsTr("Dust:")
             }
 
 
@@ -244,7 +244,7 @@ CommonDialog
                 anchors.leftMargin:580
                 anchors.verticalCenter: quantityLabel.verticalCenter
                 color: "#333333"
-                text:"After Fee:"
+                text:qsTr("After Fee:")
             }
 
 
@@ -269,7 +269,7 @@ CommonDialog
                 anchors.left: afterFeeLabel.left
                 anchors.verticalCenter: byteLabel.verticalCenter
                 color: "#333333"
-                text:"Change:"
+                text:qsTr("Change:")
             }
 
 
@@ -347,7 +347,7 @@ CommonDialog
             anchors.verticalCenter: toggleBtn.verticalCenter
             anchors.left: toggleBtn.right
             anchors.leftMargin: 20
-            text: "Tree mode"
+            text: qsTr("Tree mode")
             ButtonGroup.group: radioGroup
             font.weight: Font.Medium
             font.pixelSize: 12
@@ -368,7 +368,7 @@ CommonDialog
             anchors.verticalCenter: toggleBtn.verticalCenter
             anchors.left: treeBtn.right
             anchors.leftMargin: 20
-            text: "List mode"
+            text: qsTr("List mode")
             ButtonGroup.group: radioGroup
             font.weight: Font.Medium
             font.pixelSize: 12
@@ -387,7 +387,7 @@ CommonDialog
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 60
             roles:  ["status","amount","label","address","type","date","confirmations","priority"]
-            titles: ["状态","数量","标签","收到地址","类型","时间","确认数","优先级"]
+            titles: ["Status","Amount","Label","Address","Type","Date","Confirmations","Priority"]
             widths: [100,80,80,200,80,120,70,100,width-850]
 
             model: walletModel.coinControlProxy
@@ -402,22 +402,22 @@ CommonDialog
             {
                 id:menuListModel
                 ListElement {
-                    itemData: "复制地址"
+                    itemData: qsTr("Copy Address")
                 }
                 ListElement {
-                    itemData: "复制标签"
+                    itemData: qsTr("Copy Label")
                 }
                 ListElement {
-                    itemData: "复制数量"
+                    itemData: qsTr("Copy Amount")
                 }
                 ListElement {
-                    itemData: "复制交易ID"
+                    itemData: qsTr("Copy TxID")
                 }
                 ListElement {
-                    itemData: "锁定此UTXO"
+                    itemData: qsTr("Lock UTXO")
                 }
                 ListElement {
-                    itemData: "解锁此UTXO"
+                    itemData: qsTr("Unlock UTXO")
                 }
             }
 

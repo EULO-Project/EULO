@@ -28,7 +28,7 @@ Item {
         anchors.topMargin: 10
         anchors.leftMargin: 10
         color: "#333333"
-        text: "Contract Address"
+        text: qsTr("Contract Address")
     }
 
 
@@ -83,7 +83,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"Token Name"
+        text:qsTr("Token Name")
     }
 
 
@@ -108,7 +108,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"Token Symbol"
+        text:qsTr("Token Symbol")
     }
 
 
@@ -132,7 +132,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"Decimals"
+        text:qsTr("Decimals")
     }
 
 
@@ -157,7 +157,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"Token Address"
+        text:qsTr("Token Address")
     }
 
     AddressTextField
@@ -181,7 +181,7 @@ Item {
         anchors.rightMargin: 40
         anchors.bottom: root.bottom
         anchors.bottomMargin:10
-        text:"Clear"
+        text:qsTr("Clear")
 
         onClicked:
         {
@@ -199,7 +199,7 @@ Item {
         anchors.rightMargin: 20
         anchors.bottom: root.bottom
         anchors.bottomMargin:10
-        text:"Confirm"
+        text:qsTr("Confirm")
 
         onClicked:
         {

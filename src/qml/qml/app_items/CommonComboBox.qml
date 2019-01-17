@@ -21,7 +21,7 @@ CommonButton
     property alias listview: listview
 
     signal currentIndexChanged(int index)
-    property var currentIndex_: -1
+    property int currentIndex_: -1
 
     Component.onCompleted:
     {

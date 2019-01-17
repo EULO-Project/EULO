@@ -21,14 +21,14 @@ CommonDialog
     property var model
     property bool forSending: true
     property bool editing: false
-    cancel_btn_text: "取消"
-    confrim_btn_text: "确认"
+    cancel_btn_text: qsTr("Cancel")
+    confrim_btn_text: qsTr("Ok")
     property int currentRow: -1
 
     property alias tagTextFiled: tag_textFiled
     property alias addressTextFiled: addressTextFiled
 
-    title: editing?(forSending?"修改发送地址":"修改接收地址"):(forSending?"新发送地址":"新接收地址")
+    title: editing?(forSending?qsTr("Modify Sending Address"):qsTr("Modify Receiving Address")):(forSending?qsTr("New Sending Address"):qsTr("New Receiving Address"))
 
     onClosing:
     {
@@ -53,7 +53,7 @@ CommonDialog
             anchors.leftMargin: 30
             anchors.topMargin: 70
             color: "#333333"
-            text:"标签"
+            text:qsTr("Label")
         }
 
 
@@ -78,7 +78,7 @@ CommonDialog
             anchors.leftMargin: 30
             anchors.topMargin: 30
             color: "#333333"
-            text:"地址"
+            text:qsTr("Address")
         }
 
 
@@ -111,8 +111,8 @@ CommonDialog
         {
             if(!walletModel.validateAddress(addressTextFiled.text))
             {
-                root_window.warningDialog.title = "注意"
-                root_window.warningDialog.content_text = "请输入有效的EULO地址"
+                root_window.warningDialog.title = qsTr("Attention")
+                root_window.warningDialog.content_text = qsTr("Please input validate EULO address")
                 root_window.warningDialog.dim_back = false
                 root_window.warningDialog.show()
                 return
@@ -123,7 +123,7 @@ CommonDialog
 
         if(res !== "ok")
         {
-            root_window.warningDialog.title = "添加地址失败"
+            root_window.warningDialog.title = qsTr("Fail to add address")
             root_window.warningDialog.content_text = res
             root_window.warningDialog.dim_back = false
             root_window.warningDialog.show()

@@ -102,7 +102,7 @@ Item
         anchors.left: parent.left
         anchors.top: parent.top
         color: "#1E5569"
-        text:"Coin Control Features"
+        text:qsTr("Coin Control Features")
     }
 
     CommonButton
@@ -112,7 +112,7 @@ Item
         anchors.top: coinControlTitle.bottom
         anchors.topMargin: 20
         anchors.left: parent.left
-        text:"Open Coin Control"
+        text:qsTr("Open Coin Control")
         width:120
 
         onClicked:
@@ -132,7 +132,7 @@ Item
         anchors.leftMargin: 15
         anchors.verticalCenter: openCoinControlBtn.verticalCenter
         color: "#333333"
-        text:"Coins automatically selected"
+        text:qsTr("Coins automatically selected")
         visible:true
     }
 
@@ -156,7 +156,7 @@ Item
             anchors.left: parent.left
             anchors.top: parent.top
             color: "#333333"
-            text:"Quantity:"
+            text:qsTr("Quantity:")
         }
 
 
@@ -182,7 +182,7 @@ Item
             anchors.top: quantityLabel.bottom
             anchors.topMargin: 20
             color: "#333333"
-            text:"Bytes:"
+            text:qsTr("Bytes:")
         }
 
 
@@ -207,7 +207,7 @@ Item
             anchors.leftMargin:180
             anchors.verticalCenter: quantityLabel.verticalCenter
             color: "#333333"
-            text:"Amount:"
+            text:qsTr("Amount:")
         }
 
 
@@ -231,7 +231,7 @@ Item
             anchors.left: amountLabel.left
             anchors.verticalCenter: byteLabel.verticalCenter
             color: "#333333"
-            text:"Priority:"
+            text:qsTr("Priority:")
         }
 
 
@@ -257,7 +257,7 @@ Item
             anchors.leftMargin:380
             anchors.verticalCenter: quantityLabel.verticalCenter
             color: "#333333"
-            text:"Fee:"
+            text:qsTr("Fee:")
         }
 
 
@@ -281,7 +281,7 @@ Item
             anchors.left: feeLabel.left
             anchors.verticalCenter: byteLabel.verticalCenter
             color: "#333333"
-            text:"Dust:"
+            text:qsTr("Dust:")
         }
 
 
@@ -307,7 +307,7 @@ Item
             anchors.leftMargin:580
             anchors.verticalCenter: quantityLabel.verticalCenter
             color: "#333333"
-            text:"After Fee:"
+            text:qsTr("After Fee:")
         }
 
 
@@ -332,7 +332,7 @@ Item
             anchors.left: afterFeeLabel.left
             anchors.verticalCenter: byteLabel.verticalCenter
             color: "#333333"
-            text:"Change:"
+            text:qsTr("Change:")
         }
 
 
@@ -378,7 +378,7 @@ Item
         anchors.top: autoHint.visivle ? autoHint.bottom : statusTable.bottom
         anchors.topMargin:10
         color: "#333333"
-        text: "Custom change address"
+        text: qsTr("Custom change address")
     }
 
     CommonTextField
@@ -389,7 +389,7 @@ Item
         anchors.left: customChangeAddressLabel.right
         anchors.leftMargin: 20
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
-        placeholderText: "Enter a EULO address (e.g. Uek2swfjkwerwherjhbk32)"
+        placeholderText: qsTr("Enter a EULO address (e.g. Uek2swfjkwerwherjhbk32)")
         width: 300
         enabled:customChangeAddressCheckBox.checked
 
@@ -438,7 +438,7 @@ Item
         anchors.leftMargin:0
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
         color: "#333333"
-        text: "Split UTXO"
+        text: qsTr("Split UTXO")
     }
 
     CommonTextField

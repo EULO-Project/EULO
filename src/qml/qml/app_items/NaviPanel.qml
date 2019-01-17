@@ -9,7 +9,7 @@ Row{
     {
         id:index
         icon:"../../images/navi/shouye.png"
-        title: "概述"
+        title: qsTr("Index")
         picked: true
         index_:0
     }
@@ -18,7 +18,7 @@ Row{
     {
         id:send
         icon:"../../images/navi/fasong.png"
-        title: "发送"
+        title: qsTr("Sending")
         picked: false
         index_:1
     }
@@ -27,7 +27,7 @@ Row{
     {
         id:receive
         icon:"../../images/navi/jieshou.png"
-        title: "接收"
+        title: qsTr("Receiving")
         picked: false
         index_:2
     }
@@ -36,7 +36,7 @@ Row{
     {
         id:record
         icon:"../../images/navi/jilv.png"
-        title: "交易记录"
+        title: qsTr("Transaction Records")
         picked: false
         index_:3
     }
@@ -45,7 +45,7 @@ Row{
     {
         id:privacy
         icon:"../../images/navi/privacy.png"
-        title: "隐私"
+        title: qsTr("Privacy")
         picked: false
         index_:4
     }
@@ -54,7 +54,7 @@ Row{
     {
         id:mainnode
         icon:"../../images/navi/jiedian.png"
-        title: "主节点"
+        title: qsTr("Masternodes")
         picked: false
         index_:5
     }
@@ -63,7 +63,7 @@ Row{
     {
         id:contractNode
         icon:"../../images/navi/heyue.png"
-        title: "智能合约"
+        title: qsTr("Smart Contract")
         picked: false
         index_:6
 

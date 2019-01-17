@@ -37,11 +37,8 @@ Controls_1_4.Tab {
                 font.pixelSize: 10
                 font.weight: Font.Light
                 lineHeight: 0.8
-                text:"\<font color=\"#EE637F\">注意:\<\/font\>&nbsp;在本地钱包您主节点状态可能会稍微不正确。<br/>
-                                 总是等待钱包从另一个节点同步的附加数据，然后仔细检查<br/>
-                                 如果您的节点正在运行，但您仍然在\"Status\"字段中看到\"MISSING\"。"
+                text:qsTr("Note: Status of your masternodes in local wallet can potentially be slightly incorrect.&lt;br /&gt;Always wait for wallet to sync additional data and then double check from another node&lt;br /&gt;if your node should be running but you still see \"MISSING\" in \"Status\" field.")
             }
-            //FIXME: 这里如果直接用Label 会导致opengl渲染失败。CommonTableView会变得高低不平。
 
         }
 
@@ -82,7 +79,7 @@ Controls_1_4.Tab {
             onTriggered:
             {
                 root.timeLeft--
-                status_label.text = "Status will be updated automatically in(sec): " + root.timeLeft
+                status_label.text = qsTr("Status will be updated automatically in(sec): ") + root.timeLeft
                 if(root.timeLeft === 0)
                 {
                     walletModel.masternodetableproxy.updateMyNodeList(false);
@@ -106,7 +103,7 @@ Controls_1_4.Tab {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 80
             roles:  ["alias","address","protocol","status","activated","lastseen","pubkey"]
-            titles: ["Alias","地址","Protocol","Status","激活","Last Seen(UTC)","Pubkey"]
+            titles: ["Alias","Address","Protocol","Status","Activated","Last Seen(UTC)","Pubkey"]
             widths: [80,150,150,150,150,200,width-920]
 
             model: walletModel.masternodetableproxy
@@ -137,7 +134,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"开始别名"
+            text:qsTr("Start Alias")
             textSize:11
             letterSpacing:0
             onClicked:
@@ -157,7 +154,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"开始全部"
+            text:qsTr("Start All")
             textSize:11
             letterSpacing:0
 
@@ -177,7 +174,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"开始MISSING"
+            text:qsTr("Start Missing")
             textSize:11
             letterSpacing:0
 
@@ -198,7 +195,7 @@ Controls_1_4.Tab {
             width: 83
             height: 32
             radius: 3
-            text:"更新状态"
+            text:qsTr("Update")
             textSize:11
             letterSpacing:0
 

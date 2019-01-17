@@ -18,7 +18,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: "Choose the contract for send/call"
+    title: qsTr("Choose the contract for send/call")
 
     confrim_btn_visible:false
     cancel_btn_visible:false
@@ -64,7 +64,7 @@ CommonDialog
             id:sign_label
             anchors.top:parent.top
             width:parent.width
-            text: "These are your saved contracts. Always check the contract address and the ABI before sending/calling."
+            text: qsTr("These are your saved contracts. Always check the contract address and the ABI before sending/calling.")
             font.weight: Font.Light
             font.pixelSize: 11
             wrapMode: Text.WrapAnywhere
@@ -82,7 +82,7 @@ CommonDialog
             anchors.right: parent.right
             height:300
             roles:  ["label","address","abi"]
-            titles: ["标签","地址","Interface (ABI)"]
+            titles: ["Label","Address","Interface (ABI)"]
             widths: [200,200,100,width-440]
 
             selectionMode: Controls_1_1.SelectionMode.SingleSelection
@@ -101,19 +101,19 @@ CommonDialog
             menuModel: ListModel
             {
                 ListElement {
-                    itemData: "复制标签"
+                    itemData: qsTr("Copy Label")
                 }
                 ListElement {
-                    itemData: "复制地址"
+                    itemData: qsTr("Copy Address")
                 }
                 ListElement {
-                    itemData: "复制ABI"
+                    itemData: qsTr("Copy ABI")
                 }
                 ListElement {
-                    itemData: "编辑"
+                    itemData: qsTr("Edit")
                 }
                 ListElement {
-                    itemData: "删除"
+                    itemData: qsTr("Delete")
                 }
             }
 
@@ -164,7 +164,7 @@ CommonDialog
             width: 80
             height: 32
             radius: 3
-            text:"新地址"
+            text:qsTr("New Address")
             textSize:11
             letterSpacing:0
 
@@ -189,7 +189,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"复制"
+            text:qsTr("Copy")
             textSize:11
             letterSpacing:0
             enabled:contractTable.selection.count > 0
@@ -211,7 +211,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"删除"
+            text:qsTr("Delete")
             textSize:11
             letterSpacing:0
             enabled:contractTable.selection.count > 0
@@ -233,7 +233,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"导出"
+            text:qsTr("Export")
             textSize:11
             letterSpacing:0
             visible: !forPicking
@@ -256,7 +256,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"选择"
+            text:qsTr("Select")
             textSize:11
             letterSpacing:0
             onClicked: {

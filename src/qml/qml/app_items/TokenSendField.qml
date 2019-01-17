@@ -32,7 +32,7 @@ Item {
 
         onExecError:
         {
-            root_window.warningDialog.title = "错误"
+            root_window.warningDialog.title = qsTr("Error")
             root_window.warningDialog.content_text = errMsg
             root_window.warningDialog.dim_back = false
             root_window.warningDialog.show()
@@ -51,7 +51,7 @@ Item {
         anchors.topMargin: 10
         anchors.leftMargin: 10
         color: "#333333"
-        text: "payTo"
+        text: qsTr("payTo")
     }
 
 
@@ -90,7 +90,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"Amount"
+        text:qsTr("Amount")
     }
 
 
@@ -116,7 +116,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"Description"
+        text:qsTr("Description")
     }
 
 
@@ -140,7 +140,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"GasLimit"
+        text:qsTr("Gas Limit")
     }
 
 
@@ -168,7 +168,7 @@ Item {
         anchors.topMargin: 35
         anchors.leftMargin: 10
         color: "#333333"
-        text:"GasPrice"
+        text:qsTr("Gas Price")
     }
 
 
@@ -203,7 +203,7 @@ Item {
         anchors.rightMargin: 40
         anchors.bottom: root.bottom
         anchors.bottomMargin:10
-        text:"Clear"
+        text:qsTr("Clear")
 
         onClicked:
         {
@@ -221,7 +221,7 @@ Item {
         anchors.rightMargin: 20
         anchors.bottom: root.bottom
         anchors.bottomMargin:10
-        text:"Confirm"
+        text:qsTr("Confirm")
         enabled:false
 
         onClicked:
@@ -258,7 +258,7 @@ Item {
             waitDialog.content_text = res[1]
             waitDialog.confrim_btn_enabled = false
             waitDialog.timeLeft = 3
-            waitDialog.confrim_btn_text = "是" + "  (" + waitDialog.timeLeft + ")"
+            waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
             waitDialog.countDownTimer.start()
             waitDialog.show()
 
@@ -283,12 +283,12 @@ Item {
                 if(waitDialog.timeLeft > 1)
                 {
                     waitDialog.timeLeft--
-                    waitDialog.confrim_btn_text = "是" + "  (" + waitDialog.timeLeft + ")"
+                    waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                     countDownTimer.start()
                 }
                 else
                 {
-                    waitDialog.confrim_btn_text = "是"
+                    waitDialog.confrim_btn_text = qsTr("Ok")
                     waitDialog.confrim_btn_enabled = true
                 }
 

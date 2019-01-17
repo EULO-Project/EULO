@@ -16,7 +16,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: "MultiSignature Address Interactions"
+    title: qsTr("MultiSignature Address Interactions")
 
     confrim_btn_visible:false
     cancel_btn_visible:false
@@ -38,7 +38,7 @@ CommonDialog
             tab_width:175
             currentIndex: -1
             Controls_1_4.Tab {
-                title: "Create MultiSignature Address"
+                title: qsTr("Create MultiSignature Address")
 
 
                 Rectangle{
@@ -66,7 +66,7 @@ CommonDialog
                         anchors.left: minimal_sign_field.right
                         anchors.leftMargin: 5
 
-                        text: "Enter the minimal number of signatures required to sign transactions"
+                        text: qsTr("Enter the minimal number of signatures required to sign transactions")
                         font.weight: Font.Light
                         font.pixelSize: 9
                         wrapMode: Text.WrapAnywhere
@@ -83,7 +83,7 @@ CommonDialog
                         anchors.left: minimal_sign_field.left
                         anchors.top:minimal_sign_field.bottom
                         anchors.topMargin: 8
-                        text:"Add Address/Key"
+                        text:qsTr("Add Address/Key")
                         width: 100
                         height: 28
                         textSize:9
@@ -99,7 +99,7 @@ CommonDialog
                         anchors.left: add_address_key_btn.right
                         anchors.leftMargin: 5
 
-                        text: "Local addresses or public keys that can sign"
+                        text: qsTr("Local addresses or public keys that can sign")
                         font.weight: Font.Light
                         font.pixelSize: 9
                         wrapMode: Text.WrapAnywhere
@@ -158,7 +158,7 @@ CommonDialog
                         anchors.left: address_listview.left
                         anchors.top:address_listview.bottom
                         anchors.topMargin: 8
-                        text:"Create"
+                        text:qsTr("Create")
                         width: 80
                         height: 28
                         textSize:9
@@ -174,7 +174,7 @@ CommonDialog
                         anchors.left: create_btn.right
                         anchors.leftMargin: 10
 
-                        text: "Status:"
+                        text: qsTr("Status:")
                         font.weight: Font.Light
                         font.pixelSize: 9
                         wrapMode: Text.WrapAnywhere
@@ -191,7 +191,7 @@ CommonDialog
                         anchors.verticalCenter: create_btn.verticalCenter
                         anchors.right: parent.right
                         height: 40
-                        text:"a Multisignature address must require at least one key to redeem"
+                        text:qsTr("a Multisignature address must require at least one key to redeem")
                         topPadding: 8
                         leftPadding: 10
                         background: Rectangle
@@ -207,7 +207,7 @@ CommonDialog
                         anchors.top:status_field.bottom
                         anchors.topMargin: 10
                         width:parent.width
-                        text: "Use below to quickly import an address by its redeem. Don't forget to add a label before clicking import! Keep in mind, the wallet will rescan the blockchain to find transactions containing the new address.Please be patient after clicking import."
+                        text: qsTr("Use below to quickly import an address by its redeem. Don't forget to add a label before clicking import! Keep in mind, the wallet will rescan the blockchain to find transactions containing the new address.Please be patient after clicking import.")
                         font.weight: Font.Light
                         font.pixelSize: 9
                         wrapMode: Text.WrapAnywhere
@@ -222,7 +222,7 @@ CommonDialog
                         anchors.left: note_label.left
                         anchors.top:note_label.bottom
                         anchors.topMargin: 20
-                        text:"Import Redeem"
+                        text:qsTr("Import Redeem")
                         width: 100
                         height: 28
                         textSize:9
@@ -246,7 +246,7 @@ CommonDialog
 
             }
             Controls_1_4.Tab {
-                title: "Create MultiSignature TX"
+                title: qsTr("Create MultiSignature TX")
 
 
                 Rectangle{
@@ -278,7 +278,7 @@ CommonDialog
                         width: 145
                         height: 30
                         radius: 3
-                        text:"Coin Control"
+                        text:qsTr("Coin Control")
                         textSize:11
                         letterSpacing:0
                     }
@@ -294,7 +294,7 @@ CommonDialog
                         anchors.verticalCenter: coin_control_btn.verticalCenter
                         anchors.verticalCenterOffset: -12
                         color: "#333333"
-                        text:"Quantity Selected:  0"
+                        text:qsTr("Quantity Selected:  0")
                     }
 
                     Label
@@ -308,7 +308,7 @@ CommonDialog
                         anchors.verticalCenter: coin_control_btn.verticalCenter
                         anchors.verticalCenterOffset: 12
                         color: "#333333"
-                        text:"Amount:                 0"
+                        text:qsTr("Amount:                 0")
                     }
 
 
@@ -321,7 +321,7 @@ CommonDialog
                         width: 145
                         height: 30
                         radius: 3
-                        text:"Add a Row Input"
+                        text:qsTr("Add a Row Input")
                         textSize:11
                         letterSpacing:0
 
@@ -392,7 +392,7 @@ CommonDialog
                         anchors.top:rawinput_listview.bottom
                         anchors.topMargin: 15
                         width:95
-                        text: "Address/Amount:"
+                        text: qsTr("Address/Amount:")
                         font.weight: Font.Light
                         font.pixelSize: 11
                         wrapMode: Text.WrapAnywhere
@@ -410,7 +410,7 @@ CommonDialog
                         width: 145
                         height: 30
                         radius: 3
-                        text:"Add Destination"
+                        text:qsTr("Add Destination")
                         textSize:11
                         letterSpacing:0
                         onClicked:
@@ -478,7 +478,7 @@ CommonDialog
                         anchors.left: address_listview2.left
                         anchors.top:address_listview2.bottom
                         anchors.topMargin: 25
-                        text:"Create"
+                        text:qsTr("Create")
                         width: 80
                         height: 28
                         textSize:9
@@ -494,7 +494,7 @@ CommonDialog
                         anchors.left: create_btn2.right
                         anchors.leftMargin: 10
 
-                        text: "Status:"
+                        text: qsTr("Status:")
                         font.weight: Font.Light
                         font.pixelSize: 9
                         wrapMode: Text.WrapAnywhere
@@ -512,7 +512,7 @@ CommonDialog
                         anchors.verticalCenter: create_btn2.verticalCenter
                         anchors.right: parent.right
                         height: 50
-                        text:"Invalid Tx Hash."
+                        text:qsTr("Invalid Tx Hash.")
                         topPadding: 8
                         leftPadding: 10
                         background: Rectangle
@@ -528,7 +528,7 @@ CommonDialog
 
             }
             Controls_1_4.Tab {
-                title: "Sign MultiSignature TX"
+                title: qsTr("Sign MultiSignature TX")
 
 
                 Rectangle{
@@ -545,7 +545,7 @@ CommonDialog
 
                         anchors.left: parent.left
 
-                        text: "Transaction Hex:"
+                        text: qsTr("Transaction Hex:")
                         font.weight: Font.Medium
                         font.pixelSize: 11
                         wrapMode: Text.WrapAnywhere
@@ -574,7 +574,7 @@ CommonDialog
                         anchors.left: tx_label.left
                         anchors.top:tx_label.bottom
                         anchors.topMargin: 25
-                        text:"Sign"
+                        text:qsTr("Sign")
                         width: 60
                         height: 28
                         textSize:11
@@ -589,7 +589,7 @@ CommonDialog
                         anchors.left: sign_multi_btn.right
                         anchors.leftMargin: 15
                         anchors.verticalCenter: sign_multi_btn.verticalCenter
-                        text:"Commit"
+                        text:qsTr("Commit")
                         width: 60
                         height: 28
                         textSize:11
@@ -607,7 +607,7 @@ CommonDialog
                         anchors.leftMargin: 15
                         anchors.verticalCenter: sign_multi_btn.verticalCenter
 
-                        text:"Add Private Key"
+                        text:qsTr("Add Private Key")
                         width: 100
                         height: 28
                         textSize:11
@@ -625,7 +625,7 @@ CommonDialog
                         anchors.left: add_private_key_btn.right
                         anchors.leftMargin: 25
 
-                        text: "Sign with private keys only (Not Recommended)"
+                        text: qsTr("Sign with private keys only (Not Recommended)")
                         font.weight: Font.Medium
                         font.pixelSize: 11
                         wrapMode: Text.WrapAnywhere
@@ -639,7 +639,7 @@ CommonDialog
                         anchors.left: sign_multi_btn.left
                         anchors.top:sign_multi_btn.bottom
                         anchors.topMargin: 40
-                        text: "Status:"
+                        text: qsTr("Status:")
                         font.weight: Font.Medium
                         font.pixelSize: 11
                         wrapMode: Text.WrapAnywhere

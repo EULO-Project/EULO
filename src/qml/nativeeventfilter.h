@@ -35,20 +35,20 @@ public:
         MSG* msg = (MSG *)message;
         switch (msg->message)
         {
-//        case WM_NCCALCSIZE:
-//        {
-//            //this kills the window frame and title bar we added with WS_THICKFRAME and WS_CAPTION
-//            *result = 0;
-//            return true;
-//        }
+        //        case WM_NCCALCSIZE:
+        //        {
+        //            //this kills the window frame and title bar we added with WS_THICKFRAME and WS_CAPTION
+        //            *result = 0;
+        //            return true;
+        //        }
         case WM_NCPAINT:
         {
             if (m_aeroEnabled)
-                   {
-                       int v = 2;
-                       DwmSetWindowAttribute(msg->hwnd, 2,&v, 4);
-                       DwmExtendFrameIntoClientArea(msg->hwnd,&shadow);
-                   }
+            {
+                int v = 2;
+                DwmSetWindowAttribute(msg->hwnd, 2,&v, 4);
+                DwmExtendFrameIntoClientArea(msg->hwnd,&shadow);
+            }
 
             return false;
 
@@ -73,9 +73,14 @@ public:
             long y = GET_Y_LPARAM(msg->lParam);
 
             int width = winrect.right - winrect.left;
-            //int height = winrect.bottom - winrect.top;
+            int height = winrect.bottom - winrect.top;
 
-             int padding=6;
+            qDebug()<<"x:"<<x;
+            qDebug()<<"y:"<<y;
+            qDebug()<<"width:"<<width;
+            qDebug()<<"height:"<<height;
+
+            int padding=6;
 
 
             //left border
@@ -101,7 +106,7 @@ public:
             }
 
 
-           // if(msg->hwnd != winId) return false; //Dialogs don't need a HTCAPTION
+            // if(msg->hwnd != winId) return false; //Dialogs don't need a HTCAPTION
 
 
             //bottom left corner
@@ -132,9 +137,9 @@ public:
 
             // Here is for coin_type_btn
             if((x - winrect.left >= scale_rate*(width - 100 - padding)
-                    && x - winrect.left <= scale_rate*(width - padding - 28)
-                    && y >= scale_rate*(winrect.top + padding + 39)
-                    && y <= scale_rate*(winrect.top + 64 + padding) ) && msg->hwnd == winId)
+                && x - winrect.left <= scale_rate*(width - padding - 28)
+                && y >= scale_rate*(winrect.top + padding + 39)
+                && y <= scale_rate*(winrect.top + 64 + padding) ) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
@@ -142,9 +147,9 @@ public:
 
             // Here is for NaviPanel
             if((x - winrect.left > scale_rate*(width/2 - 333)
-                    && x - winrect.left < scale_rate*(width/2 + 333)
-                    && y >= scale_rate*(winrect.top + padding)
-                    && y < scale_rate*(winrect.top + 74 + padding)) && msg->hwnd == winId)
+                && x - winrect.left < scale_rate*(width/2 + 333)
+                && y >= scale_rate*(winrect.top + padding)
+                && y < scale_rate*(winrect.top + 74 + padding)) && msg->hwnd == winId)
             {
                 *result = HTCLIENT;
                 return true;
@@ -161,9 +166,9 @@ public:
             }
 
             if ((y >= scale_rate*(  winrect.top + padding)
-                    && y <scale_rate*(  winrect.top + 74 + padding)
-                    && x >scale_rate*(  winrect.left + padding)
-                    && x <scale_rate*(  winrect.right - padding)) && msg->hwnd == winId
+                 && y <scale_rate*(  winrect.top + 74 + padding)
+                 && x >scale_rate*(  winrect.left + padding)
+                 && x <scale_rate*(  winrect.right - padding)) && msg->hwnd == winId
                     //&& !(x > winrect.right - padding-105 && x < winrect.right - padding &&  y >= winrect.top + padding && y < winrect.top + 28 + padding )
                     )
             {

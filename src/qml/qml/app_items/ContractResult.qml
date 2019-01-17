@@ -27,7 +27,7 @@ Rectangle
         anchors.topMargin: 10
         anchors.leftMargin: 20
         color: "#333333"
-        text:"合约执行结果"
+        text:qsTr("Result")
     }
 
     CommonTextArea

@@ -19,7 +19,7 @@ CommonDialog
     width:500
     height: 700
 
-    cancel_btn_text: "Close"
+    cancel_btn_text: qsTr("Cancel")
     confrim_btn_visible: false
     property int currentRow: -1
 
@@ -92,10 +92,10 @@ CommonDialog
                 model: ListModel
                 {
                     ListElement {
-                        itemData: "保存图片..."
+                        itemData: qsTr("Save Image...")
                     }
                     ListElement {
-                        itemData: "复制图像"
+                        itemData: qsTr("Copy Image")
                     }
                 }
 
@@ -140,7 +140,7 @@ CommonDialog
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 15
             anchors.left: messageArea.left
-            text: "复制URI"
+            text: qsTr("Copy URI")
             color: "#469AAC"
             onClicked:walletModel.recentRequestsFilterProxy.copyURI()
         }
@@ -152,7 +152,7 @@ CommonDialog
             anchors.bottomMargin: 15
             anchors.left: copyURIBtn.right
             anchors.leftMargin: 10
-            text: "复制地址"
+            text: qsTr("Copy Address")
             color: "#469AAC"
 
             onClicked:walletModel.recentRequestsFilterProxy.copyAddress()
@@ -165,7 +165,7 @@ CommonDialog
             anchors.bottomMargin: 15
             anchors.left: copyAddressBtn.right
             anchors.leftMargin: 10
-            text: "保存图片..."
+            text: qsTr("Save Image...")
             color: "#469AAC"
 
             onClicked:walletModel.recentRequestsFilterProxy.saveImage()

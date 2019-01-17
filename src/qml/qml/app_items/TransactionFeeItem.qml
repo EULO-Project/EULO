@@ -63,7 +63,7 @@ Item {
         anchors.left: root.left
         anchors.top: root.top
         color: "#1E5569"
-        text:"Transaction Fee"
+        text:qsTr("Transaction Fee")
 
     }
 
@@ -90,7 +90,7 @@ Item {
         width: 85
         height: 32
         radius: 3
-        text:!minimized?"Minimize":"Choose..."
+        text:!minimized?qsTr("Minimize"):qsTr("Choose...")
         textSize:12
         letterSpacing:0
 
@@ -147,7 +147,7 @@ Item {
         anchors.leftMargin: 30
         anchors.top: recommended_btn.bottom
         color: "#333333"
-        text:"Confirmation time"
+        text:qsTr("Confirmation time")
         visible:!minimized
     }
 
@@ -192,7 +192,7 @@ Item {
         anchors.top: confirmation_time_slider.bottom
         anchors.topMargin: 0
         color: "#333333"
-        text:"normal"
+        text:qsTr("normal")
         visible:!minimized
 
     }
@@ -206,7 +206,7 @@ Item {
         anchors.top: confirmation_time_slider.bottom
         anchors.topMargin: 0
         color: "#333333"
-        text:"fast"
+        text:qsTr("fast")
         visible:!minimized
 
     }
@@ -218,7 +218,7 @@ Item {
         anchors.top:recommended_btn.bottom
         anchors.topMargin: 40
         anchors.left: transaction_fee_label.left
-        text: "Custom:"
+        text: qsTr("Custom:")
         ButtonGroup.group: radioGroup
         font.weight: Font.Medium
         font.pixelSize: 12
@@ -241,7 +241,7 @@ Item {
         anchors.verticalCenter: custom_btn.verticalCenter
         anchors.left: custom_btn.right
         anchors.leftMargin: 62
-        text: "per kilobyte"
+        text: qsTr("per kilobyte")
         ButtonGroup.group: radioGroup_custom
         font.weight: Font.Medium
         font.pixelSize: 12
@@ -267,7 +267,7 @@ Item {
         anchors.top:amountField.bottom
         height:20
         checked: false
-        text: "Pay only the minimum fee of 0.00010000 ULO/kB  (read the tooltip)"
+        text: qsTr("Pay only the minimum fee of 0.00010000 ULO/kB  (read the tooltip)")
         visible:!minimized
         enabled:custom_btn.checked
 
@@ -302,7 +302,7 @@ Item {
         anchors.verticalCenter: custom_btn.verticalCenter
         anchors.leftMargin: 30
         anchors.left: perkilo_btn.right
-        text: "total at least"
+        text: qsTr("total at least")
         ButtonGroup.group: radioGroup_custom
         font.weight: Font.Medium
         font.pixelSize: 12
@@ -352,7 +352,7 @@ Item {
         anchors.top:pay_minimum_checkbox.bottom
 
         checked: false
-        text: "Send ad zero-free transaction if possible (confirmation may take longer)"
+        text: qsTr("Send ad zero-free transaction if possible (confirmation may take longer)")
 
         visible:!minimized
         onClicked:
@@ -375,7 +375,7 @@ Item {
         anchors.top:  !minimized?send_as_zero_checkbox.bottom:transaction_fee_btn.bottom
         anchors.topMargin: 12
         checked: false
-        text: "SwitfX"
+        text: qsTr("SwitfX")
         height: 17
 
     }

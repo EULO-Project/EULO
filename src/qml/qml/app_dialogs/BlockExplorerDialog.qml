@@ -20,7 +20,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: "Blockchain Explorer"
+    title: qsTr("Blockchain Explorer")
 
     confrim_btn_visible:false
     cancel_btn_visible:false
@@ -45,7 +45,7 @@ CommonDialog
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.margins: 10
-            text:"Back"
+            text:qsTr("Back")
             width: 100
             height: 28
             textSize:11
@@ -77,7 +77,7 @@ CommonDialog
             anchors.left: back_btn.right
             anchors.top: parent.top
             anchors.margins: 10
-            text:"Forward"
+            text:qsTr("Forward")
             width: 100
             height: 28
             textSize:11
@@ -143,7 +143,7 @@ CommonDialog
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.margins: 10
-            text:"Search"
+            text:qsTr("Search")
             width: 100
             height: 28
             textSize:11

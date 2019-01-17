@@ -224,7 +224,7 @@ Window{
             anchors.rightMargin: 10
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 15
-            text:"Cancel"
+            text:qsTr("Cancel")
             visible: cancel_btn_visible
             enabled: cancel_btn_enabled
 

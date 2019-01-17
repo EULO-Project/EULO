@@ -79,7 +79,7 @@ Item {
         anchors.bottom:root.bottom
         anchors.bottomMargin:10
         implicitWidth: 100
-        text:"Copy Address"
+        text:qsTr("Copy Address")
         color: "#469AAC"
 
         onClicked:walletModel.setClipBoard(addressLabel.text)

@@ -340,9 +340,7 @@ SOURCES += *.qml \
           qml/app_dialogs/*.qml \
           qml/app_items/*.qml \
           qml/app_pages/*.qml \
-          qml/base_items/*.qml \
-          qml/base_pages/*.qml
-
+          qml/base_items/*.qml
 }
 
 
@@ -350,7 +348,6 @@ SOURCES += *.qml \
 #        -lbitcoin_cli \
 #        -lbitcoin_common \
 #        -lbitcoin_server
-
 
 
 

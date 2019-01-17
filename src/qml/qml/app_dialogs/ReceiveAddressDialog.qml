@@ -18,7 +18,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: "接收地址"
+    title: qsTr("Receiving Address")
 
     confrim_btn_visible:false
     cancel_btn_visible:false
@@ -63,7 +63,7 @@ CommonDialog
             id:sign_label
             anchors.top:parent.top
             width:parent.width
-            text: "这是用于接收ULO的钱包地址。建议每一笔交易都使用一个新的钱包地址。"
+            text: qsTr("These are your EULO addresses for receiving payments. It is recommended to use a new receiving address for each transaction.")
             font.weight: Font.Light
             font.pixelSize: 11
             wrapMode: Text.WrapAnywhere
@@ -81,7 +81,7 @@ CommonDialog
             anchors.right: parent.right
             height:300
             roles:  ["label","address"]
-            titles: ["标签","地址"]
+            titles: ["Label","Address"]
             widths: [400,300,width-740]
 
             selectionMode: Controls_1_1.SelectionMode.SingleSelection
@@ -121,7 +121,7 @@ CommonDialog
             width: 80
             height: 32
             radius: 3
-            text:"新地址"
+            text:qsTr("New Address")
             textSize:11
             letterSpacing:0
 
@@ -143,7 +143,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"复制"
+            text:qsTr("Copy")
             textSize:11
             letterSpacing:0
 
@@ -163,7 +163,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"导出"
+            text:qsTr("Export")
             textSize:11
             letterSpacing:0
             visible: !forPicking
@@ -183,7 +183,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"关闭"
+            text:qsTr("Close")
             textSize:11
             visible: !forPicking
 
@@ -203,7 +203,7 @@ CommonDialog
             width: 60
             height: 32
             radius: 3
-            text:"选择"
+            text:qsTr("Select")
             textSize:11
             letterSpacing:0
             visible: forPicking

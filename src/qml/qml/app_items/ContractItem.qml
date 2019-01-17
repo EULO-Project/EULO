@@ -31,7 +31,7 @@ Item{
         anchors.verticalCenter: comboBox.verticalCenter
 
         color: "#333333"
-        text:"Function"
+        text:qsTr("Function")
         visible:comboBox.visible
     }
 

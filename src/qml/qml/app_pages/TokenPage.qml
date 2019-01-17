@@ -23,8 +23,8 @@ Controls_1_4.Tab{
         CommonDialog
         {
             id:warningDialog
-            title: "注意"
-            confrim_btn_text: "确认"
+            title: qsTr("Attention")
+            confrim_btn_text: qsTr("Ok")
             cancel_btn_visible: false
             modality: Qt.ApplicationModal
             width:300
@@ -113,7 +113,7 @@ Controls_1_4.Tab{
 
                 Controls_1_4.Tab
                 {
-                    title: "Send"
+                    title: qsTr("Send")
 
                     CommonTokenPage
                     {
@@ -128,7 +128,7 @@ Controls_1_4.Tab{
 
                 Controls_1_4.Tab
                 {
-                    title: "Receive"
+                    title: qsTr("Receive")
 
                     CommonTokenPage
                     {
@@ -141,7 +141,7 @@ Controls_1_4.Tab{
 
                 Controls_1_4.Tab
                 {
-                    title: "Add Token"
+                    title: qsTr("Add Token")
 
                     CommonTokenPage
                     {
@@ -183,7 +183,7 @@ Controls_1_4.Tab{
                 {
                     var res = walletModel.tokenItemModel.updateReceiveImg(currentIndex)
                     tokenReceiveItem.qRImg.source = "image://ReQuestURI?" + Math.random()
-                    tokenReceiveItem.titleLabel.text = res[0] + " Address"
+                    tokenReceiveItem.titleLabel.text = res[0] + qsTr(" Address")
                     tokenReceiveItem.addressLabel.text = res[1]
                 }
 
@@ -224,19 +224,19 @@ Controls_1_4.Tab{
                     model: ListModel
                     {
                         ListElement {
-                            itemData: "Copy receive address"
+                            itemData: qsTr("Copy receive address")
                         }
                         ListElement {
-                            itemData: "Copy token balance"
+                            itemData: qsTr("Copy token balance")
                         }
                         ListElement {
-                            itemData: "Copy token name"
+                            itemData: qsTr("Copy token name")
                         }
                         ListElement {
-                            itemData: "Copy contract address"
+                            itemData: qsTr("Copy contract address")
                         }
                         ListElement {
-                            itemData: "Remove token"
+                            itemData: qsTr("Remove token")
                         }
                     }
 
@@ -447,13 +447,13 @@ Controls_1_4.Tab{
 
                 model: ListModel
                 {
-                    ListElement { modelData: "ALL"; }
-                    ListElement { modelData: "Today"; }
-                    ListElement { modelData: "This week"; }
-                    ListElement { modelData: "This month"; }
-                    ListElement { modelData: "Last month"; }
-                    ListElement { modelData: "This year"; }
-                    ListElement { modelData: "Range..."; }
+                    ListElement { modelData: qsTr("ALL"); }
+                    ListElement { modelData: qsTr("Today"); }
+                    ListElement { modelData: qsTr("This week"); }
+                    ListElement { modelData: qsTr("This month"); }
+                    ListElement { modelData: qsTr("Last month"); }
+                    ListElement { modelData: qsTr("This year"); }
+                    ListElement { modelData: qsTr("Range..."); }
                 }
             }
 
@@ -473,10 +473,10 @@ Controls_1_4.Tab{
 
                 model: ListModel
                 {
-                    ListElement { modelData: "ALL"; }
-                    ListElement { modelData: "Received with"; }
-                    ListElement { modelData: "Sent to"; }
-                    ListElement { modelData: "To yourself"; }
+                    ListElement { modelData: qsTr("ALL"); }
+                    ListElement { modelData: qsTr("Received with"); }
+                    ListElement { modelData: qsTr("Sent to"); }
+                    ListElement { modelData: qsTr("To yourself"); }
 
                 }
             }
@@ -493,7 +493,7 @@ Controls_1_4.Tab{
                 anchors.right: symbolbox.left
                 anchors.rightMargin: 3
                 anchors.verticalCenter: header_label.verticalCenter
-                placeholderText: "Enter address or label to search"
+                placeholderText: qsTr("Enter address or label to search")
 
                 onTextChanged:walletModel.tokenfilterproxy.changedPrefix(text)
 
@@ -526,7 +526,7 @@ Controls_1_4.Tab{
                 anchors.right: parent.right
                 anchors.rightMargin: 10
                 anchors.verticalCenter: header_label.verticalCenter
-                placeholderText: "Min amount"
+                placeholderText: qsTr("Min amount")
                 validator: DoubleValidator
                 {
                     bottom: 0
@@ -592,7 +592,7 @@ Controls_1_4.Tab{
                 anchors.bottomMargin: 0
                 popuperWidth:200
                 roles:  ["date","type","address","name","amount"]
-                titles: ["时间","类型","标签","名称","数量"]
+                titles: ["Date","Type","Address","Name","Amount"]
                 widths: [150,120,180,200,160,width-830]
 
                 model: walletModel.tokenfilterproxy
@@ -618,19 +618,19 @@ Controls_1_4.Tab{
                 menuModel: ListModel
                 {
                     ListElement {
-                        itemData: "Copy address"
+                        itemData: qsTr("Copy address")
                     }
                     ListElement {
-                        itemData: "Copy amount"
+                        itemData: qsTr("Copy amount")
                     }
                     ListElement {
-                        itemData: "Copy transaction ID"
+                        itemData: qsTr("Copy transaction ID")
                     }
                     ListElement {
-                        itemData: "Copy full transaction details"
+                        itemData: qsTr("Copy full transaction details")
                     }
                     ListElement {
-                        itemData: "Show transaction details"
+                        itemData: qsTr("Show transaction details")
                     }
                 }
 
@@ -657,8 +657,8 @@ Controls_1_4.Tab{
                 CommonDialog
                 {
                     id:detail_dialog
-                    title: "Token details"
-                    cancel_btn_text: "Close"
+                    title:qsTr("Token details")
+                    cancel_btn_text: qsTr("Cancel")
                     content_text: "sssssss"
                     width:600
                     height: 400

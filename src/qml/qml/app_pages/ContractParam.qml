@@ -158,8 +158,8 @@ Item
                             {
                                 if(inputListview.count>20)
                                 {
-                                    root_window.warningDialog.title = "注意"
-                                    root_window.warningDialog.content_text = "动态数组最多添加20个选项"
+                                    root_window.warningDialog.title = qsTr("Attention")
+                                    root_window.warningDialog.content_text = qsTr("Dynamic array can only add 20 options at most")
                                     root_window.warningDialog.dim_back = false
                                     root_window.warningDialog.show()
                                     return

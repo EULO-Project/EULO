@@ -106,24 +106,24 @@ Rectangle{
     CommonMenuButton
     {
         id:tool_menu
-        text: "T工具"
+        text: qsTr("Tools")
         anchors.right:  help_menu.left
         anchors.rightMargin:    3
         anchors.verticalCenter: minimum_btnRect.verticalCenter
-        contentWidth:130
+        contentWidth:160
         property bool fisrt_run: true
 
         model: ListModel
         {
-            ListElement { modelData: "I信息"; }
-            ListElement { modelData: "D调试控制台"; }
-            ListElement { modelData: "N网络监视器"; }
-            ListElement { modelData: "P并列列表"; }
-            ListElement { modelData: "W钱包修复"; }
-            ListElement { modelData: "打开钱包配置文件"; }
-            ListElement { modelData: "打开主节点配置文件"; }
-            ListElement { modelData: "显示自动备份"; }
-            ListElement { modelData: "区块浏览器"; }
+            ListElement { modelData: qsTr("Information"); }
+            ListElement { modelData: qsTr("Console"); }
+            ListElement { modelData: qsTr("Net Monitor"); }
+            ListElement { modelData: qsTr("Peers Info"); }
+            ListElement { modelData: qsTr("Wallet Repair"); }
+            ListElement { modelData: qsTr("Open Wallet Conf"); }
+            ListElement { modelData: qsTr("Open Masternode Conf"); }
+            ListElement { modelData: qsTr("Open Auto Save"); }
+            ListElement { modelData: qsTr("Block Explorer"); }
 
 
         }
@@ -176,11 +176,11 @@ Rectangle{
         CommonDialog
         {
             id:firstrun_dialog
-            title: "Notice"
-            confrim_btn_text: "Ok"
+            title: qsTr("Notice")
+            confrim_btn_text: qsTr("Ok")
             cancel_btn_visible: false
             close_btnRect_visible: false
-            content_text: "Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (eulo.conf)."
+            content_text: qsTr("Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (eulo.conf).")
             width:480
             height: 200
             modality: Qt.WindowModal
@@ -199,18 +199,18 @@ Rectangle{
     CommonMenuButton
     {
         id:set_menu
-        text: "S设置"
+        text: qsTr("Settings")
         anchors.right:  tool_menu.left
         anchors.rightMargin:    3
         anchors.verticalCenter: minimum_btnRect.verticalCenter
-        contentWidth:120
+        contentWidth:160
         model: ListModel
         {
-            ListElement { modelData: "E加密钱包"; }
-            ListElement { modelData: "C修改密码"; }
-            ListElement { modelData: "BIP38工具"; }
-            ListElement { modelData: "M多重发送"; }
-            ListElement { modelData: "Q选项"; }
+            ListElement { modelData: qsTr("Encrypt Wallet"); }
+            ListElement { modelData: qsTr("Modify Password"); }
+            ListElement { modelData: qsTr("BIP38 Tools"); }
+            ListElement { modelData: qsTr("Multi-Sending"); }
+            ListElement { modelData: qsTr("Options"); }
 
         }
 
@@ -245,22 +245,22 @@ Rectangle{
     CommonMenuButton
     {
         id:file_menu
-        text: "F文件"
+        text: qsTr("File")
         anchors.right:  set_menu.left
         anchors.rightMargin:    3
         anchors.verticalCenter: minimum_btnRect.verticalCenter
         contentWidth:160
         model: ListModel
         {
-            ListElement { modelData: "O打开URL"; }
-            ListElement { modelData: "B备份钱包"; }
-            ListElement { modelData: "S签名消息"; }
-            ListElement { modelData: "验证消息"; }
-            ListElement { modelData: "S发送地址"; }
-            ListElement { modelData: "R接收地址"; }
-            ListElement { modelData: "Multisignature creation"; }
-            ListElement { modelData: "Multisignature spending"; }
-            ListElement { modelData: "Multisignature signing"; }
+            ListElement { modelData: qsTr("Open URL"); }
+            ListElement { modelData: qsTr("Backup Wallet"); }
+            ListElement { modelData: qsTr("Sign-Info"); }
+            ListElement { modelData: qsTr("Validation-Info"); }
+            ListElement { modelData: qsTr("Sending Addresses"); }
+            ListElement { modelData: qsTr("Receiving Addresses"); }
+            ListElement { modelData: qsTr("Multisignature creation"); }
+            ListElement { modelData: qsTr("Multisignature spending"); }
+            ListElement { modelData: qsTr("Multisignature signing"); }
 
         }
 
@@ -304,9 +304,9 @@ Rectangle{
     CommonDialog
     {
         id:open_url_dialog
-        title: "Open  URI"
-        confrim_btn_text: "Yes"
-        cancel_btn_text: "Cancel"
+        title: qsTr("Open  URI")
+        confrim_btn_text: qsTr("Ok")
+        cancel_btn_text: qsTr("Cancel")
 
         Item{
             parent:open_url_dialog.background_rec
@@ -322,7 +322,7 @@ Rectangle{
                 anchors.topMargin: 60
                 font.letterSpacing: 0.355
                 font.weight: Font.Normal
-                text:"URI:"
+                text:qsTr("URI:")
 
             }
 
@@ -581,7 +581,7 @@ Rectangle{
         anchors.rightMargin: 160
         anchors.verticalCenter: coin_type_btn.verticalCenter
         color: "#FFFFFF"
-        text:"余额:"
+        text:qsTr("Balance:")
     }
 
     Label

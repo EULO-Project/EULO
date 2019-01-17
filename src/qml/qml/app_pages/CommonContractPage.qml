@@ -43,7 +43,7 @@ Rectangle
         anchors.topMargin: 10
         anchors.leftMargin: 20
         color: "#333333"
-        text:pageType === create?"创建智能合约":(pageType === sendTo?"发送到智能合约":"调用智能合约")
+        text:pageType === create?qsTr("Create Contract"):(pageType === sendTo?qsTr("SendTo Contract"):qsTr("Call Contract"))
     }
 
     Label
@@ -56,7 +56,7 @@ Rectangle
         anchors.topMargin: 45
         anchors.leftMargin: 30
         color: "#333333"
-        text:"Bytecode"
+        text:qsTr("Bytecode")
         visible:pageType === create
     }
 
@@ -88,7 +88,7 @@ Rectangle
         anchors.topMargin: 25
         anchors.leftMargin: 30
         color: "#333333"
-        text:"合约地址"
+        text:qsTr("Contract Address")
         visible:pageType !== create
     }
 
@@ -327,7 +327,7 @@ Rectangle
         anchors.verticalCenter: abiCodeText.verticalCenter
 
         color: "#333333"
-        text:"Interface (ABI)"
+        text:qsTr("Interface (ABI)")
     }
 
 
@@ -366,7 +366,7 @@ Rectangle
         anchors.topMargin: 10
         anchors.leftMargin: 20
         color: "#333333"
-        text:pageType === create?"构造器":"函数"
+        text:pageType === create?qsTr("Constructor"):qsTr("Function")
     }
 
     Rectangle
@@ -446,7 +446,7 @@ Rectangle
         anchors.left: parent.left
         anchors.leftMargin: 20
         color: "#333333"
-        text:"可选项"
+        text:qsTr("Optional:")
     }
 
 
@@ -460,7 +460,7 @@ Rectangle
         anchors.topMargin: 20
         anchors.leftMargin: 30
         color: "#333333"
-        text:"数量"
+        text:qsTr("Amount")
         visible: pageType === sendTo
     }
 
@@ -487,7 +487,7 @@ Rectangle
         anchors.topMargin: pageType === create?20:30
         anchors.leftMargin: 30
         color: "#333333"
-        text:"Gas Limit"
+        text:qsTr("Gas Limit")
         visible: pageType !== call
 
     }
@@ -513,7 +513,7 @@ Rectangle
         anchors.right: gasPriceField.left
         anchors.rightMargin: 30
         color: "#333333"
-        text:"Gas Price"
+        text:qsTr("Gas Price")
         visible: pageType !== call
 
     }
@@ -550,7 +550,7 @@ Rectangle
         anchors.topMargin: 30
         anchors.leftMargin: 30
         color: "#333333"
-        text:"发送者地址"
+        text:qsTr("Sender Address")
     }
 
     CommonTextField
@@ -578,7 +578,7 @@ Rectangle
         anchors.right: parent.right
         anchors.rightMargin: 20
         width:pageType === sendTo?95:83
-        text:pageType === create?"创建智能合约":(pageType === sendTo?"发送到智能合约":"调用智能合约")
+        text:pageType === create?qsTr("Create Contract"):(pageType === sendTo?qsTr("SendTo Contract"):qsTr("Call Contract"))
 
         onClicked:
         {
@@ -606,7 +606,7 @@ Rectangle
         anchors.bottomMargin: 0
         anchors.right: confirmBtn.left
         anchors.rightMargin: 30
-        text:"清除所有"
+        text:qsTr("Clear All")
 
         onClicked:
         {
@@ -649,12 +649,12 @@ Rectangle
                 if(waitDialog.timeLeft > 1)
                 {
                     waitDialog.timeLeft--
-                    waitDialog.confrim_btn_text = "是" + "  (" + waitDialog.timeLeft + ")"
+                    waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                     countDownTimer.start()
                 }
                 else
                 {
-                    waitDialog.confrim_btn_text = "是"
+                    waitDialog.confrim_btn_text = qsTr("Ok")
                     waitDialog.confrim_btn_enabled = true
                 }
 
@@ -724,11 +724,11 @@ Rectangle
         if(!checkParams())
             return
 
-        waitDialog.title = "Confirm contract creation."
-        waitDialog.content_text = "Are you sure you want to create contract?"
+        waitDialog.title = qsTr("Confirm contract creation.")
+        waitDialog.content_text = qsTr("Are you sure you want to create contract?")
         waitDialog.confrim_btn_enabled = false
         waitDialog.timeLeft = 3
-        waitDialog.confrim_btn_text = "是" + "  (" + waitDialog.timeLeft + ")"
+        waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
         waitDialog.countDownTimer.start()
         waitDialog.show()
 
@@ -760,11 +760,11 @@ Rectangle
 
 
 
-        waitDialog.title = "Confirm sending to contract."
-        waitDialog.content_text = "Are you sure you want to send to the contract contract:\n" + contractAddressField.text
+        waitDialog.title = qsTr("Confirm sending to contract.")
+        waitDialog.content_text = qsTr("Are you sure you want to send to the contract contract:\n") + contractAddressField.text
         waitDialog.confrim_btn_enabled = false
         waitDialog.timeLeft = 3
-        waitDialog.confrim_btn_text = "是" + "  (" + waitDialog.timeLeft + ")"
+        waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
         waitDialog.countDownTimer.start()
         waitDialog.show()
 

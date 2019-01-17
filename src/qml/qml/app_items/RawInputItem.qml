@@ -44,7 +44,7 @@ Item
         anchors.right: vout_filed.left
         anchors.rightMargin: 2
         color: "#333333"
-        text:"Vout Position:"
+        text:qsTr("Vout Position:")
         font.letterSpacing: 0.3
     }
 
