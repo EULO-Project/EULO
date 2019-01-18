@@ -2058,44 +2058,42 @@ Address: %4
     <name>MainNodePage</name>
     <message>
         <source>Note: Status of your masternodes in local wallet can potentially be slightly incorrect.&amp;lt;br /&amp;gt;Always wait for wallet to sync additional data and then double check from another node&amp;lt;br /&amp;gt;if your node should be running but you still see &quot;MISSING&quot; in &quot;Status&quot; field.</source>
-        <translation type="unfinished"></translation>
+        <translation>注意：在本地钱包您主节点状态可能会稍微不正确。&lt;br /&gt;总是等待钱包从另一个节点同步的附加数据，然后仔细检查&lt;br /&gt;如果您的节点正在运行，但您仍然在“Status”字段中看到“MISSING”。</translation>
     </message>
     <message>
         <source>Status will be updated automatically in(sec): </source>
-        <translation type="unfinished"></translation>
+        <translation>状态将会在以下时间后刷新(秒): </translation>
     </message>
     <message>
         <source>Start Alias</source>
-        <translation type="unfinished"></translation>
+        <translation>开始别名</translation>
     </message>
     <message>
         <source>Start All</source>
-        <translation type="unfinished"></translation>
+        <translation>全部开始</translation>
     </message>
     <message>
         <source>Start Missing</source>
-        <translation type="unfinished"></translation>
+        <translation>开始丢失</translation>
     </message>
     <message>
         <source>Update</source>
-        <translation type="unfinished">
-0
-....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................</translation>
+        <translation>更新</translation>
     </message>
 </context>
 <context>
     <name>MasterNodeTableModel</name>
     <message>
         <source>Command is not available right now</source>
-        <translation type="unfinished"></translation>
+        <translation>命令暂不可用</translation>
     </message>
     <message>
         <source>You can&apos;t use this command until masternode list is synced</source>
-        <translation type="unfinished"></translation>
+        <translation>在主节点同步完成之前你不能使用此命令</translation>
     </message>
     <message>
         <source>Result</source>
-        <translation type="unfinished">执行结果</translation>
+        <translation>执行结果</translation>
     </message>
 </context>
 <context>
@@ -2148,134 +2146,138 @@ Address: %4
     <name>MultiSignAddressInterDialog</name>
     <message>
         <source>MultiSignature Address Interactions</source>
-        <translation type="unfinished"></translation>
+        <translation>多重签名地址交互</translation>
     </message>
     <message>
         <source>Create MultiSignature Address</source>
-        <translation type="unfinished"></translation>
+        <translation>创建多签地址</translation>
     </message>
     <message>
         <source>Enter the minimal number of signatures required to sign transactions</source>
-        <translation type="unfinished"></translation>
+        <translation>请输入签名交易所需的最小签名数量</translation>
     </message>
     <message>
         <source>Add Address/Key</source>
-        <translation type="unfinished"></translation>
+        <translation>增加地址/秘钥</translation>
     </message>
     <message>
         <source>Local addresses or public keys that can sign</source>
-        <translation type="unfinished"></translation>
+        <translation>可以签名的本地地址或公钥</translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>创建</translation>
     </message>
     <message>
         <source>Status:</source>
-        <translation type="unfinished"></translation>
+        <translation>状态:</translation>
     </message>
     <message>
         <source>a Multisignature address must require at least one key to redeem</source>
-        <translation type="unfinished"></translation>
+        <translation>一个多签地址至少需要一个秘钥用来兑现</translation>
     </message>
     <message>
         <source>Use below to quickly import an address by its redeem. Don&apos;t forget to add a label before clicking import! Keep in mind, the wallet will rescan the blockchain to find transactions containing the new address.Please be patient after clicking import.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用下面通过兑现快速导入一个地址. 不要忘记在点击导入前增加一个标签! 请记住,钱包为了查找含有新地址的交易将会重新扫描区块链. 请在点击导入后耐心等待.</translation>
     </message>
     <message>
         <source>Import Redeem</source>
-        <translation type="unfinished"></translation>
+        <translation>导入兑现</translation>
     </message>
     <message>
         <source>Create MultiSignature TX</source>
-        <translation type="unfinished"></translation>
+        <translation>创建多签交易</translation>
     </message>
     <message>
         <source>Coin Control</source>
-        <translation type="unfinished"></translation>
+        <translation>币控制</translation>
     </message>
     <message>
         <source>Quantity Selected:  0</source>
-        <translation type="unfinished"></translation>
+        <translation>已选数量:0</translation>
     </message>
     <message>
         <source>Amount:                 0</source>
-        <translation type="unfinished"></translation>
+        <translation>数量:                 0</translation>
     </message>
     <message>
         <source>Add a Row Input</source>
-        <translation type="unfinished"></translation>
+        <translation>增加一行</translation>
     </message>
     <message>
         <source>Address/Amount:</source>
-        <translation type="unfinished"></translation>
+        <translation>地址/数量:</translation>
     </message>
     <message>
         <source>Add Destination</source>
-        <translation type="unfinished"></translation>
+        <translation>增加目标</translation>
     </message>
     <message>
         <source>Invalid Tx Hash.</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的交易Hash.</translation>
     </message>
     <message>
         <source>Sign MultiSignature TX</source>
-        <translation type="unfinished"></translation>
+        <translation>签名多签交易</translation>
     </message>
     <message>
         <source>Transaction Hex:</source>
-        <translation type="unfinished"></translation>
+        <translation>交易Hex:</translation>
     </message>
     <message>
         <source>Sign</source>
-        <translation type="unfinished"></translation>
+        <translation>签名</translation>
     </message>
     <message>
         <source>Commit</source>
-        <translation type="unfinished"></translation>
+        <translation>提交</translation>
     </message>
     <message>
         <source>Add Private Key</source>
-        <translation type="unfinished"></translation>
+        <translation>增加私钥</translation>
     </message>
     <message>
         <source>Sign with private keys only (Not Recommended)</source>
-        <translation type="unfinished"></translation>
+        <translation>仅用私钥签名(不推荐)</translation>
     </message>
 </context>
 <context>
     <name>NaviPanel</name>
     <message>
         <source>Smart Contract</source>
-        <translation type="unfinished">智能合约</translation>
+        <translation>智能合约</translation>
     </message>
     <message>
         <source>URC Token</source>
-        <translation type="unfinished">URC Token</translation>
+        <translation>URC Token</translation>
     </message>
     <message>
         <source>Index</source>
-        <translation type="unfinished"></translation>
+        <translation>首页</translation>
     </message>
     <message>
         <source>Sending</source>
-        <translation type="unfinished"></translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Receiving</source>
-        <translation type="unfinished"></translation>
+        <translation>接收</translation>
+    </message>
+    <message>
+        <source>Transaction Records</source>
+        <translation type="vanished">交易记录</translation>
     </message>
     <message>
         <source>Privacy</source>
-        <translation type="unfinished"></translation>
+        <translation>隐私</translation>
     </message>
     <message>
         <source>Masternodes</source>
-        <translation type="unfinished"></translation>
+        <translation>主节点</translation>
     </message>
     <message>
         <source>Txes Records</source>
-        <translation type="unfinished"></translation>
+        <translation>交易记录</translation>
     </message>
 </context>
 <context>
@@ -2434,51 +2436,51 @@ Address: %4
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>激活上述选项的命令行选项：</translation>
     </message>
     <message>
         <source>Main</source>
-        <translation type="unfinished"></translation>
+        <translation>主要</translation>
     </message>
     <message>
         <source>Wallet</source>
-        <translation type="unfinished">钱包</translation>
+        <translation>钱包</translation>
     </message>
     <message>
         <source>Expert</source>
-        <translation type="unfinished"></translation>
+        <translation>专家</translation>
     </message>
     <message>
         <source>Coin Control</source>
-        <translation type="unfinished"></translation>
+        <translation>币控制</translation>
     </message>
     <message>
         <source>Net</source>
-        <translation type="unfinished"></translation>
+        <translation>网络</translation>
     </message>
     <message>
         <source>Window</source>
-        <translation type="unfinished"></translation>
+        <translation>窗体</translation>
     </message>
     <message>
         <source>Display</source>
-        <translation type="unfinished"></translation>
+        <translation>显示</translation>
     </message>
     <message>
         <source>None:</source>
-        <translation type="unfinished"></translation>
+        <translation>无:</translation>
     </message>
     <message>
         <source>Reset Options</source>
-        <translation type="unfinished"></translation>
+        <translation>重置选项</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确认</translation>
     </message>
 </context>
 <context>
@@ -2512,141 +2514,141 @@ Address: %4
     <name>PaymentServer</name>
     <message>
         <source>Payment request error</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付失败</translation>
     </message>
     <message>
         <source>Cannot start eulo: click-to-pay handler</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>URI handling</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Payment request fetch URL is invalid: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付获取URL不可用</translation>
     </message>
     <message>
         <source>Invalid payment address %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无效的支付地址 %1</translation>
     </message>
     <message>
         <source>URI cannot be parsed! This can be caused by an invalid EULO address or malformed URI parameters.</source>
-        <translation type="unfinished"></translation>
+        <translation>URI无法解析! 这可能是由无效的EULO地址或错误的URI参数引起的.</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Payment request file cannot be read! This can be caused by an invalid payment request file.</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付文件不可读!这可能是由一个无效的请求支付文件引起的.</translation>
     </message>
     <message>
         <source>Payment request rejected</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付被拒绝</translation>
     </message>
     <message>
         <source>Payment request network doesn&apos;t match client network.</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付网络和客户端网络不匹配</translation>
     </message>
     <message>
         <source>Payment request has expired.</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付超时</translation>
     </message>
     <message>
         <source>Payment request is not initialized.</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付没有初始化.</translation>
     </message>
     <message>
         <source>Unverified payment requests to custom payment scripts are unsupported.</source>
-        <translation type="unfinished"></translation>
+        <translation>不支持向自定义支付脚本的未验证请求支付</translation>
     </message>
     <message>
         <source>Requested payment amount of %1 is too small (considered dust).</source>
-        <translation type="unfinished"></translation>
+        <translation>请求数量为 %1 的支付太小 (被认为是dust).</translation>
     </message>
     <message>
         <source>Refund from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>从 %1 偿还</translation>
     </message>
     <message>
         <source>Payment request %1 is too large (%2 bytes, allowed %3 bytes).</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付的数量 %1 太大 (%2 字节, 允许 %3字节)</translation>
     </message>
     <message>
         <source>Payment request DoS protection</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付 Dos 保护</translation>
     </message>
     <message>
         <source>Error communicating with %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>和%1通信出错:%2</translation>
     </message>
     <message>
         <source>Payment request cannot be parsed!</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付无法解析!</translation>
     </message>
     <message>
         <source>Bad response from server %1</source>
-        <translation type="unfinished"></translation>
+        <translation>错误的服务器返回信息 %1</translation>
     </message>
     <message>
         <source>Network request error</source>
-        <translation type="unfinished"></translation>
+        <translation>网络请求错误</translation>
     </message>
     <message>
         <source>Payment acknowledged</source>
-        <translation type="unfinished"></translation>
+        <translation>支付已确认</translation>
     </message>
 </context>
 <context>
     <name>PeerTableModel</name>
     <message>
         <source>Address/Hostname</source>
-        <translation type="unfinished"></translation>
+        <translation>地址/主机名</translation>
     </message>
     <message>
         <source>Version</source>
-        <translation type="unfinished"></translation>
+        <translation>版本</translation>
     </message>
     <message>
         <source>Ping Time</source>
-        <translation type="unfinished"></translation>
+        <translation>延迟</translation>
     </message>
 </context>
 <context>
     <name>PeerTableProxy</name>
     <message>
         <source>via %1</source>
-        <translation type="unfinished"></translation>
+        <translation>通过 %1</translation>
     </message>
     <message>
         <source>Inbound</source>
-        <translation type="unfinished"></translation>
+        <translation>入接口</translation>
     </message>
     <message>
         <source>Outbound</source>
-        <translation type="unfinished"></translation>
+        <translation>出接口</translation>
     </message>
     <message>
         <source>never</source>
-        <translation type="unfinished"></translation>
+        <translation>从不</translation>
     </message>
     <message>
         <source>%1 B</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 KB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 MB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 GB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2688,199 +2690,199 @@ Address: %4
     <name>PrivacyPage</name>
     <message>
         <source>Zerocoin Actions:</source>
-        <translation type="unfinished"></translation>
+        <translation>零币操作:</translation>
     </message>
     <message>
         <source>Mint Zerocoin</source>
-        <translation type="unfinished"></translation>
+        <translation>创造的零币</translation>
     </message>
     <message>
         <source>zULO Available for Minting: 0.00 ULO</source>
-        <translation type="unfinished"></translation>
+        <translation>可以创造的零币:0.00 ULO</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation>重置</translation>
     </message>
     <message>
         <source>Coin Control</source>
-        <translation type="unfinished"></translation>
+        <translation>币控制</translation>
     </message>
     <message>
         <source>&lt;b&gt;Quantity:&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;数量:&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Coins automatically selected</source>
-        <translation type="unfinished">自动选择币</translation>
+        <translation>自动选择币</translation>
     </message>
     <message>
         <source>&lt;b&gt;Amount:&lt;/b&gt;&amp;nbsp;&amp;nbsp;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;金额:&lt;/b&gt;&amp;nbsp;&amp;nbsp;</translation>
     </message>
     <message>
         <source>ReScan</source>
-        <translation type="unfinished"></translation>
+        <translation>重新扫描</translation>
     </message>
     <message>
         <source>ResetMintZerocoin finished: 0 mints updated, 0 mints deleted
 Duration: 0 sec.</source>
-        <translation type="unfinished"></translation>
+        <translation>重置零币结束: 0 创造的币 被更新, 0 创造的币 被删除,. 用时: 0 秒.</translation>
     </message>
     <message>
         <source>zULO Control</source>
-        <translation type="unfinished"></translation>
+        <translation>零币控制</translation>
     </message>
     <message>
         <source>zULO Selected:</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的零币:</translation>
     </message>
     <message>
         <source>Quantity Selected:</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的数量:</translation>
     </message>
     <message>
         <source>Spend Zerocoin</source>
-        <translation type="unfinished"></translation>
+        <translation>花费零币</translation>
     </message>
     <message>
         <source>Availabel Balance: &lt;b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>可用余额: &lt;b&gt;</translation>
     </message>
     <message>
         <source>Security level:</source>
-        <translation type="unfinished"></translation>
+        <translation>加密等级:</translation>
     </message>
     <message>
         <source>Convert change to Zerocoin (might cost additional fees)</source>
-        <translation type="unfinished"></translation>
+        <translation>将零钱转换成零币(可能需要花费额外的交易费)</translation>
     </message>
     <message>
         <source>Minimize change</source>
-        <translation type="unfinished"></translation>
+        <translation>最小化零钱</translation>
     </message>
     <message>
         <source>Zerocoin Stats:</source>
-        <translation type="unfinished"></translation>
+        <translation>零币统计:</translation>
     </message>
     <message>
         <source>Total Zerocoin Balance:</source>
-        <translation type="unfinished"></translation>
+        <translation>总零币余额:</translation>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;1&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>用 &lt;b&gt;1&lt;/b&gt; 分:</translation>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;5&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>用 &lt;b&gt;5&lt;/b&gt; 分:</translation>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;10&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>用 &lt;b&gt;10&lt;/b&gt; 分:</translation>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;100&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>用 &lt;b&gt;100&lt;/b&gt; 分:</translation>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;500&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>用 &lt;b&gt;500&lt;/b&gt; 分:</translation>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;1000&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>用 &lt;b&gt;1000&lt;/b&gt; 分:</translation>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;5000&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
+        <translation>用 &lt;b&gt;5000&lt;/b&gt; 分:</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>EULO Core</source>
-        <translation type="unfinished">EULO Core</translation>
+        <translation>EULO 核心</translation>
     </message>
     <message>
         <source>Error: Specified data directory &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>错误:选择的数据目录 &quot;%1&quot;不存在.</translation>
     </message>
     <message>
         <source>Error: Cannot parse configuration file: %1. Only use key=value syntax.</source>
-        <translation type="unfinished"></translation>
+        <translation>无法解析配置文件: %1 . 请只输入键值对.</translation>
     </message>
     <message>
         <source>Error: Invalid combination of -regtest and -testnet.</source>
-        <translation type="unfinished"></translation>
+        <translation>错误: 无效的组合,regtest 和 testnet</translation>
     </message>
     <message>
         <source>Error reading masternode configuration file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>读取主节点配置文件失败: %1</translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">数量</translation>
+        <translation>数量</translation>
     </message>
     <message>
         <source>ABI parsing error:</source>
-        <translation type="unfinished"></translation>
+        <translation>ABI解析出错:</translation>
     </message>
     <message>
         <source>Unsupported type %1 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>不支持的类型 %1 %2.</translation>
     </message>
     <message>
         <source>Error encoding parameter %1 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>编码参数出错 %1 %2.</translation>
     </message>
     <message>
         <source>Error decoding parameter %1 %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>解码参数出错 %1 %2.</translation>
     </message>
     <message>
         <source>Enter a EULO address (e.g. %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>输入一个EULO 地址 (e.g. %1)</translation>
     </message>
     <message>
         <source>%1 d</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 h</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 m</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 s</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>NETWORK</source>
-        <translation type="unfinished"></translation>
+        <translation>网络</translation>
     </message>
     <message>
         <source>BLOOM</source>
-        <translation type="unfinished"></translation>
+        <translation>闪光</translation>
     </message>
     <message>
         <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>未知</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>无</translation>
     </message>
     <message>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 ms</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -2926,77 +2928,77 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>In:</source>
-        <translation type="unfinished"></translation>
+        <translation>进:</translation>
     </message>
     <message>
         <source>Out:</source>
-        <translation type="unfinished"></translation>
+        <translation>出:</translation>
     </message>
     <message>
         <source>Welcome to the EULO RPC console.</source>
-        <translation type="unfinished"></translation>
+        <translation>欢迎使用EULO RPC控制台.</translation>
     </message>
     <message>
         <source>Use up and down arrows to navigate history, and &lt;b&gt;Ctrl-L&lt;/b&gt; to clear screen.</source>
-        <translation type="unfinished"></translation>
+        <translation>使用上下键以浏览历史输入,用 &lt;b&gt;Ctrl-L&lt;/b&gt; 来清理屏幕.</translation>
     </message>
     <message>
         <source>Type &lt;b&gt;help&lt;/b&gt; for an overview of available commands.</source>
-        <translation type="unfinished"></translation>
+        <translation>输入 &lt;b&gt;help&lt;/b&gt; 来浏览所有可用命令.</translation>
     </message>
     <message>
         <source>%1 B</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 KB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 MB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 GB</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>RawInputItem</name>
     <message>
         <source>Vout Position:</source>
-        <translation type="unfinished"></translation>
+        <translation>Vout 未知:</translation>
     </message>
 </context>
 <context>
     <name>ReceiveAddressDialog</name>
     <message>
         <source>Receiving Address</source>
-        <translation type="unfinished">接收地址</translation>
+        <translation>接收地址</translation>
     </message>
     <message>
         <source>These are your EULO addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
-        <translation type="unfinished">这是用于接收EULO的钱包地址。建议每一笔交易都使用一个新的钱包地址。</translation>
+        <translation>这是用于接收EULO的钱包地址。建议每一笔交易都使用一个新的钱包地址。</translation>
     </message>
     <message>
         <source>New Address</source>
-        <translation type="unfinished">新地址</translation>
+        <translation>新地址</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">导出</translation>
+        <translation>导出</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished">选择</translation>
+        <translation>选择</translation>
     </message>
 </context>
 <context>
@@ -3069,78 +3071,82 @@ Duration: 0 sec.</source>
     <name>ReceivingPage</name>
     <message>
         <source>Use this from to request payments. ALL fields are optional</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">用这个表单进行请求支付.所有输入区域都是可选的</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">标签</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Total</source>
-        <translation type="unfinished"></translation>
+        <translation>总计</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished">消息 </translation>
+        <translation>消息 </translation>
     </message>
     <message>
         <source>Use an existing receiving address (not recommended)</source>
-        <translation type="unfinished"></translation>
+        <translation>使用已有接收地址 (不推荐)</translation>
     </message>
     <message>
         <source>Request payment</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付</translation>
     </message>
     <message>
         <source>Clear All</source>
-        <translation type="unfinished">清除全部</translation>
+        <translation>清除全部</translation>
     </message>
     <message>
         <source>Requested payments history</source>
-        <translation type="unfinished"></translation>
+        <translation>请求支付历史</translation>
     </message>
     <message>
         <source>Show</source>
-        <translation type="unfinished"></translation>
+        <translation>显示</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>删除</translation>
+    </message>
+    <message>
+        <source>Use this form to request payments. ALL fields are optional</source>
+        <translation>用这个表单进行请求支付.所有输入区域都是可选的</translation>
     </message>
 </context>
 <context>
     <name>RecentRequestsFilterProxy</name>
     <message>
         <source>Address</source>
-        <translation type="unfinished">地址</translation>
+        <translation>地址</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">标签</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished">消息 </translation>
+        <translation>消息 </translation>
     </message>
     <message>
         <source>Payment information</source>
-        <translation type="unfinished"></translation>
+        <translation>支付信息</translation>
     </message>
     <message>
         <source>URI</source>
-        <translation type="unfinished"></translation>
+        <translation>URI</translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">数量</translation>
+        <translation>数量</translation>
     </message>
     <message>
         <source>Save QR Code</source>
-        <translation type="unfinished"></translation>
+        <translation>保存QR图像</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>PNG图像 (*.png)</translation>
     </message>
 </context>
 <context>
@@ -3163,81 +3169,81 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>日期</translation>
     </message>
     <message>
         <source>(no amount)</source>
-        <translation type="unfinished"></translation>
+        <translation>(没有数量)</translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">数量</translation>
+        <translation>数量</translation>
     </message>
 </context>
 <context>
     <name>RequestPaymentDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Save Image...</source>
-        <translation type="unfinished"></translation>
+        <translation>保存图片...</translation>
     </message>
     <message>
         <source>Copy Image</source>
-        <translation type="unfinished"></translation>
+        <translation>复制图像</translation>
     </message>
     <message>
         <source>Copy URI</source>
-        <translation type="unfinished"></translation>
+        <translation>复制URI</translation>
     </message>
     <message>
         <source>Copy Address</source>
-        <translation type="unfinished">复制地址</translation>
+        <translation>复制地址</translation>
     </message>
 </context>
 <context>
     <name>SendAddressDialog</name>
     <message>
         <source>Sending Address</source>
-        <translation type="unfinished"></translation>
+        <translation>发送地址</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确认</translation>
     </message>
     <message>
         <source>These are your EULO addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation type="unfinished">这是用于发送EULO的地址。在发送EULO之前，请认真核查发送金额和接收地址。</translation>
+        <translation>这是用于发送EULO的地址。在发送EULO之前，请认真核查发送金额和接收地址。</translation>
     </message>
     <message>
         <source>New Address</source>
-        <translation type="unfinished">新地址</translation>
+        <translation>新地址</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">复制</translation>
+        <translation>复制</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">删除</translation>
+        <translation>删除</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">导出</translation>
+        <translation>导出</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭</translation>
     </message>
     <message>
         <source>Select</source>
-        <translation type="unfinished">选择</translation>
+        <translation>选择</translation>
     </message>
 </context>
 <context>
@@ -3318,23 +3324,23 @@ Duration: 0 sec.</source>
     <name>SendingPage</name>
     <message>
         <source>Send</source>
-        <translation type="unfinished"></translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Clear All</source>
-        <translation type="unfinished">清除全部</translation>
+        <translation>清除全部</translation>
     </message>
     <message>
         <source>Add Recipient</source>
-        <translation type="unfinished"></translation>
+        <translation>增加收件人</translation>
     </message>
     <message>
         <source>You can only add 10 recipients at most</source>
-        <translation type="unfinished"></translation>
+        <translation>你最多可以添加10和收件人</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确认</translation>
     </message>
 </context>
 <context>
@@ -3357,39 +3363,39 @@ Duration: 0 sec.</source>
     <name>SignInfoDialog</name>
     <message>
         <source>Signature-sign/verify message</source>
-        <translation type="unfinished"></translation>
+        <translation>签名-签名/验证 消息</translation>
     </message>
     <message>
         <source>Sign message</source>
-        <translation type="unfinished"></translation>
+        <translation>签名消息</translation>
     </message>
     <message>
         <source>You can sign messages with your addresses to prove you own them. Be careful not to sign anything vague, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
-        <translation type="unfinished">您可以使用地址签名消息，以证明您拥有他们。 小心不要签名任何您不了解的，因为网络钓鱼攻击可能会试图欺骗您，以让您签名。 只能签署您熟悉并且了解和同意的。</translation>
+        <translation>您可以使用地址签名消息，以证明您拥有他们。 小心不要签名任何您不了解的，因为网络钓鱼攻击可能会试图欺骗您，以让您签名。 只能签署您熟悉并且了解和同意的。</translation>
     </message>
     <message>
         <source>Click &quot;Sign Message&quot; to generate signature</source>
-        <translation type="unfinished">点击“签名消息”生成一个签名</translation>
+        <translation>点击“签名消息”生成一个签名</translation>
     </message>
     <message>
         <source>Sign</source>
-        <translation type="unfinished"></translation>
+        <translation>签名</translation>
     </message>
     <message>
         <source>Clear All</source>
-        <translation type="unfinished">清除全部</translation>
+        <translation>清除全部</translation>
     </message>
     <message>
         <source>Verify Message</source>
-        <translation type="unfinished"></translation>
+        <translation>验证消息</translation>
     </message>
     <message>
         <source>Enter the signing address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack.</source>
-        <translation type="unfinished">输入签名地址，消息（确保您准确地复制换行符，空格，制表符等）和签名以验证消息。注意不要比签名的消息本身更多地阅读签名，以避免被中间人的袭击所欺骗。</translation>
+        <translation>输入签名地址，消息（确保您准确地复制换行符，空格，制表符等）和签名以验证消息。注意不要比签名的消息本身更多地阅读签名，以避免被中间人的袭击所欺骗。</translation>
     </message>
     <message>
         <source>Verify</source>
-        <translation type="unfinished"></translation>
+        <translation>验证</translation>
     </message>
 </context>
 <context>
@@ -3523,19 +3529,19 @@ Duration: 0 sec.</source>
     <name>SmartContractPage</name>
     <message>
         <source>Result </source>
-        <translation type="unfinished"></translation>
+        <translation>结果 </translation>
     </message>
     <message>
         <source>Create</source>
-        <translation type="unfinished"></translation>
+        <translation>创建</translation>
     </message>
     <message>
         <source>Send To</source>
-        <translation type="unfinished"></translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Call</source>
-        <translation type="unfinished"></translation>
+        <translation>调用</translation>
     </message>
 </context>
 <context>
@@ -3573,45 +3579,45 @@ Duration: 0 sec.</source>
     <name>StartUpDialog</name>
     <message>
         <source>Testing MEssgae</source>
-        <translation type="unfinished"></translation>
+        <translation>测试消息</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation type="unfinished"></translation>
+        <translation>确认</translation>
     </message>
 </context>
 <context>
     <name>TargetItem</name>
     <message>
         <source>Send</source>
-        <translation type="unfinished"></translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">标签</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Enter a label for this address to add it to your address book</source>
-        <translation type="unfinished">输入此地址的标签，将其添加到您的地址列表中</translation>
+        <translation>输入此地址的标签，将其添加到您的地址列表中</translation>
     </message>
     <message>
         <source>Total</source>
-        <translation type="unfinished"></translation>
+        <translation>总计</translation>
     </message>
 </context>
 <context>
     <name>TargetItem2</name>
     <message>
         <source>Sending</source>
-        <translation type="unfinished"></translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">标签</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Total</source>
-        <translation type="unfinished"></translation>
+        <translation>总计</translation>
     </message>
 </context>
 <context>
@@ -3650,166 +3656,166 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>工具</translation>
     </message>
     <message>
         <source>Information</source>
-        <translation type="unfinished">信息</translation>
+        <translation>信息</translation>
     </message>
     <message>
         <source>Console</source>
-        <translation type="unfinished"></translation>
+        <translation>控制台</translation>
     </message>
     <message>
         <source>Net Monitor</source>
-        <translation type="unfinished"></translation>
+        <translation>网络监控</translation>
     </message>
     <message>
         <source>Peers Info</source>
-        <translation type="unfinished"></translation>
+        <translation>节点信息</translation>
     </message>
     <message>
         <source>Wallet Repair</source>
-        <translation type="unfinished"></translation>
+        <translation>修复钱包</translation>
     </message>
     <message>
         <source>Open Wallet Conf</source>
-        <translation type="unfinished"></translation>
+        <translation>钱包配置</translation>
     </message>
     <message>
         <source>Open Masternode Conf</source>
-        <translation type="unfinished"></translation>
+        <translation>主节点配置</translation>
     </message>
     <message>
         <source>Open Auto Save</source>
-        <translation type="unfinished"></translation>
+        <translation>打开自动备份</translation>
     </message>
     <message>
         <source>Block Explorer</source>
-        <translation type="unfinished"></translation>
+        <translation>区块浏览器</translation>
     </message>
     <message>
         <source>Notice</source>
-        <translation type="unfinished"></translation>
+        <translation>注意</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确认</translation>
     </message>
     <message>
         <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (eulo.conf).</source>
-        <translation type="unfinished"></translation>
+        <translation>不是所有交易都会被显示. 如果你想要查看所有交易，请在配置文件中添加 txindex=1 (eulo.conf).</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>设置</translation>
     </message>
     <message>
         <source>Encrypt Wallet</source>
-        <translation type="unfinished"></translation>
+        <translation>加密钱包</translation>
     </message>
     <message>
         <source>Modify Password</source>
-        <translation type="unfinished"></translation>
+        <translation>修改密码</translation>
     </message>
     <message>
         <source>BIP38 Tools</source>
-        <translation type="unfinished"></translation>
+        <translation>BIP38 工具</translation>
     </message>
     <message>
         <source>Multi-Sending</source>
-        <translation type="unfinished"></translation>
+        <translation>多重发送</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished"></translation>
+        <translation>选项</translation>
     </message>
     <message>
         <source>File</source>
-        <translation type="unfinished"></translation>
+        <translation>文件</translation>
     </message>
     <message>
         <source>Open URL</source>
-        <translation type="unfinished"></translation>
+        <translation>打开 URL</translation>
     </message>
     <message>
         <source>Backup Wallet</source>
-        <translation type="unfinished"></translation>
+        <translation>备份钱包</translation>
     </message>
     <message>
         <source>Sign-Info</source>
-        <translation type="unfinished"></translation>
+        <translation>签名信息</translation>
     </message>
     <message>
         <source>Validation-Info</source>
-        <translation type="unfinished"></translation>
+        <translation>验证信息</translation>
     </message>
     <message>
         <source>Sending Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>发送地址</translation>
     </message>
     <message>
         <source>Receiving Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>接收地址</translation>
     </message>
     <message>
         <source>Multisignature creation</source>
-        <translation type="unfinished"></translation>
+        <translation>创建多重签名</translation>
     </message>
     <message>
         <source>Multisignature spending</source>
-        <translation type="unfinished"></translation>
+        <translation>花费多重签名</translation>
     </message>
     <message>
         <source>Multisignature signing</source>
-        <translation type="unfinished"></translation>
+        <translation>签署多重签名</translation>
     </message>
     <message>
         <source>Open  URI</source>
-        <translation type="unfinished"></translation>
+        <translation>打开URI</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>URI:</source>
-        <translation type="unfinished"></translation>
+        <translation>URI:</translation>
     </message>
     <message>
         <source>Balance:</source>
-        <translation type="unfinished"></translation>
+        <translation>余额:</translation>
     </message>
 </context>
 <context>
     <name>TokenContractField</name>
     <message>
         <source>Contract Address</source>
-        <translation type="unfinished">合约地址</translation>
+        <translation>合约地址</translation>
     </message>
     <message>
         <source>Token Name</source>
-        <translation type="unfinished">Token 名称</translation>
+        <translation>Token 名称</translation>
     </message>
     <message>
         <source>Token Symbol</source>
-        <translation type="unfinished"></translation>
+        <translation>Token 符号</translation>
     </message>
     <message>
         <source>Decimals</source>
-        <translation type="unfinished"></translation>
+        <translation>单位</translation>
     </message>
     <message>
         <source>Token Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Token 地址</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>清除</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation type="unfinished"></translation>
+        <translation>确认</translation>
     </message>
 </context>
 <context>
@@ -3828,450 +3834,450 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Token Symbol</source>
-        <translation type="unfinished"></translation>
+        <translation>Token 符号</translation>
     </message>
     <message>
         <source>Balance</source>
-        <translation type="unfinished"></translation>
+        <translation>余额</translation>
     </message>
     <message>
         <source>Error send token</source>
-        <translation type="unfinished"></translation>
+        <translation>发送token出错</translation>
     </message>
     <message>
         <source>Confirm send token.</source>
-        <translation type="unfinished"></translation>
+        <translation>确认发送token</translation>
     </message>
     <message>
         <source>Are you sure you want to send? &lt;br /&gt;&lt;br /&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>你确认要花费？ &lt;br /&gt;&lt;br /&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;%1 %2 &lt;/b&gt; to </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1 %2 &lt;/b&gt; 到 </translation>
     </message>
     <message>
         <source>&lt;br /&gt;%3 &lt;br /&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;br /&gt;%3 &lt;br /&gt;</translation>
     </message>
     <message>
-        <source>To send %1 you need QTUM on address &lt;br /&gt; %2.</source>
-        <translation type="unfinished"></translation>
+        <source>To send %1 you need EULO on address &lt;br /&gt; %2.</source>
+        <translation>要发送%1你需要在地址 &lt;br /&gt; %2.上有EULO</translation>
     </message>
 </context>
 <context>
     <name>TokenPage</name>
     <message>
         <source>Attention</source>
-        <translation type="unfinished">注意</translation>
+        <translation>注意</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确认</translation>
     </message>
     <message>
         <source>Send</source>
-        <translation type="unfinished"></translation>
+        <translation>发送</translation>
     </message>
     <message>
         <source>Receive</source>
-        <translation type="unfinished"></translation>
+        <translation>接收</translation>
     </message>
     <message>
         <source>Add Token</source>
-        <translation type="unfinished"></translation>
+        <translation>添加Token</translation>
     </message>
     <message>
         <source> Address</source>
-        <translation type="unfinished"></translation>
+        <translation>地址</translation>
     </message>
     <message>
         <source>Confirm token remove</source>
-        <translation type="unfinished"></translation>
+        <translation>确认删除token</translation>
     </message>
     <message>
         <source>The selected token will be removed from the list. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>选择的token将会从列表中删除.确认吗?</translation>
     </message>
     <message>
         <source>Copy receive address</source>
-        <translation type="unfinished"></translation>
+        <translation>复制接收地址</translation>
     </message>
     <message>
         <source>Copy token balance</source>
-        <translation type="unfinished"></translation>
+        <translation>复制token&apos;余额</translation>
     </message>
     <message>
         <source>Copy token name</source>
-        <translation type="unfinished"></translation>
+        <translation>复制token名称</translation>
     </message>
     <message>
         <source>Copy contract address</source>
-        <translation type="unfinished"></translation>
+        <translation>复制合约地址</translation>
     </message>
     <message>
         <source>Remove token</source>
-        <translation type="unfinished"></translation>
+        <translation>删除token</translation>
     </message>
     <message>
         <source>ALL</source>
-        <translation type="unfinished"></translation>
+        <translation>所有</translation>
     </message>
     <message>
         <source>Today</source>
-        <translation type="unfinished"></translation>
+        <translation>今天</translation>
     </message>
     <message>
         <source>This week</source>
-        <translation type="unfinished"></translation>
+        <translation>这周</translation>
     </message>
     <message>
         <source>This month</source>
-        <translation type="unfinished"></translation>
+        <translation>这个月</translation>
     </message>
     <message>
         <source>Last month</source>
-        <translation type="unfinished"></translation>
+        <translation>上个月</translation>
     </message>
     <message>
         <source>This year</source>
-        <translation type="unfinished"></translation>
+        <translation>今年</translation>
     </message>
     <message>
         <source>Range...</source>
-        <translation type="unfinished"></translation>
+        <translation>时间范围...</translation>
     </message>
     <message>
         <source>Received with</source>
-        <translation type="unfinished"></translation>
+        <translation>接收来自</translation>
     </message>
     <message>
         <source>Sent to</source>
-        <translation type="unfinished"></translation>
+        <translation>发送到</translation>
     </message>
     <message>
         <source>To yourself</source>
-        <translation type="unfinished">给您自己</translation>
+        <translation>给您自己</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation type="unfinished"></translation>
+        <translation>输入地址或标签以搜索</translation>
     </message>
     <message>
         <source>Min amount</source>
-        <translation type="unfinished"></translation>
+        <translation>最小数量</translation>
     </message>
     <message>
         <source>Copy address</source>
-        <translation type="unfinished">复制地址</translation>
+        <translation>复制地址</translation>
     </message>
     <message>
         <source>Copy amount</source>
-        <translation type="unfinished"></translation>
+        <translation>复制数量</translation>
     </message>
     <message>
         <source>Copy transaction ID</source>
-        <translation type="unfinished"></translation>
+        <translation>复制交易ID</translation>
     </message>
     <message>
         <source>Copy full transaction details</source>
-        <translation type="unfinished"></translation>
+        <translation>复制完整交易细节</translation>
     </message>
     <message>
         <source>Show transaction details</source>
-        <translation type="unfinished"></translation>
+        <translation>显示交易细节</translation>
     </message>
     <message>
         <source>Token details</source>
-        <translation type="unfinished"></translation>
+        <translation>token细节</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
 </context>
 <context>
     <name>TokenReceiveItem</name>
     <message>
         <source>Copy Address</source>
-        <translation type="unfinished">复制地址</translation>
+        <translation>复制地址</translation>
     </message>
 </context>
 <context>
     <name>TokenSendField</name>
     <message>
         <source>Error</source>
-        <translation type="unfinished">出错</translation>
+        <translation>出错</translation>
     </message>
     <message>
         <source>payTo</source>
-        <translation type="unfinished"></translation>
+        <translation>发送给</translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">数量</translation>
+        <translation>数量</translation>
     </message>
     <message>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>描述</translation>
     </message>
     <message>
         <source>Gas Limit</source>
-        <translation type="unfinished">Gas 限制</translation>
+        <translation>Gas 限制</translation>
     </message>
     <message>
         <source>Gas Price</source>
-        <translation type="unfinished">Gas 价格</translation>
+        <translation>Gas 价格</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>清除</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation type="unfinished"></translation>
+        <translation>确认</translation>
     </message>
     <message>
         <source>Ok</source>
-        <translation type="unfinished">确认</translation>
+        <translation>确认</translation>
     </message>
 </context>
 <context>
     <name>TokenTransactionDesc</name>
     <message>
         <source>conflicted with a transaction with %1 confirmations</source>
-        <translation type="unfinished"></translation>
+        <translation>和一个有%1个确认的交易相冲突</translation>
     </message>
     <message>
         <source>%1/offline</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/离线</translation>
     </message>
     <message>
         <source>0/unconfirmed, in memory pool</source>
-        <translation type="unfinished"></translation>
+        <translation>0/未确认,在内存池中</translation>
     </message>
     <message>
         <source>0/unconfirmed, not in memory pool</source>
-        <translation type="unfinished"></translation>
+        <translation>0/未确认,不在内存池中</translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1/未确认</translation>
     </message>
     <message>
         <source>%1 confirmations</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 确认</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>状态</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>日期</translation>
     </message>
     <message>
         <source>Transaction ID</source>
-        <translation type="unfinished"></translation>
+        <translation>交易ID</translation>
     </message>
     <message>
         <source>Token Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Token地址</translation>
     </message>
     <message>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation>来自</translation>
     </message>
     <message>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation>到</translation>
     </message>
     <message>
         <source>Credit</source>
-        <translation type="unfinished"></translation>
+        <translation>贷</translation>
     </message>
     <message>
         <source>Debit</source>
-        <translation type="unfinished"></translation>
+        <translation>借</translation>
     </message>
     <message>
         <source>Net Amount</source>
-        <translation type="unfinished"></translation>
+        <translation>净数量</translation>
     </message>
 </context>
 <context>
     <name>TokenTransactionTableModel</name>
     <message>
         <source>Label</source>
-        <translation type="unfinished">标签</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Payment to yourself</source>
-        <translation type="unfinished">支付给您自己</translation>
+        <translation>支付给您自己</translation>
     </message>
     <message>
         <source>(no label)</source>
-        <translation type="unfinished">未设置标签</translation>
+        <translation>未设置标签</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>日期</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名称</translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">数量</translation>
+        <translation>数量</translation>
     </message>
     <message>
         <source>Offline</source>
-        <translation type="unfinished"></translation>
+        <translation>离线</translation>
     </message>
     <message>
         <source>Unconfirmed</source>
-        <translation type="unfinished"></translation>
+        <translation>未确认</translation>
     </message>
     <message>
         <source>Confirming (%1 of %2 recommended confirmations)</source>
-        <translation type="unfinished"></translation>
+        <translation>确认中 (%2推荐确认中的%1)</translation>
     </message>
     <message>
         <source>Confirmed (%1 confirmations)</source>
-        <translation type="unfinished"></translation>
+        <translation>已确认 (%1个确认)</translation>
     </message>
     <message>
         <source>Received with</source>
-        <translation type="unfinished"></translation>
+        <translation>接收到</translation>
     </message>
     <message>
         <source>Received from</source>
-        <translation type="unfinished"></translation>
+        <translation>接收来自</translation>
     </message>
     <message>
         <source>Sent to</source>
-        <translation type="unfinished"></translation>
+        <translation>发送给</translation>
     </message>
     <message>
         <source>(n/a)</source>
-        <translation type="unfinished"></translation>
+        <translation>(n/a)</translation>
     </message>
     <message>
         <source>Transaction status. Hover over this field to show number of confirmations.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易状态.将鼠标悬停在这里以显示确认数量</translation>
     </message>
     <message>
         <source>Date and time that the transaction was received.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易接收到的日期和时间.</translation>
     </message>
     <message>
         <source>Type of transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易类型.</translation>
     </message>
     <message>
         <source>User-defined intent/purpose of the transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation>用户定义的交易目的</translation>
     </message>
     <message>
         <source>Token name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Token名称.</translation>
     </message>
     <message>
         <source>Amount removed from or added to balance.</source>
-        <translation type="unfinished"></translation>
+        <translation>从余额中去除或增加的数量</translation>
     </message>
 </context>
 <context>
     <name>ToolsDialog</name>
     <message>
         <source>Information</source>
-        <translation type="unfinished">信息</translation>
+        <translation>信息</translation>
     </message>
     <message>
         <source>&lt;b&gt;General&lt;/b&gt;&lt;br&gt;Client name&lt;br&gt;Client version&lt;br&gt;&amp;nbsp;&amp;nbsp;                              Using OpenSSL version&lt;br&gt;&amp;nbsp;&amp;nbsp;Using BerkeleyDB version&lt;br&gt;Build date&lt;br&gt;Startup time&lt;br&gt;                              &lt;b&gt;Network&lt;/b&gt;&lt;br&gt;Name&lt;br&gt;Number of connections&lt;br&gt;Number of Masternodes&lt;br&gt;                              &lt;b&gt;Block chain&lt;/b&gt;&lt;br&gt;Current number of blocks&lt;br&gt;Last block time</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;综合信息&lt;/b&gt;&lt;br&gt;客户端名称&lt;br&gt;客户端版本&lt;br&gt;&amp;nbsp;&amp;nbsp;                              使用 OpenSSL 版本&lt;br&gt;&amp;nbsp;&amp;nbsp;使用 BerkeleyDB 版本&lt;br&gt;创建日期&lt;br&gt;启动时间&lt;br&gt;                              &lt;b&gt;网络&lt;/b&gt;&lt;br&gt;名称&lt;br&gt;连接数&lt;br&gt;主节点数&lt;br&gt;                              &lt;b&gt;区块链&lt;/b&gt;&lt;br&gt;当前块数量&lt;br&gt;最新块的时间</translation>
     </message>
     <message>
         <source>&lt;b&gt;Debug log file&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;调试日志文件&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>打开</translation>
     </message>
     <message>
         <source>Console</source>
-        <translation type="unfinished"></translation>
+        <translation>控制台</translation>
     </message>
     <message>
         <source>Net Info</source>
-        <translation type="unfinished"></translation>
+        <translation>网络信息</translation>
     </message>
     <message>
         <source>Clear</source>
-        <translation type="unfinished"></translation>
+        <translation>清除</translation>
     </message>
     <message>
         <source>Peer Info</source>
-        <translation type="unfinished"></translation>
+        <translation>节点信息</translation>
     </message>
     <message>
         <source>Wallet Repair</source>
-        <translation type="unfinished"></translation>
+        <translation>修复钱包</translation>
     </message>
     <message>
         <source>&lt;b&gt;Wallet repair options.&lt;/b&gt;&lt;br&gt;                              The buttons below will restart the wallet with command-line options to repair the wallet, fix issues with corrput blockchain files or missing/obsolete transactions.&lt;br&gt;                             Wallet In Use:  </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;钱包修复选项.&lt;/b&gt;&lt;br&gt;                              以下命令会使用命令行参数重启钱包以修复钱包, 来修正由损坏的区块链数据或删除或丢掉的交易引起的问题.&lt;br&gt;                             正在使用的钱包:  </translation>
     </message>
     <message>
         <source>Salvage wallet</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Rescan blockchain files</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Recover transactions 1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Recover transactions 2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Upgrade wallet format</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Rebuild index</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Delete local blockchain Folders</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>resync wallet</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>是</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation>否</translation>
     </message>
     <message>
         <source>This will delete your local blockchain folders and the wallet will synchronize the complete Blockchain from scratch.
 Confirm?</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>-salvagewallet:
@@ -4281,7 +4287,7 @@ Confirm?</source>
 -upgradewallet:
 -reindex:
 -resync:</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Attempt to recover private keys from a corrupt wallet.dat.
@@ -4291,14 +4297,14 @@ Recover transactions from blockchain(drop meta-data)
 Upgrade wallet to latest format on startup.(Note:this is NOT an update of the wallet itself!)
 Rebuild block chain index from current blk001??.dat files.
 Deletes all local blockchain folders so the wallet synchronizes from scratch.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>TrafficGraphWidget</name>
     <message>
         <source>KB/s</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -4309,371 +4315,371 @@ Deletes all local blockchain folders so the wallet synchronizes from scratch.</s
     </message>
     <message numerus="yes">
         <source>Open for %n more block(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>Open until %1</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>conflicted</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/offline (verified via SwiftX)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/confirmed (verified via SwiftX)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 confirmations (verified via SwiftX)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/offline (SwiftX verification in progress - %2 of %3 signatures)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/confirmed (SwiftX verification in progress - %2 of %3 signatures )</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 confirmations (SwiftX verification in progress - %2 of %3 signatures)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/offline (SwiftX verification failed)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/confirmed (SwiftX verification failed)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1 confirmations</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/offline</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>%1/unconfirmed</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>, has not been successfully broadcast yet</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message numerus="yes">
         <source>, broadcast through %n node(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Generated</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>From</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>unknown</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>To</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>own address</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>watch-only</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>label</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Credit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message numerus="yes">
         <source>matures in %n more block(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
         <source>not accepted</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Debit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Total debit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Total credit</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Transaction fee</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Net amount</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Comment</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Transaction ID</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Output index</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Merchant</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Generated coins must mature %1 blocks before they can be spent. When you generated this block, it was broadcast to the network to be added to the block chain. If it fails to get into the chain, its state will change to &quot;not accepted&quot; and it won&apos;t be spendable. This may occasionally happen if another node generates a block within a few seconds of yours.</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Debug information</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Transaction</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Inputs</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">数量</translation>
+        <translation>数量</translation>
     </message>
     <message>
         <source>true</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>false</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>TransactionFeeItem</name>
     <message>
         <source>Transaction Fee</source>
-        <translation type="unfinished"></translation>
+        <translation>交易费</translation>
     </message>
     <message>
         <source>Minimize</source>
-        <translation type="unfinished"></translation>
+        <translation>最小化</translation>
     </message>
     <message>
         <source>Choose...</source>
-        <translation type="unfinished"></translation>
+        <translation>选择</translation>
     </message>
     <message>
         <source>Confirmation time</source>
-        <translation type="unfinished"></translation>
+        <translation>确认时间</translation>
     </message>
     <message>
         <source>normal</source>
-        <translation type="unfinished"></translation>
+        <translation>普通</translation>
     </message>
     <message>
         <source>fast</source>
-        <translation type="unfinished"></translation>
+        <translation>快</translation>
     </message>
     <message>
         <source>Custom:</source>
-        <translation type="unfinished"></translation>
+        <translation>自定义:</translation>
     </message>
     <message>
         <source>per kilobyte</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Pay only the minimum fee of 0.00010000 ULO/kB  (read the tooltip)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>total at least</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Send ad zero-free transaction if possible (confirmation may take longer)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>SwitfX</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>TransactionRecordPage</name>
     <message>
         <source>ALL</source>
-        <translation type="unfinished"></translation>
+        <translation>所有</translation>
     </message>
     <message>
         <source>Today</source>
-        <translation type="unfinished"></translation>
+        <translation>今天</translation>
     </message>
     <message>
         <source>This week</source>
-        <translation type="unfinished"></translation>
+        <translation>这周</translation>
     </message>
     <message>
         <source>This month</source>
-        <translation type="unfinished"></translation>
+        <translation>这个月</translation>
     </message>
     <message>
         <source>Last month</source>
-        <translation type="unfinished"></translation>
+        <translation>上个月</translation>
     </message>
     <message>
         <source>This year</source>
-        <translation type="unfinished"></translation>
+        <translation>今年</translation>
     </message>
     <message>
         <source>Range...</source>
-        <translation type="unfinished"></translation>
+        <translation>时间范围...</translation>
     </message>
     <message>
         <source>Most Common</source>
-        <translation type="unfinished"></translation>
+        <translation>最常见</translation>
     </message>
     <message>
         <source>Received with</source>
-        <translation type="unfinished"></translation>
+        <translation>接收来自</translation>
     </message>
     <message>
         <source>Sent to</source>
-        <translation type="unfinished"></translation>
+        <translation>发送到</translation>
     </message>
     <message>
         <source>Obfuscated</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscation Make Collateral Inputs</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscation Create Denominations</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscation Denominate</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscation Collateral Payment</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>To yourself</source>
-        <translation type="unfinished">给您自己</translation>
+        <translation>给您自己</translation>
     </message>
     <message>
         <source>Contract receive</source>
-        <translation type="unfinished"></translation>
+        <translation>合约接收</translation>
     </message>
     <message>
         <source>Contract send</source>
-        <translation type="unfinished"></translation>
+        <translation>合约发送</translation>
     </message>
     <message>
         <source>Mined</source>
-        <translation type="unfinished"></translation>
+        <translation>挖矿所得</translation>
     </message>
     <message>
         <source>Minted</source>
-        <translation type="unfinished"></translation>
+        <translation>铸造的</translation>
     </message>
     <message>
         <source>Masternode Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>主节点奖励</translation>
     </message>
     <message>
         <source>Received PIV from zPIV</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Zerocoin Mint</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Zerocoin Spend</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Zerocoin Spend, Change in zPIV</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Zerocoin Spend to Self</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Other</source>
-        <translation type="unfinished"></translation>
+        <translation>其他的</translation>
     </message>
     <message>
         <source>Enter address or label to search</source>
-        <translation type="unfinished"></translation>
+        <translation>输入地址或标签以搜索</translation>
     </message>
     <message>
         <source>Min amount</source>
-        <translation type="unfinished"></translation>
+        <translation>最小数量</translation>
     </message>
     <message>
         <source>Transaction details</source>
-        <translation type="unfinished"></translation>
+        <translation>交易细节</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
+        <translation>取消</translation>
     </message>
     <message>
         <source>Export</source>
-        <translation type="unfinished">导出</translation>
+        <translation>导出</translation>
     </message>
 </context>
 <context>
@@ -4692,161 +4698,161 @@ Deletes all local blockchain folders so the wallet synchronizes from scratch.</s
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>日期</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>类型</translation>
     </message>
     <message numerus="yes">
         <source>Open for %n more block(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>打开%n个更多的块</numerusform>
         </translation>
     </message>
     <message>
         <source>Open until %1</source>
-        <translation type="unfinished"></translation>
+        <translation>打开直到 %1</translation>
     </message>
     <message>
         <source>Offline</source>
-        <translation type="unfinished"></translation>
+        <translation>离线</translation>
     </message>
     <message>
         <source>Unconfirmed</source>
-        <translation type="unfinished"></translation>
+        <translation>未确认</translation>
     </message>
     <message>
         <source>Confirming (%1 of %2 recommended confirmations)</source>
-        <translation type="unfinished"></translation>
+        <translation>确认中 (%2推荐确认中的%1)</translation>
     </message>
     <message>
         <source>Confirmed (%1 confirmations)</source>
-        <translation type="unfinished"></translation>
+        <translation>已确认 (%1个确认)</translation>
     </message>
     <message>
         <source>Conflicted</source>
-        <translation type="unfinished"></translation>
+        <translation>冲突的</translation>
     </message>
     <message>
         <source>Immature (%1 confirmations, will be available after %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>未成熟 (%1 确认,将会在%2后可用)</translation>
     </message>
     <message>
         <source>This block was not received by any other nodes and will probably not be accepted!</source>
-        <translation type="unfinished"></translation>
+        <translation>这个块没有被其他节点接收，并很可能不会被接受!</translation>
     </message>
     <message>
         <source>Received with</source>
-        <translation type="unfinished"></translation>
+        <translation>接收来自</translation>
     </message>
     <message>
         <source>Masternode Reward</source>
-        <translation type="unfinished"></translation>
+        <translation>主节点奖励</translation>
     </message>
     <message>
         <source>Received from</source>
-        <translation type="unfinished"></translation>
+        <translation>接收来自</translation>
     </message>
     <message>
         <source>Received via Obfuscation</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Sent to</source>
-        <translation type="unfinished"></translation>
+        <translation>发送到</translation>
     </message>
     <message>
         <source>Minted</source>
-        <translation type="unfinished"></translation>
+        <translation>铸造的</translation>
     </message>
     <message>
         <source>Mined</source>
-        <translation type="unfinished"></translation>
+        <translation>挖矿所得</translation>
     </message>
     <message>
         <source>Contract receive</source>
-        <translation type="unfinished"></translation>
+        <translation>合约接收</translation>
     </message>
     <message>
         <source>Contract send</source>
-        <translation type="unfinished"></translation>
+        <translation>合约发送</translation>
     </message>
     <message>
         <source>Obfuscation Denominate</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscation Collateral Payment</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscation Make Collateral Inputs</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscation Create Denominations</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Obfuscated</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Converted Ulo to zUlo</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Spent zUlo</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Received Ulo from zUlo</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Minted Change as zUlo from zUlo Spend</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Converted zUlo to Ulo</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>watch-only</source>
-        <translation type="unfinished"></translation>
+        <translation>只读模式</translation>
     </message>
     <message>
         <source>zUlo Accumulator</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>(n/a)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Transaction status. Hover over this field to show number of confirmations.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易状态.将鼠标悬停在这里以显示确认数量</translation>
     </message>
     <message>
         <source>Date and time that the transaction was received.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易接收到的日期和时间.</translation>
     </message>
     <message>
         <source>Type of transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易类型.</translation>
     </message>
     <message>
         <source>Whether or not a watch-only address is involved in this transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation>是否有只读地址在这个交易中</translation>
     </message>
     <message>
         <source>Destination address of transaction.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易的目的地址</translation>
     </message>
     <message>
         <source>Amount removed from or added to balance.</source>
-        <translation type="unfinished"></translation>
+        <translation>从余额中去除或增加的数量</translation>
     </message>
 </context>
 <context>
@@ -4880,117 +4886,117 @@ Deletes all local blockchain folders so the wallet synchronizes from scratch.</s
     <name>Utility</name>
     <message>
         <source>EULO Core</source>
-        <translation type="unfinished">EULO Core</translation>
+        <translation>EULO 核心</translation>
     </message>
     <message>
         <source>version</source>
-        <translation type="unfinished"></translation>
+        <translation>版本</translation>
     </message>
     <message>
         <source>(%1-bit)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Usage:</source>
-        <translation type="unfinished"></translation>
+        <translation>用法:</translation>
     </message>
     <message>
         <source>command-line options</source>
-        <translation type="unfinished"></translation>
+        <translation>命令行选项</translation>
     </message>
     <message>
         <source>UI Options:</source>
-        <translation type="unfinished"></translation>
+        <translation>UI选项:</translation>
     </message>
     <message>
         <source>Choose data directory on startup (default: %u)</source>
-        <translation type="unfinished"></translation>
+        <translation>在启动时选择数据目录 (默认:%u)</translation>
     </message>
     <message>
         <source>Set language, for example &quot;de_DE&quot; (default: system locale)</source>
-        <translation type="unfinished"></translation>
+        <translation>设置语言,比如 &quot;de_DE&quot; (默认: 跟随系统)</translation>
     </message>
     <message>
         <source>Start minimized</source>
-        <translation type="unfinished"></translation>
+        <translation>启动最小化</translation>
     </message>
     <message>
         <source>Set SSL root certificates for payment request (default: -system-)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Show splash screen on startup (default: %u)</source>
-        <translation type="unfinished"></translation>
+        <translation>在启动时显示splash画面(默认: %u)</translation>
     </message>
 </context>
 <context>
     <name>WaitPop</name>
     <message>
         <source>Loading</source>
-        <translation type="unfinished"></translation>
+        <translation>加载中</translation>
     </message>
 </context>
 <context>
     <name>WalletModel</name>
     <message>
         <source>Comma separated file (*.csv)</source>
-        <translation type="unfinished">存成(.csv)格式</translation>
+        <translation>存成(.csv)格式</translation>
     </message>
     <message>
         <source>Label</source>
-        <translation type="unfinished">标签</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <source>Address</source>
-        <translation type="unfinished">地址</translation>
+        <translation>地址</translation>
     </message>
     <message>
         <source>Exporting Failed</source>
-        <translation type="unfinished">导出失败</translation>
+        <translation>导出失败</translation>
     </message>
     <message>
         <source>Export Transaction History</source>
-        <translation type="unfinished"></translation>
+        <translation>导出交易历史</translation>
     </message>
     <message>
         <source>Confirmed</source>
-        <translation type="unfinished"></translation>
+        <translation>确认</translation>
     </message>
     <message>
         <source>Watch-only</source>
-        <translation type="unfinished"></translation>
+        <translation>只读模式</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished"></translation>
+        <translation>日期</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished"></translation>
+        <translation>类型</translation>
     </message>
     <message>
         <source>ID</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Exporting Successful</source>
-        <translation type="unfinished">导出成功</translation>
+        <translation>导出成功</translation>
     </message>
     <message>
         <source>The transaction history was successfully saved to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>交易历史已成功保存到 %1.</translation>
     </message>
     <message>
         <source>There was an error trying to save the transaction history to %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>将交易历史保存到%1的时候出错.</translation>
     </message>
     <message>
         <source>Send Coins</source>
-        <translation type="unfinished">发送币</translation>
+        <translation>发送币</translation>
     </message>
     <message>
         <source>SwiftX doesn&apos;t support sending values that high yet. Transactions are currently limited to %1 ULO.</source>
-        <translation type="unfinished"></translation>
+        <translation>SwiftX 暂不支持发送那么高的数量. 交易现在被限定在 %1 ULO.</translation>
     </message>
 </context>
 <context>
@@ -5049,24 +5055,24 @@ Deletes all local blockchain folders so the wallet synchronizes from scratch.</s
     <message>
         <source> mints deleted
 </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source> mints updated, </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source> unconfirmed transactions removed
 </source>
-        <translation type="unfinished"></translation>
+        <translation>删除了未确认的交易</translation>
     </message>
     <message>
         <source>(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Allow JSON-RPC connections from specified source. Valid for &lt;ip&gt; are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>An error occurred while setting up the RPC address %s port %u for listening: %s</source>
@@ -6390,8 +6396,24 @@ for example: alertnotify=echo %%s | mail -s &quot;EULO Alert&quot; admin@foo.com
         <translation>此窗口消失前请不要关闭电脑.</translation>
     </message>
     <message>
-        <source>退出程序</source>
-        <translation type="unfinished"></translation>
+        <source>Quit EULO</source>
+        <translation>退出EULO</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>确认</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Confirm quitting EULO Core</source>
+        <translation>确认退出EULO吗？</translation>
+    </message>
+    <message>
+        <source>Attention</source>
+        <translation>注意</translation>
     </message>
 </context>
 </TS>

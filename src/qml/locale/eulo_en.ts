@@ -3488,10 +3488,6 @@ Duration: 0 sec.</source>
 <context>
     <name>ReceivingPage</name>
     <message>
-        <source>Use this from to request payments. ALL fields are optional</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Label</source>
         <translation type="unfinished">Label</translation>
     </message>
@@ -3526,6 +3522,10 @@ Duration: 0 sec.</source>
     <message>
         <source>Remove</source>
         <translation type="unfinished">Remove</translation>
+    </message>
+    <message>
+        <source>Use this form to request payments. ALL fields are optional</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4529,7 +4529,7 @@ Duration: 0 sec.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>To send %1 you need QTUM on address &lt;br /&gt; %2.</source>
+        <source>To send %1 you need EULO on address &lt;br /&gt; %2.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7245,7 +7245,23 @@ for example: alertnotify=echo %%s | mail -s &quot;EULO Alert&quot; admin@foo.com
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>退出程序</source>
+        <source>Quit EULO</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm quitting EULO Core</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attention</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

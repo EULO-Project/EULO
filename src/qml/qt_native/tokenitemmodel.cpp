@@ -650,7 +650,7 @@ QVariantList TokenItemModel::sendToken(const QString &payToAddress,
     {
 
 
-        QString message = tr("To send %1 you need QTUM on address <br /> %2.")
+        QString message = tr("To send %1 you need EULO on address <br /> %2.")
                 .arg(QString::fromStdString(symbol)).arg(QString::fromStdString(m_selectedToken->sender));
 
         returnList.append(tr("Error send token"));

@@ -70,6 +70,8 @@ double getScaleRate()
         QScreen* screen = screens[0];
         double dpi = screen->logicalDotsPerInch();
 
+        double ratio_ = screen->devicePixelRatio();
+
         rate = dpi / screen->physicalDotsPerInch();
 
         if (rate < 1.1) {
@@ -84,9 +86,10 @@ double getScaleRate()
             rate = 2.0;
         }
     }
+    qDebug()<<"ratio:"<<ratio_;
 
     qDebug()<<"rate:"<<rate;
-    return rate;
+    return ratio_;
 }
 
 

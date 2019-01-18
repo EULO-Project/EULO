@@ -45,7 +45,7 @@ Controls_1_4.Tab {
             anchors.topMargin: 20
             anchors.leftMargin: 94
             color: "#333333"
-            text:qsTr("Use this from to request payments. ALL fields are optional")
+            text:qsTr("Use this form to request payments. ALL fields are optional")
         }
 
 

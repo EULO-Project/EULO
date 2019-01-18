@@ -239,10 +239,10 @@ ApplicationWindow {
     CommonDialog
     {
         id:exit_dialog
-        title: qsTr("退出程序")
-        confrim_btn_text: "确认"
-        cancel_btn_text: "取消"
-        content_text: "确认要退出吗？"
+        title: qsTr("Quit EULO")
+        confrim_btn_text: qsTr("Ok")
+        cancel_btn_text: qsTr("Cancel")
+        content_text: qsTr("Confirm quitting EULO Core")
         modality: Qt.ApplicationModal
 
         width:300
@@ -259,8 +259,8 @@ ApplicationWindow {
     CommonDialog
     {
         id:warningDialog
-        title: "注意"
-        confrim_btn_text: "确认"
+        title: qsTr("Attention")
+        confrim_btn_text: qsTr("Ok")
         cancel_btn_visible: false
         modality: Qt.ApplicationModal
         width:300
