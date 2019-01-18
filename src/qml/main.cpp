@@ -65,12 +65,13 @@ void DetectShutdownThread(boost::thread_group* threadGroup)
 double getScaleRate()
 {
     double rate = 0;
+    double ratio_ = screen->devicePixelRatio();
+
     QList<QScreen*> screens = QApplication::screens();
     if (screens.size() > 0) {
         QScreen* screen = screens[0];
         double dpi = screen->logicalDotsPerInch();
 
-        double ratio_ = screen->devicePixelRatio();
 
         rate = dpi / screen->physicalDotsPerInch();
 
