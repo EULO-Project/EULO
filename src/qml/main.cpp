@@ -67,10 +67,10 @@ double getScaleRate()
     double rate = 0;
 
     double ratio_ = 0;
+    QList<QScreen*> screens = QApplication::screens();
 
     if (screens.size() > 0) {
 
-        QList<QScreen*> screens = QApplication::screens();
 
         QScreen* screen = screens[0];
 
