@@ -10,7 +10,7 @@ EULO is a cutting edge cryptocurrency, with many features not available in most 
   technology used to secure the network and provide the above features, each Masternode is secured
   with a collateral of 10K ULO.
 
-More information at [eulo.io](http://www.eulo.io) Visit our ANN thread at [BitcoinTalk](http://www.bitcointalk.org/index.php?topic=5080811)
+More information at [eulo.io](http://www.eulo.io) Visit our ANN thread at [BitcoinTalk](http://www.bitcointalk.org/index.php?topic=1262920)
 
 ### Coin Specs
 <table>
