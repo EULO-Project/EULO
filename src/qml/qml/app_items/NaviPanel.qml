@@ -36,7 +36,7 @@ Row{
     {
         id:record
         icon:"../../images/navi/jilv.png"
-        title: qsTr("Transaction Records")
+        title: qsTr("Txes Records")
         picked: false
         index_:3
     }

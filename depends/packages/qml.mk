@@ -107,7 +107,7 @@ $(qml_package)_config_opts_mingw32  += -xplatform win32-g++ -device-option CROSS
 $(qml_package)_config_opts_mingw32 += OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
 
 $(qml_package)_config_opts_mingw32 += -skip qtactiveqt
-
+$(qml_package)_config_opts_mingw32 += -debug-and-release
 
 endef
 

@@ -2266,15 +2266,15 @@ Address: %4
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Transaction Records</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Privacy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Masternodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Txes Records</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
