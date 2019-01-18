@@ -57,7 +57,7 @@ CommonDialog
 
         CommonTabView{
             id:tabview
-            tab_width:80
+            tab_width:90
             currentIndex: -1
 
 

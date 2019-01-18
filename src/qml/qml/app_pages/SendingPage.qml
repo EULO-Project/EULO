@@ -34,15 +34,6 @@ Controls_1_4.Tab {
         }
 
 
-        function showCoinControl()
-        {
-            showCoincontrol = true
-        }
-
-        function hideCoinControl()
-        {
-            showCoincontrol = false
-        }
 
         CoinControlItem
         {
@@ -55,7 +46,7 @@ Controls_1_4.Tab {
             anchors.right: parent.right
             anchors.rightMargin: 28
 
-
+            visible:showCoincontrol
         }
 
 

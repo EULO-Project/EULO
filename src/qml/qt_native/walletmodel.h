@@ -221,7 +221,7 @@ public:
     bool addTokenTxEntry(const CTokenTx& tokenTx, bool fFlushOnClose=true);
     void setClientModel(ClientModel* clientModel);
 
-
+    void emitTraySignal(int index);
 
     CAmount getBalance(const CCoinControl* coinControl = NULL) const;
     CAmount getUnconfirmedBalance() const;
@@ -424,6 +424,7 @@ signals:
     void pollBalanceChanged_sig();
 
 
+    void traySignal(int index);
 
 public slots:
     /* Wallet status might have changed */

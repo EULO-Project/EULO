@@ -35,7 +35,7 @@ CommonDialog
 
         CommonTabView{
             id:tabview
-            tab_width:175
+            tab_width:185
             currentIndex: -1
             Controls_1_4.Tab {
                 title: qsTr("Create MultiSignature Address")

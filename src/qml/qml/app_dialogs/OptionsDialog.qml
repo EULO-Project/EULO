@@ -39,7 +39,7 @@ CommonDialog
         CommonTabView
         {
             id:tabview
-            tab_width:40
+            tab_width:60
             currentIndex: 0
             anchors.fill: parent
             anchors.bottomMargin: 90

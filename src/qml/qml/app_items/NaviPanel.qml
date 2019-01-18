@@ -129,4 +129,33 @@ Row{
     }
 
 
+
+    Connections
+    {
+        target:walletModel
+
+
+
+        onTraySignal:
+        {
+            if(index === 1)
+            {
+                reset_all_items()
+                send.picked = true
+                tab_change(1)
+            }
+            else if(index === 2)
+            {
+                gotoReceivepage()
+            }
+            else if(index === 3)
+            {
+                reset_all_items()
+                privacy.picked = true
+                tab_change(4)
+            }
+        }
+    }
+
+
 }

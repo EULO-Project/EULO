@@ -68,7 +68,7 @@ Rectangle
         anchors.right: parent.right
         anchors.rightMargin: 20
         anchors.left: parent.left
-        anchors.leftMargin: 130
+        anchors.leftMargin: 145
         height: 75
         visible:pageType === create
 
@@ -99,7 +99,7 @@ Rectangle
         anchors.verticalCenter: contractAddressLabel.verticalCenter
         anchors.right: contractAddressRec.left
         anchors.left: parent.left
-        anchors.leftMargin: 130
+        anchors.leftMargin: 145
         visible:pageType !== create
 
         onTextChanged:
@@ -339,7 +339,7 @@ Rectangle
         anchors.top:pageType === create?byteCodeText.bottom:contractAddressField.bottom
         anchors.topMargin: 20
         anchors.left: parent.left
-        anchors.leftMargin: 130
+        anchors.leftMargin: 145
         height: 75
 
         onTextChanged:
@@ -375,7 +375,7 @@ Rectangle
         color:"#F0F0F0"
         anchors.top:constructorTitle.bottom
         anchors.left: parent.left
-        anchors.leftMargin: 130
+        anchors.leftMargin: 145
         anchors.right: parent.right
         anchors.rightMargin: 20
         anchors.bottom: optionsTitle.top
@@ -472,7 +472,7 @@ Rectangle
         anchors.right: parent.right
         anchors.rightMargin: 20
         anchors.left: parent.left
-        anchors.leftMargin: 130
+        anchors.leftMargin: 145
         visible: pageType === sendTo
     }
 
@@ -497,7 +497,7 @@ Rectangle
         id:gasLimitSpin
         anchors.verticalCenter: gasLimitLabel.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: 130
+        anchors.leftMargin: 145
         width:250
         visible: pageType !== call
     }
@@ -558,7 +558,7 @@ Rectangle
         id:senderField
         anchors.verticalCenter: senderLabel.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: 130
+        anchors.leftMargin: 145
         anchors.right: parent.right
         anchors.rightMargin: 20
         showDropImg:true

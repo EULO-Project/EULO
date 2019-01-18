@@ -330,6 +330,12 @@ void WalletModel::setClientModel(ClientModel* clientModel)
 }
 
 
+void WalletModel::emitTraySignal(int index)
+{
+    emit traySignal(index);
+}
+
+
 bool WalletModel::isUnspentAddress(const std::string &qtumAddress) const
 {
     LOCK2(cs_main, wallet->cs_wallet);

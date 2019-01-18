@@ -32,7 +32,7 @@ CommonDialog
 
         CommonTabView{
             id:tabview
-            tab_width:80
+            tab_width:100
 
             Controls_1_4.Tab {
                 title: qsTr("Sign message")

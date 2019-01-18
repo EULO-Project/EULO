@@ -61,7 +61,7 @@ private slots:
     void numBlocksChanged_slot(int count);
     void prepareToRestart(QStringList args);
 
-
+    void emitTraySignal(QAction* action);
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 
 private:

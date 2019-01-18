@@ -23,6 +23,7 @@ Rectangle{
     property alias coinTypeBtn: coin_type_btn
     property alias naviPanel: naviPanel
     property alias optionsDialog: optionsDialog
+    property bool fisrt_run: true
 
     objectName: "title"
     property bool opened: help_menu.opened || coin_type_btn.opened ||tool_menu.opened|| set_menu.opened ||file_menu.opened
@@ -111,7 +112,6 @@ Rectangle{
         anchors.rightMargin:    3
         anchors.verticalCenter: minimum_btnRect.verticalCenter
         contentWidth:160
-        property bool fisrt_run: true
 
         model: ListModel
         {
@@ -606,7 +606,61 @@ Rectangle{
             balance_amount_label.text = walletModel.formatAmount(balance)
         }
 
+
+        onTraySignal:
+        {
+            if(index == 0)
+            {
+
+                if(root_window.visibility == Window.Hidden){
+                    root_window.show()
+                }
+                else
+                {
+                    root_window.hide()
+                }
+            }
+            else if(index == 4)
+                {signInfoDialog.current_index=0;signInfoDialog.show();}
+            else if(index == 5)
+                {signInfoDialog.current_index=1;signInfoDialog.show();}
+            else if(index == 6)
+                {}
+            else if(index == 7)
+                {optionsDialog.show();}
+            else if(index == 8)
+                {toolsDialog.show();toolsDialog.current_index=0;}
+            else if(index == 9)
+                {toolsDialog.show();toolsDialog.current_index=1;}
+            else if(index == 10)
+                {toolsDialog.show();toolsDialog.current_index=2;}
+            else if(index == 11)
+                {toolsDialog.show();toolsDialog.current_index=3;}
+            else if(index == 12)
+                {toolsDialog.show();toolsDialog.current_index=4;}
+            else if(index == 13)
+                {rpcConsole.showConfEditor();}
+            else if(index == 14)
+                {rpcConsole.showMNConfEditor();}
+            else if(index == 15)
+                {rpcConsole.showBackups();}
+            else if(index == 16)
+            {
+                if(fisrt_run && !blockExplorer.isTxindexSet())
+                {
+                    fisrt_run = false
+                    firstrun_dialog.show()
+                }else
+                {
+                    blockExplorerDialog.show();
+                }
+
+            }
+            else if(index == 17)
+                exit_dialog.show()
+        }
     }
+
 
 
     NaviPanel

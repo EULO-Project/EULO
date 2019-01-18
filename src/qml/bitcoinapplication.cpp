@@ -168,7 +168,59 @@ void BitcoinApplication::createTrayIconMenu()
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 #endif
+
+    connect(trayIconMenu, SIGNAL(triggered(QAction*)), this, SLOT(emitTraySignal(QAction*)));
+
 }
+
+
+void BitcoinApplication::emitTraySignal(QAction* action)
+{
+
+    int index = 0;
+    if(action == toggleHideAction)
+        index = 0;
+    else if(action == sendCoinsAction)
+         index = 1;
+    else if(action == receiveCoinsAction)
+        index = 2;
+    else if(action == privacyAction)
+        index = 3;
+    else if(action == signMessageAction)
+        index = 4;
+    else if(action == verifyMessageAction)
+        index = 5;
+    else if(action == bip38ToolAction)
+        index = 6;
+    else if(action == optionsAction)
+        index = 7;
+    else if(action == openInfoAction)
+        index = 8;
+    else if(action == openRPCConsoleAction)
+        index = 9;
+    else if(action == openNetworkAction)
+        index = 10;
+    else if(action == openPeersAction)
+        index = 11;
+    else if(action == openRepairAction)
+        index = 12;
+    else if(action == openConfEditorAction)
+        index = 13;
+    else if(action == openMNConfEditorAction)
+        index = 14;
+    else if(action == showBackupsAction)
+        index = 15;
+    else if(action == openBlockExplorerAction)
+        index = 16;
+#ifndef Q_OS_MAC // This is built-in on Mac
+    else if(action == quitAction)
+        index = 17;
+#endif
+
+    walletModel->emitTraySignal(index);
+
+}
+
 
 
 void BitcoinApplication::createPaymentServer()
@@ -368,11 +420,6 @@ void BitcoinApplication::initializeResult(int retval)
         clientModel = new ClientModel(optionsModel);
         rpcConsole->setClientModel(clientModel);
 
-        createTrayIconMenu();
-        if (trayIcon)
-        {
-          trayIcon->show();
-        }
 
         startUtilityCore();
         blockExplorer = new BlockExplorer();
@@ -381,6 +428,9 @@ void BitcoinApplication::initializeResult(int retval)
 #ifdef ENABLE_WALLET
         if (pwalletMain) {
             walletModel = new WalletModel(pwalletMain, optionsModel);
+
+
+
 
 
             qDebug()<<"OK set walletModel";
@@ -438,6 +488,12 @@ void BitcoinApplication::initializeResult(int retval)
         //        }
 
         emit splashFinished();
+
+        createTrayIconMenu();
+        if (trayIcon)
+        {
+          trayIcon->show();
+        }
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
