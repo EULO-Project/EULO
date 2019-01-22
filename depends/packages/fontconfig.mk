@@ -7,7 +7,7 @@ $(package)_dependencies=freetype expat
 
 define $(package)_set_vars
   #$(package)_config_opts=--disable-docs --disable-static
-  $(package)_config_opts=--disable-docs
+  $(package)_config_opts=--disable-docs --enable-static
 endef
 
 define $(package)_config_cmds
