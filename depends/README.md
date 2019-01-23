@@ -2,21 +2,21 @@
 
 ### Ubuntu 18.04 or 16.04 step by step
 
-1、Install System dependencies
+####1、Install System dependencies
     sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git libgl1-mesa-dev python
-2、Change into depends directory
+####2、Change into depends directory
     cd depends
-3、Just Make (N is a number of how many threads you want to use)
+####3、Just Make (N is a number of how many threads you want to use)
     make -jN
-4、Change into top directory
+####4、Change into top directory
     cd ../
-5、Perform autogen script
+####5、Perform autogen script
     ./autogen.sh
-6、Perform configuration script
+####6、Perform configuration script
     ./configure --prefix=`pwd`/depends/x86_64-pc-linux-gnu
-7、Just Make
+####7、Just Make
     make -jN
-8、Find your executables in directories: src/, src/qml/build/, etc.
+####8、Find your executables in directories: src/, src/qml/build/, etc.
 
 
 and be aware static executables on Ubuntu 18.04 is not supported by now,
