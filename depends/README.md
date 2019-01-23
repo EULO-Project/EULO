@@ -16,7 +16,7 @@
     ./configure --prefix=`pwd`/depends/x86_64-pc-linux-gnu
 #### 7、Just Make
     make -jN
-#### 8、Find your executables in directories: src/, src/qml/build/, etc. And be aware static executables on Ubuntu 18.04 is not supported by now, because of missing static lib of libGL.a in libgl1-meas-dev package this can be fixed by compile libgl1-meas-dev from source code.  
+#### 8、Find your executables in directories: src/, src/qml/build/, etc. And be aware static executables on Ubuntu is not supported by now, because of missing static lib of libGL.a in libgl1-meas-dev package this can be fixed by compile libgl1-meas-dev from source code.  
 #### Do it, if you have time, thanks!
 
 
@@ -28,7 +28,7 @@
 
 #### 1、Prepare both ubuntu 18.04 and windows 10 environment on real or virtual machine.
 
-#### 2、Install System dependencies
+#### 2、Prepare ubuntu 18.04 environment and then nstall System dependencies
     sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git python g++-mingw-w64-x86-64
 
 #### 3、Change into depends directory
