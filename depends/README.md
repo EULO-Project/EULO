@@ -1,6 +1,6 @@
-## Usage
+# Usage
 
-### Ubuntu 18.04 or 16.04 step by step
+## Ubuntu 18.04 or 16.04 step by step
 
 #### 1、Install System dependencies
     sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git libgl1-mesa-dev python
@@ -21,10 +21,10 @@
 
 
 
-### Windows step by step
+## Windows step by step
 
-#### For Windows, we do succeed to compile from source in msys2 environment, but believe me you can not tolerate the compile speed of msys2.  
-To make the best use of your hardware and save time, we suggest you follow the steps below:
+    For Windows, we do succeed to compile from source in msys2 environment, but believe me you can not tolerate the compile speed of msys2.  
+    To make the best use of your hardware and save time, we suggest you follow the steps below:
 
 #### 1、Prepare both ubuntu 18.04 and windows 10 environment on real or virtual machine.
 
@@ -107,21 +107,22 @@ To make the best use of your hardware and save time, we suggest you follow the s
        where are the directorys to paste:  
        on Ubuntu 18.04 , open path depends\x86_64-w64-mingw32\qml delete all except two: mkspecs\ and bin\ directories and paste those you copied from windows.   
 
-#### 10、Congratulations! After several miserable steps, you setup an environment to cross compile windows executables. Why so bother? Yes, It is.   
-But this is the fastest way and please refer to https://wiki.qt.io/Qt_5_on_Windows_ANGLE_and_OpenGL.  
-   If you want your qml executables run with different Windows versions & graphics cards with openGL enabled which provides amazing image,animation and dynamic effects,  
-   you'd better choose ANGLE as backend. But compile qt with ANGLE needs DirectXSDK which is not available on Ubuntu, and at the meantime, mingw tool-chain on Ubuntu 18.04 is lack of some libs and header files needed by ANGLE.  
-   Ok, long story! But we succeed in the end yeah? Now:  
+#### 10、Congratulations!  
+    After several miserable steps, you setup an environment to cross compile windows executables. Why so bother? Yes, It is.   
+    But this is the fastest way and please refer to https://wiki.qt.io/Qt_5_on_Windows_ANGLE_and_OpenGL.  
+    If you want your qml executables run with different Windows versions & graphics cards with openGL enabled which provides amazing image,animation and dynamic effects,  
+    you'd better choose ANGLE as backend. But compile qt with ANGLE needs DirectXSDK which is not available on Ubuntu, and at the meantime, mingw tool-chain on Ubuntu 18.04 is lack of some libs and header files needed by ANGLE.  
+    Ok, long story! But we succeed in the end yeah? Now:  
 
-  a) Change into eulo source code top directory  
+      a) Change into eulo source code top directory  
     cd "to where that is"  
-  b) Perform autogen script  
+      b) Perform autogen script  
     ./autogen.sh  
-  c) Perform configuration script  
+      c) Perform configuration script  
     ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32  
-  d) Just Make  
+      d) Just Make  
     make -jN  
-  e) Find your executables in directories: src/, src/qml/build/release, etc. Enjoy!  
+      e) Find your executables in directories: src/, src/qml/build/release, etc. Enjoy!  
 
 
 
