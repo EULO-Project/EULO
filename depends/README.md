@@ -16,7 +16,7 @@
     ./configure --prefix=`pwd`/depends/x86_64-pc-linux-gnu
 #### 7、Just Make
     make -jN
-#### 8、Find your executables in directories: src/, src/qml/build/, etc.and be aware static executables on Ubuntu 18.04 is not supported by now, because of missing static lib of libGL.a in libgl1-meas-dev package this can be fixed by compile libgl1-meas-dev from source code.  
+#### 8、Find your executables in directories: src/, src/qml/build/, etc. And be aware static executables on Ubuntu 18.04 is not supported by now, because of missing static lib of libGL.a in libgl1-meas-dev package this can be fixed by compile libgl1-meas-dev from source code.  
 #### Do it, if you have time, thanks!
 
 
@@ -28,18 +28,18 @@
 
 #### 1、Prepare both ubuntu 18.04 and windows 10 environment on real or virtual machine.
 
-#### 2、Prepare Ubuntu 18.04 environment and then install System dependencies
+#### 2、Install System dependencies
     sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git python g++-mingw-w64-x86-64
 
 #### 3、Change into depends directory
     cd depends
-
-#### 4、Just Make (N is a number of how many threads you want to use)
-    make HOST=x86_64-w64-mingw32 -jN
-
-#### 5、Change mingw threads to posix
+    
+#### 4、Change mingw threads to posix
     sudo update-alternatives --config x86_64-w64-mingw32-g++  
     choose posix
+
+#### 5、Just Make (N is a number of how many threads you want to use)
+    make HOST=x86_64-w64-mingw32 -jN
 
 #### 6、Prepare winidows 10 environment and then install mingw64 and DirectXSDK:
     a) Download mingw64 from:  
