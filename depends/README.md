@@ -53,7 +53,7 @@
         Exception: seh  
         Build revision: 0  
     c) Install mingw64  
-    d) Copy openssl libs and headers compiled in step 4 to windows mingw directory  
+    d) Copy openssl libs and headers compiled in step 4 from ubuntu 18.04 to windows 10 mingw directory  
         where are the files located:   
          depends/86_64-w64-mingw32/include/openssl     copy this full directory  
          depends/86_64-w64-mingw32/lib/libcrypto.a  
