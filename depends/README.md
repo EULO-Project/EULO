@@ -28,7 +28,7 @@
 
 #### 1、Prepare both ubuntu 18.04 and windows 10 environment on real or virtual machine.
 
-#### 2、Prepare ubuntu 18.04 environment and then nstall System dependencies
+#### 2、Prepare ubuntu 18.04 environment and then install System dependencies
     sudo apt install build-essential libtool autotools-dev automake pkg-config bsdmainutils curl git python g++-mingw-w64-x86-64
 
 #### 3、Change into depends directory
