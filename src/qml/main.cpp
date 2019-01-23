@@ -94,9 +94,7 @@ double getScaleRate()
             rate = 2.0;
         }
     }
-    qDebug()<<"ratio:"<<ratio_;
 
-    qDebug()<<"rate:"<<rate;
     return ratio_;
 }
 
@@ -284,17 +282,12 @@ static void initTranslations(QTranslator& qtTranslatorBase, QTranslator& qtTrans
     // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in eulo.qrc)
     if (translatorBase.load("eulo_" +lang, ":/locale/")){
 
-        qDebug()<<"okay1:";
         QApplication::installTranslator(&translatorBase);
     }
-
-    qDebug()<<"lang:"<<lang;
-    qDebug()<<"lang_territory:"<<lang_territory;
 
 
     // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in eulo.qrc)
     if (translator.load("eulo_" +lang_territory, ":/locale/")){
-        qDebug()<<"okay2:";
 
         QApplication::installTranslator(&translator);
     }
@@ -330,20 +323,15 @@ int main(int argc, char *argv[])
     qDebug()<<"---Begin Main---";
 
     SetupEnvironment();
-    qDebug()<<"1";
 
     ParseParameters(argc, argv);
-    qDebug()<<"2";
 
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    qDebug()<<"3";
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-    qDebug()<<"4";
 
     //QML Style
     QQuickStyle::setStyle("Material");
-    qDebug()<<"5";
 
 
 #ifdef  Q_OS_WIN32
@@ -351,12 +339,10 @@ int main(int argc, char *argv[])
     QFont font("Microsoft Yahei");
     QGuiApplication::setFont(font);
 #endif
-    qDebug()<<"6";
 
     // WalletManager walletManager;
 
     BitcoinApplication app(argc, argv);
-    qDebug()<<"7";
 
     //app.walletManager = &walletManager;
 
@@ -379,20 +365,16 @@ int main(int argc, char *argv[])
 
     GUIUtil::SubstituteFonts(GetLangTerritory());
 
-    qDebug()<<"8";
 
     // Now that QSettings are accessible, initialize translations
     QTranslator qtTranslatorBase, qtTranslator, translatorBase, translator;
     initTranslations(qtTranslatorBase, qtTranslator, translatorBase, translator);
     uiInterface.Translate.connect(Translate);
 
-    qDebug()<<"9";
 
     if (!Intro::pickDataDirectory())
         return 0;
 
-
-    qDebug()<<"10";
 
     //    QString dataDir = GUIUtil::boostPathToQString(GetDefaultDataDir());
     //    qDebug()<<"dataDir:"<<dataDir;
@@ -406,7 +388,6 @@ int main(int argc, char *argv[])
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
         return 1;
     }
-    qDebug()<<"11";
 
     try {
         ReadConfigFile(mapArgs, mapMultiArgs);
@@ -416,24 +397,20 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    qDebug()<<"12";
 
     if (!SelectParamsFromCommandLine()) {
         QMessageBox::critical(0, QObject::tr("EULO Core"), QObject::tr("Error: Invalid combination of -regtest and -testnet."));
         return 1;
     }
-    qDebug()<<"13";
 
     // Parse URIs on command line -- this can affect Params()
     PaymentServer::ipcParseCommandLine(argc, argv);
 
-    qDebug()<<"14";
 
     NetworkStyle  *networkStyle = new NetworkStyle("main","EULO-Qt",":/images/icons/bitcoin",":/images/icons/splash");
 
     // Allow for separate UI settings for testnets
     QApplication::setApplicationName(networkStyle->getAppName());
-    qDebug()<<"15";
 
     string strErr;
     if (!masternodeConfig.read(strErr)) {
@@ -441,7 +418,6 @@ int main(int argc, char *argv[])
                               QObject::tr("Error reading masternode configuration file: %1").arg(strErr.c_str()));
         return 0;
     }
-    qDebug()<<"16";
 
     if (PaymentServer::ipcSendCommandLine())
         exit(0);
@@ -449,52 +425,40 @@ int main(int argc, char *argv[])
     // Start up the payment server early, too, so impatient users that click on
     // eulo: links repeatedly have their payment requests routed to this process:
     app.createPaymentServer();
-    qDebug()<<"17";
 
     //qInstallMessageHandler(DebugMessageHandler);
 
     app.createOptionsModel();
     app.createSplashScreen(networkStyle);
-    qDebug()<<"17";
 
     // Subscribe to global signals from core
     uiInterface.InitMessage.connect(InitMessage);
-    qDebug()<<"19";
 
     //QML Environment
     QQmlApplicationEngine engine;
     CursorPosProvider mousePosProvider;
-    qDebug()<<"20";
 
     engine.rootContext()->setContextProperty("mousePosition", &mousePosProvider);
     engine.rootContext()->setContextProperty("bitcoinapp", &app);
     engine.addImageProvider("ReQuestURI",imageProvider = new ImageProvider());
-    qDebug()<<"21";
 
     app.root_context = engine.rootContext();
 
     app.startToolsAndMessageCore();
-    qDebug()<<"22";
 
     app.requestInitialize();
-    qDebug()<<"23";
 
     //To do extra setContextProperty for qml .
     QEventLoop loop;
     QObject::connect(&app, SIGNAL(splashFinished()), &loop, SLOT(quit()));
     loop.exec(QEventLoop::ExcludeUserInputEvents);
-    qDebug()<<"24";
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-    qDebug()<<"24.1";
 
     if (engine.rootObjects().isEmpty()){
-        qDebug()<<"24.2";
-
         return -1;
 
     }
-    qDebug()<<"25";
 
     //Wallet
 
@@ -504,36 +468,30 @@ int main(int argc, char *argv[])
     QObject *root = engine.rootObjects()[0];
 
 
-    qDebug()<<"26";
 
 
     QQuickWindow *window = qobject_cast<QQuickWindow *>(root);
     window->setFlags(Qt::FramelessWindowHint|Qt::Window);
-    qDebug()<<"27";
 
 
 #ifdef Q_OS_WIN32
     HWND hwnd = (HWND)(window->winId());
     bool m_aeroEnabled = CheckAeroEnabled();
-    qDebug()<<"28";
 
     SwitchOnDropShadow();
     DWORD style = ::GetWindowLong(hwnd, GWL_STYLE);
-    qDebug()<<"29";
 
     if(!m_aeroEnabled)
         style |= CS_DROPSHADOW;
 
-    ::SetClassLong(hwnd, GWL_STYLE, style);
-    qDebug()<<"30";
+    //::SetClassLong(hwnd, GWL_STYLE, style);
 
-    // ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
+    ::SetWindowLong(hwnd, GWL_STYLE, style | WS_MAXIMIZEBOX| WS_MINIMIZEBOX|WS_THICKFRAME|WS_CAPTION);
 
     RECT rect;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &rect, 0);
     int window_height = rect.bottom - rect.top;
     int window_width = rect.right - rect.left;
-    qDebug()<<"31";
 
     NativeEventFilter *nativeeventfilter = new NativeEventFilter();
     nativeeventfilter->winId = hwnd;
@@ -545,16 +503,13 @@ int main(int argc, char *argv[])
 
     nativeeventfilter->scale_rate = getScaleRate();
 
-    qDebug()<<"32";
 
     app.installNativeEventFilter(nativeeventfilter);
 #endif
 
-    qDebug()<<"33";
 
     app.exec();
 
-    qDebug()<<"34";
 
     app.requestShutdown();
     app.exec();
