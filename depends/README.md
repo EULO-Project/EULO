@@ -115,13 +115,13 @@
     Ok, long story! But we succeed in the end yeah? Now:  
 
       a) Change into eulo source code top directory  
-    cd "to where that is"  
+         cd "to where that is"  
       b) Perform autogen script  
-    ./autogen.sh  
+         ./autogen.sh  
       c) Perform configuration script  
-    ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32  
+         ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32  
       d) Just Make  
-    make -jN  
+         make -jN  
       e) Find your executables in directories: src/, src/qml/build/release, etc. Enjoy!  
 
 
