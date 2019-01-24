@@ -50,6 +50,8 @@ Window{
 
     }
 
+
+
     Component.onCompleted:
     {
         x = (Screen.width - width) / 2

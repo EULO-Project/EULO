@@ -37,6 +37,7 @@ Controls_1_4.Tab {
                 font.pixelSize: 10
                 font.weight: Font.Light
                 lineHeight: 0.8
+                textFormat: Qt.RichText
                 text:qsTr("Note: Status of your masternodes in local wallet can potentially be slightly incorrect.&lt;br /&gt;Always wait for wallet to sync additional data and then double check from another node&lt;br /&gt;if your node should be running but you still see \"MISSING\" in \"Status\" field.")
             }
 

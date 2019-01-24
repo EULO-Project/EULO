@@ -90,8 +90,8 @@ Rectangle{
         {
             switch (index)
             {
-            case 0:helpDialog.show();break;
-            case 1:aboutDialog.show();break;
+            case 0:helpDialog.show();helpDialog.raise();break;
+            case 1:aboutDialog.show();aboutDialog.raise();break;
             case 2:utility.aboutQt();break;//TODO: find a way to get aboutQt info as QString, and make a shadowed dialog to display this message
 
 
@@ -144,11 +144,11 @@ Rectangle{
         {
             switch (index)
             {
-            case 0:toolsDialog.show();toolsDialog.current_index=0;break;
-            case 1:toolsDialog.show();toolsDialog.current_index=1;break;
-            case 2:toolsDialog.show();toolsDialog.current_index=2;break;
-            case 3:toolsDialog.show();toolsDialog.current_index=3;break;
-            case 4:toolsDialog.show();toolsDialog.current_index=4;break;
+            case 0:toolsDialog.show();toolsDialog.current_index=0;toolsDialog.raise();break;
+            case 1:toolsDialog.show();toolsDialog.current_index=1;toolsDialog.raise();break;
+            case 2:toolsDialog.show();toolsDialog.current_index=2;toolsDialog.raise();break;
+            case 3:toolsDialog.show();toolsDialog.current_index=3;toolsDialog.raise();break;
+            case 4:toolsDialog.show();toolsDialog.current_index=4;toolsDialog.raise();break;
             case 5:rpcConsole.showConfEditor(); break;
             case 6:rpcConsole.showMNConfEditor();break;
             case 7:rpcConsole.showBackups();break;
@@ -161,7 +161,7 @@ Rectangle{
                     firstrun_dialog.show()
                 }else
                 {
-                    blockExplorerDialog.show();
+                    blockExplorerDialog.show();blockExplorerDialog.raise();
                 }
 
                 break;
@@ -187,7 +187,7 @@ Rectangle{
             onConfirmed:
             {
               firstrun_dialog.close()
-              blockExplorerDialog.show();
+              blockExplorerDialog.show();blockExplorerDialog.raise();
 
             }
 
@@ -222,7 +222,7 @@ Rectangle{
         {
             switch (index)
             {
-            case 4:optionsDialog.show();break;
+            case 4:optionsDialog.show();optionsDialog.raise();break;
             default:break;
 
             }
@@ -280,15 +280,15 @@ Rectangle{
         {
             switch (index)
             {
-            case 0:open_url_dialog.show();break;
+            case 0:open_url_dialog.show();open_url_dialog.raise();break;
             case 1:backup_dialog.open();break;
-            case 2:signInfoDialog.current_index=0;signInfoDialog.show();break;
-            case 3:signInfoDialog.current_index=1;signInfoDialog.show();break;
-            case 4:sendAddressDialog.show();break;
-            case 5:receiveAddressDialog.show();break;
-            case 6:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=0;break;
-            case 7:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=1;break;
-            case 8:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=2;break;
+            case 2:signInfoDialog.current_index=0;signInfoDialog.show();signInfoDialog.raise();break;
+            case 3:signInfoDialog.current_index=1;signInfoDialog.show();signInfoDialog.raise();break;
+            case 4:sendAddressDialog.show();sendAddressDialog.raise();break;
+            case 5:receiveAddressDialog.show();receiveAddressDialog.raise();break;
+            case 6:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=0;multiSignAddressInterDialog.raise();break;
+            case 7:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=1;multiSignAddressInterDialog.raise();break;
+            case 8:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=2;multiSignAddressInterDialog.raise();break;
 
 
 
@@ -621,23 +621,23 @@ Rectangle{
                 }
             }
             else if(index == 4)
-                {signInfoDialog.current_index=0;signInfoDialog.show();}
+                {signInfoDialog.current_index=0;signInfoDialog.show();signInfoDialog.raise();}
             else if(index == 5)
-                {signInfoDialog.current_index=1;signInfoDialog.show();}
+                {signInfoDialog.current_index=1;signInfoDialog.show();signInfoDialog.raise();}
             else if(index == 6)
                 {}
             else if(index == 7)
-                {optionsDialog.show();}
+                {optionsDialog.show();optionsDialog.raise();}
             else if(index == 8)
-                {toolsDialog.show();toolsDialog.current_index=0;}
+                {toolsDialog.show();toolsDialog.current_index=0;toolsDialog.raise();}
             else if(index == 9)
-                {toolsDialog.show();toolsDialog.current_index=1;}
+                {toolsDialog.show();toolsDialog.current_index=1;toolsDialog.raise();}
             else if(index == 10)
-                {toolsDialog.show();toolsDialog.current_index=2;}
+                {toolsDialog.show();toolsDialog.current_index=2;toolsDialog.raise();}
             else if(index == 11)
-                {toolsDialog.show();toolsDialog.current_index=3;}
+                {toolsDialog.show();toolsDialog.current_index=3;toolsDialog.raise();}
             else if(index == 12)
-                {toolsDialog.show();toolsDialog.current_index=4;}
+                {toolsDialog.show();toolsDialog.current_index=4;toolsDialog.raise();}
             else if(index == 13)
                 {rpcConsole.showConfEditor();}
             else if(index == 14)
@@ -652,7 +652,7 @@ Rectangle{
                     firstrun_dialog.show()
                 }else
                 {
-                    blockExplorerDialog.show();
+                    blockExplorerDialog.show();blockExplorerDialog.raise();
                 }
 
             }
