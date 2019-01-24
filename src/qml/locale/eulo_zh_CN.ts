@@ -2058,7 +2058,7 @@ Address: %4
     <name>MainNodePage</name>
     <message>
         <source>Note: Status of your masternodes in local wallet can potentially be slightly incorrect.&amp;lt;br /&amp;gt;Always wait for wallet to sync additional data and then double check from another node&amp;lt;br /&amp;gt;if your node should be running but you still see &quot;MISSING&quot; in &quot;Status&quot; field.</source>
-        <translation>注意：在本地钱包您主节点状态可能会稍微不正确。&lt;br /&gt;总是等待钱包从另一个节点同步的附加数据，然后仔细检查&lt;br /&gt;如果您的节点正在运行，但您仍然在“Status”字段中看到“MISSING”。</translation>
+        <translation type="vanished">注意：在本地钱包您主节点状态可能会稍微不正确。&lt;br /&gt;总是等待钱包从另一个节点同步的附加数据，然后仔细检查&lt;br /&gt;如果您的节点正在运行，但您仍然在“Status”字段中看到“MISSING”。</translation>
     </message>
     <message>
         <source>Status will be updated automatically in(sec): </source>
@@ -2079,6 +2079,10 @@ Address: %4
     <message>
         <source>Update</source>
         <translation>更新</translation>
+    </message>
+    <message>
+        <source>Note: Status of your masternodes in local wallet can potentially be slightly incorrect.&lt;br&gt;Always wait for wallet to sync additional data and then double check from another node.&lt;br&gt;if your node should be running but you still see &quot;MISSING&quot; in &quot;Status&quot; field.</source>
+        <translation>注意：在本地钱包您主节点状态可能会稍微不正确。&lt;br /&gt;总是等待钱包从另一个节点同步的附加数据，然后仔细检查&lt;br /&gt;如果您的节点正在运行，但您仍然在“Status”字段中看到“MISSING”。</translation>
     </message>
 </context>
 <context>

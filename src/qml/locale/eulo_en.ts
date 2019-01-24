@@ -2038,10 +2038,6 @@ Address: %4
 <context>
     <name>MainNodePage</name>
     <message>
-        <source>Note: Status of your masternodes in local wallet can potentially be slightly incorrect.&amp;lt;br /&amp;gt;Always wait for wallet to sync additional data and then double check from another node&amp;lt;br /&amp;gt;if your node should be running but you still see &quot;MISSING&quot; in &quot;Status&quot; field.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Status will be updated automatically in(sec): </source>
         <translation type="unfinished"></translation>
     </message>
@@ -2059,6 +2055,10 @@ Address: %4
     </message>
     <message>
         <source>Update</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Note: 222Status of your masternodes in local wallet can potentially be slightly incorrect.&lt;br&gt;Always wait for wallet to sync additional data and then double check from another node.&lt;br&gt;if your node should be running but you still see &quot;MISSING&quot; in &quot;Status&quot; field.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
