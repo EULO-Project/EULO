@@ -65,7 +65,7 @@ Rectangle{
         anchors.right:  minimum_btnRect.left
         anchors.rightMargin:    10
         anchors.verticalCenter: minimum_btnRect.verticalCenter
-        contentWidth:140
+        contentWidth:160
         model: ListModel
         {
             ListElement { modelData: qsTr("Command-line options"); }
@@ -206,10 +206,10 @@ Rectangle{
         contentWidth:160
         model: ListModel
         {
-            ListElement { modelData: qsTr("Encrypt Wallet"); }
-            ListElement { modelData: qsTr("Modify Password"); }
-            ListElement { modelData: qsTr("BIP38 Tools"); }
-            ListElement { modelData: qsTr("Multi-Sending"); }
+           // ListElement { modelData: qsTr("Encrypt Wallet"); }
+           // ListElement { modelData: qsTr("Modify Password"); }
+           // ListElement { modelData: qsTr("BIP38 Tools"); }
+           // ListElement { modelData: qsTr("Multi-Sending"); }
             ListElement { modelData: qsTr("Options"); }
 
         }
@@ -222,7 +222,7 @@ Rectangle{
         {
             switch (index)
             {
-            case 4:optionsDialog.show();optionsDialog.raise();break;
+            case 0:optionsDialog.show();optionsDialog.raise();break;
             default:break;
 
             }
@@ -249,7 +249,7 @@ Rectangle{
         anchors.right:  set_menu.left
         anchors.rightMargin:    3
         anchors.verticalCenter: minimum_btnRect.verticalCenter
-        contentWidth:160
+        contentWidth:170
         model: ListModel
         {
             ListElement { modelData: qsTr("Open URL"); }

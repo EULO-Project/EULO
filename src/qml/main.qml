@@ -39,7 +39,7 @@ ApplicationWindow {
 
         onStopped:
         {
-            if(!walletModel.alreadyShowed("1.0.5"))
+            if(!walletModel.alreadyShowed("1.0.6"))
                 msgDialog.show()
         }
     }
@@ -126,6 +126,7 @@ ApplicationWindow {
         color: "transparent"
         radius: radius_all == undefined? 2:radius_all
         objectName: "background"
+        anchors.margins: is_Maximized?8:0
 
         TitleItem
         {

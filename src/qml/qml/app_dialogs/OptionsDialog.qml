@@ -22,7 +22,7 @@ CommonDialog
     cancel_btn_visible:false
     property alias current_index:tabview.currentIndex
     width:600
-    height:600
+    height:500
 
 
 
@@ -157,7 +157,7 @@ CommonDialog
         {
             id:avtiveCommandsTitle
             anchors.top:tabview.bottom
-            anchors.topMargin:20
+            anchors.topMargin:8
             anchors.left: tabview.left
             text:qsTr("Active command-line options that override above options:")
             font.weight: Font.Medium
@@ -169,7 +169,7 @@ CommonDialog
         {
             id:avtiveCommands
             anchors.top:avtiveCommandsTitle.bottom
-            anchors.topMargin:20
+            anchors.topMargin:10
             anchors.left: tabview.left
             text:qsTr("None:")
             font.weight: Font.Medium

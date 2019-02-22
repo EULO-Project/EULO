@@ -276,7 +276,14 @@ void WalletModel::checkForInvalidTokens()
 
 QString WalletModel::getReadMe()
 {
-    QFile f(":/README.md");
+    QString fileName = "";
+    if(QLocale::system().name() == "zh_CN")
+        fileName = ":/README.md";
+    else
+        fileName = ":/README_EN.md";
+
+
+    QFile f(fileName);
     f.open(QIODevice::ReadOnly);
     QByteArray array = f.readAll();
     f.close();

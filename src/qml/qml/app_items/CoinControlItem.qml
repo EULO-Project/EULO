@@ -359,8 +359,6 @@ Item
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
         anchors.left: openCoinControlBtn.left
         anchors.leftMargin:5
-
-
         onClicked:
         {
             customChangeAddressHint.text = walletModel.coinControlProxy.updatecustomChangeAddress(checked,customChangeAddressField.text)
@@ -470,8 +468,6 @@ Item
         anchors.verticalCenter: customChangeAddressLabel.verticalCenter
         color: "#333333"
         text: "UTXO Size: 0.000"
-
-
     }
 
 }

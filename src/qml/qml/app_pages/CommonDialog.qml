@@ -37,7 +37,6 @@ Window{
     signal confirmed()
     signal canceled()
 
-    Material.elevation:6
 
     Shortcut
     {
@@ -113,11 +112,6 @@ Window{
             }
         }
 
-        layer.enabled: true
-        layer.effect: ShadowEffect
-        {
-            elevation: root.Material.elevation
-        }
 
         Label
         {

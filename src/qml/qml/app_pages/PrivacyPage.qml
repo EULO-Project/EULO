@@ -419,7 +419,7 @@ Controls_1_4.Tab {
             anchors.top:amount_10_title_label.bottom
             anchors.topMargin: 10
             color: "#333333"
-            text:"Denom. with value <b>50</b>:"
+            text:qsTr("Denom. with value <b>50</b>:")
         }
 
         Label {
