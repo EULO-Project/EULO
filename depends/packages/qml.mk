@@ -16,7 +16,7 @@ $(qml_package)_config_opts_debug = -debug
 $(qml_package)_config_opts += -opensource
 $(qml_package)_config_opts += -c++std c++14
 $(qml_package)_config_opts += -confirm-license
-$(qml_package)_config_opts += -opengl desktop
+
 #$(qml_package)_config_opts += -no-opengl
 $(qml_package)_config_opts += -nomake examples
 $(qml_package)_config_opts += -nomake tests
@@ -98,7 +98,7 @@ $(qml_package)_config_opts_linux += -qt-xcb
 $(qml_package)_config_opts_linux += -system-freetype
 $(qml_package)_config_opts_linux += -no-sm
 $(qml_package)_config_opts_linux += -fontconfig
-
+$(qml_package)_config_opts_linux += -opengl desktop
 $(qml_package)_config_opts_linux += -reduce-exports
 $(qml_package)_config_opts_linux += OPENSSL_LIBS="-lssl -lcrypto"
 
@@ -108,6 +108,10 @@ $(qml_package)_config_opts_mingw32 += OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
 
 $(qml_package)_config_opts_mingw32 += -skip qtactiveqt
 $(qml_package)_config_opts_mingw32 += -debug-and-release
+$(qml_package)_config_opts_mingw32 += -opengl dynamic
+$(qml_package)_config_opts_mingw32 += -angle
+
+
 
 endef
 
