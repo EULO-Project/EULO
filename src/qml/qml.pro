@@ -205,6 +205,10 @@ HEADERS += \
 win32{
 QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread -mwindows -static -Wl,--dynamicbase -Wl,--nxcompat
 }
+linux
+{
+QMAKE_LFLAGS += -static
+}
 
 unix:!macx{
 QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread
@@ -312,7 +316,7 @@ LIBS += -L$$PWD/../lz4/lib \
 
 LIBS += -L$$PWD/../secp256k1/.libs \
         -lsecp256k1
-
+picked
 LIBS += -L$$TOOLCHAIN_LIB_PATH \
         -levent
 
