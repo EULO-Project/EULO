@@ -200,14 +200,14 @@ HEADERS += \
     qt_native/masternodetablemodel.h \
     qt_native/masternodetableproxy.h
 
-#QMAKE_CXXFLAGS += -std=c++11 -pipe -O2
 
 win32{
 QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread -mwindows -static -Wl,--dynamicbase -Wl,--nxcompat
 }
 linux
 {
-QMAKE_LFLAGS += -static
+LIBS+= -Wl,-Bdynamic -lGL
+QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static
 }
 
 unix:!macx{
@@ -216,36 +216,6 @@ QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl
 
 
 
-
-#INCLUDEPATH += $$PWD/../eulo_native/wallet/include
-
-#INCLUDEPATH += C:\msys64\mingw32\include
-
-#QMAKE_CXXFLAGS += -O2  -Wformat -Wformat-security -Wno-unused-parameter -w  -Wstack-protector -fstack-protector-all
-
-#$(LIBBITCOIN_SERVER) $(LIBBITCOIN_COMMON) $(LIBUNIVALUE) \
-#	$(LIBBITCOIN_ZEROCOIN) $(LIBBITCOIN_UTIL) $(LIBBITCOIN_CRYPTO) \
-#	$(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1) \
-#	$(LIBBITCOIN_WALLET) $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) \
-#	$(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) \
-#	$(EVENT_LIBS)
-#BOOST_LIBS =  -lboost_system-mt-s -lboost_filesystem-mt-s -lboost_program_options-mt-s -lboost_thread_win32-mt-s -lboost_chrono-mt-s
-#BDB_LIBS = -ldb_cxx-4.8
-#SSL_LIBS = -lssl
-#MINIUPNPC_LIBS = -lminiupnpc
-#EVENT_LIBS = -levent
-
-#qt_eulo_qt_LDADD = qt/libbitcoinqt.a \
-#	$(LIBBITCOIN_SERVER) $(am__append_28) \
-#	$(am__append_29) $(LIBBITCOIN_CLI) \
-#	$(LIBBITCOIN_COMMON) $(LIBBITCOIN_UTIL) \
-#	$(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) \
-#	$(LIBBITCOIN_ZEROCOIN) $(LIBLEVELDB) \
-#	$(LIBMEMENV) $(BOOST_LIBS) $(QT_LIBS) \
-#	$(QT_DBUS_LIBS) $(QR_LIBS) $(PROTOBUF_LIBS) \
-#	$(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) \
-#	$(MINIUPNPC_LIBS) $(LIBSECP256K1) \
-#	$(EVENT_PTHREADS_LIBS) $(EVENT_LIBS)
 
 
 LIBS += -L$$PWD/.. \
@@ -335,8 +305,6 @@ unix:!macx{
     LIBS +=  -lanl
 }
 
-#TR_EXCLUDE += $$PWD/../*
-
 
 lupdate_only{
 SOURCES += *.qml \
@@ -346,47 +314,6 @@ SOURCES += *.qml \
           qml/app_pages/*.qml \
           qml/base_items/*.qml
 }
-
-
-#        -lbitcoin_zmq \
-#        -lbitcoin_cli \
-#        -lbitcoin_common \
-#        -lbitcoin_server
-
-
-
-
-
-
-#        -lboost_prg_exec_monitor-mt-s \
-#        -lboost_program_options-mt-s \
-#        -lboost_timer-mt-s \
-#        -lboost_thread_win32-mt-s \
-#        -lssl \
-#        -lcrypto \
-#        -lpthread
-
-
-
-#INCLUDEPATH += $$PWD/../eulo_native/x86/include
-##-lqtharfbuzzng \
-##-lqtpcre \
-##-lqtpng \
-
-#LIBS += -L$$PWD/../eulo_native/x86/lib \
-#-ldb \
-#-ldb_cxx \
-#-ldb_cxx-4.8 \
-#-ldb-4.8 \
-#-levent \
-#-levent_core \
-#-levent_extra \
-#-lminiupnpc \
-#-lprotobuf \
-#-lprotobuf-lite \
-#-lqrencode \
-#-lz \
-#-lzmq \
 
 TRANSLATIONS +=  locale/eulo_en.ts \
                  locale/eulo_zh_CN.ts
