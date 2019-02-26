@@ -207,7 +207,7 @@ QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl
 linux
 {
 LIBS+= -Wl,-Bdynamic -lGL
-QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -static
+QMAKE_LFLAGS += -static-libgcc -static-libstdc++
 }
 
 unix:!macx{
