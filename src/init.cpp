@@ -161,6 +161,7 @@ public:
 
 static CCoinsViewDB* pcoinsdbview = NULL;
 static CCoinsViewErrorCatcher* pcoinscatcher = NULL;
+static boost::scoped_ptr<ECCVerifyHandle> globalVerifyHandle;
 
 /** Preparing steps before shutting down or restarting the wallet */
 void PrepareShutdown()
@@ -223,6 +224,10 @@ void PrepareShutdown()
         zerocoinDB = NULL;
         delete pSporkDB;
         pSporkDB = NULL;
+        if (paddressmap)
+            paddressmap->Flush();
+        delete paddressmap;
+        paddressmap = NULL;
     }
 #ifdef ENABLE_WALLET
     if (pwalletMain)
@@ -262,12 +267,15 @@ void Shutdown()
     if (!fRestartRequested) {
         PrepareShutdown();
     }
-    // Shutdown part 2: delete wallet instance
+    // Shutdown part 2: Stop TOR thread and delete wallet instance
     StopTorControl();
+    ComponentShutdown();
 #ifdef ENABLE_WALLET
     delete pwalletMain;
     pwalletMain = NULL;
 #endif
+    globalVerifyHandle.reset();
+    ECC_Stop();
     LogPrintf("%s: done\n", __func__);
 }
 
@@ -487,7 +495,7 @@ std::string HelpMessage(HelpMessageMode mode)
 
     strUsage += HelpMessageGroup(_("Zerocoin options:"));
     strUsage += HelpMessageOpt("-enablezeromint=<n>", strprintf(_("Enable automatic Zerocoin minting (0-1, default: %u)"), 1));
-    strUsage += HelpMessageOpt("-zeromintpercentage=<n>", strprintf(_("Percentage of automatically minted Zerocoin  (1-100, default: %u)"), 1));
+    strUsage += HelpMessageOpt("-zeromintpercentage=<n>", strprintf(_("Percentage of automatically minted Zerocoin  (10-100, default: %u)"), 10));
     strUsage += HelpMessageOpt("-preferredDenom=<n>", strprintf(_("Preferred Denomination for automatically minted Zerocoin  (1/5/10/50/100/500/1000/5000), 0 for no preference. default: %u)"), 0));
     strUsage += HelpMessageOpt("-backupzulo=<n>", strprintf(_("Enable automatic wallet backups triggered after each zUlo minting (0-1, default: %u)"), 1));
 
@@ -534,17 +542,21 @@ std::string HelpMessage(HelpMessageMode mode)
 std::string LicenseInfo()
 {
     return FormatParagraph(strprintf(_("Copyright (C) 2009-%i The Bitcoin Core Developers"), COPYRIGHT_YEAR)) + "\n" +
-           "\n" +
-           FormatParagraph(strprintf(_("Copyright (C) 2014-%i The Dash Core Developers"), COPYRIGHT_YEAR)) + "\n" +
-           "\n" +
-           FormatParagraph(strprintf(_("Copyright (C) 2015-%i The EULO Core Developers"), COPYRIGHT_YEAR)) + "\n" +
-           "\n" +
-           FormatParagraph(_("This is experimental software.")) + "\n" +
-           "\n" +
-           FormatParagraph(_("Distributed under the MIT software license, see the accompanying file COPYING or <http://www.opensource.org/licenses/mit-license.php>.")) + "\n" +
-           "\n" +
-           FormatParagraph(_("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.")) +
-           "\n";
+            "\n" +
+            FormatParagraph(strprintf(_("Copyright (C) 2014-%i The Dash Core Developers"), COPYRIGHT_YEAR)) + "\n" +
+            "\n" +
+            FormatParagraph(strprintf(_("Copyright (C) 2017-%i The PIVX Core Developers"), COPYRIGHT_YEAR)) + "\n" +
+            "\n" +
+            FormatParagraph(strprintf(_("Copyright (C) 2017-%i The Qtum Core Developers"), COPYRIGHT_YEAR)) + "\n" +
+            "\n" +
+            FormatParagraph(strprintf(_("Copyright (C) 2017-%i The EULO Core Developers"), COPYRIGHT_YEAR)) + "\n" +
+            "\n" +
+            FormatParagraph(_("This is experimental software.")) + "\n" +
+            "\n" +
+            FormatParagraph(_("Distributed under the MIT software license, see the accompanying file COPYING or <http://www.opensource.org/licenses/mit-license.php>.")) + "\n" +
+            "\n" +
+            FormatParagraph(_("This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit <https://www.openssl.org/> and cryptographic software written by Eric Young and UPnP software written by Thomas Bernard.")) +
+            "\n";
 }
 
 static void BlockNotifyCallback(const uint256& hashNewTip)
@@ -589,6 +601,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
             nFile++;
         }
         pblocktree->WriteReindexing(false);
+        paddressmap->WriteReindexing(false);
         fReindex = false;
         LogPrintf("Reindexing finished\n");
         // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
@@ -635,8 +648,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 bool InitSanityCheck(void)
 {
     if (!ECC_InitSanityCheck()) {
-        InitError("OpenSSL appears to lack support for elliptic curve cryptography. For more "
-                  "information, visit https://en.bitcoin.it/wiki/OpenSSL_and_EC_Libraries");
+        InitError("Elliptic curve cryptography sanity check failure. Aborting.");
         return false;
     }
     if (!glibc_sanity_test() || !glibcxx_sanity_test())
@@ -918,6 +930,10 @@ bool AppInit2(boost::thread_group& threadGroup)
         nLocalServices |= NODE_BLOOM;
 
     // ********************************************************* Step 4: application initialization: dir lock, daemonize, pidfile, debug log
+
+    // Initialize elliptic curve code
+    ECC_Start();
+    globalVerifyHandle.reset(new ECCVerifyHandle());
 
     // Sanity check
     if (!InitSanityCheck())
@@ -1315,18 +1331,27 @@ bool AppInit2(boost::thread_group& threadGroup)
                 delete pblocktree;
                 delete zerocoinDB;
                 delete pSporkDB;
+                delete paddressmap;
 
                 //PIVX specific: zerocoin and spork DB's
                 zerocoinDB = new CZerocoinDB(0, false, fReindex);
                 pSporkDB = new CSporkDB(0, false, false);
+                paddressmap = new CAddressDB(nBlockTreeDBCache, false, fReindex);
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex);
                 pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex);
                 pcoinscatcher = new CCoinsViewErrorCatcher(pcoinsdbview);
                 pcoinsTip = new CCoinsViewCache(pcoinscatcher);
 
-                if (fReindex)
+                if (fReindex){
+                    //TODO:eulo-evm ,fReindex is true ,wipeResults
+                    boost::filesystem::path stateDir = GetDataDir() / CONTRACT_STATE_DIR;
+                    StorageResults storageRes(stateDir.string());
+                    storageRes.wipeResults();
+
                     pblocktree->WriteReindexing(true);
+                    paddressmap->WriteReindexing(true);
+                }
 
                 // EULO: load previous sessions sporks if we have them.
                 uiInterface.InitMessage(_("Loading sporks..."));
@@ -1356,6 +1381,48 @@ bool AppInit2(boost::thread_group& threadGroup)
                     strLoadError = _("You need to rebuild the database using -reindex to change -txindex");
                     break;
                 }
+
+                // Check for changed -addrindex state
+                if (fAddrIndex != GetBoolArg("-addrindex", false)) {
+                    strLoadError = _("You need to rebuild the database using -reindex to change -addrindex");
+                    break;
+                }
+
+                // Check for changed -logevents state,which is better?
+//                if (!Args().GetArg<bool>("-logevents", DEFAULT_LOGEVENTS))
+//                {
+//                    pBlcokTreee->WipeHeightIndex();
+//                    bLogEvents = false;
+//                    pBlcokTreee->WriteFlag("logevents", bLogEvents);
+//                } else
+//                {
+//                    bLogEvents = true;
+//                    pBlcokTreee->WriteFlag("logevents", bLogEvents);
+//                }
+
+
+
+
+                if (fLogEvents != GetBoolArg("-logevents", true) && !fLogEvents) {
+                    strLoadError = _("You need to rebuild the database using -reindex-chainstate to enable -logevents");
+                    break;
+                }
+
+                if (!GetBoolArg("-logevents", true))
+                {
+                    pblocktree->WipeHeightIndex();
+                    fLogEvents = false;
+
+                    pblocktree->WriteFlag("logevents", fLogEvents);
+                }
+
+                //FixMe: Start CContractComponent at a proper moment,
+                //this may not be the best time, needs check,
+                //checked with eulo codes. eulo-vm
+
+                ContractInit();
+
+
 
                 // Populate list of invalid/fraudulent outpoints that are banned from the chain
                 PopulateInvalidOutPointMap();
@@ -1445,6 +1512,9 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (!est_filein.IsNull())
         mempool.ReadFeeEstimates(est_filein);
     fFeeEstimatesInitialized = true;
+
+
+
 
 // ********************************************************* Step 8: load wallet
 #ifdef ENABLE_WALLET
@@ -1703,9 +1773,9 @@ bool AppInit2(boost::thread_group& threadGroup)
     fEnableZeromint = GetBoolArg("-enablezeromint", false);
     fEnableLz4Block = GetBoolArg("-enablelz4block", false);
 
-    nZeromintPercentage = GetArg("-zeromintpercentage", 1);
+    nZeromintPercentage = GetArg("-zeromintpercentage", 10);
     if (nZeromintPercentage > 100) nZeromintPercentage = 100;
-    if (nZeromintPercentage < 1) nZeromintPercentage = 1;
+    if (nZeromintPercentage < 10) nZeromintPercentage = 10;
 
     nPreferredDenom  = GetArg("-preferredDenom", 0);
     if (nPreferredDenom != 0 && nPreferredDenom != 1 && nPreferredDenom != 5 && nPreferredDenom != 10 && nPreferredDenom != 50 &&

@@ -33,6 +33,9 @@ public:
     explicit RPCConsole(QWidget* parent);
     ~RPCConsole();
 
+    static bool parseCommandLine(std::vector<std::string>& args, const std::string& strCommand);
+
+
     void setClientModel(ClientModel* model);
 
     enum MessageClass {

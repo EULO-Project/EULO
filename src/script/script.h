@@ -18,7 +18,11 @@
 
 typedef std::vector<unsigned char> valtype;
 
-static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520; // bytes
+//static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 520;
+static const unsigned int MAX_SCRIPT_ELEMENT_SIZE = 128000; //(128 kb) // eulo-vm
+
+//static const int MAX_SCRIPT_SIZE = 10000;
+static const int MAX_SCRIPT_SIZE = 129000; // (129 kb) // eulo-vm
 
 template <typename T>
 std::vector<unsigned char> ToByteVector(const T& in)
@@ -165,6 +169,24 @@ enum opcodetype
     OP_ZEROCOINMINT = 0xc1,
     OP_ZEROCOINSPEND = 0xc2,
 
+    // Execute EXT byte code.  //eulo-vm
+    OP_CREATE = 0xc3,
+    OP_CALL = 0xc4,
+    OP_SPEND = 0xc5,
+    OP_VM_STATE = 0xc6,  //eulo-vm
+
+    OP_EXT_DATA = 0xc7,
+
+    // template matching params
+    OP_HASH_STATE_ROOT = 0xf3,    //eulo-vm
+    OP_HASH_UTXO_ROOT = 0xf4,    //eulo-vm
+    OP_GAS_PRICE = 0xf5,    //eulo-vm
+    OP_VERSION = 0xf6,
+    OP_GAS_LIMIT = 0xf7,
+    OP_DATA = 0xf8,         //eulo-vm
+
+    OP_OUT_DATA = 0xf9,
+
     // template matching params
     OP_SMALLINTEGER = 0xfa,
     OP_PUBKEYS = 0xfb,
@@ -288,6 +310,31 @@ public:
     {
         return serialize(m_value);
     }
+
+    ///////////////////////////////// //    eulo-vm
+    static uint64_t vch_to_uint64(const std::vector<unsigned char> &vch)
+    {
+        if (vch.size() > 8)
+        {
+            throw scriptnum_error("script number overflow");
+        }
+
+        if (vch.empty())
+            return 0;
+
+        uint64_t result = 0;
+        for (size_t i = 0; i != vch.size(); ++i)
+            result |= static_cast<uint64_t>(vch[i]) << 8 * i;
+
+        // If the input vector's most significant byte is 0x80, remove it from
+        // the result's msb and return a negative.
+        if (vch.back() & 0x80)
+            throw scriptnum_error("Negative gas value.");
+        // return -((uint64_t)(result & ~(0x80ULL << (8 * (vch.size() - 1)))));
+
+        return result;
+    }
+    /////////////////////////////////
 
     static std::vector<unsigned char> serialize(const int64_t& value)
     {
@@ -591,6 +638,9 @@ public:
     bool IsNormalPaymentScript() const;
     bool IsPayToScriptHash() const;
     bool IsZerocoinMint() const;
+    bool IsPayToPubkey() const;
+    bool IsPayToPubkeyHash() const;
+
     bool IsZerocoinSpend() const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
@@ -604,8 +654,42 @@ public:
      */
     bool IsUnspendable() const
     {
-        return (size() > 0 && *begin() == OP_RETURN);
+        return (size() > 0 && *begin() == OP_RETURN || (size() > MAX_SCRIPT_SIZE));
     }
+
+    ///////////////////////////////////////// //eulo-vm
+    bool HasOpVmHashState() const
+    {
+        return size() >0 && *(--end()) == OP_VM_STATE;
+
+        //return Find(OP_VM_STATE) == 1;
+    }
+
+    bool HasOpCreate() const
+    {
+        return size() >0 && *(--end()) == OP_CREATE;
+
+        //return Find(OP_CREATE) == 1;
+    }
+
+    bool HasOpCall() const
+    {
+        return size() >0 && *(--end()) == OP_CALL;
+
+        //return Find(OP_CALL) == 1;
+    }
+
+    bool HasOpSpend() const
+    {
+        return size() == 1 && *begin() == OP_SPEND;
+    }
+
+    bool HasOpExtData() const
+    {
+        return (size() > 0) && (1 == Find(OP_EXT_DATA));
+    }
+
+    /////////////////////////////////////////
 
     std::string ToString() const;
     void clear()

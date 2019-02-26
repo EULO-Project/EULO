@@ -9,7 +9,9 @@
 
 #include <QDialog>
 #include <QString>
-
+#include <QAbstractButton>
+#include <QTimer>
+#include <QMessageBox>
 static const int MAX_SEND_POPUP_ENTRIES = 10;
 
 class ClientModel;
@@ -104,5 +106,26 @@ signals:
     // Fired when a message should be reported to the user
     void message(const QString& title, const QString& message, unsigned int style);
 };
+
+#define SEND_CONFIRM_DELAY   3
+
+class SendConfirmationDialog : public QMessageBox
+{
+    Q_OBJECT
+
+public:
+    SendConfirmationDialog(const QString &title, const QString &text, int secDelay = SEND_CONFIRM_DELAY, QWidget *parent = 0);
+    int exec();
+
+private Q_SLOTS:
+    void countDown();
+    void updateYesButton();
+
+private:
+    QAbstractButton *yesButton;
+    QTimer countDownTimer;
+    int secDelay;
+};
+
 
 #endif // BITCOIN_QT_SENDCOINSDIALOG_H

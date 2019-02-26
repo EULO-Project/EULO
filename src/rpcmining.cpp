@@ -585,7 +585,7 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     result.push_back(Pair("noncerange", "00000000ffffffff"));
 //    result.push_back(Pair("sigoplimit", (int64_t)MAX_BLOCK_SIGOPS));
 //    result.push_back(Pair("sizelimit", (int64_t)MAX_BLOCK_SIZE));
-    if (pblock->nVersion > 3)
+    if (pblock->nVersion > POS_VERSION)
         result.push_back(Pair("accumulator", pblock->nAccumulatorCheckpoint.GetHex()));
     result.push_back(Pair("curtime", pblock->GetBlockTime()));
     if (pindexPrev->nHeight < Params().LAST_POW_BLOCK())
@@ -670,6 +670,14 @@ UniValue submitblock(const UniValue& params, bool fHelp)
                 return "duplicate-invalid";
             // Otherwise, we might only have the header - process the block before returning
             fBlockPresent = true;
+        }
+    }
+
+    //eulo-vm
+    bool enablecontract = chainActive.Tip()->IsContractEnabled();
+    if(enablecontract){
+        if((block.vtx.size() > 1) && (!block.vtx[1].IsCoinBase2())){
+            throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "enable contract,coinbase2 is error");
         }
     }
 

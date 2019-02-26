@@ -461,7 +461,7 @@ UniValue masternodedebug (const UniValue& params, bool fHelp)
         return activeMasternode.GetStatus();
 
     CTxIn vin = CTxIn();
-    CPubKey pubkey = CScript();
+    CPubKey pubkey;
     CKey key;
     if (!activeMasternode.GetMasterNodeVin(vin, pubkey, key))
         throw runtime_error("Missing masternode input, please look at the documentation for instructions on masternode creation\n");
@@ -516,11 +516,10 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
 
     bool fLock = (params[1].get_str() == "true" ? true : false);
 
+    EnsureWalletIsUnlocked();
+
     if (strCommand == "local") {
         if (!fMasterNode) throw runtime_error("you must set masternode=1 in the configuration\n");
-
-        if (pwalletMain->IsLocked())
-            throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
 
         if (activeMasternode.status != ACTIVE_MASTERNODE_STARTED) {
             activeMasternode.status = ACTIVE_MASTERNODE_INITIAL; // TODO: consider better way
@@ -533,8 +532,6 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
     }
 
     if (strCommand == "all" || strCommand == "many" || strCommand == "missing" || strCommand == "disabled") {
-        if (pwalletMain->IsLocked())
-            throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
 
         if ((strCommand == "missing" || strCommand == "disabled") &&
             (masternodeSync.RequestedMasternodeAssets <= MASTERNODE_SYNC_LIST ||

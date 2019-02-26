@@ -30,6 +30,7 @@
 #include "tmpblocksmempool.h"
 #include "uint256.h"
 #include "undo.h"
+#include "contractconfig.h"
 
 #include <algorithm>
 #include <exception>
@@ -41,6 +42,7 @@
 #include <vector>
 
 #include "libzerocoin/CoinSpend.h"
+#include "contract_api/contractcomponent.h"
 
 #include <boost/unordered_map.hpp>
 
@@ -53,6 +55,7 @@ class CInv;
 class CScriptCheck;
 class CValidationInterface;
 class CValidationState;
+class CAddressDB;
 
 struct CBlockTemplate;
 struct CNodeStateStats;
@@ -121,6 +124,8 @@ static const unsigned char REJECT_DUST = 0x41;
 static const unsigned char REJECT_INSUFFICIENTFEE = 0x42;
 static const unsigned char REJECT_CHECKPOINT = 0x43;
 
+static const unsigned int REJECT_HIGHFEE = 0x100;
+
 struct BlockHasher {
     size_t operator()(const uint256& hash) const { return hash.GetLow64(); }
 };
@@ -145,6 +150,8 @@ extern bool fImporting;
 extern bool fReindex;
 extern int nScriptCheckThreads;
 extern bool fTxIndex;
+extern bool fAddrIndex;
+extern bool fLogEvents;
 extern bool fIsBareMultisigStd;
 extern bool fCheckBlockIndex;
 extern unsigned int nCoinCacheSize;
@@ -222,6 +229,7 @@ bool InitBlockIndex();
 bool LoadBlockIndex(std::string& strError);
 /** Unload database information */
 void UnloadBlockIndex();
+int LoadLogEvents();//eulo-evm
 /** See whether the protocol update is enforced for connected nodes */
 int ActiveProtocol();
 /** Process protocol messages received from a given node */
@@ -573,7 +581,7 @@ private:
 
 public:
     CValidationState() : mode(MODE_VALID), nDoS(0), chRejectCode(0), corruptionPossible(false) {}
-    bool DoS(int level, bool ret = false, unsigned char chRejectCodeIn = 0, std::string strRejectReasonIn = "", bool corruptionIn = false)
+    bool DoS(int level, bool ret = false, unsigned int chRejectCodeIn = 0, std::string strRejectReasonIn = "", bool corruptionIn = false)
     {
         chRejectCode = chRejectCodeIn;
         strRejectReason = strRejectReasonIn;
@@ -662,6 +670,9 @@ extern CZerocoinDB* zerocoinDB;
 
 /** Global variable that points to the spork database (protected by cs_main) */
 extern CSporkDB* pSporkDB;
+
+/** Global variable that points to the address database (protected by cs_main) */
+extern CAddressDB *paddressmap;
 
 struct CBlockTemplate {
     CBlock block;

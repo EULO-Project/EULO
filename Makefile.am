@@ -52,6 +52,12 @@ dist-hook:
 	-$(MAKE) -C $(top_distdir)/src/leveldb clean
 	-$(MAKE) -C $(top_distdir)/src/secp256k1 distclean
 	-$(MAKE) -C $(top_distdir)/src/lz4/lib clean
+	-$(MAKE) -C $(top_distdir)/src/cryptopp -f GNUmakefile distclean
+	-$(MAKE) -C $(top_distdir)/src/ethash distclean
+	-$(MAKE) -C $(top_distdir)/src/jsoncpp -f dev.makefile distclean
+	-$(MAKE) -C $(top_distdir)/src/libff -f libff.makefile distclean
+	-$(MAKE) -C $(top_distdir)/src/libscrypt clean
+	-$(MAKE) -C $(top_distdir)/src/snappy -f snappy.makefile distclean
 	-$(GIT) archive --format=tar HEAD -- src/clientversion.cpp | $(AMTAR) -C $(top_distdir) -xf -
 
 distcheck-hook:

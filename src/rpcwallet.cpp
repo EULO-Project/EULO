@@ -17,6 +17,9 @@
 #include "utilmoneystr.h"
 #include "wallet.h"
 #include "walletdb.h"
+#include "main.h"
+#include "contractconfig.h"
+#include "coincontrol.h"
 
 #include <stdint.h>
 
@@ -2072,6 +2075,1126 @@ UniValue autocombinerewards(const UniValue& params, bool fHelp)
     return NullUniValue;
 }
 
+//  eulo-vm
+UniValue createcontract(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
+
+    LOCK(pwalletMain->cs_wallet);
+
+    int height = chainActive.Tip()->nHeight;
+
+    uint64_t blockGasLimit = GetBlockGasLimit(height);
+    uint64_t minGasPrice = CAmount(GetMinGasPrice(height));
+    CAmount nGasPrice = (minGasPrice > DEFAULT_GAS_PRICE) ? minGasPrice : DEFAULT_GAS_PRICE;
+    if (fHelp || params.size() < 1 || params.size() > 6)
+        throw std::runtime_error(
+                "createcontract \"bytecode\" (gaslimit gasprice \"senderaddress\" broadcast)"
+                        "\nCreate a contract with bytcode.\n"
+                + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+                        "1. \"bytecode\"  (string, required) contract bytcode.\n"
+                        "2. gasLimit  (numeric or string, optional) gasLimit, default: " +
+                i64tostr(DEFAULT_GAS_LIMIT_OP_CREATE) + ", max: " + i64tostr(blockGasLimit) + "\n"
+                        "3. gasPrice  (numeric or string, optional) gasPrice EULO price per gas unit, default: " +
+                FormatMoney(nGasPrice) + ", min:" + FormatMoney(minGasPrice) + "\n"
+                        "4. \"senderaddress\" (string, optional) The eulo address that will be used to create the contract.\n"
+                        "5. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                        "6. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
+                        "\nResult:\n"
+                        "[\n"
+                        "  {\n"
+                        "    \"txid\" : (string) The transaction id.\n"
+                        "    \"sender\" : (string) EULO address of the sender.\n"
+                        "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+                        "    \"address\" : (string) expected contract address.\n"
+                        "  }\n"
+                        "]\n"
+                        "\nExamples:\n"
+                + HelpExampleCli("createcontract",
+                                 "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\"")
+                + HelpExampleCli("createcontract",
+                                 "\"60606040525b33600060006101000a81548173ffffffffffffffffffffffffffffffffffffffff02191690836c010000000000000000000000009081020402179055506103786001600050819055505b600c80605b6000396000f360606040526008565b600256\" 6000000 " +
+                                 FormatMoney(minGasPrice) + " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\" true")
+        );
+
+    std::string bytecode = params[0].get_str();
+
+    if (!IsHex(bytecode))
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+    }
+
+    uint64_t nGasLimit = DEFAULT_GAS_LIMIT_OP_CREATE;
+    if (params.size() > 1)
+    {
+        if (params[1].isNum())
+        {
+            nGasLimit = params[1].get_int64();
+        } else if (params[1].isStr())
+        {
+            nGasLimit = atoi64(params[1].get_str());
+        } else
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasLimit is not (numeric or string)");
+        }
+
+        if (nGasLimit > blockGasLimit)
+            throw JSONRPCError(RPC_TYPE_ERROR,
+                               "Invalid value for gasLimit (Maximum is: " + i64tostr(blockGasLimit) + ")");
+        if (nGasLimit < MINIMUM_GAS_LIMIT)
+            throw JSONRPCError(RPC_TYPE_ERROR,
+                               "Invalid value for gasLimit (Minimum is: " + i64tostr(MINIMUM_GAS_LIMIT) + ")");
+        if (nGasLimit <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
+    }
+
+    if (params.size() > 2)
+    {
+        if (params[2].isNum())
+        {
+            nGasPrice = params[2].get_real() * COIN;
+        } else if (params[2].isStr())
+        {
+            double retval;
+            if (!ParseDouble(params[2].get_str(), &retval))
+                throw std::runtime_error("JSON double out of range");
+
+            nGasPrice = retval * COIN;
+        } else
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasPrice is not (numeric or string)");
+        }
+
+        CAmount maxRpcGasPrice = GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
+        if (nGasPrice > (int64_t)maxRpcGasPrice)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: " +
+                                               FormatMoney(maxRpcGasPrice) + " (use -rpcmaxgasprice to change it)");
+        if (nGasPrice < (int64_t)minGasPrice)
+            throw JSONRPCError(RPC_TYPE_ERROR,
+                               "Invalid value for gasPrice (Minimum is: " + FormatMoney(minGasPrice) + ")");
+        if (nGasPrice <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
+    }
+
+    bool fHasSender = false;
+    CBitcoinAddress senderAddress;
+    if (params.size() > 3)
+    {
+        senderAddress.SetString(params[3].get_str());
+        if (!senderAddress.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid eulo address to send from");
+        else
+            fHasSender = true;
+    }
+    bool fBroadcast = true;
+    if (params.size() > 4)
+    {
+        fBroadcast = params[4].get_bool();
+    }
+
+    bool fChangeToSender = true;
+    if (params.size() > 5)
+    {
+        fChangeToSender = params[5].get_bool();
+    }
+
+    CCoinControl coinControl;
+
+    if (fHasSender)
+    {
+        //find a UTXO with sender address
+
+        UniValue results(UniValue::VARR);
+        std::vector<COutput> vecOutputs;
+
+        coinControl.fAllowOtherInputs = true;
+
+        assert(pwalletMain != NULL);
+        pwalletMain->AvailableCoins(vecOutputs, true, NULL, false);
+
+        //        BOOST_FOREACH(const COutput& out, vecOutputs) {
+        for (const COutput &out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript &scriptPubKey = out.tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            CBitcoinAddress destAdress(address);
+
+            if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+                continue;
+
+            coinControl.Select(COutPoint(out.tx->GetHash(), out.i));
+
+            break;
+
+        }
+
+        if (!coinControl.HasSelected())
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
+        if (fChangeToSender)
+        {
+            coinControl.destChange = senderAddress.Get();
+        }
+    }
+
+    CWalletTx wtx;
+
+    wtx.nTimeSmart = GetAdjustedTime();
+
+    CAmount nGasFee = nGasPrice * nGasLimit;
+
+    CAmount curBalance = pwalletMain->GetBalance();
+
+    // Check amount
+    if (nGasFee <= 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
+
+    if (nGasFee > curBalance)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    // Build OP_EXEC script
+    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit)
+                                     << CScriptNum(nGasPrice) << ParseHex(bytecode) << OP_CREATE;
+
+    // Create and send the transaction
+    CReserveKey reservekey(pwalletMain);
+    CAmount nFeeRequired;
+    std::string strError;
+    std::vector<pair<CScript, CAmount>> vecSend;
+    int nChangePosRet = -1;
+
+    vecSend.push_back(std::make_pair(scriptPubKey, 0));
+
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, nGasFee, fHasSender))
+    {
+        if (nFeeRequired > pwalletMain->GetBalance())
+            strError = strprintf(
+                    "Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!",
+                    FormatMoney(nFeeRequired));
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    CTxDestination txSenderDest;
+    ExtractDestination(pwalletMain->mapWallet[wtx.vin[0].prevout.hash].vout[wtx.vin[0].prevout.n].scriptPubKey,
+                       txSenderDest);
+
+    if (fHasSender && !(senderAddress.Get() == txSenderDest))
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+    }
+
+    UniValue result(UniValue::VOBJ);
+    CValidationState state;
+    if (fBroadcast)
+    {
+        //////////////////////////////////////////////////////////// //eulo-vm
+        // check contract tx
+        if (!CheckTransaction(wtx, height >= Params().Zerocoin_StartHeight(), false, state)) // state filled in by CheckTransaction
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+        }
+
+        
+        CAmount nMinGasPrice = 0;
+        CAmount nValueIn = 0;
+        CAmount nValueOut = 0;
+        CAmount nFees = 0;
+
+        {
+            CCoinsView dummy;
+            CCoinsViewCache view(&dummy);
+
+            LOCK(mempool.cs);
+            CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+            view.SetBackend(viewMemPool);
+
+            nMinGasPrice = 0;
+            nValueIn = view.GetValueIn(wtx);
+            nValueOut = wtx.GetValueOut();
+            nFees = nValueIn - nValueOut;
+
+            if (!wtx.CheckSenderScript(view))
+            {
+                throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            }
+        }
+
+        int level = 0;
+        string errinfo;
+
+        if (!CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, errinfo);
+        }
+        ////////////////////////////////////////////////////////////
+
+        if (!pwalletMain->CommitTransaction(wtx, reservekey, "smart-contract"))
+            throw JSONRPCError(RPC_WALLET_ERROR,
+                               "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+
+        std::string txId = wtx.GetHash().GetHex();
+        result.push_back(Pair("txid", txId));
+
+        CBitcoinAddress txSenderAdress(txSenderDest);
+        CKeyID keyid;
+        txSenderAdress.GetKeyID(keyid);
+
+        result.push_back(Pair("sender", txSenderAdress.ToString()));
+        result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(), keyid.end()))));
+
+        std::vector<unsigned char> SHA256TxVout(32);
+        std::vector<unsigned char> contractAddress(20);
+        std::vector<unsigned char> txIdAndVout(wtx.GetHash().begin(), wtx.GetHash().end());
+        uint32_t voutNumber = 0;
+        //        BOOST_FOREACH(const CTxOut& txout, wtx.tx->vout) {
+        for (const CTxOut &txout : wtx.vout)
+        {
+            if (txout.scriptPubKey.HasOpCreate())
+            {
+                std::vector<unsigned char> voutNumberChrs;
+                if (voutNumberChrs.size() < sizeof(voutNumber))
+                    voutNumberChrs.resize(sizeof(voutNumber));
+                std::memcpy(voutNumberChrs.data(), &voutNumber, sizeof(voutNumber));
+                txIdAndVout.insert(txIdAndVout.end(), voutNumberChrs.begin(), voutNumberChrs.end());
+                break;
+            }
+            voutNumber++;
+        }
+        CSHA256().Write(txIdAndVout.data(), txIdAndVout.size()).Finalize(SHA256TxVout.data());
+        CRIPEMD160().Write(SHA256TxVout.data(), SHA256TxVout.size()).Finalize(contractAddress.data());
+        result.push_back(Pair("address", HexStr(contractAddress)));
+    } else
+    {
+        std::string strHex = EncodeHexTx(wtx);
+        result.push_back(Pair("raw transaction", strHex));
+    }
+    if (!mempool.exists(wtx.GetHash()))
+    {
+        result.push_back(Pair("state", strprintf("Warning: Transaction cannot be broadcast immediately! %s",
+                                                 state.GetRejectReason())));
+    }
+
+    return result;
+}
+
+//  eulo-vm
+UniValue sendtocontract(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    int height = chainActive.Tip()->nHeight;
+
+
+    LogPrintf("Sendto Params: %s",params.write(2));
+
+    uint64_t blockGasLimit = GetBlockGasLimit(height);
+    uint64_t minGasPrice = CAmount(GetMinGasPrice(height));
+    CAmount nGasPrice = (minGasPrice > DEFAULT_GAS_PRICE) ? minGasPrice : DEFAULT_GAS_PRICE;
+
+    if (fHelp || params.size() < 2 || params.size() > 8)
+        throw std::runtime_error(
+                "sendtocontract \"contractaddress\" \"data\" (amount gaslimit gasprice senderaddress broadcast)"
+                        "\nSend funds and data to a contract.\n"
+                + HelpRequiringPassphrase() +
+                "\nArguments:\n"
+                        "1. \"contractaddress\" (string, required) The contract address that will receive the funds and data.\n"
+                        "2. \"datahex\"  (string, required) data to send.\n"
+                        "3. \"amount\"      (numeric or string, optional) The amount in EULO to send. eg 0.1, default: 0\n"
+                        "4. gasLimit  (numeric or string, optional) gasLimit, default: " +
+                i64tostr(DEFAULT_GAS_LIMIT_OP_SEND) + ", max: " + i64tostr(blockGasLimit) + "\n"
+                        "5. gasPrice  (numeric or string, optional) gasPrice Ulo price per gas unit, default: " +
+                FormatMoney(nGasPrice) + ", min:" + FormatMoney(minGasPrice) + "\n"
+                        "6. \"senderaddress\" (string, optional) The eulo address that will be used as sender.\n"
+                        "7. \"broadcast\" (bool, optional, default=true) Whether to broadcast the transaction or not.\n"
+                        "8. \"changeToSender\" (bool, optional, default=true) Return the change to the sender.\n"
+                        "\nResult:\n"
+                        "[\n"
+                        "  {\n"
+                        "    \"txid\" : (string) The transaction id.\n"
+                        "    \"sender\" : (string) EULO address of the sender.\n"
+                        "    \"hash160\" : (string) ripemd-160 hash of the sender.\n"
+                        "  }\n"
+                        "]\n"
+                        "\nExamples:\n"
+                + HelpExampleCli("sendtocontract", "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\"")
+                + HelpExampleCli("sendtocontract",
+                                 "\"c6ca2697719d00446d4ea51f6fac8fd1e9310214\" \"54f6127f\" 12.0015 6000000 " +
+                                 FormatMoney(minGasPrice) + " \"QM72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd\"")
+        );
+
+    std::string contractaddress = params[0].get_str();
+    if (contractaddress.size() != 40 || !IsHex(contractaddress))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect contract address");
+
+    if (!AddressInUse(contractaddress))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "contract address does not exist");
+
+    std::string datahex = params[1].get_str();
+    if (!IsHex(datahex))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+    CAmount nAmount = 0;
+    if (params.size() > 2)
+    {
+        nAmount = AmountFromValue(params[2]);
+        if (nAmount < 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+    }
+
+    uint64_t nGasLimit = DEFAULT_GAS_LIMIT_OP_SEND;
+    if (params.size() > 3)
+    {
+        if (params[3].isNum())
+        {
+            nGasLimit = params[3].get_int64();
+        } else if (params[3].isStr())
+        {
+            nGasLimit = atoi64(params[3].get_str());
+        } else
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasLimit is not (numeric or string)");
+        }
+
+        if (nGasLimit > blockGasLimit)
+            throw JSONRPCError(RPC_TYPE_ERROR,
+                               "Invalid value for gasLimit (Maximum is: " + i64tostr(blockGasLimit) + ")");
+        if (nGasLimit < MINIMUM_GAS_LIMIT)
+            throw JSONRPCError(RPC_TYPE_ERROR,
+                               "Invalid value for gasLimit (Minimum is: " + i64tostr(MINIMUM_GAS_LIMIT) + ")");
+        if (nGasLimit <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasLimit");
+    }
+
+    if (params.size() > 4)
+    {
+        if (params[4].isNum())
+        {
+            nGasPrice = params[4].get_real() * COIN;
+        } else if (params[4].isStr())
+        {
+            double retval;
+            if (!ParseDouble(params[4].get_str(), &retval))
+                throw std::runtime_error("JSON double out of range");
+
+            nGasPrice = retval * COIN;
+        } else
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasPrice is not (numeric or string)");
+        }
+
+        CAmount maxRpcGasPrice = GetArg("-rpcmaxgasprice", MAX_RPC_GAS_PRICE);
+        if (nGasPrice > (int64_t)maxRpcGasPrice)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice, Maximum allowed in RPC calls is: " +
+                                               FormatMoney(maxRpcGasPrice) + " (use -rpcmaxgasprice to change it)");
+        if (nGasPrice < (int64_t)minGasPrice)
+            throw JSONRPCError(RPC_TYPE_ERROR,
+                               "Invalid value for gasPrice (Minimum is: " + FormatMoney(minGasPrice) + ")");
+        if (nGasPrice <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid value for gasPrice");
+    }
+
+    bool fHasSender = false;
+    CBitcoinAddress senderAddress;
+    if (params.size() > 5)
+    {
+        senderAddress.SetString(params[5].get_str());
+        if (!senderAddress.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Eulo address to send from");
+        else
+            fHasSender = true;
+    }
+
+    bool fBroadcast = true;
+    if (params.size() > 6)
+    {
+        fBroadcast = params[6].get_bool();
+    }
+
+    bool fChangeToSender = true;
+    if (params.size() > 7)
+    {
+        fChangeToSender = params[7].get_bool();
+    }
+
+    CCoinControl coinControl;
+
+    if (fHasSender)
+    {
+
+        UniValue results(UniValue::VARR);
+        std::vector<COutput> vecOutputs;
+
+        coinControl.fAllowOtherInputs = true;
+
+        assert(pwalletMain != NULL);
+        pwalletMain->AvailableCoins(vecOutputs, true, NULL, false);
+
+        //        BOOST_FOREACH(const COutput& out, vecOutputs) {
+        for (const COutput &out : vecOutputs)
+        {
+            CTxDestination address;
+            const CScript &scriptPubKey = out.tx->vout[out.i].scriptPubKey;
+            bool fValidAddress = ExtractDestination(scriptPubKey, address);
+
+            CBitcoinAddress destAdress(address);
+
+            if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+                continue;
+
+            coinControl.Select(COutPoint(out.tx->GetHash(), out.i));
+
+            break;
+
+        }
+
+        if (!coinControl.HasSelected())
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+        }
+        if (fChangeToSender)
+        {
+            coinControl.destChange = senderAddress.Get();
+        }
+    }
+
+    CWalletTx wtx;
+
+    wtx.nTimeSmart = GetAdjustedTime();
+
+    CAmount nGasFee = nGasPrice * nGasLimit;
+
+    CAmount curBalance = pwalletMain->GetBalance();
+
+    // Check amount
+    if (nGasFee <= 0)
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount for gas fee");
+
+    if (nAmount + nGasFee > curBalance)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    // Build OP_EXEC_ASSIGN script
+    CScript scriptPubKey = CScript() << CScriptNum(VersionVM::GetEVMDefault().toRaw()) << CScriptNum(nGasLimit)
+                                     << CScriptNum(nGasPrice) << ParseHex(datahex) << ParseHex(contractaddress)
+                                     << OP_CALL;
+
+    // Create and send the transaction
+    CReserveKey reservekey(pwalletMain);
+    CAmount nFeeRequired;
+    std::string strError;
+    std::vector<std::pair<CScript, CAmount>> vecSend;
+    int nChangePosRet = -1;
+
+    vecSend.push_back(std::make_pair(scriptPubKey, nAmount));
+
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, nGasFee, fHasSender))
+    {
+        if (nFeeRequired > pwalletMain->GetBalance())
+            strError = strprintf(
+                    "Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!",
+                    FormatMoney(nFeeRequired));
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    CTxDestination txSenderDest;
+    ExtractDestination(pwalletMain->mapWallet[wtx.vin[0].prevout.hash].vout[wtx.vin[0].prevout.n].scriptPubKey,
+                       txSenderDest);
+
+    if (fHasSender && !(senderAddress.Get() == txSenderDest))
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+    }
+
+    UniValue result(UniValue::VOBJ);
+
+    CValidationState state;
+    if (fBroadcast)
+    {
+        //////////////////////////////////////////////////////////// //eulo-vm
+        // check contract tx
+        if (!CheckTransaction(wtx, height >= Params().Zerocoin_StartHeight(), false, state)) // state filled in by CheckTransaction
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+        }
+
+        CAmount nMinGasPrice = 0;
+        CAmount nValueIn = 0;
+        CAmount nValueOut = 0;
+        CAmount nFees = 0;
+        
+        {
+            CCoinsView dummy;
+            CCoinsViewCache view(&dummy);
+
+            LOCK(mempool.cs);
+            CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+            view.SetBackend(viewMemPool);
+
+            nMinGasPrice = 0;
+            nValueIn = view.GetValueIn(wtx);
+            nValueOut = wtx.GetValueOut();
+            nFees = nValueIn - nValueOut;
+
+            if (!wtx.CheckSenderScript(view))
+            {
+                throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+            }
+        }
+
+        int level = 0;
+        string errinfo;
+
+        if (!CheckContractTx(wtx, nFees, nMinGasPrice, level, errinfo))
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, errinfo);
+        }
+        ////////////////////////////////////////////////////////////
+
+        if (!pwalletMain->CommitTransaction(wtx, reservekey, "smart-contract"))
+            throw JSONRPCError(RPC_WALLET_ERROR,
+                               "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+
+        std::string txId = wtx.GetHash().GetHex();
+        result.push_back(Pair("txid", txId));
+
+        CBitcoinAddress txSenderAdress(txSenderDest);
+        CKeyID keyid;
+        txSenderAdress.GetKeyID(keyid);
+
+        result.push_back(Pair("sender", txSenderAdress.ToString()));
+        result.push_back(Pair("hash160", HexStr(valtype(keyid.begin(), keyid.end()))));
+    } else
+    {
+        std::string strHex = EncodeHexTx(wtx);
+        result.push_back(Pair("raw transaction", strHex));
+    }
+    if (!mempool.exists(wtx.GetHash()))
+    {
+        result.push_back(Pair("state", strprintf("Warning: Transaction cannot be broadcast immediately! %s",
+                                                 state.GetRejectReason())));
+    }
+
+    return result;
+}
+
+static bool parsehexdata(std::string strData, std::vector<uint8_t>& vecData, size_t Bytes)
+{
+    bool    bSuccess    = false;
+
+    std::vector<unsigned char>  vData;
+
+    if (strData.size() == 2 * Bytes && IsHex(strData)) {
+        bSuccess = true;
+        vData = ParseHex(strData);
+        vecData.insert(vecData.end(), vData.begin(), vData.end());
+    } else if (strData.size() == (2 + 2 * Bytes) && (0 == strData.find("0x") || 0 == strData.find("0X")) && 
+               IsHex(strData.substr(2)))
+    {
+        bSuccess = true;
+        vData = ParseHex(strData.substr(2));
+        vecData.insert(vecData.end(), vData.begin(), vData.end());
+    }
+
+    return bSuccess;
+}
+
+UniValue sendextenddata(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 2)
+        throw runtime_error(
+            "sendextenddata [{\"key\":\"name\",\"value\":\"data\"},...] senderaddress\n"
+            "Create a transaction with extend data spending the given addresses.\n"
+            "\nResult:\n"
+            "\"hex\"             (string) The transaction hash in hex\n"
+            "\nExamples:\n"
+            "\nCreate and send a transaction with extend data\n" +
+            HelpExampleCli("sendextenddata", "\"[{\\\"key\\\" : \\\"name1\\\",\\\"type\\\":type1,\\\"value\\\":\"data1\"}]\" \"senderaddress\"\n"));
+
+    if (!params[0].isArray())
+        throw runtime_error("extend data is not array\n");
+
+    UniValue jsonData = params[0].get_array();
+
+    uint8_t     u8Temp;
+    uint8_t     u8Count;
+    
+    uint32_t    u32Size;
+
+    std::vector<unsigned char>  bindata;
+
+    CBitcoinAddress senderAddress;
+
+    //  bin data size and count:
+    bindata.push_back(0);
+    bindata.push_back(0);
+    bindata.push_back(0);
+
+    u8Count = 0;
+    for (unsigned int index = 0; index < jsonData.size(); index++)
+    {
+        uint256  u256Name;
+
+        std::string strName;
+        std::string strData;
+        std::string strType;
+
+        std::vector<uint8_t> vecData;
+
+        eExtendDataType eType;
+
+        const UniValue& keyvalue = jsonData[index];
+
+        const UniValue& key = find_value(keyvalue, "key");
+        const UniValue& type = find_value(keyvalue, "type");
+        const UniValue& value = find_value(keyvalue, "value");
+
+        if ((key.isStr() || key.isNum()) && 
+            (type.isNum() && (0 <= type.get_int()) && (type.get_int() <= UCHAR_MAX)) &&
+            (value.isStr() || value.isNum()))
+        {
+            if (key.isStr())
+                strName = key.get_str();
+            else
+                strName = key.write();
+
+            if (0 == strName.size())
+                throw runtime_error("key is null\n");
+            else if (strName.size() > 32)
+                throw runtime_error("key is too long(Max 32 bytes)\n");
+
+            int s32Type = type.get_int();
+            if (s32Type < EXT_DATA_STRING || s32Type >= EXT_DATA_RESERVED)
+               throw runtime_error("invalid value type\n");
+
+            eType = eExtendDataType(s32Type);
+            switch (eType) {
+                case EXT_DATA_STRING:
+                    if (value.isStr()) {
+                        strData = value.get_str();
+                        vecData.insert(vecData.end(), strData.begin(), strData.end());
+                    } else {
+                        throw runtime_error("invalid value of string\n");
+                    }
+                    break;
+                
+                case EXT_DATA_DOUBLE:
+                    if (value.isNum()) {
+                        strData = value.write();
+                        vecData.insert(vecData.end(), strData.begin(), strData.end());
+                    } else {
+                        throw runtime_error("invalid value of double\n");
+                    }
+                    break;
+
+                //  BOOL: 为bool或者整形
+                case EXT_DATA_BOOL:
+                    if (value.isBool()) {
+                        if (value.get_bool())
+                            vecData.push_back(1);
+                        else
+                            vecData.push_back(0);
+                    } else if (value.isNum()) {
+                        if (value.get_int())
+                            vecData.push_back(1);
+                        else
+                            vecData.push_back(0);
+                    }else {
+                        throw runtime_error("invalid value of bool\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT8:
+                case EXT_DATA_UINT8:
+                    strType = (EXT_DATA_INT8 == eType) ? "INT8" : "UINT8";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT8 == eType && SCHAR_MIN <= value.get_int() && value.get_int() <= CHAR_MAX) ||
+                            (EXT_DATA_UINT8 == eType && 0 <= value.get_int() && value.get_int() <= UCHAR_MAX)) {
+                            vecData.push_back(value.get_int());
+                        } else {
+                            throw runtime_error("Exceeding the range of " + strType + "\n");
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int8_t)))
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT16:
+                case EXT_DATA_UINT16:
+                    strType = (EXT_DATA_INT16 == eType) ? "INT16" : "UINT16";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT16 == eType && SHRT_MIN <= value.get_int() && value.get_int() <= SHRT_MAX) ||
+                            (EXT_DATA_UINT16 == eType && 0 <= value.get_int() && value.get_int() <= USHRT_MAX)) {
+                            uint16_t u16Value = value.get_int();
+                            
+                            vecData.push_back(u16Value >> 8);
+                            vecData.push_back(u16Value % 256);
+                        } else {
+                            throw runtime_error("Exceeding the range of "+ strType + "\n");
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int16_t))) {
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+                
+                case EXT_DATA_INT32:
+                case EXT_DATA_UINT32:
+                    strType = (EXT_DATA_INT32 == eType) ? "INT32" : "UINT32";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT32 == eType && INT_MIN <= value.get_int() && value.get_int() <= INT_MAX) ||
+                            (EXT_DATA_UINT32 == eType && 0 <= value.get_int64() && value.get_int64() <= UINT_MAX)) {
+                            uint64_t u64Value = value.get_int64();
+                            
+                            vecData.push_back((u64Value >> 24) & 0xFF);
+                            vecData.push_back((u64Value >> 16) & 0xFF);
+                            vecData.push_back((u64Value >>  8) & 0xFF);
+                            vecData.push_back((u64Value >>  0) & 0xFF);
+                        } else {
+                            throw runtime_error("Exceeding the range of "+ strType + "\n");
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int32_t))) {
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT64:
+                case EXT_DATA_UINT64:
+                    strType = (EXT_DATA_INT64 == eType) ? "INT64" : "UINT64";
+
+                    if (value.isNum()) {
+                        if ((EXT_DATA_INT64 == eType && LONG_MIN <= value.get_int64() && value.get_int64() <= LONG_MAX) || 
+                            (EXT_DATA_UINT64 == eType && 0 <= value.get_int64() && value.get_int64() <= ULONG_MAX)) {
+                            uint64_t u64Value = value.get_int64();
+                            
+                            vecData.push_back((u64Value >> 56) & 0xFF);
+                            vecData.push_back((u64Value >> 48) & 0xFF);
+                            vecData.push_back((u64Value >> 40) & 0xFF);
+                            vecData.push_back((u64Value >> 32) & 0xFF);
+                            vecData.push_back((u64Value >> 24) & 0xFF);
+                            vecData.push_back((u64Value >> 16) & 0xFF);
+                            vecData.push_back((u64Value >>  8) & 0xFF);
+                            vecData.push_back((u64Value >>  0) & 0xFF);
+                        }
+                    } else if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int64_t))) {
+                            throw runtime_error("invalid value of "+ strType + "\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + "\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT128:
+                case EXT_DATA_UINT128:
+                    strType = (EXT_DATA_INT128 == eType) ? "INT128" : "UINT128";
+
+                    if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int64_t))) {
+                            throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                    }
+                    break;
+
+                case EXT_DATA_INT256:
+                case EXT_DATA_UINT256:
+                    strType = (EXT_DATA_INT64 == eType) ? "INT256" : "UINT256";
+
+                    if (value.isStr()) {
+                        strData = value.get_str();
+                        if (!parsehexdata(strData, vecData, sizeof(int64_t))) {
+                            throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                        }
+                    } else {
+                        throw runtime_error("invalid value of "+ strType + ", only supports hex strings\n");
+                    }
+                    break;
+            }
+            
+            if (0 == vecData.size())
+                throw runtime_error("value is null\n");
+        }
+        else
+        {
+            if (key.isNull())
+                throw runtime_error("key is null\n");
+            else if (!(key.isStr() || key.isNum()))
+                throw runtime_error("key is not string or number\n");
+            else if (!type.isNum())
+                throw runtime_error("value type is not number\n");
+            else if (type.get_int() < 0 || type.get_int() > UCHAR_MAX)
+                throw runtime_error("invalid value type\n");
+            else if (value.isNull())
+                throw runtime_error("value is null\n");
+            else if (!(value.isStr() || value.isNum()))
+                throw runtime_error("value is not string or number\n");
+            else
+                throw runtime_error("unknown key/value error\n");
+        }
+
+        if (strName.size() && strName.size() <= u256Name.size() && vecData.size() && vecData.size() <= USHRT_MAX)
+        {
+            u32Size = 3;
+            u256Name.SetNull();
+            
+            memcpy(u256Name.begin(), strName.data(), strName.size());
+            u32Size += u256Name.size();
+            u32Size += vecData.size();
+            
+            u8Temp = (u32Size >> 8) & 0xFF;
+            bindata.push_back(u8Temp);
+            u8Temp = (u32Size & 0xFF);
+            bindata.push_back(u8Temp);
+
+            bindata.push_back(eType);
+
+            bindata.insert(bindata.end(), u256Name.begin(), u256Name.end());
+            bindata.insert(bindata.end(), vecData.begin(), vecData.end());
+            u8Count++;
+        }
+        else
+        {
+            if (!strName.size())
+                throw runtime_error("min key size is 1\n");
+            else if (strName.size() > u256Name.size())
+                throw runtime_error("max key size is " + std::to_string(u256Name.size()) + "\n");
+            else if (!vecData.size() || vecData.size() > USHRT_MAX)
+                throw runtime_error("key " + strName + " data size is " + std::to_string(vecData.size()) + "\n");
+            else
+                throw runtime_error("unknown name/data error\n");
+        }
+    }
+
+    if (u8Count != jsonData.size())
+        throw runtime_error("name/data pair error\n");
+
+    if(bindata.size() > USHRT_MAX)
+        throw runtime_error("Length of extend data(" + std::to_string(bindata.size()) + ") exceeds the limit:" + std::to_string(USHRT_MAX) + "\n");
+
+    u32Size = bindata.size();
+
+    bindata[0] = (u32Size >> 8) & 0xFF;
+    bindata[1] = (u32Size & 0xFF);
+    bindata[2] = u8Count;
+
+    senderAddress.SetString(params[1].get_str());
+    if (!senderAddress.IsValid())
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid eulo address to send from");
+
+    CCoinControl coinControl;
+
+    UniValue results(UniValue::VARR);
+    std::vector<COutput> vecOutputs;
+    
+    if (pwalletMain->IsLocked())
+        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Unlock wallet to use this feature");
+
+    coinControl.fAllowOtherInputs = true;
+    assert(pwalletMain != NULL);
+    pwalletMain->AvailableCoins(vecOutputs, true, NULL, false);
+    
+    for (const COutput &out : vecOutputs)
+    {
+        CTxDestination address;
+        const CScript &scriptPubKey = out.tx->vout[out.i].scriptPubKey;
+        bool fValidAddress = ExtractDestination(scriptPubKey, address);
+    
+        CBitcoinAddress destAdress(address);
+    
+        if (!fValidAddress || senderAddress.Get() != destAdress.Get())
+            continue;
+    
+        coinControl.Select(COutPoint(out.tx->GetHash(), out.i));
+    
+        break;
+    }
+    
+    if (!coinControl.HasSelected())
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender address does not have any unspent outputs");
+    }
+    coinControl.destChange = senderAddress.Get();
+
+    CWalletTx wtx;
+
+    wtx.nTimeSmart = GetAdjustedTime();
+
+    int height = chainActive.Tip()->nHeight;
+
+    CAmount curBalance = pwalletMain->GetBalance();
+    if (curBalance <= 0)
+        throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+
+    CScript  script;
+
+    {
+        if (bindata.size() < OP_PUSHDATA1) {
+            script.insert(script.end(), (unsigned char)bindata.size());
+        } else if (bindata.size() <= 0xff) {
+            script.insert(script.end(), OP_PUSHDATA1);
+            script.insert(script.end(), (unsigned char)bindata.size());
+        } else if (bindata.size() <= 0xffff) {
+            script.insert(script.end(), OP_PUSHDATA2);
+            unsigned short nSize = bindata.size();
+            script.insert(script.end(), (unsigned char*)&nSize, (unsigned char*)&nSize + sizeof(nSize));
+        } else {
+            throw runtime_error("Length of extend data(" + std::to_string(bindata.size()) + ") exceeds the limit:" + std::to_string(USHRT_MAX) + "\n");
+        }
+        script.insert(script.end(), bindata.begin(), bindata.end());
+    }
+    script << OP_EXT_DATA;
+
+    // Create and send the transaction
+    CReserveKey reservekey(pwalletMain);
+    CAmount nFeeRequired;
+    std::string strError;
+    std::vector<std::pair<CScript, CAmount>> vecSend;
+    int nChangePosRet = -1;
+
+    vecSend.push_back(std::make_pair(script, 0));
+
+    if (!pwalletMain->CreateTransaction(vecSend, wtx, reservekey, nFeeRequired, strError, &coinControl, ALL_COINS, false, 0, 0, true))
+    {
+        if (nFeeRequired > pwalletMain->GetBalance())
+            strError = strprintf(
+                    "Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!",
+                    FormatMoney(nFeeRequired));
+        throw JSONRPCError(RPC_WALLET_ERROR, strError);
+    }
+
+    CTxDestination txSenderDest;
+    ExtractDestination(pwalletMain->mapWallet[wtx.vin[0].prevout.hash].vout[wtx.vin[0].prevout.n].scriptPubKey, txSenderDest);
+
+    if (!(senderAddress.Get() == txSenderDest))
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+    }
+
+    CValidationState state;
+
+    if (!CheckTransaction(wtx, height >= Params().Zerocoin_StartHeight(), false, state)) // state filled in by CheckTransaction
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Sender could not be set, transaction was not committed!");
+    }
+    
+    CCoinsView dummy;
+    CCoinsViewCache view(&dummy);
+
+    LOCK(mempool.cs);
+    CCoinsViewMemPool viewMemPool(pcoinsTip, mempool);
+    view.SetBackend(viewMemPool);
+    
+    if (!wtx.CheckSenderScript(view))
+    {
+        throw JSONRPCError(RPC_TYPE_ERROR, "bad-txns-invalid-sender-script");
+    }
+
+    if (!pwalletMain->CommitTransaction(wtx, reservekey, "sendextenddata"))
+        throw JSONRPCError(RPC_WALLET_ERROR,
+                           "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+
+    return wtx.GetHash().GetHex();
+}
+
+UniValue getextenddata(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() < 2 || params.size() > 3)
+        throw runtime_error(
+            "getextenddata height key\n"
+            "\nReturns value of key in best-block-chain at height provided.\n"
+            "\nResult:\n"
+            "\"value\"          (string) The value of key in string\n"
+            "\nExamples:\n"
+            "\nGet extended value of key from a transaction with extend data\n" +
+            HelpExampleCli("getextenddata", "1000 \"key\" \"SenderAddress\"\n"));
+
+    bool                hasSender;
+
+    int32_t             height;
+
+    std::string         strKey;
+    std::string         strValue;
+
+    dev::Address        Sender;
+    
+    eExtendDataType     eType;
+
+    if (!params[0].isNum())
+        throw runtime_error("height is not number\n");
+
+    if (!params[1].isStr())
+        throw runtime_error("key is not string\n");
+
+    hasSender = false;
+    if (params.size() > 2) {
+        hasSender = true;
+        if (!params[2].isStr())
+            throw runtime_error("address is not string\n");
+
+        CKeyID keyID;
+        CBitcoinAddress txSender;
+
+        txSender.SetString(params[2].get_str());
+        
+        if (!txSender.IsValid()) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Eulo address");
+        }
+        txSender.GetKeyID(keyID);
+        memcpy(Sender.data(), keyID.begin(), dev::Address::size);
+        std::cout << "keyid " << keyID.ToString() << std::endl;
+    }
+
+    height = params[0].get_int();
+    if (height < 0 || height > chainActive.Height())
+        return strValue;
+
+    strKey = params[1].get_str();
+
+    std::vector<uint8_t> value;
+    if (getData(height, strKey, eType, value, Sender)) {
+        strValue = std::string((const char *)value.data(), value.size());
+    }
+
+    return strValue;
+}
+
+
 UniValue printMultiSend()
 {
     UniValue ret(UniValue::VARR);
@@ -2732,8 +3855,9 @@ UniValue importzerocoins(const UniValue& params, bool fHelp)
             HelpExampleCli("importzerocoins", "\'[{\"d\":100,\"p\":\"mypubcoin\",\"s\":\"myserial\",\"r\":\"randomness_hex\",\"t\":\"mytxid\",\"h\":104923, \"u\":false},{\"d\":5,...}]\'") +
                 HelpExampleRpc("importzerocoins", "[{\"d\":100,\"p\":\"mypubcoin\",\"s\":\"myserial\",\"r\":\"randomness_hex\",\"t\":\"mytxid\",\"h\":104923, \"u\":false},{\"d\":5,...}]"));
 
-    if(pwalletMain->IsLocked())
-        throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+
+    EnsureWalletIsUnlocked();
 
     RPCTypeCheck(params, list_of(UniValue::VARR)(UniValue::VOBJ));
     UniValue arrMints = params[0].get_array();
@@ -2753,9 +3877,12 @@ UniValue importzerocoins(const UniValue& params, bool fHelp)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, d must be positive");
 
         libzerocoin::CoinDenomination denom = libzerocoin::IntToZerocoinDenomination(d);
-        CBigNum bnValue = CBigNum(find_value(o, "p").get_str());
-        CBigNum bnSerial = CBigNum(find_value(o, "s").get_str());
-        CBigNum bnRandom = CBigNum(find_value(o, "r").get_str());
+        CBigNum bnValue = 0;
+        bnValue.SetHex(find_value(o, "p").get_str());
+        CBigNum bnSerial = 0;
+        bnSerial.SetHex(find_value(o, "s").get_str());
+        CBigNum bnRandom = 0;
+        bnRandom.SetHex(find_value(o, "r").get_str());
         uint256 txid(find_value(o, "t").get_str());
 
         int nHeight = find_value(o, "h").get_int();

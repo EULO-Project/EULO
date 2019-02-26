@@ -93,7 +93,7 @@ static inline int64_t roundint64(double d)
 CAmount AmountFromValue(const UniValue& value)
 {
     double dAmount = value.get_real();
-    if (dAmount <= 0.0 || dAmount > 21000000000.0)
+    if (dAmount < 0.0 || dAmount > 21000000000.0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
     CAmount nAmount = roundint64(dAmount * COIN);
     if (!MoneyRange(nAmount))
@@ -298,9 +298,18 @@ static const CRPCCommand vRPCCommands[] =
 #ifdef  POW_IN_POS_PHASE
         {"blockchain", "tmpblockstatus", &tmpblockstatus, true, true, false},
 #endif
+        {"blockchain", "hashstateandutxo", &hashstateandutxo, true, true, false},
+
         {"blockchain", "invalidateblock", &invalidateblock, true, true, false},
         {"blockchain", "reconsiderblock", &reconsiderblock, true, true, false},
         {"blockchain", "verifychain", &verifychain, true, false, false},
+        //  eulo-vm
+        {"blockchain", "getaccountinfo", &getaccountinfo,},
+        {"blockchain", "getstorage", &getstorage,},
+        {"blockchain", "callcontract", &callcontract, true, false,false},
+        {"blockchain", "listcontracts", &listcontracts,},
+        {"blockchain", "gettransactionreceipt", &gettransactionreceipt,},
+        {"blockchain", "searchlogs", &searchlogs,},
 
         /* Mining */
         {"mining", "getblocktemplate", &getblocktemplate, true, false, false},
@@ -324,6 +333,8 @@ static const CRPCCommand vRPCCommands[] =
         {"rawtransactions", "getrawtransaction", &getrawtransaction, true, false, false},
         {"rawtransactions", "sendrawtransaction", &sendrawtransaction, false, false, false},
         {"rawtransactions", "signrawtransaction", &signrawtransaction, false, false, false}, /* uses wallet if enabled */
+        {"rawtransactions", "gethexaddress", &gethexaddress, true, true, false},
+        {"rawtransactions", "fromhexaddress", &fromhexaddress, true, true, false},
 
         /* Utility functions */
         {"util", "createmultisig", &createmultisig, true, true, false},
@@ -416,6 +427,10 @@ static const CRPCCommand vRPCCommands[] =
         {"wallet", "walletlock", &walletlock, true, false, true},
         {"wallet", "walletpassphrasechange", &walletpassphrasechange, true, false, true},
         {"wallet", "walletpassphrase", &walletpassphrase, true, false, true},
+        {"wallet", "createcontract", &createcontract, false, false, true},
+        {"wallet", "sendtocontract", &sendtocontract, false, false, true},
+        {"wallet", "sendextenddata", &sendextenddata, false, false, true},
+        {"wallet", "getextenddata", &getextenddata, false, false, true},
 
         {"zerocoin", "getzerocoinbalance", &getzerocoinbalance, false, false, true},
         {"zerocoin", "listmintedzerocoins", &listmintedzerocoins, false, false, true},

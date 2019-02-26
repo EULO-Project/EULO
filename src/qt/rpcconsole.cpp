@@ -79,6 +79,11 @@ signals:
 
 #include "rpcconsole.moc"
 
+
+
+
+
+
 /**
  * Split shell command line into a list of arguments. Aims to emulate \c bash and friends.
  *
@@ -93,7 +98,7 @@ signals:
  * @param[out]   args        Parsed arguments will be appended to this list
  * @param[in]    strCommand  Command line to split
  */
-bool parseCommandLine(std::vector<std::string>& args, const std::string& strCommand)
+bool RPCConsole::parseCommandLine(std::vector<std::string>& args, const std::string& strCommand)
 {
     enum CmdParseState {
         STATE_EATING_SPACES,
@@ -180,8 +185,8 @@ bool parseCommandLine(std::vector<std::string>& args, const std::string& strComm
 void RPCExecutor::request(const QString& command)
 {
     std::vector<std::string> args;
-    if (!parseCommandLine(args, command.toStdString())) {
-        emit reply(RPCConsole::CMD_ERROR, QString("Parse error: unbalanced ' or \""));
+    if (!RPCConsole::parseCommandLine(args, command.toStdString())) {
+        emit reply(RPCConsole::CMD_ERROR, QString("Parse error: unbalanced1 ' or \""));
         return;
     }
     if (args.empty())

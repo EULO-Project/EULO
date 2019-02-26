@@ -15,6 +15,10 @@
 
 #include <boost/thread.hpp>
 
+////////////////////////////////////////// // eulo-vm
+static const char DB_HEIGHTINDEX = 'h';
+//////////////////////////////////////////
+
 using namespace std;
 using namespace libzerocoin;
 
@@ -208,6 +212,139 @@ bool CBlockTreeDB::ReadInt(const std::string& name, int& nValue)
     return Read(std::make_pair('I', name), nValue);
 }
 
+/////////////////////////////////////////////////////// // eulo-vm
+bool CBlockTreeDB::WriteHeightIndex(const CHeightTxIndexKey &heightIndex, const std::vector<uint256>& hash) {
+    CLevelDBBatch batch;
+    batch.Write(std::make_pair(DB_HEIGHTINDEX, heightIndex), hash);
+    return WriteBatch(batch);
+}
+
+
+
+int CBlockTreeDB::ReadHeightIndex(int low, int high, int minconf,
+                                  std::vector<std::vector<uint256>> &blocksOfHashes,
+                                  std::set<dev::h160> const &addresses) {
+
+    if ((high < low && high > -1) || (high == 0 && low == 0) || (high < -1 || low < 0)) {
+        return -1;
+    }
+
+    boost::scoped_ptr<leveldb::Iterator> pcursor(NewIterator());
+
+    CDataStream ssKeySet(SER_DISK, CLIENT_VERSION);
+
+    ssKeySet.reserve(ssKeySet.GetSerializeSize(make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low))));
+    ssKeySet << make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(low));
+
+    leveldb::Slice slKey(&ssKeySet[0], ssKeySet.size());
+    pcursor->Seek(slKey);
+
+    int curheight = 0;
+
+    for (size_t count = 0; pcursor->Valid(); pcursor->Next()) {
+
+        std::pair<char, CHeightTxIndexKey> key;
+        if (!GetKey(pcursor.get(),key) || key.first != DB_HEIGHTINDEX) {
+            LogPrintf("ReadHeightIndex failed, check whether WriteHeightIndex is ok!");
+            break;
+        }
+
+        int nextHeight = key.second.height;
+
+        if (high > -1 && nextHeight > high) {
+            break;
+        }
+
+        if (minconf > 0) {
+
+            int conf = chainActive.Height() - nextHeight;
+            if (conf < minconf) {
+                break;
+            }
+        }
+
+        curheight = nextHeight;
+
+        auto address = key.second.address;
+        if (!addresses.empty() && addresses.find(address) == addresses.end()) {
+            continue;
+        }
+
+        std::vector<uint256> hashesTx;
+
+        if (!GetValue(pcursor.get(),hashesTx)) {
+            break;
+        }
+
+        count += hashesTx.size();
+
+        blocksOfHashes.push_back(hashesTx);
+    }
+
+    return curheight;
+}
+
+bool CBlockTreeDB::EraseHeightIndex(const unsigned int &height) {
+
+
+    boost::scoped_ptr<leveldb::Iterator> pcursor(NewIterator());
+    CLevelDBBatch batch;
+
+    CDataStream ssKeySet(SER_DISK, CLIENT_VERSION);
+
+    ssKeySet.reserve(ssKeySet.GetSerializeSize(make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(height))));
+    ssKeySet << make_pair(DB_HEIGHTINDEX, CHeightTxIndexIteratorKey(height));
+
+    leveldb::Slice slKey(&ssKeySet[0], ssKeySet.size());
+
+    pcursor->Seek(slKey);
+
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, CHeightTxIndexKey> key;
+        if (GetKey(pcursor.get(),key) && key.first == DB_HEIGHTINDEX && key.second.height == height) {
+            batch.Erase(key);
+            pcursor->Next();
+        } else {
+            break;
+        }
+    }
+
+    return WriteBatch(batch);
+}
+
+bool CBlockTreeDB::WipeHeightIndex() {
+
+    boost::scoped_ptr<leveldb::Iterator> pcursor(NewIterator());
+    CLevelDBBatch batch;
+
+    CDataStream ssKeySet(SER_DISK, CLIENT_VERSION);
+
+    ssKeySet.reserve(ssKeySet.GetSerializeSize(DB_HEIGHTINDEX));
+
+    ssKeySet << DB_HEIGHTINDEX;
+
+    leveldb::Slice slKey(&ssKeySet[0], ssKeySet.size());
+    pcursor->Seek(slKey);
+
+    while (pcursor->Valid()) {
+        boost::this_thread::interruption_point();
+        std::pair<char, CHeightTxIndexKey> key;
+        if (GetKey(pcursor.get(),key) && key.first == DB_HEIGHTINDEX) {
+            batch.Erase(key);
+            pcursor->Next();
+        } else {
+            break;
+        }
+    }
+
+    return WriteBatch(batch);
+}
+
+///////////////////////////////////////////////////////
+
+
 bool CBlockTreeDB::LoadBlockIndexGuts()
 {
     boost::scoped_ptr<leveldb::Iterator> pcursor(NewIterator());
@@ -365,3 +502,154 @@ bool CZerocoinDB::EraseAccumulatorValue(const uint32_t& nChecksum)
     LogPrint("zero", "%s : checksum:%d\n", __func__, nChecksum);
     return Erase(make_pair('a', nChecksum));
 }
+
+CAddressDB::CAddressDB(size_t nCacheSize, bool fMemory, bool fWipe) : CLevelDBWrapper(GetDataDir() / "blocks" / "addresses", nCacheSize, fMemory, fWipe)
+{
+}
+
+bool CAddressDB::AddTx(const std::vector<CTransaction>& vtx, const std::vector<std::pair<uint256, CDiskTxPos> >& vpos)
+{
+    for (unsigned int i = 0; i < vtx.size(); i++)
+    {
+        const CDiskTxPos& pos = vpos[i].second;
+        uint256 TxHash = vtx[i].GetHash();
+
+        std::vector<CScriptID> Inputs;
+        for (unsigned int j = 0; j < vtx[i].vin.size(); j++)
+        {
+            const CTxIn& in = vtx[i].vin[j];
+            CScript script = getPrevOut(in).scriptPubKey;
+            if (script.empty())
+                continue;
+            CKeyID KeyID;
+            CTxDestination address;
+            if (ExtractDestination(script, address)) {
+                if (typeid(CKeyID) == address.type()) {
+                    KeyID = boost:: get<CKeyID>(address);
+                }
+            }
+            CScriptID scid(KeyID);
+
+            if (CKeyID() == KeyID)
+                scid = CScriptID(script);
+
+            // ignore inputs from the same address
+            if (std::find(Inputs.begin(), Inputs.end(), scid) != Inputs.end())
+                continue;
+            Inputs.push_back(scid);
+
+            std::vector<CDiskTxPos> Txs;
+            Read(scid, Txs);
+            Txs.push_back(pos);
+            if (!Write(scid, Txs))
+                return false;
+
+            // store 'redeemed in' information for each tx output
+            std::vector<std::pair<uint256, unsigned int> > Ins;
+            Read(in.prevout.hash, Ins);
+            if (in.prevout.n >= Ins.size())
+                Ins.resize(in.prevout.n + 1);
+            Ins[in.prevout.n] = std::pair<uint256, unsigned int>(TxHash, j);
+            Write(in.prevout.hash, Ins);
+        }
+        BOOST_FOREACH (const CTxOut& out, vtx[i].vout)
+        {
+            CKeyID KeyID;
+            CTxDestination OutDest;
+            if (ExtractDestination(out.scriptPubKey, OutDest)) {
+                if (typeid(CKeyID) == OutDest.type()) {
+                    KeyID = boost:: get<CKeyID>(OutDest);
+                }
+            }
+            CScriptID scid(KeyID);
+
+            if (CKeyID() == KeyID)
+                scid = CScriptID(out.scriptPubKey);
+            
+            if (std::find(Inputs.begin(), Inputs.end(), scid) != Inputs.end())
+                continue;
+            
+            std::vector<CDiskTxPos> Txs;
+            Read(scid, Txs);
+            Txs.push_back(pos);
+            if (!Write(scid, Txs))
+                return false;
+        }
+    }
+    return true;
+}
+
+bool CAddressDB::GetTxs(std::vector<CDiskTxPos>& Txs, const CScriptID &Address)
+{
+    return Read(Address, Txs);
+}
+
+bool CAddressDB::ReadNextIn(const COutPoint &Out, uint256& Hash, unsigned int& n)
+{
+    std::vector<std::pair<uint256, unsigned int> > Ins;
+    if (!Read(Out.hash, Ins) || Out.n >= Ins.size())
+        return false;
+    Hash = Ins[Out.n].first;
+    n = Ins[Out.n].second;
+    return true;
+}
+
+bool CAddressDB::WriteReindexing(bool fReindexing) {
+    if (fReindexing)
+        return Write('R', '1');
+    else
+        return Erase('R');
+}
+
+bool CAddressDB::ReadReindexing(bool &fReindexing) {
+    fReindexing = Exists('R');
+    return true;
+}
+
+bool CAddressDB::WriteEnable( bool fValue) {
+    return Write(std::string("Faddrindex"), fValue ? '1' : '0');
+}
+
+bool CAddressDB::ReadEnable( bool &fValue) {
+    char ch;
+    if (!Read(std::string("Faddrindex"), ch))
+        return false;
+    fValue = ch == '1';
+    return true;
+}
+
+CTxOut getPrevOut(const CTxIn& In)
+{
+    CTransaction tx;
+    uint256 hashBlock = 0;
+    if (GetTransaction(In.prevout.hash, tx, hashBlock, true))
+        return tx.vout[In.prevout.n];
+    return CTxOut();
+}
+void getNextIn(const COutPoint &Out, uint256& Hash, unsigned int& n)
+{
+    Hash = 0;
+    n = 0;
+    if (paddressmap)
+        paddressmap->ReadNextIn(Out, Hash, n);
+}
+
+// Return transaction in tx, and if it was found inside a block, its header is placed in block
+bool ReadTransaction(const CDiskTxPos &postx, CTransaction &txOut, CBlockHeader &block)
+{
+    CAutoFile file(OpenBlockFile(postx, true), SER_DISK, CLIENT_VERSION);
+    try
+    {
+        file >> block;
+        fseek(file.Get(), postx.nTxOffset, SEEK_CUR);
+        file >> txOut;
+    }
+    catch (std::exception &e)
+    {
+        return error("%s() : deserialize or I/O error", __PRETTY_FUNCTION__);
+    }
+    return true;
+}
+
+
+

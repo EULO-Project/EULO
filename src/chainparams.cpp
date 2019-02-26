@@ -80,10 +80,12 @@ static const Checkpoints::CCheckpointData dataRegtest = {
 libzerocoin::ZerocoinParams* CChainParams::Zerocoin_Params() const
 {
     assert(this);
-    static CBigNum bnTrustedModulus(zerocoinModulus);
-    static libzerocoin::ZerocoinParams ZCParams = libzerocoin::ZerocoinParams(bnTrustedModulus);
+    static CBigNum bnHexModulus = 0;
+    if (!bnHexModulus)
+        bnHexModulus.SetHex(zerocoinModulus);
+    static libzerocoin::ZerocoinParams ZCParamsHex = libzerocoin::ZerocoinParams(bnHexModulus);
 
-    return &ZCParams;
+    return &ZCParamsHex;
 }
 
 class CMainParams : public CChainParams
@@ -119,6 +121,7 @@ public:
 
         /** Height or Time Based Activations **/
         nLastPOWBlock = 1439;
+        nContractStartHeight = 234720;
         nPOWStartBlockInPOS = 518400;
         nModifierUpdateBlock = 0;
         nZerocoinStartHeight = 129600;
@@ -144,7 +147,7 @@ public:
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
-        genesis.nVersion = 1;
+        genesis.nVersion = GENESIS_VERSION;
         genesis.nTime = 1533859200;
         genesis.nBits = 0x1e00ffff;
         genesis.nNonce = 1742924;
@@ -232,7 +235,7 @@ public:
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
 
         nLastPOWBlock = 1439;
-        nPOWStartBlockInPOS = 518400;
+        nPOWStartBlockInPOS = 259200;
         nMaturity = 15;
         nMasternodeCountDrift = 4;
         nModifierUpdateBlock = 0; //approx Mon, 17 Apr 2017 04:00:00 GMT
@@ -250,9 +253,11 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        vSeeds.push_back(CDNSSeedData("seed1.eulo.io", "seed1.eulo.io"));       // seed1
-        vSeeds.push_back(CDNSSeedData("seed2.eulo.io", "seed2.eulo.io"));       // seed2
-        vSeeds.push_back(CDNSSeedData("seed3.eulo.io", "seed3.eulo.io"));       // seed3
+        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Germany node address
+        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Japan node address
+        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Singapore node address
+        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // US node address
+        vSeeds.push_back(CDNSSeedData("47.89.243.161", "47.89.243.161"));           // Single node address
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 130); // Testnet ulo addresses start with 'u'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);  // Testnet eulo script addresses start with '8' or '9'

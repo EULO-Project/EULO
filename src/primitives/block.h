@@ -59,11 +59,27 @@ public:
 };
 #endif
 
+enum VM_STATE_ROOT
+{
+    RET_VM_STATE_OK = 1,
+    RET_CONTRACT_UNENBALE = 0,
+    RET_VM_STATE_ERR = -1,
+};
+
+enum BLOCK_VERSION
+{
+    GENESIS_VERSION = 1,
+    POW_VERSION = 2,
+    POS_VERSION = 3,
+    ZEROCOIN_VERSION = 4,
+    SMART_CONTRACT_VERSION = 5,
+};
+
 class CBlockHeader
 {
 public:
     // header
-    static const int32_t CURRENT_VERSION=4;
+    static const int32_t CURRENT_VERSION = SMART_CONTRACT_VERSION;
     int32_t nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -93,11 +109,11 @@ public:
         READWRITE(nNonce);
 
         //zerocoin active, header changes to include accumulator checksum
-        if(nVersion > 3)
+        if(nVersion >= ZEROCOIN_VERSION)
             READWRITE(nAccumulatorCheckpoint);
 
 #ifdef  POW_IN_POS_PHASE
-        if(nVersion > 2)
+        if(nVersion >= POS_VERSION)
             READWRITE(nBits2);
 #endif
     }
@@ -196,6 +212,8 @@ public:
         return block;
     }
 
+    VM_STATE_ROOT GetVMState(uint256 &hashStateRoot, uint256 &hashUTXORoot) const;
+
     // ppcoin: two types of block: proof-of-work or proof-of-stake
     bool IsProofOfStake() const
     {
@@ -205,6 +223,11 @@ public:
     bool IsProofOfWork() const
     {
         return !IsProofOfStake();
+    }
+
+    bool IsContractEnabled() const
+    {
+        return (nVersion > ZEROCOIN_VERSION);
     }
 
     bool SignBlock(const CKeyStore& keystore);

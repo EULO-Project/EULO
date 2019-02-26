@@ -11,6 +11,8 @@
 #include "utilstrencodings.h"
 
 #include <boost/foreach.hpp>
+#include "contract_api/contractcomponent.h"
+#include "contract_api/contractconfig.h"
 
 using namespace std;
 
@@ -31,6 +33,11 @@ const char* GetTxnOutputType(txnouttype t)
     case TX_MULTISIG: return "multisig";
     case TX_NULL_DATA: return "nulldata";
     case TX_ZEROCOINMINT: return "zerocoinmint";
+    // eulo-vm
+    case TX_CREATE: return "create";
+    case TX_CALL: return "call";
+    case TX_VM_STATE: return "vm_state";
+    case TX_EXT_DATA: return "ext_data";
     }
     return NULL;
 }
@@ -38,8 +45,14 @@ const char* GetTxnOutputType(txnouttype t)
 /**
  * Return public keys or hashes from scriptPubKey, for 'standard' transaction types.
  */
-bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsigned char> >& vSolutionsRet)
+bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsigned char> >& vSolutionsRet,bool contractConsensus)
 {
+
+    //eulo-vm
+    //contractConsesus is true when evaluating if a contract tx is "standard" for consensus purposes
+    //It is false in all other cases, so to prevent a particular contract tx from being broadcast on mempool, but allowed in blocks,
+    //one should ensure that contractConsensus is false
+
     // Templates
     static multimap<txnouttype, CScript> mTemplates;
     if (mTemplates.empty())
@@ -52,8 +65,22 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
         // Sender provides N pubkeys, receivers provides M signatures
         mTemplates.insert(make_pair(TX_MULTISIG, CScript() << OP_SMALLINTEGER << OP_PUBKEYS << OP_SMALLINTEGER << OP_CHECKMULTISIG));
+
+
+        // Contract creation tx
+        mTemplates.insert(make_pair(TX_CREATE, CScript() << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE
+                                    << OP_DATA << OP_CREATE));
+
+        // Call contract tx
+        mTemplates.insert(make_pair(TX_CALL, CScript() << OP_VERSION << OP_GAS_LIMIT << OP_GAS_PRICE
+                                    << OP_DATA << OP_PUBKEYHASH << OP_CALL));
+
+        // vm state
+        mTemplates.insert(make_pair(TX_VM_STATE, CScript() << OP_HASH_STATE_ROOT << OP_HASH_UTXO_ROOT
+                                    << OP_VM_STATE));
     }
 
+    vSolutionsRet.clear();
     // Shortcut for pay-to-script-hash, which are more constrained than the other types:
     // it is always OP_HASH160 20 [20 byte hash] OP_EQUAL
     if (scriptPubKey.IsPayToScriptHash())
@@ -71,6 +98,40 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
         vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.end());
         vSolutionsRet.push_back(hashBytes);
         return true;
+    }
+
+    if (scriptPubKey.HasOpExtData() && scriptPubKey.size() > 5) {
+        typeRet = TX_EXT_DATA;
+
+        uint8_t     u8Offset;
+        uint32_t    u32VecSize;
+        uint32_t    u32DataSize;
+
+        u8Offset = 1;
+        if (scriptPubKey[0] < OP_PUSHDATA1) {
+            u32VecSize = scriptPubKey[0];
+            u32DataSize = (scriptPubKey[1] << 8) | scriptPubKey[2];
+        } else if (scriptPubKey[0] == OP_PUSHDATA1) {
+            u8Offset = 2;
+            u32VecSize = scriptPubKey[1];
+            u32DataSize = (scriptPubKey[2] << 8) | scriptPubKey[3];
+        } else if (scriptPubKey[0] == OP_PUSHDATA2) {            
+            u8Offset = 3;
+            u32VecSize = *(unsigned short *)(scriptPubKey.data() + 1);
+            u32DataSize = (scriptPubKey[3] << 8) | scriptPubKey[4];
+        } else {
+            return false;
+        }
+
+        if (u32VecSize == u32DataSize && u32VecSize < scriptPubKey.size()) {
+            std::vector<unsigned char> vExtData;
+
+            vExtData.resize(u32VecSize);
+            memcpy(vExtData.data(), scriptPubKey.data() + u8Offset, u32VecSize);
+            vSolutionsRet.push_back(vExtData);
+        }
+
+        return (u32VecSize == u32DataSize && u32VecSize < scriptPubKey.size());
     }
 
     // Provably prunable, data-carrying output
@@ -92,6 +153,9 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
         opcodetype opcode1, opcode2;
         vector<unsigned char> vch1, vch2;
+
+        VersionVM version;      //  eulo-vm
+        version.rootVM = 20;    //  eulo-vm set to some invalid value
 
         // Compare
         CScript::const_iterator pc1 = script1.begin();
@@ -155,6 +219,104 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
                 else
                     break;
             }
+            /////////////////////////////////////////////////////////// //eulo-vm
+            else if (opcode2 == OP_VERSION)
+            {
+                if (0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
+                {
+                    if (vch1.empty() || vch1.size() > 4 || (vch1.back() & 0x80))
+                        return false;
+
+                    version = VersionVM::fromRaw(CScriptNum::vch_to_uint64(vch1));
+                    if (!(version.toRaw() == VersionVM::GetEVMDefault().toRaw() ||
+                          version.toRaw() == VersionVM::GetNoExec().toRaw()))
+                    {
+                        // only allow standard EVM and no-exec transactions to live in mempool
+                        return false;
+                    }
+                }
+            } else if (opcode2 == OP_GAS_LIMIT)
+            {
+                try
+                {
+                    uint64_t val = CScriptNum::vch_to_uint64(vch1);
+                    if (contractConsensus)
+                    {
+                        //consensus rules (this is checked more in depth later using DGP)
+                        if (version.rootVM != 0 && val < 1)
+                        {
+                            return false;
+                        }
+                        if (val > MAX_BLOCK_GAS_LIMIT_DGP)
+                        {
+                            //do not allow transactions that could use more gas than is in a block
+                            return false;
+                        }
+                    } else
+                    {
+                        //standard mempool rules for contracts
+                        //consensus rules for contracts
+                        if (version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_LIMIT)
+                        {
+                            return false;
+                        }
+                        if (val > DEFAULT_BLOCK_GAS_LIMIT_DGP / 2)
+                        {
+                            //don't allow transactions that use more than 1/2 block of gas to be broadcast on the mempool
+                            return false;
+                        }
+
+                    }
+                }
+                catch (const scriptnum_error &err)
+                {
+                    return false;
+                }
+            } else if (opcode2 == OP_GAS_PRICE)
+            {
+                try
+                {
+                    uint64_t val = CScriptNum::vch_to_uint64(vch1);
+                    if (contractConsensus)
+                    {
+                        //consensus rules (this is checked more in depth later using DGP)
+                        if (version.rootVM != 0 && val < 1)
+                        {
+                            return false;
+                        }
+                    } else
+                    {
+                        //standard mempool rules
+                        if (version.rootVM != 0 && val < STANDARD_MINIMUM_GAS_PRICE)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                catch (const scriptnum_error &err)
+                {
+                    return false;
+                }
+            } else if (opcode2 == OP_DATA)
+            {
+                if (0 <= opcode1 && opcode1 <= OP_PUSHDATA4)
+                {
+                    if (vch1.empty())
+                        break;
+                }
+            } else if (opcode2 == OP_HASH_STATE_ROOT)
+            {
+                if (vch1.size() != sizeof(uint256))
+                    break;
+                vSolutionsRet.push_back(vch1);
+            } else if (opcode2 == OP_HASH_UTXO_ROOT)
+            {
+                if (vch1.size() != sizeof(uint256))
+                    break;
+                vSolutionsRet.push_back(vch1);
+            }
+            ///////////////////////////////////////////////////////////
+
             else if (opcode1 != opcode2 || vch1 != vch2)
             {
                 // Others must match exactly
@@ -212,12 +374,20 @@ bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType)
     return whichType != TX_NONSTANDARD;
 }
 
-bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
+bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet, txnouttype *typeRet)    ////////////eulo-vm,added  typeRet as a param
+
 {
     vector<valtype> vSolutions;
     txnouttype whichType;
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
+
+    ////////////eulo-vm
+    if (typeRet)
+    {
+        *typeRet = whichType;
+    }
+    ////////////eulo-vm
 
     if (whichType == TX_PUBKEY)
     {
@@ -328,3 +498,11 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
     script << CScript::EncodeOP_N(keys.size()) << OP_CHECKMULTISIG;
     return script;
 }
+
+
+bool IsValidContractSenderAddress(const CTxDestination &dest)
+{
+    const CKeyID *keyID = boost::get<CKeyID>(&dest);
+    return keyID != 0;
+}
+

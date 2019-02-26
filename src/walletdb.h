@@ -33,6 +33,8 @@ class CZerocoinMint;
 class CZerocoinSpend;
 class uint160;
 class uint256;
+class CTokenInfo;
+class CTokenTx;
 
 /** Error statuses for the wallet database */
 enum DBErrors {
@@ -95,6 +97,13 @@ public:
     bool WriteTx(uint256 hash, const CWalletTx& wtx);
     bool EraseTx(uint256 hash);
 
+
+    bool WriteToken(const CTokenInfo& wtoken);
+    bool EraseToken(uint256 hash);
+
+    bool WriteTokenTx(const CTokenTx& wTokenTx);
+    bool EraseTokenTx(uint256 hash);
+
     bool WriteKey(const CPubKey& vchPubKey, const CPrivKey& vchPrivKey, const CKeyMetadata& keyMeta);
     bool WriteCryptedKey(const CPubKey& vchPubKey, const std::vector<unsigned char>& vchCryptedSecret, const CKeyMetadata& keyMeta);
     bool WriteMasterKey(unsigned int nID, const CMasterKey& kMasterKey);
@@ -136,6 +145,12 @@ public:
     bool WriteDestData(const std::string& address, const std::string& key, const std::string& value);
     /// Erase destination data tuple from wallet database
     bool EraseDestData(const std::string& address, const std::string& key);
+
+    /// Write contract data key,value tuple to database
+    bool WriteContractData(const std::string &address, const std::string &key, const std::string &value);
+    /// Erase contract data tuple from wallet database
+    bool EraseContractData(const std::string &address, const std::string &key);
+
 
     bool WriteAccountingEntry(const CAccountingEntry& acentry);
     CAmount GetAccountCreditDebit(const std::string& strAccount);

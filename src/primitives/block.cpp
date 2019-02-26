@@ -30,7 +30,7 @@ uint256 CTmpBlockParams::GetHash() const
 
 uint256 CBlockHeader::GetHash() const
 {
-    if(nVersion < 4)
+    if(nVersion < ZEROCOIN_VERSION)
         return HashQuark(BEGIN(nVersion), END(nNonce));
 
     return HashQuark(BEGIN(nVersion), END(nAccumulatorCheckpoint));
@@ -191,10 +191,12 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
     }
     else
     {
-        const CTxOut& txout = vtx[1].vout[1];
+        const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[2];
 
-        if (!Solver(txout.scriptPubKey, whichType, vSolutions))
+        if (!Solver(txout.scriptPubKey, whichType, vSolutions)) {
+            LogPrintf("Solver failed: %s\n", txout.scriptPubKey.ToString().c_str());
             return false;
+        }
 
         if (whichType == TX_PUBKEYHASH)
         {
@@ -203,12 +205,16 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
             keyID = CKeyID(uint160(vSolutions[0]));
 
             CKey key;
-            if (!keystore.GetKey(keyID, key))
+            if (!keystore.GetKey(keyID, key)) {
+                LogPrintf("SignBlock TX_PUBKEYHASH GetKey failed: %s\n", txout.scriptPubKey.ToString().c_str());
                 return false;
+            }
 
             //vector<unsigned char> vchSig;
-            if (!key.Sign(GetHash(), vchBlockSig))
+            if (!key.Sign(GetHash(), vchBlockSig)) {
+                 LogPrintf("SignBlock TX_PUBKEYHASH Sign failed: \n");
                  return false;
+            }
 
             return true;
 
@@ -218,12 +224,16 @@ bool CBlock::SignBlock(const CKeyStore& keystore)
             CKeyID keyID;
             keyID = CPubKey(vSolutions[0]).GetID();
             CKey key;
-            if (!keystore.GetKey(keyID, key))
+            if (!keystore.GetKey(keyID, key)) {
+                LogPrintf("TX_PUBKEY GetKey failed: \n");
                 return false;
+            }
 
             //vector<unsigned char> vchSig;
-            if (!key.Sign(GetHash(), vchBlockSig))
-                 return false;
+            if (!key.Sign(GetHash(), vchBlockSig)) {
+                LogPrintf("TX_PUBKEY Sign failed: \n");
+                return false;
+            }
 
             return true;
         }
@@ -241,7 +251,7 @@ bool CBlock::CheckBlockSignature() const
     std::vector<valtype> vSolutions;
     txnouttype whichType;
 
-    const CTxOut& txout = vtx[1].vout[1];
+    const CTxOut& txout = (nVersion < SMART_CONTRACT_VERSION) ? vtx[1].vout[1] : vtx[1].vout[2];
 
     if (!Solver(txout.scriptPubKey, whichType, vSolutions))
         return false;
@@ -276,4 +286,63 @@ bool CBlock::CheckBlockSignature() const
     }
 
     return false;
+}
+
+VM_STATE_ROOT CBlock::GetVMState(uint256 &hashStateRoot, uint256 &hashUTXORoot) const
+{
+    if (this->nVersion <= ZEROCOIN_VERSION)
+        return RET_CONTRACT_UNENBALE;
+
+    assert(vtx.size() > 1);
+    const CTransaction &tx = vtx[1];  // 0
+    assert(tx.IsCoinBase2() == true);
+
+    int index = 0;
+    unsigned int  i = 0;
+    for (i = 0; i < tx.vout.size(); i++)
+    {
+        if (tx.vout[i].scriptPubKey.HasOpVmHashState())
+        {
+            index = i;
+            break;
+        }
+    }
+
+    if(i >= tx.vout.size())
+    {  // must to have VmHashState vout
+        assert(0);
+        LogPrintStr("Error: GetVMState coinbase vout");
+        return RET_VM_STATE_ERR;
+    }
+    // have VmHashState vout
+    std::vector<std::vector<unsigned char> > stack;
+    EvalScript(stack, tx.vout[index].scriptPubKey, SCRIPT_EXEC_BYTE_CODE, BaseSignatureChecker(),
+               nullptr);
+    if (stack.empty())
+    {
+        // VmHashState vout script err
+        assert(0);
+        LogPrintStr("Error: GetVMState coinbase vout.scriptPubKey err");
+        return RET_VM_STATE_ERR;
+    }
+
+    std::vector<unsigned char> code(stack.back());
+    stack.pop_back();
+
+    std::vector<unsigned char> vechashUTXORoot(stack.back());
+    stack.pop_back();
+
+    std::string strUTXO;
+    strUTXO = HexStr(vechashUTXORoot);
+    hashUTXORoot = uint256S(strUTXO);
+
+    std::vector<unsigned char> vechashStateRoot(stack.back());
+
+    stack.pop_back();
+
+    std::string strHASH;
+    strHASH = HexStr(vechashStateRoot);
+    hashStateRoot = uint256S(strHASH);
+    return RET_VM_STATE_OK;
+
 }

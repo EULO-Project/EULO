@@ -8,7 +8,6 @@
 #include "crypter.h"
 #include "key.h"
 #include "script/script.h"
-#include "script/standard.h"
 #include "util.h"
 
 #include <boost/foreach.hpp>
@@ -111,4 +110,65 @@ bool CBasicKeyStore::HaveMultiSig() const
 {
     LOCK(cs_KeyStore);
     return (!setMultiSig.empty());
+}
+
+bool CBasicKeyStore::HaveKey(const CKeyID& address) const
+{
+    bool result;
+    {
+        LOCK(cs_KeyStore);
+        result = (mapKeys.count(address) > 0);
+    }
+    return result;
+}
+
+void CBasicKeyStore::GetKeys(std::set<CKeyID>& setAddress) const
+{
+    setAddress.clear();
+    {
+        LOCK(cs_KeyStore);
+        KeyMap::const_iterator mi = mapKeys.begin();
+        while (mi != mapKeys.end()) {
+            setAddress.insert((*mi).first);
+            mi++;
+        }
+    }
+}
+
+bool CBasicKeyStore::GetKey(const CKeyID& address, CKey& keyOut) const
+{
+    {
+        LOCK(cs_KeyStore);
+        KeyMap::const_iterator mi = mapKeys.find(address);
+        if (mi != mapKeys.end()) {
+            keyOut = mi->second;
+            return true;
+        }
+    }
+    return false;
+}
+
+
+CKeyID GetKeyForDestination(const CKeyStore& store, const CTxDestination& dest)
+{
+
+    // Only supports destinations which map to single public keys, i.e. P2PKH,
+    // P2WPKH, and P2SH-P2WPKH.
+    if (auto id = boost::get<CKeyID>(&dest)) {
+        LogPrintf("GetKeyForDestination ok\n");
+        return *id;
+    }
+
+    if (auto script_id = boost::get<CScriptID>(&dest)) {
+        CScript script;
+        CTxDestination inner_dest;
+        if (store.GetCScript(*script_id, script) && ExtractDestination(script, inner_dest)) {
+//            if (auto inner_witness_id = boost::get<WitnessV0KeyHash>(&inner_dest)) {
+//                return CKeyID(*inner_witness_id);
+//            }
+
+            LogPrintf("GetKeyForDestination to be done\n");
+        }
+    }
+    return CKeyID();
 }

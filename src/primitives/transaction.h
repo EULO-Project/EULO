@@ -13,8 +13,10 @@
 #include "uint256.h"
 
 #include <list>
+#include <memory>
 
 class CTransaction;
+class CCoinsViewCache;
 
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
@@ -168,7 +170,9 @@ public:
         // So dust is a txout less than 1820 *3 = 5460 duffs
         // with default -minrelaytxfee = minRelayTxFee = 10000 duffs per kB.
         size_t nSize = GetSerializeSize(SER_DISK,0)+148u;
-        return (nValue < 3*minRelayTxFee.GetFee(nSize));
+        //FixMe: Is this add on correct? // eulo-vm
+        return (nValue < 3*minRelayTxFee.GetFee(nSize) && !scriptPubKey.HasOpCreate() &&
+                !scriptPubKey.HasOpCall() && !scriptPubKey.HasOpExtData());
     }
 
     bool IsZerocoinMint() const
@@ -257,6 +261,14 @@ public:
     // Compute modified tx size for priority calculation (optionally given tx size)
     unsigned int CalculateModifiedSize(unsigned int nTxSize=0) const;
 
+    //////////////////////////////////////// //eulo-evm
+    bool HasCreateOrCall() const;
+
+    bool HasOpSpend() const;
+
+    bool CheckSenderScript(const CCoinsViewCache& view) const ;
+    ////////////////////////////////////////
+
     bool IsZerocoinSpend() const
     {
         return (vin.size() > 0 && vin[0].prevout.IsNull() && vin[0].scriptSig[0] == OP_ZEROCOINSPEND);
@@ -286,6 +298,12 @@ public:
     bool IsCoinBase() const
     {
         return (vin.size() == 1 && vin[0].prevout.IsNull() && !ContainsZerocoins());
+    }
+
+    bool IsCoinBase2() const
+    {
+        return (vin.size() > 0 && (!vin[0].prevout.IsNull()) && vout.size() >= 2 && vout[0].IsEmpty() && 
+                !vout[1].IsEmpty() && vout[1].scriptPubKey.HasOpVmHashState());
     }
 
     bool IsCoinStake() const

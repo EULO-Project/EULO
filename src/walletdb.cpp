@@ -571,7 +571,8 @@ bool ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue, CW
             ssValue >> vchPrivKey;
             wss.nCKeys++;
 
-            if (!pwallet->LoadCryptedKey(vchPubKey, vchPrivKey)) {
+            CPubKey pubKey(vchPubKey.begin(), vchPubKey.end());
+            if (!pwallet->LoadCryptedKey(pubKey, vchPrivKey)) {
                 strErr = "Error reading wallet database: LoadCryptedKey failed";
                 return false;
             }
@@ -655,6 +656,46 @@ bool ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue, CW
             ssValue >> strValue;
             if (!pwallet->LoadDestData(CBitcoinAddress(strAddress).Get(), strKey, strValue)) {
                 strErr = "Error reading wallet database: LoadDestData failed";
+                return false;
+            }
+        }
+        else if (strType == "token")
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CTokenInfo wtoken;
+            ssValue >> wtoken;
+            if (wtoken.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CTokenInfo corrupt";
+                return false;
+            }
+
+            pwallet->LoadToken(wtoken);
+        }
+        else if (strType == "tokentx")
+        {
+            uint256 hash;
+            ssKey >> hash;
+            CTokenTx wTokenTx;
+            ssValue >> wTokenTx;
+            if (wTokenTx.GetHash() != hash)
+            {
+                strErr = "Error reading wallet database: CTokenTx corrupt";
+                return false;
+            }
+
+            pwallet->LoadTokenTx(wTokenTx);
+        }
+        else if (strType == "contractdata")
+        {
+            std::string strAddress, strKey, strValue;
+            ssKey >> strAddress;
+            ssKey >> strKey;
+            ssValue >> strValue;
+            if (!pwallet->LoadContractData(strAddress, strKey, strValue))
+            {
+                strErr = "Error reading wallet database: LoadContractData failed";
                 return false;
             }
         }
@@ -990,7 +1031,7 @@ bool CWalletDB::Recover(CDBEnv& dbenv, std::string filename, bool fOnlyKeys)
             string strType, strErr;
             bool fReadOK = ReadKeyValue(&dummyWallet, ssKey, ssValue,
                 wss, strType, strErr);
-            if (!IsKeyType(strType))
+            if (!IsKeyType(strType) && strType != "token" && strType != "tokentx")
                 continue;
             if (!fReadOK) {
                 LogPrintf("WARNING: CWalletDB::Recover skipping %s: %s\n", strType, strErr);
@@ -1326,5 +1367,34 @@ std::list<CZerocoinMint> CWalletDB::ListArchivedZerocoins()
 
     pcursor->close();
     return listMints;
+}
+
+bool CWalletDB::WriteToken(const CTokenInfo &wtoken)
+{
+    return Write(std::make_pair(std::string("token"), wtoken.GetHash()), wtoken);
+}
+
+bool CWalletDB::EraseToken(uint256 hash)
+{
+    return Erase(std::make_pair(std::string("token"), hash));
+}
+
+bool CWalletDB::WriteTokenTx(const CTokenTx &wTokenTx)
+{
+    return Write(std::make_pair(std::string("tokentx"), wTokenTx.GetHash()), wTokenTx);
+}
+
+bool CWalletDB::EraseTokenTx(uint256 hash)
+{
+    return Erase(std::make_pair(std::string("tokentx"), hash));
+}
+bool CWalletDB::WriteContractData(const std::string &address, const std::string &key, const std::string &value)
+{
+    return Write(std::make_pair(std::string("contractdata"), std::make_pair(address, key)), value);
+}
+
+bool CWalletDB::EraseContractData(const std::string &address, const std::string &key)
+{
+    return Erase(std::make_pair(std::string("contractdata"), std::make_pair(address, key)));
 }
 

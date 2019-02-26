@@ -4,8 +4,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SERIALIZE_H
-#define BITCOIN_SERIALIZE_H
+#ifndef EULO_SERIALIZE_H
+#define EULO_SERIALIZE_H
 
 #include <algorithm>
 #include <assert.h>
@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 #include "libzerocoin/Denominations.h"
-
+#include <compat/endian.h>
 class CScript;
 
 static const unsigned int MAX_SIZE = 0x02000000;
@@ -912,6 +912,23 @@ inline void SerReadWrite(Stream& s, T& obj, int nType, int nVersion, CSerActionU
 }
 
 
+///////////////////////////////////////////////// // eulo-vm
+template<typename Stream> inline void ser_writedata32be(Stream &s, uint32_t obj)
+{
+    obj = htobe32(obj);
+    s.write((char*)&obj, 4);
+}
+/////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////// // eulo-vm
+template<typename Stream> inline uint32_t ser_readdata32be(Stream &s)
+{
+    uint32_t obj;
+    s.read((char*)&obj, 4);
+    return be32toh(obj);
+}
+////////////////////////////////////////////////////////////////////
+
+
 class CSizeComputer
 {
 protected:
@@ -929,6 +946,12 @@ public:
         return *this;
     }
 
+    /** Pretend _nSize bytes are written, without specifying them. */
+    void seek(size_t _nSize)
+    {
+        this->nSize += _nSize;
+    }
+
     template <typename T>
     CSizeComputer& operator<<(const T& obj)
     {
@@ -942,4 +965,4 @@ public:
     }
 };
 
-#endif // BITCOIN_SERIALIZE_H
+#endif // EULO_SERIALIZE_H

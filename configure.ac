@@ -2,8 +2,8 @@ dnl require autoconf 2.60 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.60])
 define(_CLIENT_VERSION_MAJOR, 1)
 define(_CLIENT_VERSION_MINOR, 0)
-define(_CLIENT_VERSION_REVISION, 2)
-define(_CLIENT_VERSION_BUILD, 1)
+define(_CLIENT_VERSION_BUILD, 0)
+define(_CLIENT_VERSION_REVISION, 4)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_COPYRIGHT_YEAR, 2018)
 AC_INIT([Eulo Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[www.eulo.io],[eulo])
@@ -11,6 +11,7 @@ AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_HEADERS([src/config/eulo-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
+
 
 BITCOIN_DAEMON_NAME=eulod
 BITCOIN_GUI_NAME=eulo-qt
@@ -51,6 +52,8 @@ dnl we have those under control, re-enable that functionality.
 case $host in
   *mingw*)
      lt_cv_deplibs_check_method="pass_all"
+     CC="$CC-posix"
+     CXX="$CXX-posix"
   ;;
 esac
 dnl Require C++11 compiler (no GNU extensions)
@@ -200,13 +203,20 @@ fi
 if test "x$CXXFLAGS_overridden" = "xno"; then
   CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter"
 fi
-CPPFLAGS="$CPPFLAGS -DBOOST_SPIRIT_THREADSAFE -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS"
+CPPFLAGS="$CPPFLAGS -DBOOST_SPIRIT_THREADSAFE -D__STDC_FORMAT_MACROS"
 
 if test x$use_pow_in_pos != xno; then
     CPPFLAGS="$CPPFLAGS -DPOW_IN_POS_PHASE"
+    CXXFLAGS="$CXXFLAGS -DPOW_IN_POS_PHASE"
 fi
 build_version="_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION"
 CPPFLAGS="$CPPFLAGS -DBUILD_DESC=\"\\\"v$build_version\\\"\""
+
+build_version="_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION"
+CPPFLAGS="$CPPFLAGS -DBUILD_DESC=\"\\\"v$build_version\\\"\""
+
+CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1" 
+CXXFLAGS="$CXXFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1"
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],
@@ -439,6 +449,72 @@ AX_GCC_FUNC_ATTRIBUTE([visibility])
 AX_GCC_FUNC_ATTRIBUTE([dllexport])
 AX_GCC_FUNC_ATTRIBUTE([dllimport])
 
+#
+function extlibs()
+{
+system_name=
+ccache_path=
+source_path=
+c_compiler=$CC
+cxx_compiler=$CXX
+if [[ "x$version_type" = "xlinux" ]]; then
+  system_name="-DCMAKE_SYSTEM_NAME=Linux"
+  echo "prefix $prefix"
+  if [[ "x$prefix" = "x$ac_default_prefix" ]]; then
+    echo "configure with --prefix parameter"
+    exit 1
+  fi
+elif [[ "x$version_type" = "xwindows" ]]; then
+  system_name="-DCMAKE_SYSTEM_NAME=Windows"
+  thread_api="-DBoost_THREADAPI=win32"
+else
+  echo "not supported: $version_type"
+  exit 1
+fi
+
+if [[ "x$use_ccache" = "xyes" ]]; then
+  c_compiler=`echo $CC | awk '{print $2}'`
+  cxx_compiler=`echo $CXX | awk '{print $2}'`
+
+  ccache_compiler=`which ccache`
+  if [[ "x$ccache_compiler" != "x" ]]; then
+    ccache_path=`dirname $ccache_compiler`
+  fi
+fi
+
+if [[ "x$ccache_path" != "x" ]]; then
+  replace_path=`echo $ccache_path | sed 's/\//\\\\\//g'`
+  PATH=`echo $PATH | sed 's/'${replace_path}:'//g'`
+fi
+
+cd src/
+
+source_path=$prefix/../../src/
+
+#lz4
+if [[ ! -d "lz4/" ]]; then
+  mkdir -p lz4/
+fi
+
+if [[ ! -d "lz4/lib/" ]]; then
+  mkdir -p lz4/lib/
+fi
+
+cd lz4/lib/
+if [[ -f "Makefile" ]]; then
+  make clean
+else
+  cmake $system_name -DCMAKE_C_COMPILER=$c_compiler -DCMAKE_CXX_COMPILER=$cxx_compiler -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON $source_path/lz4/contrib/cmake_unofficial/
+fi
+cd ../../
+
+if [[ "x$ccache_path" != "x" ]]; then
+  PATH=$ccache_path:$PATH
+fi
+
+cd ../
+}
+
 if test x$use_glibc_compat != xno; then
 
   #__fdelt_chk's params and return type have changed from long unsigned int to long int.
@@ -496,15 +572,22 @@ if test x$TARGET_OS = xdarwin; then
   AX_CHECK_LINK_FLAG([[-Wl,-dead_strip]], [LDFLAGS="$LDFLAGS -Wl,-dead_strip"])
 fi
 
-AC_CHECK_HEADERS([endian.h stdio.h stdlib.h unistd.h strings.h sys/types.h sys/stat.h sys/select.h sys/prctl.h])
+AC_CHECK_HEADERS([endian.h sys/endian.h byteswap.h stdio.h stdlib.h unistd.h strings.h sys/types.h sys/stat.h sys/select.h sys/prctl.h])
 AC_SEARCH_LIBS([getaddrinfo_a], [anl], [AC_DEFINE(HAVE_GETADDRINFO_A, 1, [Define this symbol if you have getaddrinfo_a])])
 AC_SEARCH_LIBS([inet_pton], [nsl resolv], [AC_DEFINE(HAVE_INET_PTON, 1, [Define this symbol if you have inet_pton])])
 
 AC_CHECK_DECLS([strnlen])
 
-AC_CHECK_DECLS([le32toh, le64toh, htole32, htole64, be32toh, be64toh, htobe32, htobe64],,,
+AC_CHECK_DECLS([le16toh, le32toh, le64toh, htole16, htole32, htole64, be16toh, be32toh, be64toh, htobe16, htobe32, htobe64],,,
 		[#if HAVE_ENDIAN_H
                  #include <endian.h>
+   		#elif HAVE_SYS_ENDIAN_H
+                 #include <sys/endian.h>
+                 #endif])
+
+AC_CHECK_DECLS([bswap_16, bswap_32, bswap_64],,,
+		[#if HAVE_BYTESWAP_H
+                 #include <byteswap.h>
                  #endif])
 
 dnl Check for MSG_NOSIGNAL
@@ -597,11 +680,12 @@ if test x$use_boost = xyes; then
 dnl Check for boost libs
 AX_BOOST_BASE
 AX_BOOST_SYSTEM
+AX_BOOST_LOG
 AX_BOOST_FILESYSTEM
 AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_THREAD
 AX_BOOST_CHRONO
-
+AX_BOOST_RANDOM
 
 if test x$use_reduce_exports != xno; then
   AC_MSG_CHECKING([for working boost reduced exports])
@@ -674,7 +758,7 @@ fi
 
 if test x$use_boost = xyes; then
 
-BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_PROGRAM_OPTIONS_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB"
+BOOST_LIBS="$BOOST_LDFLAGS $BOOST_SYSTEM_LIB $BOOST_FILESYSTEM_LIB $BOOST_PROGRAM_OPTIONS_LIB $BOOST_THREAD_LIB $BOOST_CHRONO_LIB $BOOST_LOG_LIB $BOOST_RANDOM_LIB"
 
 dnl Boost >= 1.50 uses sleep_for rather than the now-deprecated sleep, however
 dnl it was broken from 1.50 to 1.52 when backed by nanosleep. Use sleep_for if
@@ -804,10 +888,10 @@ else
 fi
 
 AC_CHECK_LIB([crypto],[RAND_egd],[],[
-  AC_ARG_WITH([libressl],
-    [AS_HELP_STRING([--with-libressl],[Build with system LibreSSL (default is no; DANGEROUS; NOT SUPPORTED)])],
-    [AC_MSG_WARN([Detected LibreSSL: This is NOT supported, and may break consensus compatibility!])],
-    [AC_MSG_ERROR([Detected LibreSSL: This is NOT supported, and may break consensus compatibility!])]
+  AC_ARG_WITH([unsupported-ssl],
+    [AS_HELP_STRING([--with-unsupported-ssl],[Build with system SSL (default is no; DANGEROUS; NOT SUPPORTED; You should use OpenSSL 1.0)])],
+    [AC_MSG_WARN([Detected unsupported SSL version: This is NOT supported, and may break consensus compatibility! Use '--with-unsupported-ssl' if you don't care])],
+    [AC_MSG_ERROR([Detected unsupported SSL version: This is NOT supported, and may break consensus compatibility! Use '--with-unsupported-ssl' if you don't care])]
   )
 ])
 
@@ -936,11 +1020,11 @@ dnl these are only used when qt is enabled
 if test x$bitcoin_enable_qt != xno; then
   BUILD_QT=qt
   dnl enable dbus support
-  AC_MSG_CHECKING([whether to build GUI with support for D-Bus])
-  if test x$bitcoin_enable_qt_dbus != xno; then
-    AC_DEFINE([USE_DBUS],[1],[Define if dbus support should be compiled in])
-  fi
-  AC_MSG_RESULT($bitcoin_enable_qt_dbus)
+dnl  AC_MSG_CHECKING([whether to build GUI with support for D-Bus])
+dnl  if test x$bitcoin_enable_qt_dbus != xno; then
+dnl    AC_DEFINE([USE_DBUS],[1],[Define if dbus support should be compiled in])
+dnl  fi
+dnl  AC_MSG_RESULT($bitcoin_enable_qt_dbus)
 
   dnl enable qr support
   AC_MSG_CHECKING([whether to build GUI with support for QR codes])
@@ -998,15 +1082,20 @@ AM_CONDITIONAL([BUILD_DARWIN], [test x$BUILD_OS = xdarwin])
 AM_CONDITIONAL([TARGET_WINDOWS], [test x$TARGET_OS = xwindows])
 AM_CONDITIONAL([ENABLE_WALLET],[test x$enable_wallet = xyes])
 AM_CONDITIONAL([ENABLE_TESTS],[test x$use_tests = xyes])
-AM_CONDITIONAL([ENABLE_QT],[test x$bitcoin_enable_qt = xyes])
-AM_CONDITIONAL([HAVE_QT5], [test x$bitcoin_qt_got_major_vers = x5])
-AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$use_tests$bitcoin_enable_qt_test = xyesyes])
+dnl AM_CONDITIONAL([ENABLE_QT],[test x$bitcoin_enable_qt = xyes])
+dnl AM_CONDITIONAL([HAVE_QT5], [test x$bitcoin_qt_got_major_vers = x5])
+dnl AM_CONDITIONAL([ENABLE_QT_TESTS],[test x$use_tests$bitcoin_enable_qt_test = xyesyes])
+AM_CONDITIONAL([ENABLE_QT],[false])
+AM_CONDITIONAL([HAVE_QT5], [false])
+AM_CONDITIONAL([ENABLE_QT_TESTS],[false])
 AM_CONDITIONAL([USE_QRCODE], [test x$use_qr = xyes])
 AM_CONDITIONAL([USE_LCOV],[test x$use_lcov = xyes])
 AM_CONDITIONAL([USE_COMPARISON_TOOL],[test x$use_comparison_tool != xno])
 AM_CONDITIONAL([USE_COMPARISON_TOOL_REORG_TESTS],[test x$use_comparison_tool_reorg_test != xno])
 AM_CONDITIONAL([GLIBC_BACK_COMPAT],[test x$use_glibc_compat = xyes])
 AM_CONDITIONAL([USE_LIBSECP256K1],[test x$use_libsecp256k1 = xyes])
+AM_CONDITIONAL([ENABLE_QML],[true])
+
 
 AC_DEFINE(CLIENT_VERSION_MAJOR, _CLIENT_VERSION_MAJOR, [Major version])
 AC_DEFINE(CLIENT_VERSION_MINOR, _CLIENT_VERSION_MINOR, [Minor version])
@@ -1027,6 +1116,8 @@ AC_SUBST(BITCOIN_TX_NAME)
 
 AC_SUBST(RELDFLAGS)
 AC_SUBST(LIBTOOL_APP_LDFLAGS)
+AC_SUBST(PIC_FLAGS)
+AC_SUBST(PIE_FLAGS)
 AC_SUBST(USE_UPNP)
 AC_SUBST(USE_QRCODE)
 AC_SUBST(BOOST_LIBS)
@@ -1076,7 +1167,7 @@ if test x$system_univalue = xno; then
   AC_CONFIG_SUBDIRS([src/univalue])
 fi
 
-ac_configure_args="${ac_configure_args} --disable-shared --with-pic"
+ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-module-recovery --enable-experimental --enable-module-ecdh"
 AC_CONFIG_SUBDIRS([src/secp256k1])
 
 AC_OUTPUT
@@ -1091,6 +1182,8 @@ case $host in
      chmod 755 libtool
    ;;
 esac
+
+extlibs
 
 echo
 echo "Options used to compile and link:"

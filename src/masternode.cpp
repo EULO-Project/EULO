@@ -412,19 +412,9 @@ bool CMasternodeBroadcast::Create(std::string strService, std::string strKeyMast
         return false;
     }
 
-    CService service = CService(strService);
-    int mainnetDefaultPort = Params(CBaseChainParams::MAIN).GetDefaultPort();
-    if (Params().NetworkID() == CBaseChainParams::MAIN) {
-        if (service.GetPort() != mainnetDefaultPort) {
-            strErrorRet = strprintf("Invalid port %u for masternode %s, only %d is supported on mainnet.", service.GetPort(), strService, mainnetDefaultPort);
-            LogPrint("masternode","CMasternodeBroadcast::Create -- %s\n", strErrorRet);
-            return false;
-        }
-    } else if (service.GetPort() == mainnetDefaultPort) {
-        strErrorRet = strprintf("Invalid port %u for masternode %s, %d is the only supported on mainnet.", service.GetPort(), strService, mainnetDefaultPort);
-        LogPrint("masternode","CMasternodeBroadcast::Create -- %s\n", strErrorRet);
+    // The service needs the correct default port to work properly
+    if(!CheckDefaultPort(strService, strErrorRet, "CMasternodeBroadcast::Create"))
         return false;
-    }
 
     return Create(txin, CService(strService), keyCollateralAddressNew, pubKeyCollateralAddressNew, keyMasternodeNew, pubKeyMasternodeNew, strErrorRet, mnbRet);
 }
@@ -463,6 +453,21 @@ bool CMasternodeBroadcast::Create(CTxIn txin, CService service, CKey keyCollater
         return false;
     }
 
+    return true;
+}
+
+bool CMasternodeBroadcast::CheckDefaultPort(std::string strService, std::string& strErrorRet, std::string strContext)
+{
+    CService service = CService(strService);
+    int nDefaultPort = Params().GetDefaultPort();
+    
+    if (service.GetPort() != nDefaultPort) {
+        strErrorRet = strprintf("Invalid port %u for masternode %s, only %d is supported on %s-net.", 
+                                        service.GetPort(), strService, nDefaultPort, Params().NetworkIDString());
+        LogPrint("masternode", "%s - %s\n", strContext, strErrorRet);
+        return false;
+    }
+ 
     return true;
 }
 
@@ -652,12 +657,12 @@ bool CMasternodeBroadcast::Sign(CKey& keyCollateralAddress)
     std::string strMessage = addr.ToString() + boost::lexical_cast<std::string>(sigTime) + vchPubKey + vchPubKey2 + boost::lexical_cast<std::string>(protocolVersion);
 
     if (!obfuScationSigner.SignMessage(strMessage, errorMessage, sig, keyCollateralAddress)) {
-        LogPrint("masternode","CMasternodeBroadcast::Sign() - Error: %s\n", errorMessage);
+        LogPrintf("masternode","CMasternodeBroadcast::Sign() - Error: %s\n", errorMessage);
         return false;
     }
 
     if (!obfuScationSigner.VerifyMessage(pubKeyCollateralAddress, sig, strMessage, errorMessage)) {
-        LogPrint("masternode","CMasternodeBroadcast::Sign() - Error: %s\n", errorMessage);
+        LogPrintf("masternode","CMasternodeBroadcast::Sign() - Error: %s\n", errorMessage);
         return false;
     }
 
@@ -690,12 +695,12 @@ bool CMasternodePing::Sign(CKey& keyMasternode, CPubKey& pubKeyMasternode)
     std::string strMessage = vin.ToString() + blockHash.ToString() + boost::lexical_cast<std::string>(sigTime);
 
     if (!obfuScationSigner.SignMessage(strMessage, errorMessage, vchSig, keyMasternode)) {
-        LogPrint("masternode","CMasternodePing::Sign() - Error: %s\n", errorMessage);
+        LogPrintf("masternode","CMasternodePing::Sign() - Error: %s\n", errorMessage);
         return false;
     }
 
     if (!obfuScationSigner.VerifyMessage(pubKeyMasternode, vchSig, strMessage, errorMessage)) {
-        LogPrint("masternode","CMasternodePing::Sign() - Error: %s\n", errorMessage);
+        LogPrintf("masternode","CMasternodePing::Sign() - Error: %s\n", errorMessage);
         return false;
     }
 

@@ -16,6 +16,7 @@
 #include "multisigdialog.h"
 #include "optionsmodel.h"
 #include "overviewpage.h"
+#include "createcontractpage.h"
 #include "receivecoinsdialog.h"
 #include "privacydialog.h"
 #include "sendcoinsdialog.h"
@@ -42,6 +43,7 @@ WalletView::WalletView(QWidget* parent) : QStackedWidget(parent),
 {
     // Create tabs
     overviewPage = new OverviewPage();
+    createContractPage = new CreateContractPage();
     explorerWindow = new BlockExplorer(this);
     transactionsPage = new QWidget(this);
     QVBoxLayout* vbox = new QVBoxLayout();
@@ -81,6 +83,7 @@ WalletView::WalletView(QWidget* parent) : QStackedWidget(parent),
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
     addWidget(explorerWindow);
+    addWidget(createContractPage);
 
     QSettings settings;
     if (settings.value("fShowMasternodesTab").toBool()) {
@@ -154,6 +157,7 @@ void WalletView::setWalletModel(WalletModel* walletModel)
     privacyPage->setModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     sendCoinsPage->setModel(walletModel);
+    createContractPage->setModel(walletModel);
 
     if (walletModel) {
         // Receive and pass through messages from wallet model
@@ -198,6 +202,12 @@ void WalletView::gotoOverviewPage()
     setCurrentWidget(overviewPage);
     // Refresh UI-elements in case coins were locked/unlocked in CoinControl
     walletModel->emitBalanceChanged();
+}
+
+
+void WalletView::gotoCreateContractPage()
+{
+    setCurrentWidget(createContractPage);
 }
 
 void WalletView::gotoHistoryPage()

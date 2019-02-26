@@ -8,11 +8,14 @@
 #include "base58.h"
 #include "checkpoints.h"
 #include "clientversion.h"
+#include "contractconfig.h"
+
 #include "main.h"
 #include "rpcserver.h"
 #include "sync.h"
 #include "txdb.h"
 #include "util.h"
+#include "core_io.h"
 #include "utilmoneystr.h"
 
 #include <stdint.h>
@@ -457,7 +460,7 @@ static std::string makeHTMLTable(const std::string* pCells, int nRows, int nColu
 }
 
 
-static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CScript(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
+static std::string TxToRow(const CTransaction& tx, const CKeyID& Highlight = CKeyID(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
 {
     std::string InAmounts, InAddresses, OutAmounts, OutAddresses;
     int64_t Delta = 0;
@@ -468,8 +471,15 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
         } else {
             CTxOut PrevOut = getPrevOut2(tx.vin[j].prevout);
             InAmounts += ValueToString(PrevOut.nValue);
-            InAddresses += ScriptToString(PrevOut.scriptPubKey, false, PrevOut.scriptPubKey == Highlight).c_str();
-            if (PrevOut.scriptPubKey == Highlight)
+            CKeyID KeyID = uint160(1);
+            CTxDestination PrevOutDest;
+            if (ExtractDestination(PrevOut.scriptPubKey, PrevOutDest)) {
+                if (typeid(CKeyID) == PrevOutDest.type()) {
+                    KeyID = boost:: get<CKeyID>(PrevOutDest);
+                }
+            }
+            InAddresses += ScriptToString(PrevOut.scriptPubKey, false, KeyID == Highlight).c_str();
+            if (KeyID == Highlight)
                 Delta -= PrevOut.nValue;
         }
         if (j + 1 != tx.vin.size()) {
@@ -480,8 +490,15 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
     for (unsigned int j = 0; j < tx.vout.size(); j++) {
         CTxOut Out = tx.vout[j];
         OutAmounts += ValueToString(Out.nValue);
-        OutAddresses += ScriptToString(Out.scriptPubKey, false, Out.scriptPubKey == Highlight);
-        if (Out.scriptPubKey == Highlight)
+        CKeyID KeyID = uint160(1);
+        CTxDestination TxOutDest;
+        if (ExtractDestination(Out.scriptPubKey, TxOutDest)) {
+            if (typeid(CKeyID) == TxOutDest.type()) {
+                KeyID = boost:: get<CKeyID>(TxOutDest);
+            }
+        }
+        OutAddresses += ScriptToString(Out.scriptPubKey, false, KeyID == Highlight);
+        if (KeyID == Highlight)
             Delta += Out.nValue;
         if (j + 1 != tx.vout.size()) {
             OutAmounts += "<br/>";
@@ -503,7 +520,7 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
 
     int n = sizeof(List) / sizeof(std::string) - 2;
 
-    if (!Highlight.empty()) {
+    if (CKeyID() != Highlight) {
         List[n++] = std::string("<font color=\"") + ((Delta > 0) ? "green" : "red") + "\">" + ValueToString(Delta, true) + "</font>";
         *pSum += Delta;
         List[n++] = ValueToString(*pSum);
@@ -941,57 +958,116 @@ UniValue gettxexplorer(const UniValue& params, bool fHelp)
 }
 
 
-std::string AddressToString2(const CBitcoinAddress& Address)
+bool AddressToString2(const CBitcoinAddress& Address, UniValue & Result)
 {
-    std::string TxLabels[] =
+    CAmount     Balance     = 0;
+    CAmount     TotalRecv   = 0;
+    CAmount     TotalSent   = 0;
+    CAmount     NetIncome   = 0;
+    
+    CKeyID      KeyID;
+    
+    UniValue    uvTransactions(UniValue::VARR);
+    
+    if (!Address.GetKeyID(KeyID))
+        return false;
+
+    if (!fAddrIndex) {
+        return false;
+    } else {
+        std::vector<CDiskTxPos> vTxDiskPos;
+        paddressmap->GetTxs(vTxDiskPos, CScriptID(KeyID));
+        BOOST_FOREACH (const CDiskTxPos& diskpos, vTxDiskPos)
         {
-            "Date",
-            "Hash",
-            "From",
-            "Amount",
-            "To",
-            "Amount",
-            "Delta",
-            "Balance"};
-    std::string TxContent = table + makeHTMLTableRow(TxLabels, sizeof(TxLabels) / sizeof(std::string));
-
-    std::set<COutPoint> PrevOuts;
-    /*
-    CScript AddressScript;
-    AddressScript.SetDestination(Address.Get());
-
-    CAmount Sum = 0;
-    bool fAddrIndex = false;
-
-    if (!fAddrIndex)
-        return ""; // it will take too long to find transactions by address
-    else
-    {
-        std::vector<CDiskTxPos> Txs;
-        paddressmap->GetTxs(Txs, AddressScript.GetID());
-        BOOST_FOREACH (const CDiskTxPos& pos, Txs)
-        {
-            CTransaction tx;
             CBlock block;
-            uint256 bhash = block.GetHash();
-            GetTransaction(pos.nTxOffset, tx, bhash);
-            std::map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(block.GetHash());
-            if (mi == mapBlockIndex.end())
+            CTransaction tx;
+
+            ReadTransaction(diskpos, tx, block);
+            BlockMap::iterator iter = mapBlockIndex.find(block.GetHash());
+            if (iter == mapBlockIndex.end())
                 continue;
-            CBlockIndex* pindex = (*mi).second;
+            CBlockIndex* pindex = (*iter).second;
             if (!pindex || !chainActive.Contains(pindex))
                 continue;
-            std::string Prepend = "<a href=\"" + itostr(pindex->nHeight) + "\">" + TimeToString(pindex->nTime) + "</a>";
-            TxContent += TxToRow(tx, AddressScript, Prepend, &Sum);
-        }
-    }
-    */
-    TxContent += "</table>";
 
-    std::string Content;
-    Content += "<h1>Transactions to/from&nbsp;<span>" + Address.ToString() + "</span></h1>";
-    Content += TxContent;
-    return Content;
+            UniValue uvTx(UniValue::VOBJ);
+            UniValue uvTxIns(UniValue::VARR);
+            UniValue uvTxOuts(UniValue::VARR);
+
+            NetIncome = 0;
+            for (const auto & txin : tx.vin) {
+                UniValue    uvTxIn(UniValue::VARR);
+                
+                if (tx.IsCoinBase()) {
+                    uvTxIn.push_back("coinbase");
+                    uvTxIn.push_back(ValueFromAmount(tx.GetValueOut()));
+                } else {
+                    CTxOut PrevOut = getPrevOut(txin);
+
+                    CKeyID  PrevKeyID;
+                    CTxDestination PrevTxDest;
+                    CBitcoinAddress PrevAddress;
+                    if (ExtractDestination(PrevOut.scriptPubKey, PrevTxDest) && PrevAddress.Set(PrevTxDest)) {
+                        if (typeid(CKeyID) == PrevTxDest.type()) {
+                            PrevKeyID = boost::get<CKeyID>(PrevTxDest);
+
+                            if (KeyID == PrevKeyID) {
+                                NetIncome -= PrevOut.nValue;
+                                TotalSent += PrevOut.nValue;
+                            }
+                        }
+                        uvTxIn.push_back(PrevAddress.ToString());
+                    } else {
+                        uvTxIn.push_back(FormatScript(PrevOut.scriptPubKey));
+                    }
+                    uvTxIn.push_back(ValueFromAmount(PrevOut.nValue));
+                }
+
+                uvTxIns.push_back(uvTxIn);
+            }
+
+            for (const auto & txout : tx.vout) {
+                UniValue    uvTxOut(UniValue::VARR);
+
+                CKeyID  TxOutKeyID;
+                CTxDestination TxOutDest;
+                CBitcoinAddress TxOutAddress;
+                if (ExtractDestination(txout.scriptPubKey, TxOutDest) && TxOutAddress.Set(TxOutDest)) {
+                    if (typeid(CKeyID) == TxOutDest.type()) {
+                        TxOutKeyID = boost::get<CKeyID>(TxOutDest);
+                    
+                        if (KeyID == TxOutKeyID) {
+                            NetIncome += txout.nValue;
+                            TotalRecv += txout.nValue;
+                        }
+                    }
+                    uvTxOut.push_back(TxOutAddress.ToString());
+                } else {
+                    uvTxOut.push_back(FormatScript(txout.scriptPubKey));
+                }
+                uvTxOut.push_back(ValueFromAmount(txout.nValue));
+
+                uvTxOuts.push_back(uvTxOut);
+            }
+
+            uvTx.push_back(Pair("Date", TimeToString(pindex->nTime)));
+            uvTx.push_back(Pair("Hash", tx.GetHash().GetHex()));
+            uvTx.push_back(std::make_pair("From", uvTxIns));
+            uvTx.push_back(std::make_pair("To", uvTxOuts));
+            uvTx.push_back(std::make_pair("Delta", ValueFromAmount(NetIncome)));
+            uvTx.push_back(std::make_pair("Balance", ValueFromAmount(TotalRecv - TotalSent)));
+
+            uvTransactions.push_back(uvTx);
+        }
+        
+        Result.push_back(Pair("address", Address.ToString()));
+        Result.push_back(std::make_pair("received", ValueFromAmount(TotalRecv)));
+        Result.push_back(std::make_pair("sent", ValueFromAmount(TotalSent)));
+        Result.push_back(std::make_pair("balance", ValueFromAmount(TotalRecv - TotalSent)));
+        Result.push_back(std::make_pair("transactions", uvTransactions));
+    }
+
+    return true;
 }
 
 UniValue getblocksinfoexplorer(const UniValue& params, bool fHelp)
@@ -1096,13 +1172,9 @@ UniValue getqueryexplorer(const UniValue& params, bool fHelp)
 
     Address.SetString(strHash);
     if (Address.IsValid()) {
-        address_str = AddressToString2(Address);
-        if (!address_str.empty())
+        if (AddressToString2(Address, result))
         {
             result.push_back(Pair("type","address"));
-
-            result.push_back(Pair("hash",strHash));
-            result.push_back(Pair("address_str", address_str));
             return result;
         }
     }
@@ -1110,7 +1182,7 @@ UniValue getqueryexplorer(const UniValue& params, bool fHelp)
     throw JSONRPCError(RPC_INVALID_PARAMETER, "Query Invalid");
 
 
-    return false;
+    return result;
 
 }
 
@@ -1135,18 +1207,13 @@ UniValue getaddressexplorer(const UniValue& params, bool fHelp)
 
     Address.SetString(strHash);
     if (Address.IsValid()) {
-        address_str = AddressToString2(Address);
-        if (address_str.empty())
+        if (!AddressToString2(Address, result))
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Address No Txes");
     }
     else
     {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Address Invalid");
     }
-
-    result.push_back(Pair("address", strHash));
-    result.push_back(Pair("address_str", address_str));
-
 
     return result;
 }
@@ -1407,6 +1474,675 @@ UniValue verifychain(const UniValue& params, bool fHelp)
     return CVerifyDB().VerifyDB(pcoinsTip, nCheckLevel, nCheckDepth);
 }
 
+/////////////////////////////////////////////////////eulo-vm
+UniValue getaccountinfo(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+                "getaccountinfo \"address\"\n"
+                "\nArgument:\n"
+                "1. \"address\"          (string, required) The account address\n");
+
+    LOCK(cs_main);
+
+    std::string strAddr = params[0].get_str();
+    if (strAddr.size() != 40 || !IsHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    if (!AddressInUse(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
+    dev::Address addrAccount(strAddr);
+
+    UniValue result(UniValue::VOBJ);
+
+    result.push_back(Pair("address", strAddr));
+    result.push_back(Pair("balance", GetContractBalance(addrAccount)));
+    std::vector<uint8_t> code = GetContractCode(addrAccount);
+
+    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = GetStorageByAddress(strAddr);
+
+    UniValue storageUV(UniValue::VOBJ);
+    for (auto j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.push_back(Pair(j.second.first.str(0, std::ios_base::hex).c_str(), j.second.second.str(0, std::ios_base::hex).c_str()));
+        storageUV.push_back(Pair(j.first.hex(), e));
+    }
+
+    result.push_back(Pair("storage", storageUV));
+
+    result.push_back(Pair("code", HexStr(code.begin(), code.end())));
+
+    dev::h256 hash;
+    uint32_t nVout;
+    dev::u256 value;
+    uint8_t alive;
+    if (GetContractVin(addrAccount, hash, nVout, value, alive))
+    {
+        UniValue vin(UniValue::VOBJ);
+        valtype vchHash(hash.asBytes());
+        vin.push_back(Pair("hash", HexStr(vchHash.rbegin(), vchHash.rend())));
+        vin.push_back(Pair("nVout", uint64_t(nVout)));
+        vin.push_back(Pair("value", uint64_t(value)));
+        vin.push_back(Pair("alive", uint8_t(alive)));
+        result.push_back(Pair("vin", vin));
+    }
+
+    return result;
+}
+
+UniValue getstorage(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+                "getstorage \"address\"\n"
+                "\nArgument:\n"
+                "1. \"address\"          (string, required) The address to get the storage from\n"
+                "2. \"blockNum\"         (string, optional) Number of block to get state from, \"latest\" keyword supported. Latest if not passed.\n"
+                "3. \"index\"            (number, optional) Zero-based index position of the storage\n");
+
+    LOCK(cs_main);
+
+    std::string strAddr = params[0].get_str();
+    if (strAddr.size() != 40 || !IsHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+    if (params.size() > 1)
+    {
+        if (params[1].isNum())
+        {
+            auto blockNum = params[1].get_int();
+            if ((blockNum < 0 && blockNum != -1) || blockNum > chainActive.Height())
+                throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+
+            if (blockNum != -1)
+            {
+                uint256 hashStateRoot;
+                uint256 hashUTXORoot;
+                CBlock block;
+                if (!ReadBlockFromDisk(block, chainActive[blockNum]))
+                {
+                    std::ostringstream stringStream;
+                    stringStream << "ReadBlockFromDisk failed at hegiht " << chainActive[blockNum]->nHeight << " hash: " << chainActive[blockNum]->GetBlockHash().ToString();
+                    throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+                } else
+                {
+                    if(block.GetVMState(hashStateRoot, hashUTXORoot) == RET_VM_STATE_ERR){
+                        throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect GetVMState");
+                    }
+                }
+                SetTemporaryState(hashStateRoot, hashUTXORoot);
+                //                ifContractObj->SetTemporaryState(chainActive[blockNum]->hashStateRoot,
+                //                                                 chainActive[blockNum]->hashUTXORoot);
+            }
+        } else
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Incorrect block number");
+        }
+    }
+
+    if (!AddressInUse(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
+    UniValue result(UniValue::VOBJ);
+
+    bool onlyIndex = params.size() > 2;
+    unsigned index = 0;
+    if (onlyIndex)
+        index = params[2].get_int();
+
+    std::map<dev::h256, std::pair<dev::u256, dev::u256>> storage = GetStorageByAddress(strAddr);
+    if (onlyIndex)
+    {
+        if (index >= storage.size())
+        {
+            std::ostringstream stringStream;
+            stringStream << "Storage size: " << storage.size() << " got index: " << index;
+            throw JSONRPCError(RPC_INVALID_PARAMS, stringStream.str());
+        }
+        auto elem = std::next(storage.begin(), index);
+        UniValue e(UniValue::VOBJ);
+
+        storage = {{elem->first, {elem->second.first, elem->second.second}}};
+    }
+    for (const auto &j: storage)
+    {
+        UniValue e(UniValue::VOBJ);
+        e.push_back(Pair(j.second.first.str(0, std::ios_base::hex).c_str(), j.second.second.str(0, std::ios_base::hex).c_str()));
+        result.push_back(Pair(j.first.hex(), e));
+    }
+
+    return result;
+}
+
+
+UniValue callcontract(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+         throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 2)
+        throw std::runtime_error(
+                "callcontract \"address\" \"data\" ( address )\n"
+                "\nArgument:\n"
+                "1. \"address\"          (string, required) The account address\n"
+                "2. \"data\"             (string, required) The data hex string\n"
+                "3. address              (string, optional) The sender address hex string\n"
+                "4. gasLimit  (numeric or string, optional) gasLimit, default: " +
+                i64tostr(DEFAULT_GAS_LIMIT_OP_SEND) + "\n");
+
+    LOCK(cs_main);
+
+    std::string strAddr = params[0].get_str();
+    std::string data = params[1].get_str();
+
+    if (!IsHex(data))
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid data (data not hex)");
+
+    if (strAddr.size() != 40 || !IsHex(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect address");
+
+
+    CBlockIndex * pBlockIndex = chainActive.Tip();
+    if (pBlockIndex->nHeight < Params().Contract_StartHeight())
+        throw JSONRPCError(RPC_INVALID_REQUEST, "contract not enabled.");
+
+    if (!AddressInUse(strAddr))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Address does not exist");
+
+    string sender = "";
+    if (params.size() == 3)
+    {
+        CBitcoinAddress btcSenderAddress(params[2].get_str());
+        if (btcSenderAddress.IsValid())
+        {
+            CKeyID keyid;
+            btcSenderAddress.GetKeyID(keyid);
+
+            sender = HexStr(valtype(keyid.begin(), keyid.end()));
+        } else
+        {
+            sender = params[2].get_str();
+        }
+    }
+    uint64_t gasLimit = 0;
+    if (params.size() == 4)
+    {
+        //        gasLimit = params[3].get_int();
+        if (params[3].isNum())
+        {
+            gasLimit = params[3].get_int64();
+        } else if (params[3].isStr())
+        {
+            gasLimit = atoi64(params[3].get_str());
+        } else
+        {
+            throw JSONRPCError(RPC_TYPE_ERROR, "JSON value for gasLimit is not (numeric or string)");
+        }
+
+    }
+
+    UniValue result(UniValue::VOBJ);
+    result.push_back(Pair("address", strAddr));
+
+    RPCCallContract(result, strAddr, ParseHex(data), sender, gasLimit);
+
+    return result;
+}
+
+void assignJSON(UniValue& entry, const TransactionReceiptInfo& resExec) {
+    entry.push_back(Pair("blockHash", resExec.blockHash.GetHex()));
+    entry.push_back(Pair("blockNumber", uint64_t(resExec.blockNumber)));
+    entry.push_back(Pair("transactionHash", resExec.transactionHash.GetHex()));
+    entry.push_back(Pair("transactionIndex", uint64_t(resExec.transactionIndex)));
+    entry.push_back(Pair("from", resExec.from.hex()));
+    entry.push_back(Pair("to", resExec.to.hex()));
+    entry.push_back(Pair("cumulativeGasUsed", CAmount(resExec.cumulativeGasUsed)));
+    entry.push_back(Pair("gasUsed", CAmount(resExec.gasUsed)));
+    entry.push_back(Pair("contractAddress", resExec.contractAddress.hex()));
+    std::stringstream ss;
+    ss << resExec.excepted;
+    entry.push_back(Pair("excepted",ss.str()));
+}
+
+void assignJSON(UniValue& logEntry, const dev::eth::LogEntry& log,
+        bool includeAddress) {
+    if (includeAddress) {
+        logEntry.push_back(Pair("address", log.address.hex()));
+    }
+
+    UniValue topics(UniValue::VARR);
+    for (dev::h256 hash : log.topics) {
+        topics.push_back(hash.hex());
+    }
+    logEntry.push_back(Pair("topics", topics));
+    logEntry.push_back(Pair("data", HexStr(log.data)));
+}
+
+void transactionReceiptInfoToJSON(const TransactionReceiptInfo& resExec, UniValue& entry) {
+    assignJSON(entry, resExec);
+
+    const auto& logs = resExec.logs;
+    UniValue logEntries(UniValue::VARR);
+    for(const auto&log : logs){
+        UniValue logEntry(UniValue::VOBJ);
+        assignJSON(logEntry, log, true);
+        logEntries.push_back(logEntry);
+    }
+    entry.push_back(Pair("log", logEntries));
+}
+
+
+//////-------eulo
+
+
+
+
+size_t parseUInt(const UniValue &val, size_t defaultVal)
+{
+    if (val.isNull())
+    {
+        return defaultVal;
+    } else
+    {
+        int n = val.get_int();
+        if (n < 0)
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Expects unsigned integer");
+        }
+
+        return n;
+    }
+}
+
+int parseBlockHeight(const UniValue &val)
+{
+    if (val.isStr())
+    {
+        auto blockKey = val.get_str();
+
+        if (blockKey == "latest")
+        {
+            return chainActive.Height();;
+        } else
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
+        }
+    }
+
+    if (val.isNum())
+    {
+        int blockHeight = val.get_int();
+
+        if (blockHeight < 0)
+        {
+            return chainActive.Height();;
+        }
+
+        return blockHeight;
+    }
+
+    throw JSONRPCError(RPC_INVALID_PARAMS, "invalid block number");
+}
+
+
+int parseBlockHeight(const UniValue &val, int defaultVal)
+{
+    if (val.isNull())
+    {
+        return defaultVal;
+    } else
+    {
+        return parseBlockHeight(val);
+    }
+}
+dev::h160 parseParamH160(const UniValue &val)
+{
+    if (!val.isStr())
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160");
+    }
+
+    auto addrStr = val.get_str();
+
+    if (addrStr.length() != 40 || !IsHex(addrStr))
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 160 string");
+    }
+    return dev::h160(addrStr);
+}
+
+void parseParam(const UniValue &val, std::vector<dev::h160> &h160s)
+{
+    if (val.isNull())
+    {
+        return;
+    }
+
+    // Treat a string as an array of length 1
+    if (val.isStr())
+    {
+        h160s.push_back(parseParamH160(val.get_str()));
+        return;
+    }
+
+    if (!val.isArray())
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 160 strings");
+    }
+
+    auto vals = val.getValues();
+    h160s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h160s.begin(), [](UniValue val) -> dev::h160
+    {
+        return parseParamH160(val);
+    });
+}
+
+void parseParam(const UniValue &val, std::set<dev::h160> &h160s)
+{
+    std::vector<dev::h160> v;
+    parseParam(val, v);
+    h160s.insert(v.begin(), v.end());
+}
+
+void parseParam(const UniValue &val, std::vector<boost::optional<dev::h256>> &h256s)
+{
+    if (val.isNull())
+    {
+        return;
+    }
+
+    if (!val.isArray())
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMS, "Expect an array of hex 256 strings");
+    }
+
+    auto vals = val.getValues();
+    h256s.resize(vals.size());
+
+    std::transform(vals.begin(), vals.end(), h256s.begin(), [](UniValue val) -> boost::optional<dev::h256>
+    {
+        if (val.isNull())
+        {
+            return boost::optional<dev::h256>();
+        }
+
+        if (!val.isStr())
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        auto addrStr = val.get_str();
+
+        if (addrStr.length() != 64 || !IsHex(addrStr))
+        {
+            throw JSONRPCError(RPC_INVALID_PARAMS, "Invalid hex 256 string");
+        }
+
+        return boost::optional<dev::h256>(dev::h256(addrStr));
+    });
+}
+
+class SearchLogsParams
+{
+public:
+    size_t fromBlock;
+    size_t toBlock;
+    size_t minconf;
+
+    std::set<dev::h160> addresses;
+    std::vector<boost::optional<dev::h256>> topics;
+
+    SearchLogsParams(const UniValue &params)
+    {
+      //  std::unique_lock<std::mutex> lock(cs_blockchange);
+
+        setFromBlock(params[0]);
+        setToBlock(params[1]);
+
+        parseParam(params[2]["addresses"], addresses);
+        parseParam(params[3]["topics"], topics);
+
+        minconf = parseUInt(params[4], 0);
+    }
+
+private:
+    void setFromBlock(const UniValue &val)
+    {
+        if (!val.isNull())
+        {
+            fromBlock = parseBlockHeight(val);
+        } else
+        {
+            fromBlock = chainActive.Height();;
+        }
+    }
+
+    void setToBlock(const UniValue &val)
+    {
+        if (!val.isNull())
+        {
+            toBlock = parseBlockHeight(val);
+        } else
+        {
+            toBlock = chainActive.Height();;
+        }
+    }
+
+};
+/// ----------eulo
+
+
+UniValue searchlogs(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 2 || params.size() > 5)
+        throw std::runtime_error(
+                "searchlogs <fromBlock> <toBlock> (address) (topics)\n"
+                "requires -logevents to be enabled"
+                "\nArgument:\n"
+                "1. \"fromBlock\"        (numeric, required) The number of the earliest block (latest may be given to mean the most recent block).\n"
+                "2. \"toBlock\"          (string, required) The number of the latest block (-1 may be given to mean the most recent block).\n"
+                "3. \"address\"          (string, optional) An address or a list of addresses to only get logs from particular account(s).\n"
+                "4. \"topics\"           (string, optional) An array of values from which at least one must appear in the log entries. The order is important, if you want to leave topics out use null, e.g. [\"null\", \"0x00...\"]. \n"
+                "5. \"minconf\"          (uint, optional, default=0) Minimal number of confirmations before a log is returned\n"
+                "\nExamples:\n"
+                + HelpExampleCli("searchlogs",
+                "0 100 '{\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]}' '{\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}'")
+                + HelpExampleRpc("searchlogs",
+                "0 100 {\"addresses\": [\"12ae42729af478ca92c8c66773a3e32115717be4\"]} {\"topics\": [\"null\",\"b436c2bf863ccd7b8f63171201efd4792066b4ce8e543dde9c3e9e9ab98e216c\"]}"));
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    int curheight = 0;
+
+    LOCK(cs_main);
+
+    SearchLogsParams params_(params);
+
+
+
+    std::vector<std::vector<uint256>> hashesToBlock;
+    curheight = pblocktree->ReadHeightIndex(params_.fromBlock, params_.toBlock, params_.minconf,
+                                            hashesToBlock,
+                                            params_.addresses);
+
+
+    if (curheight == -1)
+    {
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Incorrect params");
+    }
+
+    UniValue result(UniValue::VARR);
+    auto topics = params_.topics;
+
+    for (const auto &hashesTx : hashesToBlock)
+    {
+        for (const auto &e : hashesTx)
+        {
+            std::vector<TransactionReceiptInfo> receipts = GetResult(e);
+
+            for (const auto &receipt : receipts)
+            {
+                if (receipt.logs.empty())
+                {
+                    continue;
+                }
+
+                if (!topics.empty())
+                {
+                    for (size_t i = 0; i < topics.size(); i++)
+                    {
+                        const auto &tc = topics[i];
+
+                        if (!tc)
+                        {
+                            continue;
+                        }
+
+                        for (const auto &log: receipt.logs)
+                        {
+                            auto filterTopicContent = tc.get();
+
+                            if (i >= log.topics.size())
+                            {
+                                continue;
+                            }
+
+                            if (filterTopicContent == log.topics[i])
+                            {
+                                goto push;
+                            }
+                        }
+                    }
+
+                    // Skip the log if none of the topics are matched
+                    continue;
+                }
+
+                push:
+
+                UniValue tri(UniValue::VOBJ);
+                transactionReceiptInfoToJSON(receipt, tri);
+                result.push_back(tri);
+            }
+        }
+    }
+
+    return result;
+}
+
+UniValue gettransactionreceipt(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp || params.size() < 1)
+        throw std::runtime_error(
+                "gettransactionreceipt \"hash\"\n"
+                "requires -logevents to be enabled"
+                "\nArgument:\n"
+                "1. \"hash\"          (string, required) The transaction hash\n");
+
+    if (!fLogEvents)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Events indexing disabled");
+
+    LOCK(cs_main);
+
+    std::string hashTemp = params[0].get_str();
+    if (hashTemp.size() != 64)
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Incorrect hash");
+    }
+
+    uint256 hash(uint256S(hashTemp));
+
+    std::vector<TransactionReceiptInfo> transactionReceiptInfo = GetResult(hash);
+
+    UniValue result(UniValue::VARR);
+    for (TransactionReceiptInfo &t : transactionReceiptInfo)
+    {
+        UniValue tri(UniValue::VOBJ);
+        transactionReceiptInfoToJSON(t, tri);
+        result.push_back(tri);
+    }
+
+    return result;
+}
+
+UniValue listcontracts(const UniValue& params, bool fHelp)
+{
+    bool IsEnabled = (chainActive.Tip()->nVersion > ZEROCOIN_VERSION);
+    if (!IsEnabled)
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "not arrive to the contract height,disabled");
+
+    if (fHelp)
+        throw std::runtime_error(
+                "listcontracts (start maxDisplay)\n"
+                "\nArgument:\n"
+                "1. start     (numeric or string, optional) The starting account index, default 1\n"
+                "2. maxDisplay       (numeric or string, optional) Max accounts to list, default 20\n");
+
+    LOCK(cs_main);
+
+    int start = 1;
+    if (params.size() > 0)
+    {
+        start = params[0].get_int();
+        if (start <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid start, min=1");
+    }
+
+    int maxDisplay = 20;
+    if (params.size() > 1)
+    {
+        maxDisplay = params[1].get_int();
+        if (maxDisplay <= 0)
+            throw JSONRPCError(RPC_TYPE_ERROR, "Invalid maxDisplay");
+    }
+
+    UniValue result(UniValue::VOBJ);
+
+    std::unordered_map<dev::h160, dev::u256> map = GetContractList();
+    int contractsCount = (int)map.size();
+
+    if (contractsCount > 0 && start > contractsCount)
+        throw JSONRPCError(RPC_TYPE_ERROR, "start greater than max index " + itostr(contractsCount));
+
+    int itStartPos = std::min(start - 1, contractsCount);
+    int i = 0;
+
+    for (auto it = std::next(map.begin(), itStartPos); it != map.end(); it++)
+    {
+        CAmount balance = GetContractBalance(it->first);
+        result.push_back(Pair(it->first.hex(), ValueFromAmount(balance)));
+        i++;
+        if (i == maxDisplay)
+            break;
+    }
+
+    return result;
+}
+
+///////////////////////////////////////////////////////
+
 UniValue getblockchaininfo(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
@@ -1634,6 +2370,43 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
     ret.push_back(Pair("bytes", (int64_t)mempool.GetTotalTxSize()));
 
     return ret;
+}
+
+UniValue hashstateandutxo(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "hashstateandutxo \n"
+            "\nShows globalState hashstate and hashutxo.\n"
+            "\nArguments:\n"
+            "\nResult:\n"
+            "\nExamples:\n" +
+            HelpExampleCli("hashstateandutxo","") + HelpExampleRpc("hashstateandutxo",""));
+
+    UniValue hashstateandutxo(UniValue::VARR);
+
+    {
+        LOCK(cs_main);
+
+        uint256 hashStateRoot, hashUTXORoot;
+        hashStateRoot.SetNull();
+        hashUTXORoot.SetNull();
+
+        GetState(hashStateRoot,hashUTXORoot);
+
+
+        UniValue state_obj(UniValue::VOBJ);
+        UniValue utxo_obj(UniValue::VOBJ);
+
+        state_obj.push_back(Pair("state", hashStateRoot.GetHex()));
+        utxo_obj.push_back(Pair("utxo",hashUTXORoot.GetHex() ));
+        hashstateandutxo.push_back(state_obj);
+        hashstateandutxo.push_back(utxo_obj);
+
+
+    }
+
+    return hashstateandutxo;
 }
 
 #ifdef  POW_IN_POS_PHASE
@@ -1898,7 +2671,10 @@ UniValue findserial(const UniValue& params, bool fHelp)
             HelpExampleCli("findserial", "\"serial\"") + HelpExampleRpc("findserial", "\"serial\""));
 
     std::string strSerial = params[0].get_str();
-    CBigNum bnSerial(strSerial);
+    CBigNum bnSerial = 0;
+    bnSerial.SetHex(strSerial);
+    if (!bnSerial)
+    throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid serial");
 
     uint256 txid = 0;
     bool fSuccess = zerocoinDB->ReadCoinSpend(bnSerial, txid);

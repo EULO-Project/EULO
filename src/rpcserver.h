@@ -219,6 +219,10 @@ extern UniValue setstakesplitthreshold(const UniValue& params, bool fHelp);
 extern UniValue getstakesplitthreshold(const UniValue& params, bool fHelp);
 extern UniValue multisend(const UniValue& params, bool fHelp);
 extern UniValue autocombinerewards(const UniValue& params, bool fHelp);
+extern UniValue createcontract(const UniValue& params, bool fHelp);
+extern UniValue sendtocontract(const UniValue& params, bool fHelp);
+extern UniValue sendextenddata(const UniValue& params, bool fHelp);
+extern UniValue getextenddata(const UniValue& params, bool fHelp);
 extern UniValue getzerocoinbalance(const UniValue& params, bool fHelp);
 extern UniValue listmintedzerocoins(const UniValue& params, bool fHelp);
 extern UniValue listspentzerocoins(const UniValue& params, bool fHelp);
@@ -242,6 +246,8 @@ extern UniValue decoderawtransaction(const UniValue& params, bool fHelp);
 extern UniValue decodescript(const UniValue& params, bool fHelp);
 extern UniValue signrawtransaction(const UniValue& params, bool fHelp);
 extern UniValue sendrawtransaction(const UniValue& params, bool fHelp);
+extern UniValue gethexaddress(const UniValue& params, bool fHelp);
+extern UniValue fromhexaddress(const UniValue& params, bool fHelp);
 
 extern UniValue findserial(const UniValue& params, bool fHelp); // in rpcblockchain.cpp
 extern UniValue getblockcount(const UniValue& params, bool fHelp); // in rpcblockchain.cpp
@@ -262,9 +268,16 @@ extern UniValue getfeeinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxoutsetinfo(const UniValue& params, bool fHelp);
 extern UniValue gettxout(const UniValue& params, bool fHelp);
 extern UniValue verifychain(const UniValue& params, bool fHelp);
+extern UniValue getaccountinfo(const UniValue& params, bool fHelp);
+extern UniValue getstorage(const UniValue& params, bool fHelp);
+extern UniValue callcontract(const UniValue& params, bool fHelp);
+extern UniValue searchlogs(const UniValue& params, bool fHelp);
+extern UniValue listcontracts(const UniValue& params, bool fHelp);
+extern UniValue gettransactionreceipt(const UniValue& params, bool fHelp);
 extern UniValue getchaintips(const UniValue& params, bool fHelp);
 
 extern UniValue tmpblockstatus(const UniValue& params, bool fHelp);
+extern UniValue hashstateandutxo(const UniValue& params, bool fHelp);
 
 extern UniValue invalidateblock(const UniValue& params, bool fHelp);
 extern UniValue reconsiderblock(const UniValue& params, bool fHelp);
