@@ -224,6 +224,10 @@ void PrepareShutdown()
         zerocoinDB = NULL;
         delete pSporkDB;
         pSporkDB = NULL;
+        if (paddressmap)
+            paddressmap->Flush();
+        delete paddressmap;
+        paddressmap = NULL;
     }
 #ifdef ENABLE_WALLET
     if (pwalletMain)
@@ -597,6 +601,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
             nFile++;
         }
         pblocktree->WriteReindexing(false);
+        paddressmap->WriteReindexing(false);
         fReindex = false;
         LogPrintf("Reindexing finished\n");
         // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
@@ -1326,10 +1331,12 @@ bool AppInit2(boost::thread_group& threadGroup)
                 delete pblocktree;
                 delete zerocoinDB;
                 delete pSporkDB;
+                delete paddressmap;
 
                 //PIVX specific: zerocoin and spork DB's
                 zerocoinDB = new CZerocoinDB(0, false, fReindex);
                 pSporkDB = new CSporkDB(0, false, false);
+                paddressmap = new CAddressDB(nBlockTreeDBCache, false, fReindex);
 
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReindex);
                 pcoinsdbview = new CCoinsViewDB(nCoinDBCache, false, fReindex);
@@ -1343,6 +1350,7 @@ bool AppInit2(boost::thread_group& threadGroup)
                     storageRes.wipeResults();
 
                     pblocktree->WriteReindexing(true);
+                    paddressmap->WriteReindexing(true);
                 }
 
                 // EULO: load previous sessions sporks if we have them.
@@ -1371,6 +1379,12 @@ bool AppInit2(boost::thread_group& threadGroup)
                 // Check for changed -txindex state
                 if (fTxIndex != GetBoolArg("-txindex", true)) {
                     strLoadError = _("You need to rebuild the database using -reindex to change -txindex");
+                    break;
+                }
+
+                // Check for changed -addrindex state
+                if (fAddrIndex != GetBoolArg("-addrindex", false)) {
+                    strLoadError = _("You need to rebuild the database using -reindex to change -addrindex");
                     break;
                 }
 

@@ -75,7 +75,6 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"getblock", 1},
         {"getblockheader", 1},
         {"getblockhashexplorer", 0},
-        {"getaddressexplorer", 0},
         {"getblocksinfoexplorer", 1},
         {"getqueryexplorer",0},
         {"gettxexplorer", 0},

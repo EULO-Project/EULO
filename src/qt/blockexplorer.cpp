@@ -36,7 +36,7 @@ static CAmount getTxIn(const CTransaction& tx)
 
     CAmount Sum = 0;
     for (unsigned int i = 0; i < tx.vin.size(); i++)
-        Sum += getPrevOut(tx.vin[i].prevout).nValue;
+        Sum += getPrevOut(tx.vin[i]).nValue;
     return Sum;
 }
 
@@ -97,7 +97,7 @@ static std::string makeHTMLTable(const std::string* pCells, int nRows, int nColu
     return Table;
 }
 
-static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CScript(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
+static std::string TxToRow(const CTransaction& tx, const CKeyID& Highlight = CKeyID(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
 {
     std::string InAmounts, InAddresses, OutAmounts, OutAddresses;
     int64_t Delta = 0;
@@ -106,10 +106,17 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
             InAmounts += ValueToString(tx.GetValueOut());
             InAddresses += "coinbase";
         } else {
-            CTxOut PrevOut = getPrevOut(tx.vin[j].prevout);
+            CTxOut PrevOut = getPrevOut(tx.vin[j]);
             InAmounts += ValueToString(PrevOut.nValue);
-            InAddresses += ScriptToString(PrevOut.scriptPubKey, false, PrevOut.scriptPubKey == Highlight).c_str();
-            if (PrevOut.scriptPubKey == Highlight)
+            CKeyID KeyID = uint160(1);
+            CTxDestination PrevOutDest;
+            if (ExtractDestination(PrevOut.scriptPubKey, PrevOutDest)) {
+                if (typeid(CKeyID) == PrevOutDest.type()) {
+                    KeyID = boost:: get<CKeyID>(PrevOutDest);
+                }
+            }
+            InAddresses += ScriptToString(PrevOut.scriptPubKey, false, KeyID == Highlight).c_str();
+            if (KeyID == Highlight)
                 Delta -= PrevOut.nValue;
         }
         if (j + 1 != tx.vin.size()) {
@@ -120,8 +127,15 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
     for (unsigned int j = 0; j < tx.vout.size(); j++) {
         CTxOut Out = tx.vout[j];
         OutAmounts += ValueToString(Out.nValue);
-        OutAddresses += ScriptToString(Out.scriptPubKey, false, Out.scriptPubKey == Highlight);
-        if (Out.scriptPubKey == Highlight)
+        CKeyID KeyID = uint160(1);
+        CTxDestination TxOutDest;
+        if (ExtractDestination(Out.scriptPubKey, TxOutDest)) {
+            if (typeid(CKeyID) == TxOutDest.type()) {
+                KeyID = boost:: get<CKeyID>(TxOutDest);
+            }
+        }
+        OutAddresses += ScriptToString(Out.scriptPubKey, false, KeyID == Highlight);
+        if (KeyID == Highlight)
             Delta += Out.nValue;
         if (j + 1 != tx.vout.size()) {
             OutAmounts += "<br/>";
@@ -142,30 +156,13 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
 
     int n = sizeof(List) / sizeof(std::string) - 2;
 
-    if (!Highlight.empty()) {
+    if (CKeyID() != Highlight) {
         List[n++] = std::string("<font color=\"") + ((Delta > 0) ? "green" : "red") + "\">" + ValueToString(Delta, true) + "</font>";
         *pSum += Delta;
         List[n++] = ValueToString(*pSum);
         return makeHTMLTableRow(List, n);
     }
     return makeHTMLTableRow(List + 1, n - 1);
-}
-
-CTxOut getPrevOut(const COutPoint& out)
-{
-    CTransaction tx;
-    uint256 hashBlock;
-    if (GetTransaction(out.hash, tx, hashBlock, true))
-        return tx.vout[out.n];
-    return CTxOut();
-}
-
-void getNextIn(const COutPoint& Out, uint256& Hash, unsigned int& n)
-{
-    // Hash = 0;
-    // n = 0;
-    // if (paddressmap)
-    //    paddressmap->ReadNextIn(Out, Hash, n);
 }
 
 const CBlockIndex* getexplorerBlockIndex(int64_t height)
@@ -342,7 +339,7 @@ std::string TxToString(uint256 BlockHash, const CTransaction& tx)
     } else
         for (unsigned int i = 0; i < tx.vin.size(); i++) {
             COutPoint Out = tx.vin[i].prevout;
-            CTxOut PrevOut = getPrevOut(tx.vin[i].prevout);
+            CTxOut PrevOut = getPrevOut(tx.vin[i]);
             if (PrevOut.nValue < 0)
                 Input = -Params().MaxMoneyOut();
             else
@@ -361,7 +358,6 @@ std::string TxToString(uint256 BlockHash, const CTransaction& tx)
         const CTxOut& Out = tx.vout[i];
         uint256 HashNext = uint256S("0");
         unsigned int nNext = 0;
-        bool fAddrIndex = false;
         getNextIn(COutPoint(TxHash, i), HashNext, nNext);
         std::string OutputsContentCells[] =
         {
@@ -424,36 +420,36 @@ std::string AddressToString(const CBitcoinAddress& Address)
     std::string TxContent = table + makeHTMLTableRow(TxLabels, sizeof(TxLabels) / sizeof(std::string));
 
     std::set<COutPoint> PrevOuts;
-    /*
-    CScript AddressScript;
-    AddressScript.SetDestination(Address.Get());
+    //*
+    CKeyID KeyID;
+
+    if (!Address.GetKeyID(KeyID))
+        return "";
 
     CAmount Sum = 0;
-    bool fAddrIndex = false;
 
     if (!fAddrIndex)
         return ""; // it will take too long to find transactions by address
     else
     {
         std::vector<CDiskTxPos> Txs;
-        paddressmap->GetTxs(Txs, AddressScript.GetID());
+        paddressmap->GetTxs(Txs, CScriptID(KeyID));
         BOOST_FOREACH (const CDiskTxPos& pos, Txs)
         {
             CTransaction tx;
             CBlock block;
-            uint256 bhash = block.GetHash();
-            GetTransaction(pos.nTxOffset, tx, bhash);
-            std::map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(block.GetHash());
-            if (mi == mapBlockIndex.end())
+            ReadTransaction(pos, tx, block);
+            BlockMap::iterator iter = mapBlockIndex.find(block.GetHash());
+            if (iter == mapBlockIndex.end())
                 continue;
-            CBlockIndex* pindex = (*mi).second;
+            CBlockIndex* pindex = (*iter).second;
             if (!pindex || !chainActive.Contains(pindex))
                 continue;
             std::string Prepend = "<a href=\"" + itostr(pindex->nHeight) + "\">" + TimeToString(pindex->nTime) + "</a>";
-            TxContent += TxToRow(tx, AddressScript, Prepend, &Sum);
-        }
+            TxContent += TxToRow(tx, KeyID, Prepend, &Sum);
+         }
     }
-    */
+    //*/
     TxContent += "</table>";
 
     std::string Content;
@@ -586,7 +582,7 @@ void BlockExplorer::setBlock(CBlockIndex* pBlock)
 
 void BlockExplorer::setContent(const std::string& Content)
 {
-    QString CSS = "body {font-size:12px; color:#f8f6f6; bgcolor:#12546a;}\n a, span { font-family: monospace; }\n span.addr {color:#12546a; font-weight: bold;}\n table tr td {padding: 3px; border: 1px solid black; background-color: #12546a;}\n td.d0 {font-weight: bold; color:#f8f6f6;}\n h2, h3 { white-space:nowrap; color:#12546a;}\n a { color:#88f6f6; text-decoration:none; }\n a.nav {color:#12546a;}\n";
+    QString CSS = "body {font-size:12px; color:#f8f6f6; bgcolor:#12546a;}\n a, span { font-family: monospace; }\n span.addr {color:#ff0000; font-weight: bold;}\n table tr td {padding: 3px; border: 1px solid black; background-color: #12546a;}\n td.d0 {font-weight: bold; color:#f8f6f6;}\n h2, h3 { white-space:nowrap; color:#12546a;}\n a { color:#88f6f6; text-decoration:none; }\n a.nav {color:#12546a;}\n";
     QString FullContent = "<html><head><style type=\"text/css\">" + CSS + "</style></head>" + "<body>" + Content.c_str() + "</body></html>";
     // printf(FullContent.toUtf8());
 

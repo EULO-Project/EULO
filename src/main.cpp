@@ -75,6 +75,7 @@ int nScriptCheckThreads = 0;
 bool fImporting = false;
 bool fReindex = false;
 bool fTxIndex = true;
+bool fAddrIndex = false;
 bool fLogEvents = true;//eulo-vm
 bool fIsBareMultisigStd = true;
 bool fCheckBlockIndex = false;
@@ -607,6 +608,7 @@ CCoinsViewCache* pcoinsTip = NULL;
 CBlockTreeDB* pblocktree = NULL;
 CZerocoinDB* zerocoinDB = NULL;
 CSporkDB* pSporkDB = NULL;
+CAddressDB *paddressmap = NULL;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -4002,6 +4004,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         if (!pblocktree->WriteTxIndex(vPos))
             return state.Abort("Failed to write transaction index");
 
+    if (fAddrIndex)
+        if (!paddressmap->AddTx(block.vtx, vPos))
+            return state.Abort(_("Failed to write address index"));
+
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
 
@@ -5788,6 +5794,10 @@ bool static LoadBlockIndexDB(string& strError)
     // If this is written true before the next client init, then we know the shutdown process failed
     pblocktree->WriteFlag("shutdown", false);
 
+    // Check whether we have a address index
+    paddressmap->ReadEnable(fAddrIndex);
+    LogPrintf("LoadBlockIndexDB(): address index %s\n", fAddrIndex ? "enabled" : "disabled");
+
     // Load pointer to end of best chain
     BlockMap::iterator it = mapBlockIndex.find(pcoinsTip->GetBestBlock());
     if (it == mapBlockIndex.end())
@@ -5934,6 +5944,10 @@ bool InitBlockIndex()
     // Use the provided setting for -txindex in the new database
     fTxIndex = GetBoolArg("-txindex", true);
     pblocktree->WriteFlag("txindex", fTxIndex);
+
+    // Use the provided setting for -addrindex in the new database
+    fAddrIndex = GetBoolArg("-addrindex", false);
+    paddressmap->WriteEnable(fAddrIndex);
     LogPrintf("Initializing databases...\n");
 
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)

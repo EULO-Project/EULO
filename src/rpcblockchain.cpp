@@ -15,6 +15,7 @@
 #include "sync.h"
 #include "txdb.h"
 #include "util.h"
+#include "core_io.h"
 #include "utilmoneystr.h"
 
 #include <stdint.h>
@@ -459,7 +460,7 @@ static std::string makeHTMLTable(const std::string* pCells, int nRows, int nColu
 }
 
 
-static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CScript(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
+static std::string TxToRow(const CTransaction& tx, const CKeyID& Highlight = CKeyID(), const std::string& Prepend = std::string(), int64_t* pSum = NULL)
 {
     std::string InAmounts, InAddresses, OutAmounts, OutAddresses;
     int64_t Delta = 0;
@@ -470,8 +471,15 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
         } else {
             CTxOut PrevOut = getPrevOut2(tx.vin[j].prevout);
             InAmounts += ValueToString(PrevOut.nValue);
-            InAddresses += ScriptToString(PrevOut.scriptPubKey, false, PrevOut.scriptPubKey == Highlight).c_str();
-            if (PrevOut.scriptPubKey == Highlight)
+            CKeyID KeyID = uint160(1);
+            CTxDestination PrevOutDest;
+            if (ExtractDestination(PrevOut.scriptPubKey, PrevOutDest)) {
+                if (typeid(CKeyID) == PrevOutDest.type()) {
+                    KeyID = boost:: get<CKeyID>(PrevOutDest);
+                }
+            }
+            InAddresses += ScriptToString(PrevOut.scriptPubKey, false, KeyID == Highlight).c_str();
+            if (KeyID == Highlight)
                 Delta -= PrevOut.nValue;
         }
         if (j + 1 != tx.vin.size()) {
@@ -482,8 +490,15 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
     for (unsigned int j = 0; j < tx.vout.size(); j++) {
         CTxOut Out = tx.vout[j];
         OutAmounts += ValueToString(Out.nValue);
-        OutAddresses += ScriptToString(Out.scriptPubKey, false, Out.scriptPubKey == Highlight);
-        if (Out.scriptPubKey == Highlight)
+        CKeyID KeyID = uint160(1);
+        CTxDestination TxOutDest;
+        if (ExtractDestination(Out.scriptPubKey, TxOutDest)) {
+            if (typeid(CKeyID) == TxOutDest.type()) {
+                KeyID = boost:: get<CKeyID>(TxOutDest);
+            }
+        }
+        OutAddresses += ScriptToString(Out.scriptPubKey, false, KeyID == Highlight);
+        if (KeyID == Highlight)
             Delta += Out.nValue;
         if (j + 1 != tx.vout.size()) {
             OutAmounts += "<br/>";
@@ -505,7 +520,7 @@ static std::string TxToRow(const CTransaction& tx, const CScript& Highlight = CS
 
     int n = sizeof(List) / sizeof(std::string) - 2;
 
-    if (!Highlight.empty()) {
+    if (CKeyID() != Highlight) {
         List[n++] = std::string("<font color=\"") + ((Delta > 0) ? "green" : "red") + "\">" + ValueToString(Delta, true) + "</font>";
         *pSum += Delta;
         List[n++] = ValueToString(*pSum);
@@ -943,57 +958,116 @@ UniValue gettxexplorer(const UniValue& params, bool fHelp)
 }
 
 
-std::string AddressToString2(const CBitcoinAddress& Address)
+bool AddressToString2(const CBitcoinAddress& Address, UniValue & Result)
 {
-    std::string TxLabels[] =
+    CAmount     Balance     = 0;
+    CAmount     TotalRecv   = 0;
+    CAmount     TotalSent   = 0;
+    CAmount     NetIncome   = 0;
+    
+    CKeyID      KeyID;
+    
+    UniValue    uvTransactions(UniValue::VARR);
+    
+    if (!Address.GetKeyID(KeyID))
+        return false;
+
+    if (!fAddrIndex) {
+        return false;
+    } else {
+        std::vector<CDiskTxPos> vTxDiskPos;
+        paddressmap->GetTxs(vTxDiskPos, CScriptID(KeyID));
+        BOOST_FOREACH (const CDiskTxPos& diskpos, vTxDiskPos)
         {
-            "Date",
-            "Hash",
-            "From",
-            "Amount",
-            "To",
-            "Amount",
-            "Delta",
-            "Balance"};
-    std::string TxContent = table + makeHTMLTableRow(TxLabels, sizeof(TxLabels) / sizeof(std::string));
-
-    std::set<COutPoint> PrevOuts;
-    /*
-    CScript AddressScript;
-    AddressScript.SetDestination(Address.Get());
-
-    CAmount Sum = 0;
-    bool fAddrIndex = false;
-
-    if (!fAddrIndex)
-        return ""; // it will take too long to find transactions by address
-    else
-    {
-        std::vector<CDiskTxPos> Txs;
-        paddressmap->GetTxs(Txs, AddressScript.GetID());
-        BOOST_FOREACH (const CDiskTxPos& pos, Txs)
-        {
-            CTransaction tx;
             CBlock block;
-            uint256 bhash = block.GetHash();
-            GetTransaction(pos.nTxOffset, tx, bhash);
-            std::map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(block.GetHash());
-            if (mi == mapBlockIndex.end())
+            CTransaction tx;
+
+            ReadTransaction(diskpos, tx, block);
+            BlockMap::iterator iter = mapBlockIndex.find(block.GetHash());
+            if (iter == mapBlockIndex.end())
                 continue;
-            CBlockIndex* pindex = (*mi).second;
+            CBlockIndex* pindex = (*iter).second;
             if (!pindex || !chainActive.Contains(pindex))
                 continue;
-            std::string Prepend = "<a href=\"" + itostr(pindex->nHeight) + "\">" + TimeToString(pindex->nTime) + "</a>";
-            TxContent += TxToRow(tx, AddressScript, Prepend, &Sum);
-        }
-    }
-    */
-    TxContent += "</table>";
 
-    std::string Content;
-    Content += "<h1>Transactions to/from&nbsp;<span>" + Address.ToString() + "</span></h1>";
-    Content += TxContent;
-    return Content;
+            UniValue uvTx(UniValue::VOBJ);
+            UniValue uvTxIns(UniValue::VARR);
+            UniValue uvTxOuts(UniValue::VARR);
+
+            NetIncome = 0;
+            for (const auto & txin : tx.vin) {
+                UniValue    uvTxIn(UniValue::VARR);
+                
+                if (tx.IsCoinBase()) {
+                    uvTxIn.push_back("coinbase");
+                    uvTxIn.push_back(ValueFromAmount(tx.GetValueOut()));
+                } else {
+                    CTxOut PrevOut = getPrevOut(txin);
+
+                    CKeyID  PrevKeyID;
+                    CTxDestination PrevTxDest;
+                    CBitcoinAddress PrevAddress;
+                    if (ExtractDestination(PrevOut.scriptPubKey, PrevTxDest) && PrevAddress.Set(PrevTxDest)) {
+                        if (typeid(CKeyID) == PrevTxDest.type()) {
+                            PrevKeyID = boost::get<CKeyID>(PrevTxDest);
+
+                            if (KeyID == PrevKeyID) {
+                                NetIncome -= PrevOut.nValue;
+                                TotalSent += PrevOut.nValue;
+                            }
+                        }
+                        uvTxIn.push_back(PrevAddress.ToString());
+                    } else {
+                        uvTxIn.push_back(FormatScript(PrevOut.scriptPubKey));
+                    }
+                    uvTxIn.push_back(ValueFromAmount(PrevOut.nValue));
+                }
+
+                uvTxIns.push_back(uvTxIn);
+            }
+
+            for (const auto & txout : tx.vout) {
+                UniValue    uvTxOut(UniValue::VARR);
+
+                CKeyID  TxOutKeyID;
+                CTxDestination TxOutDest;
+                CBitcoinAddress TxOutAddress;
+                if (ExtractDestination(txout.scriptPubKey, TxOutDest) && TxOutAddress.Set(TxOutDest)) {
+                    if (typeid(CKeyID) == TxOutDest.type()) {
+                        TxOutKeyID = boost::get<CKeyID>(TxOutDest);
+                    
+                        if (KeyID == TxOutKeyID) {
+                            NetIncome += txout.nValue;
+                            TotalRecv += txout.nValue;
+                        }
+                    }
+                    uvTxOut.push_back(TxOutAddress.ToString());
+                } else {
+                    uvTxOut.push_back(FormatScript(txout.scriptPubKey));
+                }
+                uvTxOut.push_back(ValueFromAmount(txout.nValue));
+
+                uvTxOuts.push_back(uvTxOut);
+            }
+
+            uvTx.push_back(Pair("Date", TimeToString(pindex->nTime)));
+            uvTx.push_back(Pair("Hash", tx.GetHash().GetHex()));
+            uvTx.push_back(std::make_pair("From", uvTxIns));
+            uvTx.push_back(std::make_pair("To", uvTxOuts));
+            uvTx.push_back(std::make_pair("Delta", ValueFromAmount(NetIncome)));
+            uvTx.push_back(std::make_pair("Balance", ValueFromAmount(TotalRecv - TotalSent)));
+
+            uvTransactions.push_back(uvTx);
+        }
+        
+        Result.push_back(Pair("address", Address.ToString()));
+        Result.push_back(std::make_pair("received", ValueFromAmount(TotalRecv)));
+        Result.push_back(std::make_pair("sent", ValueFromAmount(TotalSent)));
+        Result.push_back(std::make_pair("balance", ValueFromAmount(TotalRecv - TotalSent)));
+        Result.push_back(std::make_pair("transactions", uvTransactions));
+    }
+
+    return true;
 }
 
 UniValue getblocksinfoexplorer(const UniValue& params, bool fHelp)
@@ -1098,13 +1172,9 @@ UniValue getqueryexplorer(const UniValue& params, bool fHelp)
 
     Address.SetString(strHash);
     if (Address.IsValid()) {
-        address_str = AddressToString2(Address);
-        if (!address_str.empty())
+        if (AddressToString2(Address, result))
         {
             result.push_back(Pair("type","address"));
-
-            result.push_back(Pair("hash",strHash));
-            result.push_back(Pair("address_str", address_str));
             return result;
         }
     }
@@ -1112,7 +1182,7 @@ UniValue getqueryexplorer(const UniValue& params, bool fHelp)
     throw JSONRPCError(RPC_INVALID_PARAMETER, "Query Invalid");
 
 
-    return false;
+    return result;
 
 }
 
@@ -1137,18 +1207,13 @@ UniValue getaddressexplorer(const UniValue& params, bool fHelp)
 
     Address.SetString(strHash);
     if (Address.IsValid()) {
-        address_str = AddressToString2(Address);
-        if (address_str.empty())
+        if (!AddressToString2(Address, result))
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Address No Txes");
     }
     else
     {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Address Invalid");
     }
-
-    result.push_back(Pair("address", strHash));
-    result.push_back(Pair("address_str", address_str));
-
 
     return result;
 }

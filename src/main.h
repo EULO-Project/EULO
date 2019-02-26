@@ -55,6 +55,7 @@ class CInv;
 class CScriptCheck;
 class CValidationInterface;
 class CValidationState;
+class CAddressDB;
 
 struct CBlockTemplate;
 struct CNodeStateStats;
@@ -149,8 +150,8 @@ extern bool fImporting;
 extern bool fReindex;
 extern int nScriptCheckThreads;
 extern bool fTxIndex;
+extern bool fAddrIndex;
 extern bool fLogEvents;
-
 extern bool fIsBareMultisigStd;
 extern bool fCheckBlockIndex;
 extern unsigned int nCoinCacheSize;
@@ -669,6 +670,9 @@ extern CZerocoinDB* zerocoinDB;
 
 /** Global variable that points to the spork database (protected by cs_main) */
 extern CSporkDB* pSporkDB;
+
+/** Global variable that points to the address database (protected by cs_main) */
+extern CAddressDB *paddressmap;
 
 struct CBlockTemplate {
     CBlock block;
