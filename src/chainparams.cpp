@@ -106,7 +106,7 @@ public:
         pchMessageStart[3] = 0xe5;
         vAlertPubKey = ParseHex("0490e0480bf864eece4ddca8787bb1a74f823361e7e9e931e67385b6976600a98637e2f2eb32568035266789c44e0471443bbe27efd6673284e53d4f16272566f9");
         nDefaultPort = 58802;
-        bnProofOfWorkLimit = ~uint256(0) >> 16; // EULO starting difficulty is 1 / 2^20
+        bnProofOfWorkLimit = ~uint256(0) >> 20; // EULO starting difficulty is 1 / 2^20
         nSubsidyHalvingInterval = 210000;
         nMaxReorganizationDepth = 100;
         nEnforceBlockUpgradeMajority = 750;
@@ -115,27 +115,27 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 1 * 60; // EULO: 1 minute
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
-        nMaturity = 20;
+        nMaturity = 100;
         nMasternodeCountDrift = 20;
         nMaxMoneyOut = 21148191990 * COIN;
 
         /** Height or Time Based Activations **/
-        nLastPOWBlock = 240;
-        nContractStartHeight = 260;
-        nPOWStartBlockInPOS = 270;
+        nLastPOWBlock = 1439;
+        nContractStartHeight = 234720;
+        nPOWStartBlockInPOS = 518400;
         nModifierUpdateBlock = 0;
-        nZerocoinStartHeight = 250;
+        nZerocoinStartHeight = 129600;
         nZerocoinStartTime = 1533859200;    // August 10, 2018 08:00:00 AM
 
         /**
          * Build the genesis block. Note that the output of the genesis coinbase cannot
          * be spent as it did not originally exist in the database.
          *
-         * CBlock(hash=00000013ea705a, ver=1, hashPrevBlock=00000000000000, hashMerkleRoot=4df5d8, nTime=1533859200, nBits=1e00ffff, nNonce=1742924, vtx=1)
-         *   CTransaction(hash=4df5d8, ver=1, vin.size=1, vout.size=1, nLockTime=0)
-         *     CTxIn(COutPoint(000000, -1), coinbase 04ffff001e01044c5b552e532e204e657773202620576f726c64205265706f7274204175672031302032303138205553206d696772616e74733a204a75646765206f7264657273206465706f72746174696f6e20706c616e65207475726e61726f756e64)
-         *     CTxOut(nValue=250.00000000, scriptPubKey=0xC9D02E3B070AEAAB4B7742)
-         *   vMerkleTree: 4df5d8
+         * CBlock(hash=00000ffd590b14, ver=1, hashPrevBlock=00000000000000, hashMerkleRoot=e0028e, nTime=1390095618, nBits=1e0ffff0, nNonce=28917698, vtx=1)
+         *   CTransaction(hash=e0028e, ver=1, vin.size=1, vout.size=1, nLockTime=0)
+         *     CTxIn(COutPoint(000000, -1), coinbase 04ffff001d01044c5957697265642030392f4a616e2f3230313420546865204772616e64204578706572696d656e7420476f6573204c6976653a204f76657273746f636b2e636f6d204973204e6f7720416363657074696e6720426974636f696e73)
+         *     CTxOut(nValue=50.00000000, scriptPubKey=0xA9037BAC7050C479B121CF)
+         *   vMerkleTree: e0028e
          */
         const char* pszTimestamp = "U.S. News & World Report Aug 10 2018 US migrants: Judge orders deportation plane turnaround";
         CMutableTransaction txNew;
@@ -156,11 +156,10 @@ public:
         assert(hashGenesisBlock == uint256("0x00000013ea705af4ed8b40a86250bc6d78b982c604eef80a908cec7f11abbdd1"));
         assert(genesis.hashMerkleRoot == uint256("0x4df5d8d4db708df49c4f911a0946991d5a7628e2e93dfe22b76f9233a9492426"));
 
-//        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Germany node address
-//        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Japan node address
-//        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Singapore node address
-//        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // US node address
-//        vSeeds.push_back(CDNSSeedData("47.89.243.161", "47.89.243.161"));           // Single node address
+        vSeeds.push_back(CDNSSeedData("node.eulo.io", "node.eulo.io"));         // node
+        vSeeds.push_back(CDNSSeedData("seed1.eulo.io", "seed1.eulo.io"));       // seed1
+        vSeeds.push_back(CDNSSeedData("seed2.eulo.io", "seed2.eulo.io"));       // seed2
+        vSeeds.push_back(CDNSSeedData("seed3.eulo.io", "seed3.eulo.io"));       // seed3
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 68);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 13);
@@ -225,20 +224,23 @@ public:
         pchMessageStart[3] = 0xc5;
         vAlertPubKey = ParseHex("04146d06bd90bf85bec61fb050e0016dc6fd9b078f86ae6f8a2281a861065d40de1cf02788c0a2324e1020cd13bc323d8bdb66e1bf24d241cf601d347f1aa3ad78");
         nDefaultPort = 58804;
-        nEnforceBlockUpgradeMajority = 51;
-        nRejectBlockOutdatedMajority = 75;
-        nToCheckBlockUpgradeMajority = 100;
+        bnProofOfWorkLimit = ~uint256(0) >> 16; // EULO starting difficulty is 1 / 2^16
+        nSubsidyHalvingInterval = 210000;
+        nMaxReorganizationDepth = 100;
+        nEnforceBlockUpgradeMajority = 750;
+        nRejectBlockOutdatedMajority = 950;
+        nToCheckBlockUpgradeMajority = 1000;
         nMinerThreads = 0;
         nTargetTimespan = 1 * 60; // EULO: 1 day
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
         nLastPOWBlock = 1439;
-        nContractStartHeight = 2439;
-        nPOWStartBlockInPOS = 259200;
+        nContractStartHeight = 234720;
+        nPOWStartBlockInPOS = 518400;
         nMaturity = 15;
         nMasternodeCountDrift = 4;
         nModifierUpdateBlock = 0; //approx Mon, 17 Apr 2017 04:00:00 GMT
         nMaxMoneyOut = 21148191990 * COIN;
-        nZerocoinStartHeight = 43200;
+        nZerocoinStartHeight = 129600;
         nZerocoinStartTime = 1550037281;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
@@ -251,11 +253,10 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-//        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Germany node address
-//        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Japan node address
-//        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Singapore node address
-//        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // US node address
-//        vSeeds.push_back(CDNSSeedData("47.89.243.161", "47.89.243.161"));           // Single node address
+        vSeeds.push_back(CDNSSeedData("node.eulo.io", "node.eulo.io"));         // node
+        vSeeds.push_back(CDNSSeedData("seed1.eulo.io", "seed1.eulo.io"));       // seed1
+        vSeeds.push_back(CDNSSeedData("seed2.eulo.io", "seed2.eulo.io"));       // seed2
+        vSeeds.push_back(CDNSSeedData("seed3.eulo.io", "seed3.eulo.io"));       // seed3
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 130); // Testnet ulo addresses start with 'u'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);  // Testnet eulo script addresses start with '8' or '9'
@@ -279,7 +280,7 @@ public:
         nPoolMaxTransactions = 2;
         strSporkKey = "042a5bab8709d72839c05e72a6396b69608a164abe94eeccdc311a9e0dd8fc8e3a13d75bcd2ffa6077ffea53319fa0e60ac0ba0bc6b392f7f296f0164d6ff08250";
         strObfuscationPoolDummyAddress = "uTxyz1tQzBkZrJaZgFQ9TXn2TxsSQQcoQ8";
-        nStartMasternodePayments = 1420837558; //Fri, 09 Jan 2015 21:05:58 GMT
+        nStartMasternodePayments = 1514768399; //Fri, 09 Jan 2015 21:05:58 GMT
         nBudget_Fee_Confirmations = 3; // Number of confirmations for the finalization fee. We have to make this very short
                                        // here because we only have a 8 block finalization window on testnet
     }

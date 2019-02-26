@@ -40,17 +40,17 @@ More information at [eulo.io](http://www.eulo.io) Visit our ANN thread at [Bitco
 ### PoS Rewards Breakdown
 
 <table>
-<th><font size="2">Phase<font></th><th><font size="2">Block Height<font></th><th><font size="2">Reward<font></th><th><font size="2">Masternodes & Stakers<font></th><th><font size="2">Miner<font></th><th><font size="2">Budget<font></th>
-<tr><td><font size="2">Phase 0<font></td><td><font size="2">1440-259199<font></td><td><font size="2">10 ULO<font></td><td><font size="2">100% (10 ULO)<font></td><td><font size="2">0% (0 ULO)<font></td><td><font size="2">N/A<font></td></tr>
-<tr><td><font size="2">Phase 1<font></td><td><font size="2">259200-1295999<font></td><td><font size="2">1300 ULO<font></td><td><font size="2">76% (988 ULO)<font></td><td><font size="2">19% (247 ULO)<font></td><td><font size="2">5% (65 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 2<font></td><td><font size="2">1296000-2332799<font></td><td><font size="2">1250 ULO<font></td><td><font size="2">66.5% (831.25 ULO)<font></td><td><font size="2">28.5% (356.25 ULO)<font></td><td><font size="2">5% (62.5 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 3<font></td><td><font size="2">2332800-3369599<font></td><td><font size="2">1200 ULO<font></td><td><font size="2">66.5% (798 ULO)<font></td><td><font size="2">28.5% (342 ULO)<font></td><td><font size="2">5% (60 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 4<font></td><td><font size="2">3369600-4406399<font></td><td><font size="2">1150 ULO<font></td><td><font size="2">57% (655.5 ULO)<font></td><td><font size="2">38% (437 ULO)<font></td><td><font size="2">5% (57.5 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 5<font></td><td><font size="2">4406400-5443199<font></td><td><font size="2">1100 ULO<font></td><td><font size="2">57% (627 ULO)<font></td><td><font size="2">38% (418 ULO)<font></td><td><font size="2">5% (55 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 6<font></td><td><font size="2">5443200-6479999<font></td><td><font size="2">1050 ULO<font></td><td><font size="2">57% (598.5 ULO)<font></td><td><font size="2">38% (399 ULO)<font></td><td><font size="2">5% (52.5 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 7<font></td><td><font size="2">6480000-7516799<font></td><td><font size="2">1000 ULO<font></td><td><font size="2">47.5% (475 ULO)<font></td><td><font size="2">47.5% (475 ULO)<font></td><td><font size="2">5% (50 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 8<font></td><td><font size="2">7516800-8553599<font></td><td><font size="2">950 ULO<font></td><td><font size="2">47.5% (451.25 ULO)<font></td><td><font size="2">47.5% (451.25 ULO)<font></td><td><font size="2">5% (47.5 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 9<font></td><td><font size="2">8553600-9590399<font></td><td><font size="2">900 ULO<font></td><td><font size="2">47.5% (427.5 ULO)<font></td><td><font size="2">47.5% (427.5 ULO)<font></td><td><font size="2">5% (45 ULO)<font></td></tr>
-<tr><td><font size="2">Phase 10<font></td><td><font size="2">9590400-10627199<font></td><td><font size="2">850 ULO<font></td><td><font size="2">47.5% (403.75 ULO)<font></td><td><font size="2">47.5% (403.75 ULO)<font></td><td><font size="2">5% (42.5 ULO)<font></td></tr>
-<tr><td><font size="2">Phase X<font></td><td><font size="2">10627200-Infinite<font></td><td><font size="2">500 ULO<font></td><td><font size="2">47.5% (237.5 ULO)<font></td><td><font size="2">47.5% (237.5 ULO)<font></td><td><font size="2">5% (25 ULO)<font></td></tr>
+<th>Phase</th><th>Block Height</th><th>Reward</th><th>Masternodes & Stakers</th><th>Miner</th><th>Budget</th>
+<tr><td>Phase 0</td><td>1440-518399</td><td>10 ULO</td><td>100% (10 ULO)</td><td>0% (0 ULO)</td><td>N/A</td></tr>
+<tr><td>Phase 1</td><td>518400-4665599</td><td>325 ULO</td><td>76% (247 ULO)</td><td>19% (61.75 ULO)</td><td>5% (16.25 ULO)</td></tr>
+<tr><td>Phase 2</td><td>4665600-6739199</td><td>625 ULO</td><td>66.5% (415.625 ULO)</td><td>28.5% (178.125 ULO)</td><td>5% (31.25 ULO)</td></tr>
+<tr><td>Phase 3</td><td>6739200-8812799</td><td>600 ULO</td><td>66.5% (399 ULO)</td><td>28.5% (171 ULO)</td><td>5% (30 ULO)</td></tr>
+<tr><td>Phase 4</td><td>8812800-10886399</td><td>575 ULO</td><td>57% (327.75 ULO)</td><td>38% (218.5 ULO)</td><td>5% (28.75 ULO)</td></tr>
+<tr><td>Phase 5</td><td>10886400-12959999</td><td>550 ULO</td><td>57% (313.5 ULO)</td><td>38% (209 ULO)</td><td>5% (27.5 ULO)</td></tr>
+<tr><td>Phase 6</td><td>12960000-15033599</td><td>525 ULO</td><td>57% (299.25 ULO)</td><td>38% (199.5 ULO)</td><td>5% (26.25 ULO)</td></tr>
+<tr><td>Phase 7</td><td>15033600-17107199</td><td>500 ULO</td><td>47.5% (237.5 ULO)</td><td>47.5% (237.5 ULO)</td><td>5% (25 ULO)</td></tr>
+<tr><td>Phase 8</td><td>17107200-19180799</td><td>475 ULO</td><td>47.5% (225.625 ULO)</td><td>47.5% (225.625 ULO)</td><td>5% (23.75 ULO)</td></tr>
+<tr><td>Phase 9</td><td>19180800-21254399</td><td>450 ULO</td><td>47.5% (213.75 ULO)</td><td>47.5% (213.75 ULO)</td><td>5% (22.5 ULO)</td></tr>
+<tr><td>Phase 10</td><td>21254400-23327999</td><td>425 ULO</td><td>47.5% (201.875 ULO)</td><td>47.5% (201.875 ULO)</td><td>5% (21.25 ULO)</td></tr>
+<tr><td>Phase X</td><td>23328000-Infinite</td><td>250 ULO</td><td>47.5% (118.75 ULO)</td><td>47.5% (118.75 ULO)</td><td>5% (12.5 ULO)</td></tr>
 </table>
