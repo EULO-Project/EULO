@@ -12,6 +12,12 @@ EULO is a cutting edge cryptocurrency, with many features not available in most 
 
 More information at [eulo.io](http://www.eulo.io) Visit our ANN thread at [BitcoinTalk](http://www.bitcointalk.org/index.php?topic=5080811)
 
+### Download
+# Ubuntu 18.04
+https://github.com/EULO-Project/EULO/releases/download/v2.0.0/eulo-qml-2.0.0-ubuntu18.04.zip
+# Windows 7,10 (64-bit)
+https://github.com/EULO-Project/EULO/releases/download/v2.0.0/eulo-qml-2.0.0-win.zip
+
 ### Coin Specs
 <table>
 <tr><td>Algo</td><td>Quark/CryptoNight</td></tr>
