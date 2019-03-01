@@ -141,7 +141,7 @@ HEADERS += \
     qt_native/bitcoinaddressvalidator.h \
     qt_native/bitcoinamountfield.h \
     qt_native/bitcoinunits.h \
-    qt_native/clientmodel.h \
+    qt_native/clientmodel.h \GL
     qt_native/csvmodelwriter.h \
     qt_native/guiconstants.h \
     qt_native/guiutil.h \
@@ -204,7 +204,8 @@ HEADERS += \
 win32{
 QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread -mwindows -static -Wl,--dynamicbase -Wl,--nxcompat
 }
-linux
+
+unix:!macx
 {
 LIBS+= -Wl,-Bdynamic -lGL
 QMAKE_LFLAGS += -static-libgcc -static-libstdc++
