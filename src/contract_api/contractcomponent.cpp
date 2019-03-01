@@ -1234,12 +1234,12 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
     if(nHeight == 0)
     {
         env.setNumber(dev::u256(tip->nHeight + 1));
-        LogPrintf("*****1\n");
+       // LogPrintf("*****1\n");
     }
     else
     {
         env.setNumber(dev::u256(nHeight));
-        LogPrintf("*****2   nHeight:d%\n",nHeight);
+       // LogPrintf("*****2   nHeight:d%\n",nHeight);
     }
 
 
@@ -1248,11 +1248,11 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
     env.setTimestamp(dev::u256(block.nTime));
     env.setDifficulty(dev::u256(block.nBits));
 
-    LogPrintf("*****BuildEVMEnvironment  block.nTime:%d\n", block.nTime);
-    LogPrintf("*****BuildEVMEnvironment  block.nBits:%d\n", block.nBits);
+//    LogPrintf("*****BuildEVMEnvironment  block.nTime:%d\n", block.nTime);
+//    LogPrintf("*****BuildEVMEnvironment  block.nBits:%d\n", block.nBits);
 
-    LogPrintf("*****BuildEVMEnvironment  tip.nHeight:%ld\n", tip->nHeight);
-    LogPrintf("*****BuildEVMEnvironment  blockGasLimit:%ld\n", blockGasLimit);
+//    LogPrintf("*****BuildEVMEnvironment  tip.nHeight:%ld\n", tip->nHeight);
+//    LogPrintf("*****BuildEVMEnvironment  blockGasLimit:%ld\n", blockGasLimit);
 
 
     dev::eth::LastHashes lh;
@@ -1265,11 +1265,16 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
     }
     env.setLastHashes(std::move(lh));
     env.setGasLimit(blockGasLimit);
+
     if(block.IsProofOfStake()){
-        env.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
+        if(block.GetBlockHeader().nVersion < SMART_CONTRACT_VERSION)
+            env.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
+        else
+            env.setAuthor(EthAddrFromScript(block.vtx[1].vout[2].scriptPubKey));
     }else {
         env.setAuthor(EthAddrFromScript(block.vtx[0].vout[0].scriptPubKey));
     }
+
     return env;
 }
 
