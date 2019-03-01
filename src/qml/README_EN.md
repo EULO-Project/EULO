@@ -1,4 +1,4 @@
-<h1>EULO Test Version 1.0.6</h1>
+<h1>EULO Test Version 2.0.0</h1>
 
 <h4>You are now using testing version of EULO. There are several missing functions and bugs already known. If you found any new bugs，or you have any advice, feel free to contact us. Please DO NOT discuss in public. Thanks！</h4>
 

@@ -2058,7 +2058,7 @@ Address: %4
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Note: 222Status of your masternodes in local wallet can potentially be slightly incorrect.&lt;br&gt;Always wait for wallet to sync additional data and then double check from another node.&lt;br&gt;if your node should be running but you still see &quot;MISSING&quot; in &quot;Status&quot; field.</source>
+        <source>Note: Status of your masternodes in local wallet can potentially be slightly incorrect.&lt;br&gt;Always wait for wallet to sync additional data and then double check from another node.&lt;br&gt;if your node should be running but you still see &quot;MISSING&quot; in &quot;Status&quot; field.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2945,6 +2945,10 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;5000&lt;/b&gt;:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Denom. with value &lt;b&gt;50&lt;/b&gt;:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4246,6 +4250,10 @@ Duration: 0 sec.</source>
         <source>The EULO Core developers</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>The Qtum Core developers</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>StartUpDialog</name>
@@ -4376,22 +4384,6 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Encrypt Wallet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Modify Password</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>BIP38 Tools</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Multi-Sending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

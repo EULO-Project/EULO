@@ -2801,6 +2801,10 @@ Duration: 0 sec.</source>
         <source>Denom. with value &lt;b&gt;5000&lt;/b&gt;:</source>
         <translation>用 &lt;b&gt;5000&lt;/b&gt; 分:</translation>
     </message>
+    <message>
+        <source>Denom. with value &lt;b&gt;50&lt;/b&gt;:</source>
+        <translation>用 &lt;b&gt;5000&lt;/b&gt; 分: {50&lt;?}</translation>
+    </message>
 </context>
 <context>
     <name>QObject</name>
@@ -3578,6 +3582,10 @@ Duration: 0 sec.</source>
         <source>The EULO Core developers</source>
         <translation>优罗币核心开发人员</translation>
     </message>
+    <message>
+        <source>The Qtum Core developers</source>
+        <translation>量子核心开发人员</translation>
+    </message>
 </context>
 <context>
     <name>StartUpDialog</name>
@@ -3716,19 +3724,19 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Encrypt Wallet</source>
-        <translation>加密钱包</translation>
+        <translation type="vanished">加密钱包</translation>
     </message>
     <message>
         <source>Modify Password</source>
-        <translation>修改密码</translation>
+        <translation type="vanished">修改密码</translation>
     </message>
     <message>
         <source>BIP38 Tools</source>
-        <translation>BIP38 工具</translation>
+        <translation type="vanished">BIP38 工具</translation>
     </message>
     <message>
         <source>Multi-Sending</source>
-        <translation>多重发送</translation>
+        <translation type="vanished">多重发送</translation>
     </message>
     <message>
         <source>Options</source>
