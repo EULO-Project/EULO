@@ -1,6 +1,6 @@
 <h1>EULO Test Version 2.0.0</h1>
 
-<h4>You are now using testing version of EULO. There are several missing functions and bugs already known. If you found any new bugs，or you have any advice, feel free to contact us. Please DO NOT discuss in public. Thanks！</h4>
+<h4>You are now using release version of EULO. There are several missing functions and bugs already known. If you found any new bugs，or you have any advice, feel free to contact us. Please DO NOT discuss in public. Thanks！</h4>
 
 <h4>New:</h4>
 <ul>
@@ -61,10 +61,7 @@
 <li>5、ZeroCoin related。</li>
 </ul>
 
-<h4>To be closed:</h4>
-<ul>
-<li>1、QML Debug</li>
-</ul>
+
 
 <h4>Developers</h4>
 <ul>
