@@ -141,7 +141,7 @@ HEADERS += \
     qt_native/bitcoinaddressvalidator.h \
     qt_native/bitcoinamountfield.h \
     qt_native/bitcoinunits.h \
-    qt_native/clientmodel.h \GL
+    qt_native/clientmodel.h \
     qt_native/csvmodelwriter.h \
     qt_native/guiconstants.h \
     qt_native/guiutil.h \
@@ -202,17 +202,15 @@ HEADERS += \
 
 
 win32{
-QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread -mwindows -static -Wl,--dynamicbase -Wl,--nxcompat
-}
-
-unix:!macx
-{
-LIBS+= -Wl,-Bdynamic -lGL
-QMAKE_LFLAGS += -static-libgcc -static-libstdc++
+    QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread -mwindows -static -Wl,--dynamicbase -Wl,--nxcompat
 }
 
 unix:!macx{
-QMAKE_LFLAGS += -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread
+    LIBS+= -Wl,-Bdynamic -lGL
+}
+
+unix:!macx{
+    QMAKE_LFLAGS += -static-libgcc -static-libstdc++ -std=c++11 -pipe -O2 -Wstack-protector -fstack-protector-all -Wl,--exclude-libs -Wl,ALL -pthread
 }
 
 
@@ -287,7 +285,7 @@ LIBS += -L$$PWD/../lz4/lib \
 
 LIBS += -L$$PWD/../secp256k1/.libs \
         -lsecp256k1
-picked
+
 LIBS += -L$$TOOLCHAIN_LIB_PATH \
         -levent
 
