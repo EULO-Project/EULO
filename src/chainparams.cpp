@@ -234,14 +234,15 @@ public:
         nTargetTimespan = 1 * 60; // EULO: 1 day
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
 
-        nLastPOWBlock = 1439;
-        nPOWStartBlockInPOS = 259200;
-        nMaturity = 15;
-        nMasternodeCountDrift = 4;
+        nLastPOWBlock = 240;
+        nContractStartHeight = 260;
+        nPOWStartBlockInPOS = 270;
+        nMaturity = 20;
+        nMasternodeCountDrift = 20;
         nModifierUpdateBlock = 0; //approx Mon, 17 Apr 2017 04:00:00 GMT
         nMaxMoneyOut = 21148191990 * COIN;
-        nZerocoinStartHeight = 129600;
-        nZerocoinStartTime = 1550037281;
+        nZerocoinStartHeight = 250;
+        nZerocoinStartTime = 1533859200;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1533859200;
@@ -253,11 +254,10 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        vSeeds.push_back(CDNSSeedData("47.91.79.145", "47.91.79.145"));             // Germany node address
-        vSeeds.push_back(CDNSSeedData("47.74.14.246", "47.74.14.246"));             // Japan node address
-        vSeeds.push_back(CDNSSeedData("47.74.147.210", "47.74.147.210"));           // Singapore node address
-        vSeeds.push_back(CDNSSeedData("47.90.215.200", "47.90.215.200"));           // US node address
-        vSeeds.push_back(CDNSSeedData("47.89.243.161", "47.89.243.161"));           // Single node address
+        vSeeds.push_back(CDNSSeedData("45.32.77.35", "45.32.77.35"));               // US node address
+        vSeeds.push_back(CDNSSeedData("139.180.147.249", "139.180.147.249"));       // US node address
+        vSeeds.push_back(CDNSSeedData("199.247.18.33", "199.247.18.33"));           // Canada node address
+        vSeeds.push_back(CDNSSeedData("47.111.65.209", "47.111.65.209"));           // CN node address
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 130); // Testnet ulo addresses start with 'u'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 19);  // Testnet eulo script addresses start with '8' or '9'
