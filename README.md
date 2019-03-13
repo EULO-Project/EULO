@@ -17,6 +17,8 @@ More information at [eulo.io](http://www.eulo.io) Visit our ANN thread at [Bitco
 https://github.com/EULO-Project/EULO/releases/download/v2.0.0/eulo-qml-2.0.0-ubuntu18.04.zip
 #### Windows 7,10 (64-bit)
 https://github.com/EULO-Project/EULO/releases/download/v2.0.0/eulo-qml-2.0.0-win.zip
+### Android 
+https://github.com/EULO-Project/EULO/releases/download/v2.0.0/app-release-1.0.apk
 
 ### Coin Specs
 <table>
