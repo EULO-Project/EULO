@@ -585,7 +585,7 @@ CommonDialog
                     CommonButton
                     {
                         id:commit_sign_btn
-                        color: "#1E5569"
+                        color:walletModel.isTestNet()?"#202020":"#1E5569"
                         anchors.left: sign_multi_btn.right
                         anchors.leftMargin: 15
                         anchors.verticalCenter: sign_multi_btn.verticalCenter

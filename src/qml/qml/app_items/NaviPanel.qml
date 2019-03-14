@@ -76,18 +76,16 @@ Row{
 
             model: ListModel
             {
-                ListElement {name:"1"  }
-                ListElement {name:"1"  }
+                ListElement {name:qsTr( "Smart Contract" ) }
+                ListElement {name:qsTr( "URC Token" )  }
 
-                function getItemData(index) {
-                           if ( getItemData[ "text" ] === undefined) {
-                               getItemData.text = [
-                                   qsTr( "Smart Contract" ) ,
-                                   qsTr( "URC Token" )
-                               ]
-                           }
-                           return getItemData.text[index]
-                  }
+            }
+
+
+            Component.onCompleted:
+            {
+                if(walletModel.isTestNet())
+                    model.append({"name": qsTr( "BCK" )})
             }
 
         }

@@ -21,7 +21,6 @@
 #include <QCloseEvent>
 #include <QDesktopWidget>
 #include <QPainter>
-#include <QDebug>
 
 SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle* networkStyle) : QWidget(0, f), curAlignment(0)
 {
@@ -157,9 +156,6 @@ void SplashScreen::unsubscribeFromCoreSignals()
 
 void SplashScreen::showMessage(const QString& message, int alignment, const QColor& color)
 {
-
-    qDebug()<<"message:"<<message;
-
     curMessage = message;
     curAlignment = alignment;
     curColor = color;

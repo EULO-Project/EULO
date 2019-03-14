@@ -227,7 +227,7 @@ Controls_1_4.Tab {
 
             anchors.top: asking_btn.bottom
             anchors.topMargin: 30
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             text:qsTr("Requested payments history")
 
         }
@@ -298,7 +298,7 @@ Controls_1_4.Tab {
         CommonButton
         {
             id:remove_btn
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             anchors.right: parent.right
             anchors.rightMargin: 30
             anchors.bottom: parent.bottom

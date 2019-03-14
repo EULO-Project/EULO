@@ -37,7 +37,6 @@
 #include <QUrl>
 #endif
 
-#include <QDebug>
 // TODO: add a scrollback limit, as there is currently none
 // TODO: make it possible to filter out categories (esp debug messages when implemented)
 // TODO: receive errors and debug messages through ClientModel
@@ -336,8 +335,7 @@ void RPCConsole::setClientModel(ClientModel* model)
     //  peerTableModel->sort(0, Qt::DescendingOrder);
     peerTableModel = clientModel->getPeerTableModel();
 
-    qDebug()<<"RPCConsole thread :"<<QThread::currentThread();
-    qDebug()<<"clientModel rpc:"<<clientModel;
+
 
     peerTableproxy = new PeerTableProxy(this);
     peerTableproxy->setSourceModel(peerTableModel);
@@ -529,6 +527,33 @@ void RPCConsole::buildParameterlist(QString arg)
 
         if (!ShutdownRequested())
             emit requestedRestart(args);
+}
+
+void RPCConsole::changeNetWork()
+{
+    boost::filesystem::path pathConfig = GetConfigFile();
+    if (!boost::filesystem::exists(pathConfig))
+        return;
+
+    QString pathStr = GUIUtil::boostPathToQString(pathConfig);
+
+    QFile f(pathStr);
+    f.open(QIODevice::ReadOnly);
+    QString array = QString(f.readAll());
+    f.close();
+
+    if(GetBoolArg("-testnet", false))
+        array = array.replace(QRegExp("testnet.*=.*1?\\n"),"");
+    else
+        array += "testnet=1\n";
+
+    f.open(QIODevice::WriteOnly);
+    f.write(array.toUtf8());
+    f.close();
+
+    if (!ShutdownRequested())
+        emit requestedRestart(QStringList());
+
 }
 
 void RPCConsole::clear()

@@ -101,7 +101,7 @@ Item
         font.letterSpacing: 0.355
         anchors.left: parent.left
         anchors.top: parent.top
-        color: "#1E5569"
+        color:walletModel.isTestNet()?"#202020":"#1E5569"
         text:qsTr("Coin Control Features")
     }
 

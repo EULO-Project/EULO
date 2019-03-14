@@ -14,7 +14,6 @@
 #include <QSystemTrayIcon>
 #include <QTemporaryFile>
 #include <QVariant>
-#include <QDebug>
 
 
 #ifdef USE_DBUS
@@ -245,12 +244,6 @@ void Notificator::notifySystray(Class cls, const QString& title, const QString& 
         break;
     }
 
-
-
-    qDebug()<<"$$$$$$$$$$$$showMessage:";
-    qDebug()<<"         title:"<<title;
-    qDebug()<<"         text:"<<text;
-    qDebug()<<"         millisTimeout:"<<millisTimeout;
 
     trayIcon->showMessage(title, text, sicon, millisTimeout);
 }

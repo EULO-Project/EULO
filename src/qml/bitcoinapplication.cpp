@@ -403,7 +403,7 @@ void BitcoinApplication::numBlocksChanged_slot(int count)
 void BitcoinApplication::balanceChanged_slot()
 {
 
-    qDebug()<<"balanceChanging!";
+   // qDebug()<<"balanceChanging!";
 }
 
 void BitcoinApplication::initializeResult(int retval)
@@ -430,10 +430,6 @@ void BitcoinApplication::initializeResult(int retval)
             walletModel = new WalletModel(pwalletMain, optionsModel);
 
 
-
-
-
-            qDebug()<<"OK set walletModel";
             root_context->setContextProperty("walletModel", walletModel);
             //root_context->setContextProperty("clientModel", clientModel);
             root_context->setContextProperty("optionsModel", optionsModel);
@@ -448,7 +444,6 @@ void BitcoinApplication::initializeResult(int retval)
 
 
 
-            qDebug()<<"excutor.thread:"<<QThread::currentThread();
             connect(walletModel->getTransactionTableModel(), SIGNAL(rowsInserted(QModelIndex, int, int)),
                 this, SLOT(processNewTransaction(QModelIndex, int, int)));
 
@@ -515,13 +510,9 @@ void BitcoinApplication::initializeResult(int retval)
 void BitcoinApplication::incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address)
 {
 
-
-    qDebug()<<"bdisableSystemnotifications:"<<bdisableSystemnotifications;
-
     // Only send notifications when not disabled
     if(!bdisableSystemnotifications){
         // On new transaction, make an info balloon
-        qDebug()<<"notify incomingTransaction";
         message((amount) < 0 ? (pwalletMain->fMultiSendNotify == true ? tr("Sent MultiSend transaction") : tr("Sent transaction")) : tr("Incoming transaction"),
             tr("Date: %1\n"
                "Amount: %2\n"
@@ -624,11 +615,6 @@ void BitcoinApplication::message(const QString& title, const QString& message, u
         if (ret != NULL)
             *ret = r == QMessageBox::Ok;
     } else{
-        qDebug()<<"Yes notified!";
-
-        qDebug()<<"notificator.thread:"<<QThread::currentThread();
-
-
         notificator->notify((Notificator::Class)nNotifyIcon, strTitle, message);
     }
 }

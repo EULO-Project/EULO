@@ -17,7 +17,7 @@ import "../qml/app_dialogs"
 Rectangle{
     id:title
 
-    color:"#1E5569"
+    color:walletModel.isTestNet()?"#303030":"#1E5569"
     radius: radius_all == undefined ? 1:(radius_all>1?radius_all-1:0)
     property alias maximum_btn: maximum_btn
     property alias coinTypeBtn: coin_type_btn
@@ -55,6 +55,20 @@ Rectangle{
         anchors.left: parent.left
         anchors.leftMargin: 20
         width:170
+    }
+
+    Label
+    {
+        id:testnetLabel
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin:5
+        anchors.left: logo_img.right
+        anchors.leftMargin: 10
+        font.pixelSize:22
+        text:"TestNet"
+        color:"#F0F0F0"
+        font.weight:Font.Bold
+        visible:walletModel.isTestNet()
     }
 
 
@@ -262,6 +276,13 @@ Rectangle{
             ListElement { modelData: qsTr("Multisignature spending"); }
             ListElement { modelData: qsTr("Multisignature signing"); }
 
+
+
+        }
+
+        Component.onCompleted:
+        {
+            model.append({"modelData": walletModel.isTestNet()?qsTr("Change to MainNet"):qsTr("Change to TestNet")})
         }
 
         onHoveredChanged:
@@ -289,6 +310,7 @@ Rectangle{
             case 6:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=0;multiSignAddressInterDialog.raise();break;
             case 7:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=1;multiSignAddressInterDialog.raise();break;
             case 8:multiSignAddressInterDialog.show();multiSignAddressInterDialog.current_index=2;multiSignAddressInterDialog.raise();break;
+            case 9:rpcConsole.changeNetWork();break;
 
 
 
@@ -560,7 +582,7 @@ Rectangle{
         y:title.height-10
         height:10
         width:parent.width
-        color:"#1E5569"
+        color:walletModel.isTestNet()?"#303030":"#1E5569"
     }
 
     //            Rectangle{

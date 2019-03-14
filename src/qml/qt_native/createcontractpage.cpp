@@ -13,7 +13,6 @@
 #include "contractresult.h"
 #include "contractconfig.h"
 
-#include <QDebug>
 #include <tuple>
 
 namespace CreateContract_NS
@@ -78,15 +77,12 @@ CreateContractPage::CreateContractPage(WalletModel *parent):m_model(parent)
     lstTranslations[PARAM_GASLIMIT] = "";
     lstTranslations[PARAM_GASPRICE] = "";
     lstTranslations[PARAM_SENDER] = "";
-    //    m_ABIFunctionField = new ABIFunctionField(platformStyle, ABIFunctionField::Create, ui->create_scrollArea);
-    //    ui->create_scrollArea->setWidget(m_ABIFunctionField);
+
 
     m_execRPCCommand = new ExecRPCCommand(PRC_COMMAND, lstMandatory, lstOptional, lstTranslations, this);
     m_createContractABI = new ContractABI();
 
-    //    connect(ui->create_btn, SIGNAL(clicked()), SLOT(on_createContractClicked()));
-    //    connect(ui->create_byteCodeText, SIGNAL(textChanged()), SLOT(on_updateCreateButton()));
-    //    connect(ui->create_abiText, SIGNAL(textChanged()), SLOT(on_newContractABI()));
+
     //    //------------create---------------
 
 
@@ -105,19 +101,11 @@ CreateContractPage::CreateContractPage(WalletModel *parent):m_model(parent)
     sendto_lstTranslations[SENDTO_PARAM_GASLIMIT] = "";
     sendto_lstTranslations[SENDTO_PARAM_GASPRICE] = "";
     sendto_lstTranslations[SENDTO_PARAM_SENDER] = "";
-    //    m_ABIFunctionField_sendto = new ABIFunctionField(platformStyle, ABIFunctionField::SendTo, ui->sendto_scrollArea);
-
-    //    ui->sendto_scrollArea->setWidget(m_ABIFunctionField_sendto);
 
     m_execRPCCommand_sendto = new ExecRPCCommand(SENDTO_PRC_COMMAND, sendto_lstMandatory, sendto_lstOptional, sendto_lstTranslations, this);
     m_sendtoContractABI = new ContractABI();
 
 
-    //    connect(ui->sendto_btn, SIGNAL(clicked()), SLOT(on_sendToContractClicked()));
-    //    connect(ui->sendto_byteCodeText, SIGNAL(textChanged(QString)), SLOT(on_updateSendToContractButton()));
-    //    connect(ui->sendto_abiText, SIGNAL(textChanged()), SLOT(on_newContractABI_sendto()));
-    //    connect(m_ABIFunctionField_sendto, SIGNAL(functionChanged()), SLOT(on_functionChanged()));
-    //    connect(ui->sendto_byteCodeText, SIGNAL(textChanged(QString)), SLOT(on_contractAddressChanged()));
 
 
     //    //------------sendto---------------
@@ -133,22 +121,22 @@ CreateContractPage::CreateContractPage(WalletModel *parent):m_model(parent)
     CALL_lstTranslations[CALL_PARAM_ADDRESS] = "";
     CALL_lstTranslations[CALL_PARAM_SENDER] = "";
 
-
-
-    //    m_ABIFunctionField_call = new ABIFunctionField(platformStyle, ABIFunctionField::Call, ui->call_scrollArea);
-    //    ui->call_scrollArea->setWidget(m_ABIFunctionField_call);
     m_execRPCCommand_call = new ExecRPCCommand(CALL_PRC_COMMAND, CALL_lstMandatory, CALL_lstOptional, CALL_lstTranslations, this);
     m_callContractABI = new ContractABI();
 
 
-    //    connect(ui->call_btn, SIGNAL(clicked()), SLOT(on_callContractClicked()));
-    //    connect(ui->call_byteCodeText, SIGNAL(textChanged(QString)), SLOT(on_updateCallContractButton()));
-    //    connect(ui->call_abiText, SIGNAL(textChanged()), SLOT(on_newContractABI_call()));
+    //----------bck-------------------------
+    m_bckCallContractABI = new ContractABI();
+    m_bckSendToContractABI = new ContractABI();
 
-    //    //-------------call----------------
+    QFile bck_file(":/BCK_ABI.txt");
 
+    bck_file.open(QIODevice::ReadOnly);
+    QByteArray array = bck_file.readAll();
+    bck_file.close();
 
-
+    updateContractABI(BCKCall,QString(array));
+    updateContractABI(BCKSendTo,QString(array));
 
 
 }
@@ -248,6 +236,7 @@ void CreateContractPage::callContractClicked(int functionIndex,
 
     int func = m_callFunctionArray.at(functionIndex);
 
+
     FunctionABI function = m_callContractABI->functions[func];
 
     //    // Append params to the list
@@ -323,6 +312,121 @@ void CreateContractPage::callContractClicked(int functionIndex,
 
 }
 
+QString CreateContractPage::gethash160AddressFromEULOAddress(QString euloAddress)
+{
+    CBitcoinAddress dest(euloAddress.toStdString());
+    if (!dest.IsValid()) {
+        return "";
+    }
+
+    CKeyID keyID;
+    dest.GetKeyID(keyID);
+
+    return QString::fromStdString(keyID.ToStringReverseEndian());
+}
+
+
+QString CreateContractPage::getBCKDatas(int mode,QString senderAddress)
+{
+    //    // Initialize variables
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString errorMessage;
+    QString resultJson;
+    QVariantList emptyList;
+    QString resStr = mode == 0?"balanceOf\\(.*":"totalBonus\\(.*";
+
+    int func = m_bckCallFunctionArray.at(m_bckCallFunctionList.indexOf(QRegExp(resStr)));
+
+    FunctionABI function = m_bckCallContractABI->functions[func];
+
+    if(mode == 0)
+    {
+        QVariant var(gethash160AddressFromEULOAddress(senderAddress));
+        QVariantList list_in;
+        list_in.append(var);
+        QVariant var2(list_in);
+        emptyList.append(var2);
+    }
+
+
+    //    // Append params to the list
+    ExecRPCCommand::appendParam(lstParams, CALL_PARAM_ADDRESS, QString::fromStdString(Params().getBCKContractAddress()));
+
+    ExecRPCCommand::appendParam(lstParams, CALL_PARAM_DATAHEX, toDataHex_Call(func, errorMessage ,emptyList,true));
+
+    ExecRPCCommand::appendParam(lstParams, CALL_PARAM_SENDER, gethash160AddressFromEULOAddress(senderAddress));
+
+    //    // Execute RPC command line
+    if(errorMessage.isEmpty() && m_execRPCCommand_call->exec(lstParams, result, resultJson, errorMessage))
+    {
+
+
+        QVariantMap variantMap = result.toMap();
+        QString resultStr = "";
+        QVariantMap executionResultMap = variantMap.value("executionResult").toMap();
+
+        resultStr += "<b>address</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + variantMap.value("address").toString() + "<br>";
+        resultStr += "<b>Function</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + QString::fromStdString(function.name) + "()<br>";
+        resultStr += "<b>sender</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + variantMap.value("sender").toString() + "<br>";
+
+        resultStr += setParamsData(function,emptyList);
+
+
+        std::string rawData = executionResultMap.value("output").toString().toStdString();
+        std::vector<std::vector<std::string>> values;
+        std::vector<ParameterABI::ErrorType> errors;
+
+
+
+        if(function.abiOut(rawData, values, errors))
+        {
+            QString Result = "<b>Result:</b><br>";
+
+            if(values.size() > 0)
+            {
+
+                for(size_t i = 0; i < values.size(); i++)
+                {
+                    QString thisValue = "";
+
+                    thisValue += QString("&nbsp;&nbsp;&nbsp;<b>%2 %1</b><br>").arg(QString::fromStdString(function.outputs[i].name)).arg(QString::fromStdString(function.outputs[i].type));
+
+                    std::vector<std::string> listValues = values[i];
+                    if(listValues.size() > 0)
+                    {
+                        for(size_t j = 0; j < listValues.size(); j++)
+                        {
+                            thisValue += QString("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%1<br>").arg(QString::fromStdString(listValues[j]));
+                        }
+                    }
+
+                    Result += thisValue;
+                }
+
+                resultStr += Result;
+            }
+        }
+        else
+        {
+            return "Error: " + function.errorMessage(errors, false);
+        }
+
+
+
+        return resultStr;
+
+
+    }
+    else
+    {
+        return tr("Error, not reaching height of contract or no such contract yet!");
+
+    }
+
+
+}
+
 bool CreateContractPage::isValidContractAddress()
 {
     return true;
@@ -371,7 +475,7 @@ void CreateContractPage::on_updateSendToContractButton()
 }
 
 
-QString CreateContractPage::toDataHex_Sendto(int func, QString& errorMessage, QVariantList &paramList)
+QString CreateContractPage::toDataHex_Sendto(int func, QString& errorMessage, QVariantList &paramList, bool forBCK)
 {
     if(func == -1)
     {
@@ -383,7 +487,7 @@ QString CreateContractPage::toDataHex_Sendto(int func, QString& errorMessage, QV
     std::vector<std::vector<std::string>> values = getValuesVector(paramList);
 
 
-    FunctionABI function = m_sendtoContractABI->functions[func];
+    FunctionABI function = forBCK?m_bckSendToContractABI->functions[func]:m_sendtoContractABI->functions[func];
 
     std::vector<ParameterABI::ErrorType> errors;
 
@@ -400,7 +504,7 @@ QString CreateContractPage::toDataHex_Sendto(int func, QString& errorMessage, QV
 }
 
 
-QString CreateContractPage::toDataHex_Call(int func, QString& errorMessage,QVariantList &paramList)
+QString CreateContractPage::toDataHex_Call(int func, QString& errorMessage,QVariantList &paramList,bool forBCK)
 {
     if(func == -1)
     {
@@ -410,11 +514,12 @@ QString CreateContractPage::toDataHex_Call(int func, QString& errorMessage,QVari
     std::string strData;
     std::vector<std::vector<std::string>> values = getValuesVector(paramList);
 
-    FunctionABI function = m_callContractABI->functions[func];
+    FunctionABI function = forBCK?m_bckCallContractABI->functions[func]:m_callContractABI->functions[func];
 
     std::vector<ParameterABI::ErrorType> errors;
     if(function.abiIn(values, strData, errors))
     {
+
         return QString::fromStdString(strData);
     }
     else
@@ -440,9 +545,121 @@ std::vector<std::vector<std::string>> CreateContractPage::getValuesVector(QVaria
         result.push_back(itemParam);
     }
 
-    //qDebug()<<"result:"<<result;
 
     return result;
+}
+
+void CreateContractPage::bckFunctions(int mode,
+                                      QString gasLimitStr,
+                                      int gasPriceUint,
+                                      QString gasPriceStr,
+                                      QString amountStr,
+                                      int amountUint,
+                                      QString senderAddress,
+                                      QVariantList paramList)
+{
+
+
+    WalletModel::UnlockContext ctx(m_model->requestUnlock());
+    if(!ctx.isValid())
+    {
+        return;
+    }
+
+    //    // Initialize variables
+    QMap<QString, QString> lstParams;
+    QVariant result;
+    QString errorMessage;
+    QString resultJson;
+    int unit = m_model->getOptionsModel()->getDisplayUnit();
+    uint64_t gasLimit = gasLimitStr.toULongLong();
+    CAmount gasPrice = 0;
+    BitcoinUnits::parse(gasPriceUint, gasPriceStr, &gasPrice);
+    int functionIndex = -1;
+
+
+    CAmount amount_ = 0;
+    BitcoinUnits::parse(amountUint, amountStr, &amount_);
+
+
+    QString resStr = "";
+
+    if(mode == 0)
+        resStr = "buy\\(.*";
+    else if(mode == 1)
+    {
+        resStr = "sell\\(.*";
+        QVariant var(paramList.at(0).toString());
+        QVariantList list_in;
+        list_in.append(var);
+        QVariant var2(list_in);
+        paramList.clear();
+        paramList.append(var2);
+    }
+    else if(mode == 2)
+        resStr = "transfer\\(.*";
+    else if(mode == 3)
+        resStr = "transferFrom\\(.*";
+    else
+        return;
+
+
+
+    functionIndex = m_bckSendToFunctionList.indexOf(QRegExp(resStr));
+
+
+    int func = m_bckSendToFunctionArray.at(functionIndex);
+
+
+    //    // Check for high gas price
+    if(gasPrice > HIGH_GASPRICE)
+    {
+        QString message = tr("The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?");
+        emit notifyBCKResult("High Gas price",true,message.arg(BitcoinUnits::formatWithUnit(unit, gasLimit * gasPrice)),1,"");
+    }
+
+
+    //    // Append params to the list
+    ExecRPCCommand::appendParam(lstParams, SENDTO_PARAM_ADDRESS, QString::fromStdString(Params().getBCKContractAddress()));
+
+    ExecRPCCommand::appendParam(lstParams, SENDTO_PARAM_DATAHEX, toDataHex_Sendto(func, errorMessage,paramList,true));
+
+    QString amount = isFunctionPayable(functionIndex,true) ? BitcoinUnits::format(0, amount_, false, BitcoinUnits::separatorNever) : "0";
+
+    ExecRPCCommand::appendParam(lstParams, SENDTO_PARAM_AMOUNT, amount);
+
+
+    ExecRPCCommand::appendParam(lstParams, SENDTO_PARAM_GASLIMIT, QString::number(gasLimit));
+
+    ExecRPCCommand::appendParam(lstParams, SENDTO_PARAM_GASPRICE, BitcoinUnits::format(0, gasPrice, false, BitcoinUnits::separatorNever));
+
+    ExecRPCCommand::appendParam(lstParams, SENDTO_PARAM_SENDER, senderAddress);
+
+
+    //        // Execute RPC command line
+    if(errorMessage.isEmpty() && m_execRPCCommand_sendto->exec(lstParams, result, resultJson, errorMessage))
+    {
+        QVariantMap variantMap = result.toMap();
+        QString resultStr = "";
+
+        resultStr += "<b>txid</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + variantMap.value("txid").toString() + "<br>";
+        resultStr += "<b>sender</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + variantMap.value("sender").toString() + "<br>";
+        resultStr += "<b>hash160</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + variantMap.value("hash160").toString() + "<br>";
+
+        m_lastResult = resultStr;
+
+
+        emit notifyBCKResult("Result",false,errorMessage,1,resultStr);
+
+    }
+    else
+    {
+        emit notifyBCKResult("Result",true,errorMessage,1,"");
+
+    }
+
+
+
 }
 
 
@@ -481,6 +698,7 @@ void CreateContractPage::sendToContractClicked(int functionIndex,
 
     int func = m_sendtoFunctionArray.at(functionIndex);
 
+
     //    // Check for high gas price
     if(gasPrice > HIGH_GASPRICE)
     {
@@ -509,8 +727,6 @@ void CreateContractPage::sendToContractClicked(int functionIndex,
         resultStr += "<b>hash160</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + variantMap.value("hash160").toString() + "<br>";
 
         m_lastResult = resultStr;
-
-        //qDebug()<<"m_lastResult:"<<m_lastResult;
 
         emit notifyContractResult("Send to contract",false,errorMessage,1,resultStr);
 
@@ -557,6 +773,17 @@ bool CreateContractPage::updateContractABI(int mode,const QString &abiStr)
         functionList = &m_callFunctionList;
         functionArray = &m_callFunctionArray;
         break;
+    case BCKCall:
+        m_contractABI = m_bckCallContractABI;
+        functionList = &m_bckCallFunctionList;
+        functionArray = &m_bckCallFunctionArray;
+        break;
+    case BCKSendTo:
+        m_contractABI = m_bckSendToContractABI;
+        functionList = &m_bckSendToFunctionList;
+        functionArray = &m_bckSendToFunctionArray;
+        break;
+
     default:
         break;
     }
@@ -568,14 +795,20 @@ bool CreateContractPage::updateContractABI(int mode,const QString &abiStr)
     {
         functionList->clear();
         m_contractABI->clean();
-        emit createFunctionListChanged();
-        emit sendtoFunctionListChanged();
-        emit callFunctionListChanged();
+
+        if(mode != BCKCall && mode != BCKSendTo)
+        {
+            emit createFunctionListChanged();
+            emit sendtoFunctionListChanged();
+            emit callFunctionListChanged();
+        }
+
         return false;
     }
     else
     {
-        RenewContractFunctions(m_contractABI,(ContractMode)mode,functionList,functionArray);
+
+        RenewContractFunctions(m_contractABI,mode == BCKCall?Call:(mode == BCKSendTo?SendTo:(ContractMode)mode),functionList,functionArray, (mode == BCKCall || mode == BCKSendTo)?true:false);
         return true;
     }
 
@@ -583,11 +816,13 @@ bool CreateContractPage::updateContractABI(int mode,const QString &abiStr)
 }
 
 
-void CreateContractPage::RenewContractFunctions(ContractABI* abi,ContractMode mode,QStringList *functionList,QVector<int> *functionArray)
+void CreateContractPage::RenewContractFunctions(ContractABI* abi,ContractMode mode,QStringList *functionList,QVector<int> *functionArray,bool forBCK)
 {
     if(abi != NULL)
     {
         // Populate the control with functions
+
+
         std::vector<FunctionABI> functions = abi->functions;
         functionList->clear();
         functionArray->clear();
@@ -621,26 +856,29 @@ void CreateContractPage::RenewContractFunctions(ContractABI* abi,ContractMode mo
             functionList->append(QString(funcName + "(" + funcSelector + ")"));
 
             functionArray->append(func);
+
         }
 
 
-
-        emit createFunctionListChanged();
-        emit sendtoFunctionListChanged();
-        emit callFunctionListChanged();
+        if(!forBCK)
+        {
+            emit createFunctionListChanged();
+            emit sendtoFunctionListChanged();
+            emit callFunctionListChanged();
+        }
     }
 
 
 }
 
 
-bool CreateContractPage::isFunctionPayable(int index)
+bool CreateContractPage::isFunctionPayable(int index,bool forBCK)
 {
     if(index < 0) return true;
 
-    std::vector<FunctionABI> functions = m_sendtoContractABI->functions;
+    std::vector<FunctionABI> functions = forBCK?m_bckSendToContractABI->functions: m_sendtoContractABI->functions;
 
-    const FunctionABI &function = functions[m_sendtoFunctionArray.at(index)];
+    const FunctionABI &function = functions[forBCK?m_bckSendToFunctionArray.at(index):m_sendtoFunctionArray.at(index)];
 
     return function.payable;
 }
@@ -753,19 +991,7 @@ std::tuple<std::string, std::string, bool, int, std::string> CreateContractPage:
 
 void CreateContractPage::on_updateCreateButton()
 {
-    //    qDebug()<<__func__<<" 1";
 
-    //    bool enabled = true;
-    //    if(ui->create_byteCodeText->toPlainText().isEmpty())
-    //    {
-    //        enabled = false;
-    //    }
-    //    qDebug()<<__func__<<" 2";
-
-    //    enabled &= ui->tabview->currentIndex() == 0;
-    //    qDebug()<<__func__<<" 3";
-
-    //    ui->create_btn->setEnabled(enabled);
 }
 
 QString CreateContractPage::toDataHex(int func, QString& errorMessage, QVariantList &paramList)
@@ -860,8 +1086,6 @@ void CreateContractPage::createContractClicked(QString gasLimitStr,
         resultStr += "<b>address</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + variantMap.value("address").toString() + "<br>";
 
         m_lastResult = resultStr;
-
-        //qDebug()<<"m_lastResult:"<<m_lastResult;
 
         emit notifyContractResult("Create contract",false,errorMessage,1,resultStr);
 

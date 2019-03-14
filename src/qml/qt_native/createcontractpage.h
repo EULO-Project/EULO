@@ -31,14 +31,27 @@ public:
     {
         Create = 0,
         SendTo = 1,
-        Call = 2
+        Call = 2,
+        BCKSendTo = 3,
+        BCKCall = 4
+
     };
 
     Q_INVOKABLE bool updateContractABI(int mode, const QString &abiStr);
     Q_INVOKABLE QVariantList functionChanged(int mode, int currentIndex);
-    Q_INVOKABLE bool isFunctionPayable(int index);
+    Q_INVOKABLE bool isFunctionPayable(int index, bool forBCK = false);
 
     Q_INVOKABLE QString getLastResult();
+    Q_INVOKABLE QString getBCKDatas(int mode,QString senderAddress);
+
+    Q_INVOKABLE void bckFunctions(int mode,
+                                  QString gasLimitStr,
+                                  int gasPriceUint,
+                                  QString gasPriceStr,
+                                  QString amountStr,
+                                  int amountUint,
+                                  QString senderAddress,
+                                  QVariantList paramList);
 
     Q_INVOKABLE quint64 getDefaultGasLimitOpCreate();
 
@@ -79,6 +92,7 @@ signals:
     void callFunctionListChanged();
 
     void notifyContractResult(QString title,bool error,QString errMsg,int type,QString resultStr);
+    void notifyBCKResult(QString title,bool error,QString errMsg,int type,QString resultStr);
 
 
 public slots:
@@ -127,23 +141,35 @@ private:
 
     //---------Call-------------
 
+
+    //----------BCK---------------
+    ContractABI* m_bckCallContractABI;
+    QStringList  m_bckCallFunctionList;
+    QVector<int> m_bckCallFunctionArray;
+
+    ContractABI* m_bckSendToContractABI;
+    QStringList  m_bckSendToFunctionList;
+    QVector<int> m_bckSendToFunctionArray;
+    //----------BCK---------------
+
     const PlatformStyle* platformStyle;
 
 
     QString toDataHex(int func, QString& errorMessage, QVariantList &paramList);
-    QString toDataHex_Sendto(int func, QString& errorMessage,QVariantList &paramList);
-    QString toDataHex_Call(int func, QString& errorMessage, QVariantList &paramList);
+    QString toDataHex_Sendto(int func, QString& errorMessage,QVariantList &paramList, bool forBCK = false);
+    QString toDataHex_Call(int func, QString& errorMessage, QVariantList &paramList, bool forBCK = false);
 
     bool isValidContractAddress();
 
 
 
 
-    void RenewContractFunctions(ContractABI *abi, ContractMode mode, QStringList *functionList, QVector<int> *functionArray);
+    void RenewContractFunctions(ContractABI *abi, ContractMode mode, QStringList *functionList, QVector<int> *functionArray, bool forBCK = false);
     std::tuple<std::string, std::string, bool,int, std::string> ParseParams(const ParameterABI &param);
 
     std::vector<std::vector<std::string>> getValuesVector(QVariantList &paramList);
     QString setParamsData(FunctionABI &function, QVariantList paramValues);
+    QString gethash160AddressFromEULOAddress(QString euloAddress);
 
 private slots:
     //--------Create------------

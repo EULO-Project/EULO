@@ -376,13 +376,6 @@ int main(int argc, char *argv[])
         return 0;
 
 
-    //    QString dataDir = GUIUtil::boostPathToQString(GetDefaultDataDir());
-    //    qDebug()<<"dataDir:"<<dataDir;
-    //    QDir dir;
-    //    if(!dir.exists(dataDir))
-    //        dir.mkpath(dataDir);
-
-
     if (!boost::filesystem::is_directory(GetDataDir(false))) {
         QMessageBox::critical(0, QObject::tr("EULO Core"),
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
@@ -407,7 +400,12 @@ int main(int argc, char *argv[])
     PaymentServer::ipcParseCommandLine(argc, argv);
 
 
-    NetworkStyle  *networkStyle = new NetworkStyle("main","EULO-Qt",":/images/icons/bitcoin",":/images/icons/splash");
+    NetworkStyle  *networkStyle;
+    if(GetBoolArg("-testnet", false))
+        networkStyle =  new NetworkStyle("main","EULO-Qt",":/images/icons/bitcoin",":/images/icons/splash_testnet");
+    else
+        networkStyle =  new NetworkStyle("main","EULO-Qt",":/images/icons/bitcoin",":/images/icons/splash");
+
 
     // Allow for separate UI settings for testnets
     QApplication::setApplicationName(networkStyle->getAppName());

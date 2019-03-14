@@ -18,7 +18,6 @@
 #include <stdio.h>
 
 #include <QTextCursor>
-#include <QDebug>
 
 Utility::Utility(QObject *parent) : QObject(parent)
 {

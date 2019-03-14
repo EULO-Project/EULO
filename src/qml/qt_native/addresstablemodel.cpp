@@ -12,7 +12,6 @@
 #include "base58.h"
 #include "wallet.h"
 
-#include <QDebug>
 #include <QFont>
 
 const QString AddressTableModel::Send = "S";

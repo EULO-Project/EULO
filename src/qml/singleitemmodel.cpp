@@ -1,5 +1,4 @@
 #include "singleitemmodel.h"
-#include <QDebug>
 
 SingleItem::SingleItem(const QString &modelData)
     :m_modelData(modelData)

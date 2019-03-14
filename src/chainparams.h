@@ -95,6 +95,7 @@ public:
     int64_t StartMasternodePayments() const { return nStartMasternodePayments; }
     int64_t Budget_Fee_Confirmations() const { return nBudget_Fee_Confirmations; }
     CBaseChainParams::Network NetworkID() const { return networkID; }
+    std::string getBCKContractAddress() const { return bckContractAddress; }
 
     /** Zerocoin **/
     std::string Zerocoin_Modulus() const { return zerocoinModulus; }
@@ -142,6 +143,7 @@ protected:
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     CBaseChainParams::Network networkID;
     std::string strNetworkID;
+    std::string bckContractAddress;
     CBlock genesis;
     std::vector<CAddress> vFixedSeeds;
     bool fMiningRequiresPeers;

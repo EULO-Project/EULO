@@ -142,7 +142,7 @@ Controls_1_4.Tab {
             anchors.left: balance_label.left
             anchors.top: receive_label.bottom
             anchors.topMargin: 82
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             text:qsTr("Recent transactions")
 
         }
@@ -265,7 +265,7 @@ Controls_1_4.Tab {
             anchors.rightMargin: 400
             anchors.top: parent.top
             anchors.topMargin: 35
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             text:qsTr("ULO Balances")
         }
 
@@ -385,7 +385,7 @@ Controls_1_4.Tab {
             anchors.left: ulo_blance_total_label.left
             anchors.top: ulo_blance_total_amount_label.bottom
             anchors.topMargin: 75
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             text:qsTr("Zerocoin Balance")
         }
 
@@ -508,7 +508,7 @@ Controls_1_4.Tab {
             anchors.left: ulo_blance_total_label.left
             anchors.top: zero_blance_mature_label.bottom
             anchors.topMargin: 20
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             text:qsTr("Combined Balances")
         }
 

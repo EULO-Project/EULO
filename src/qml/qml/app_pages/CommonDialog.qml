@@ -190,6 +190,8 @@ Window{
             wrapMode: Label.WordWrap
             text:content_text
             color:"#333333"
+            textFormat: Text.RichText
+
         }
 
         CommonButton

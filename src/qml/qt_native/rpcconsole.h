@@ -58,6 +58,7 @@ public:
     Q_INVOKABLE ClientModel *getClientModel();
 
     Q_INVOKABLE QString getWalletPath();
+    Q_INVOKABLE void changeNetWork();
 
     /** Wallet repair options */
     Q_INVOKABLE void walletSalvage();

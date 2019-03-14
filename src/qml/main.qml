@@ -39,7 +39,7 @@ ApplicationWindow {
 
         onStopped:
         {
-            if(!walletModel.alreadyShowed("2.0.0"))
+            if(!walletModel.alreadyShowed("2.0.1"))
                 msgDialog.show()
         }
     }
@@ -118,7 +118,11 @@ ApplicationWindow {
 
 
 
-    Component.onCompleted: pretend_timer.start()
+    Component.onCompleted:
+    {
+        console.log("testNet:"+walletModel.isTestNet())
+        pretend_timer.start()
+    }
 
     Rectangle{
         id:background
@@ -175,6 +179,7 @@ ApplicationWindow {
             MainNodePage {}
             SmartContractPage{}
             TokenPage{}
+            BCKPage{}
 
             currentIndex: 0
         }

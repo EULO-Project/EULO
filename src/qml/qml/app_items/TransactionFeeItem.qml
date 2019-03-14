@@ -62,7 +62,7 @@ Item {
         font.pixelSize:15
         anchors.left: root.left
         anchors.top: root.top
-        color: "#1E5569"
+        color: walletModel.isTestNet()?"#202020":"#1E5569"
         text:qsTr("Transaction Fee")
 
     }
@@ -74,7 +74,7 @@ Item {
         anchors.left: transaction_fee_label.right
         anchors.leftMargin: 10
         anchors.verticalCenter: transaction_fee_label.verticalCenter
-        color: "#1E5569"
+        color: walletModel.isTestNet()?"#202020":"#1E5569"
         visible: minimized
 
 

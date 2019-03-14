@@ -11,7 +11,6 @@
 #include "net.h"
 #include "sync.h"
 
-#include <QDebug>
 #include <QList>
 #include <QTimer>
 
@@ -158,20 +157,15 @@ PeerTableModel::PeerTableModel(ClientModel* parent) : QAbstractListModel(parent)
     // load initial data
     refresh();
 
-    qDebug()<<"before timer:"<<timer->timerId();
 
     timer->start();
 
-    qDebug()<<"after timer:"<<timer->timerId();
 
 }
 
 void PeerTableModel::startAutoRefresh()
 {
-   // qDebug()<<"start timer:"<<timer->timerId();
 
-//    if(!timer->isActive())
-//        timer->start();
 }
 
 
@@ -185,12 +179,7 @@ PeerTableModel::~PeerTableModel()
 
 void PeerTableModel::stopAutoRefresh()
 {
-//    if (!timer || !timer->isActive()) return;
 
-//    qDebug()<<"stop timer:"<<timer->timerId();
-
-//    if(timer->isActive())
-//        timer->stop();
 }
 
 int PeerTableModel::rowCount(const QModelIndex& parent) const
@@ -253,7 +242,6 @@ const CNodeCombinedStats* PeerTableModel::getNodeStats(int idx)
 
 void PeerTableModel::refresh()
 {
-    //qDebug()<<"here is a bug in peertable call find it!!!";
     emit layoutAboutToBeChanged();
     priv->refreshPeers();
    // changePersistentIndex(index(0,0),index(rowCount() - 1,columnCount() -1));

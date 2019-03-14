@@ -7,7 +7,6 @@
 //#include <gdiplus.h>
 //#include <GdiPlusColor.h>
 
-#include <QDebug>
 #include <QQuickWindow>
 
 #include <dwmapi.h>
@@ -75,10 +74,7 @@ public:
             int width = winrect.right - winrect.left;
             int height = winrect.bottom - winrect.top;
 
-            //qDebug()<<"x:"<<x;
-           // qDebug()<<"y:"<<y;
-            //qDebug()<<"width:"<<width;
-           // qDebug()<<"height:"<<height;
+
 
             int padding=6;
 

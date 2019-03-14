@@ -3,7 +3,6 @@
 #include <base58.h>
 #include <timedata.h>
 #include "wallet.h"
-#include <QDebug>
 
 #include <stdint.h>
 

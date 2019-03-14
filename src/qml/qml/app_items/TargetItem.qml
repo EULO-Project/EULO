@@ -72,6 +72,7 @@ Item {
         anchors.leftMargin: 10
         color: "#333333"
         text:qsTr("Send")
+
     }
 
     CommonTextField

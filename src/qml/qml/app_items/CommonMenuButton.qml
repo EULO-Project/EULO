@@ -7,7 +7,7 @@ import QtQuick.Controls.Material.impl 2.3
 CommonButton
 {
     id:control
-    color: opened?"#0E3549":"#1E5569"
+    color: opened?"#0E3549":(walletModel.isTestNet()?"#202020":"#1E5569")
     textColor:"#FFFFFF"
     width: 50
     height: 22

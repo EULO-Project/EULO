@@ -1,21 +1,28 @@
-<h1>EULO Test Version 2.0.0</h1>
+<h1>EULO Test Version 2.0.1</h1>
 
 <h4>You are now using release version of EULO. There are several missing functions and bugs already known. If you found any new bugs，or you have any advice, feel free to contact us. Please DO NOT discuss in public. Thanks！</h4>
 
 <h4>New:</h4>
 <ul>
-<li>1、English version of ReadMe file.</li>
-<li>2、Add some copyright information.</li>
+<li>1、BCK Module in TestNet.</li>
+<li>2、Integration of TestNet parameters.</li>
+<li>3、One click change between MainNet and TestNet.</li>
+<li>4、Some other functions.</li>
 </ul>
 
 <h4>Bug fix:</h4>
 <ul>
-<li>1、Some menus' width not enough.</li>
-<li>2、Some menus are not responding under certain circumstance</li>
+<li>1、Removed lots of debug messages.</li>
+<li>2、Some bug fix.</li>
 </ul>
 
 <h4>Earlier Updates:</h4>
 <ul>
+<li>Test Version 2.0.0</li>
+<li>1、Some menus' width not enough.</li>
+<li>2、Some menus are not responding under certain circumstance</li>
+<li>3、English version of ReadMe file.</li>
+<li>4、Add some copyright information.</li>
 <li>Test Version 1.0.5</li>
 <li>1、Fix bug of unable to start masternode on GUI。</li>
 <li>2、Fix bug of unable to show info on masternode page。</li>

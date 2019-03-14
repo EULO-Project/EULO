@@ -10,10 +10,12 @@ import "../app_dialogs"
 
 Controls_1_4.Tab{
 
-    Item{
+    Rectangle
+    {
         id:root
+        anchors.fill: parent
+        color: "#FFFFFF"
 
-        anchors.fill:parent
         property int pageType:rootTab.currentIndex
         property int send: 0
         property int receive: 1
@@ -56,7 +58,7 @@ Controls_1_4.Tab{
             height:60
             anchors.left: parent.left
             anchors.right: parent.right
-            color: "#FAFAFA"
+            color: "#FFFFFF"
 
             Controls_1_4.TabView{
                 currentIndex: 0
@@ -582,7 +584,7 @@ Controls_1_4.Tab{
             CommonTableView
             {
                 id:tokenTable
-                anchors.top:fromDate.visible?fromDate.bottom:header_label.bottom
+                anchors.top:fromDate.visible?from100Date.bottom:header_label.bottom
                 anchors.left: parent.left
                 anchors.leftMargin: 10
                 anchors.topMargin: 10

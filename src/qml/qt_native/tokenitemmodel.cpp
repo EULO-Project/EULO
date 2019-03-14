@@ -8,7 +8,6 @@
 
 #include <QDateTime>
 #include <QFont>
-#include <QDebug>
 #include <QThread>
 
 #include <qrencode.h>
@@ -599,7 +598,6 @@ QVariantList TokenItemModel::sendToken(const QString &payToAddress,
 
         toAddress = payToAddress.toStdString();
 
-        // qDebug()<<"amountStr:"<<amountStr;
 
         int256_t amount_;
         BitcoinUnits::parseToken(m_selectedToken->decimals,amountStr,&amount_);
@@ -621,14 +619,6 @@ QVariantList TokenItemModel::sendToken(const QString &payToAddress,
 
         amountFormated = BitcoinUnits::formatToken(m_selectedToken->decimals, amount_, false, BitcoinUnits::separatorAlways);
 
-        //qDebug()<<"BitcoinUnits::formatToken(0, amount_, false, BitcoinUnits::separatorAlways):"<<BitcoinUnits::formatToken(0, amount_, false, BitcoinUnits::separatorNever);
-
-
-        //tokenAbi->setAmount(BitcoinUnits::formatToken(0, amount_, false, BitcoinUnits::separatorNever).replace(" ","").toStdString());
-
-        //qDebug()<<"amountFormated:"<<amountFormated;
-
-        //qDebug()<<"m_selectedToken->decimals:"<<m_selectedToken->decimals;
 
 
         returnList.append(tr("Confirm send token."));
@@ -753,7 +743,6 @@ public:
     void invoke(QObject *tim)
     {
         QString strHash = QString::fromStdString(hash.GetHex());
-        qDebug() << "NotifyTokenChanged: " + strHash + " status= " + QString::number(status);
 
         QMetaObject::invokeMethod(tim, "updateToken", Qt::QueuedConnection,
                                   Q_ARG(QString, strHash),

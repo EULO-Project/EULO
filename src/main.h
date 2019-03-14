@@ -134,6 +134,9 @@ extern CScript COINBASE_FLAGS;
 extern CCriticalSection cs_main;
 extern CTxMemPool mempool;
 
+extern bool fTestNet;
+
+
 #ifdef  POW_IN_POS_PHASE
 extern TmpBlocksMempool tmpblockmempool;
 #endif

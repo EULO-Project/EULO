@@ -17,7 +17,6 @@
 
 #include <QColor>
 #include <QDateTime>
-#include <QDebug>
 #include <QIcon>
 #include <QList>
 
@@ -71,7 +70,6 @@ public:
      */
     void refreshWallet()
     {
-        qDebug() << "TokenTransactionTablePriv::refreshWallet";
         cachedWallet.clear();
         {
             LOCK2(cs_main, wallet->cs_wallet);
@@ -87,7 +85,6 @@ public:
                 }
 
                 // Add token tx to the cache
-                qDebug()<<"CTokenTx:"<<QString::fromStdString( wtokenTx.GetHash().ToString());
 
                 cachedWallet.append(TokenTransactionRecord::decomposeTransaction(wallet, wtokenTx));
             }
@@ -101,7 +98,6 @@ public:
      */
     void updateWallet(const uint256 &hash, int status, bool showTransaction)
     {
-        qDebug() << "TokenTransactionTablePriv::updateWallet: " + QString::fromStdString(hash.ToString()) + " " + QString::number(status);
 
         // Find bounds of this transaction in model
         QList<TokenTransactionRecord>::iterator lower = qLowerBound(
@@ -120,10 +116,6 @@ public:
                 status = CT_DELETED; /* In model, but want to hide, treat as deleted */
         }
 
-        qDebug() << "************status=" + QString::number(status) + " inModel=" + QString::number(inModel) +
-                    " Index=" + QString::number(lowerIndex) + "-" + QString::number(upperIndex) +
-                    " showTransaction=" + QString::number(showTransaction) + " derivedStatus=" + QString::number(status);
-
 
 
 
@@ -132,20 +124,16 @@ public:
         case CT_NEW:
             if(inModel)
             {
-                qDebug()<<"00000";
-
                 qWarning() << "TokenTransactionTablePriv::updateWallet: Warning: Got CT_NEW, but transaction is already in model";
                 break;
             }
             if(showTransaction)
             {
 
-                qDebug()<<"11111";
 
                 LOCK2(cs_main, wallet->cs_wallet);
                 // Find transaction in wallet
 
-                qDebug()<<"22222";
 
                 std::map<uint256, CTokenTx>::iterator mi = wallet->mapTokenTx.find(hash);
                 if(mi == wallet->mapTokenTx.end())
@@ -157,23 +145,19 @@ public:
                 QList<TokenTransactionRecord> toInsert =
                         TokenTransactionRecord::decomposeTransaction(wallet, mi->second);
 
-                qDebug()<<"prepare to insert";
                 if(!toInsert.isEmpty()) /* only if something to insert */
                 {
-                    qDebug()<<"insert start";
 
                     parent->beginInsertRows(QModelIndex(), lowerIndex, lowerIndex+toInsert.size()-1);
                     int insert_idx = lowerIndex;
                     Q_FOREACH(const TokenTransactionRecord &rec, toInsert)
                     {
-                        qDebug()<<"inserting";
 
                         cachedWallet.insert(insert_idx, rec);
                         insert_idx += 1;
                     }
                     parent->endInsertRows();
 
-                    qDebug()<<"insert end";
 
                 }
             }
@@ -738,7 +722,6 @@ public:
     void invoke(QObject *ttm)
     {
         QString strHash = QString::fromStdString(hash.GetHex());
-        qDebug() << "NotifyTokenTransactionChanged: " + strHash + " status= " + QString::number(status);
         QMetaObject::invokeMethod(ttm, "updateTransaction", Qt::QueuedConnection,
                                   Q_ARG(QString, strHash),
                                   Q_ARG(int, status),
@@ -772,7 +755,6 @@ static void NotifyTokenTransactionChanged(TokenTransactionTableModel *ttm, CWall
         return;
     }
 
-    qDebug()<<"InComing new Token TX:"<<QString::fromStdString(hash.ToString());
 
     notification.invoke(ttm);
 }

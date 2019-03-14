@@ -147,7 +147,7 @@ Controls_1_4.Tab {
         CommonButton
         {
             id:start_all_btn
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             anchors.left: start_alias_btn.right
             anchors.bottom: parent.bottom
             anchors.leftMargin: 8

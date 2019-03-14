@@ -6,7 +6,6 @@
 #include "token.h"
 #include "wallet.h"
 #include "walletmodel.h"
-#include <QDebug>
 #include "tokenitemmodel.h"
 #include "tokentransactionrecord.h"
 

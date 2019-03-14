@@ -129,7 +129,7 @@ CommonDialog
         CommonButton
         {
             id:copy_btn
-            color: "#1E5569"
+            color:walletModel.isTestNet()?"#202020":"#1E5569"
             anchors.left: new_btn.right
             anchors.bottom: parent.bottom
             anchors.leftMargin: 8

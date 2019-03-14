@@ -61,7 +61,7 @@ Popup {
                 width: contentWidth+10
 
 
-                text: listview.model.getItemData(index);
+                text: name
                 font.weight: Font.Medium
                 font.pixelSize:13
                 font.letterSpacing: 0.355
@@ -86,8 +86,11 @@ Popup {
 
                     if(index === 0)
                         tab_change(6)
-                    else
+                    else if(index === 1)
                         tab_change(7)
+                    else if(index === 2)
+                        tab_change(8)
+
 
 
                     root.closeMenu()

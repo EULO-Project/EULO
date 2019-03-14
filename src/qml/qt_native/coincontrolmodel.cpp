@@ -10,7 +10,6 @@
 #include "wallet.h"
 #include "utilmoneystr.h"
 
-#include <QDebug>
 #include <QSettings>
 
 
@@ -774,9 +773,6 @@ void CoinControlModel::sendButtonClicked(QVariantList recipientsArray,
 {
     QList<SendCoinsRecipient> recipients;
 
-    qDebug()<<"recipientsArray:"<<recipientsArray;
-
-
     for (int i = 0; i < recipientsArray.count(); ++i) {
 
         QVariantList thisRecipient = recipientsArray.at(i).toList();
@@ -794,7 +790,6 @@ void CoinControlModel::sendButtonClicked(QVariantList recipientsArray,
         recipient.label = thisRecipient.at(1).toString();
         recipient.amount = thisRecipient.at(2).toLongLong();
 
-        qDebug()<<"thisRecipient.at(2).toLongLong():"<<thisRecipient.at(2).toLongLong();
         recipient.message = thisRecipient.at(3).toString();
         recipients.append(recipient);
     }

@@ -349,7 +349,7 @@ Controls_1_4.Tab {
         CommonButton
         {
             id:export_btn
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             anchors.right: parent.right
             anchors.rightMargin: 30
             anchors.bottom: parent.bottom

@@ -7,6 +7,7 @@
 
 #include <QAbstractTableModel>
 #include <QStringList>
+#include <QDebug>
 
 class AddressTablePriv;
 class WalletModel;

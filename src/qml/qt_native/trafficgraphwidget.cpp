@@ -37,11 +37,7 @@ void TrafficGraphWidget::setClientModel(ClientModel* model)
          nLastBytesOut = model->getTotalBytesSent();
     }
 
-    qDebug()<<"clientModel TrafficGraphWidget:"<<clientModel;
 
-    qDebug()<<"TrafficGraphWidget thread :"<<QThread::currentThread();
-
-    qDebug()<<"TrafficGraphWidget setClientModel!!!";
 }
 
 ClientModel *TrafficGraphWidget::getClientModel()
@@ -184,9 +180,6 @@ void TrafficGraphWidget::setGraphRangeMins(int mins)
 
 void TrafficGraphWidget::clear()
 {
-    qDebug()<<"clear";
-
-
     timer->stop();
 
     vSamplesOut.clear();

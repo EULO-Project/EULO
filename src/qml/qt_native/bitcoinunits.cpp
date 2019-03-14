@@ -10,7 +10,6 @@
 
 #include <QSettings>
 #include <QStringList>
-#include <QDebug>
 
 BitcoinUnits::BitcoinUnits(QObject* parent) : QAbstractListModel(parent),
                                               unitlist(availableUnits())

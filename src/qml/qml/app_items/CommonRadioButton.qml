@@ -50,14 +50,14 @@ RadioButton {
          x: 0
          y: parent.height / 2 - height / 2
          radius: 7
-         border.color: control.down ? "#1E5569" : "#1E5569"
+         border.color: control.down ? (walletModel.isTestNet()?"#202020":"#1E5569"):(walletModel.isTestNet()?"#202020":"#1E5569")
 
          Rectangle {
              width: 10
              height: 10
              anchors.centerIn: parent
              radius: 5
-             color: control.down ? "#1E5569" : "#1E5569"
+             color: control.down ? (walletModel.isTestNet()?"#202020":"#1E5569"):(walletModel.isTestNet()?"#202020":"#1E5569")
              visible: control.checked
          }
 

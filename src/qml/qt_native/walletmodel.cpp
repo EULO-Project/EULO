@@ -36,7 +36,6 @@
 
 #include "clientmodel.h"
 
-#include <QDebug>
 #include <QSet>
 #include <QTimer>
 #include <QSettings>
@@ -241,6 +240,8 @@ WalletModel::~WalletModel()
 {
     unsubscribeFromCoreSignals();
 }
+
+
 
 
 
@@ -1242,7 +1243,6 @@ bool WalletModel::backupWallet(const QString& filename)
 // Handlers for core signals
 static void NotifyKeyStoreStatusChanged(WalletModel* walletmodel, CCryptoKeyStore* wallet)
 {
-    qDebug() << "NotifyKeyStoreStatusChanged";
     QMetaObject::invokeMethod(walletmodel, "updateStatus", Qt::QueuedConnection);
 }
 
@@ -1252,7 +1252,6 @@ static void NotifyAddressBookChanged(WalletModel* walletmodel, CWallet* wallet, 
     QString strLabel = QString::fromStdString(label);
     QString strPurpose = QString::fromStdString(purpose);
 
-    qDebug() << "NotifyAddressBookChanged : " + strAddress + " " + strLabel + " isMine=" + QString::number(isMine) + " purpose=" + strPurpose + " status=" + QString::number(status);
     QMetaObject::invokeMethod(walletmodel, "updateAddressBook", Qt::QueuedConnection,
                               Q_ARG(QString, strAddress),
                               Q_ARG(QString, strLabel),
@@ -1273,7 +1272,6 @@ static void NotifyTransactionChanged(WalletModel* walletmodel, CWallet* wallet, 
 
     QString strHash = QString::fromStdString(hash.GetHex());
 
-    qDebug() << "NotifyTransactionChanged : " + strHash + " status= " + QString::number(status);
     QMetaObject::invokeMethod(walletmodel, "updateTransaction", Qt::QueuedConnection /*,
                                                         Q_ARG(QString, strHash),
                                                         Q_ARG(int, status)*/);
@@ -1300,7 +1298,6 @@ static void NotifyContractBookChanged(WalletModel *walletmodel, CWallet *wallet,
     QString strLabel = QString::fromStdString(label);
     QString strAbi = QString::fromStdString(abi);
 
-    qDebug() << "NotifyContractBookChanged: " + strAddress + " " + strLabel + " status=" + QString::number(status);
     QMetaObject::invokeMethod(walletmodel, "updateContractBook", Qt::QueuedConnection,
                               Q_ARG(QString, strAddress),
                               Q_ARG(QString, strLabel),
@@ -1319,7 +1316,6 @@ static void NotifyZerocoinChanged(WalletModel* walletmodel, CWallet* wallet, con
 {
     QString HexStr = QString::fromStdString(hexString);
     QString isUsedStr = QString::fromStdString(isUsed);
-    qDebug() << "NotifyZerocoinChanged : " + HexStr + " " + isUsedStr + " status= " + QString::number(status);
     QMetaObject::invokeMethod(walletmodel, "updateAddressBook", Qt::QueuedConnection,
                               Q_ARG(QString, HexStr),
                               Q_ARG(QString, isUsedStr),

@@ -20,7 +20,7 @@ Item
     property int sendTo:1
 
 
-    property string defaultAmount: ""
+    property int defaultAmount: -1
 
     Timer{
         id:changeTimer
@@ -57,7 +57,7 @@ Item
 
         Component.onCompleted:
         {
-            if(defaultAmount === "")
+            if(defaultAmount === -1)
             {
                 if(pageType === create)
                     text = walletModel.contractPage.getDefaultGasLimitOpCreate()

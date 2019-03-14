@@ -4,7 +4,6 @@
 #include <univalue.h>
 #include <rpcserver.h>
 #include <rpcclient.h>
-#include <QDebug>
 
 ExecRPCCommand::ExecRPCCommand(const QString &command, const QStringList &mandatory, const QStringList &optional, const QMap<QString, QString>& translations, QObject *parent)
     : QObject(parent)
@@ -79,8 +78,6 @@ bool ExecRPCCommand::exec(const QMap<QString, QString> &params, QVariant &result
     {
         std::string strResult;
         std::string strCommand = commandLine.join(' ').toStdString();
-
-       // qDebug()<<"strCommand:"<<QString::fromStdString( strCommand);
 
         if (!RPCConsole::parseCommandLine(args, strCommand)) {
             return false;

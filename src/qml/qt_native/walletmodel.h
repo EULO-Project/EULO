@@ -162,6 +162,7 @@ public:
 
     Q_INVOKABLE bool alreadyShowed(const QString &version);
 
+
     Q_INVOKABLE qint64 getFiledAmount(int uint,QString amountText);
 
     // Check address for validity
@@ -172,6 +173,9 @@ public:
 
 
     Q_INVOKABLE QString getReadMe();
+
+    Q_INVOKABLE bool isTestNet(){return GetBoolArg("-testnet", false);}
+
 
 
     enum StatusCode // Returned by sendCoins

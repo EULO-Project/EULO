@@ -29,6 +29,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 30
             color: "#333333"
             text:qsTr("Zerocoin Actions:")
+
         }
 
         //First Line

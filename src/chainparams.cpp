@@ -233,7 +233,7 @@ public:
         nMinerThreads = 0;
         nTargetTimespan = 1 * 60; // EULO: 1 day
         nTargetSpacing = 1 * 60;  // EULO: 1 minute
-
+        bckContractAddress = "6e323704df5fc687c4f39b980315a8f8f740c971";
         nLastPOWBlock = 240;
         nContractStartHeight = 260;
         nPOWStartBlockInPOS = 270;

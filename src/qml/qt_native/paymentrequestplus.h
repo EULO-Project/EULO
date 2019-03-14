@@ -15,6 +15,7 @@
 #include <QByteArray>
 #include <QList>
 #include <QString>
+#include <QDebug>
 
 //
 // Wraps dumb protocol buffer paymentRequest

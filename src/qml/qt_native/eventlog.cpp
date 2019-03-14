@@ -4,7 +4,6 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <uint256.h>
-#include <QDebug>
 
 namespace EventLog_NS
 {
@@ -83,8 +82,6 @@ bool EventLog::search(int64_t fromBlock, int64_t toBlock, const std::vector<std:
     QString resultJson;
     QString errorMessage;
     if(!m_RPCCommand->exec(m_lstParams, result, resultJson, errorMessage)){
-        qDebug()<<"search result:"<<resultJson;
-
         return false;
     }
     return true;

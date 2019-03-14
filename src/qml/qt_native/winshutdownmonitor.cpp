@@ -10,8 +10,6 @@
 
 #include <windows.h>
 
-#include <QDebug>
-
 #include <openssl/rand.h>
 
 // If we don't want a message to be processed by Qt, return true and set result to

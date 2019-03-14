@@ -205,7 +205,7 @@ Controls_1_4.Tab {
         CommonButton
         {
             id:clear_btn
-            color: "#1E5569"
+            color: walletModel.isTestNet()?"#202020":"#1E5569"
             anchors.right: add_btn.left
             anchors.bottom: parent.bottom
             anchors.rightMargin: 8

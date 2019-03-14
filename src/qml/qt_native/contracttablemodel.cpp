@@ -6,7 +6,6 @@
 #include <wallet.h>
 
 #include <QFont>
-#include <QDebug>
 #include <utility>
 
 struct ContractTableEntry

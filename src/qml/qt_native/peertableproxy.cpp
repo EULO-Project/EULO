@@ -1,6 +1,5 @@
 #include "peertableproxy.h"
 #include "guiutil.h"
-#include <QDebug>
 PeerTableProxy::PeerTableProxy(QObject *parent) : QSortFilterProxyModel(parent)
 {
 

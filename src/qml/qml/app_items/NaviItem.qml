@@ -8,7 +8,7 @@ Rectangle{
     id:root
     implicitHeight: 80
     implicitWidth: 95
-    color: "#1E5569"
+    color: walletModel.isTestNet()?"#202020":"#1E5569"
     property string title
     property string icon
     property bool picked
@@ -24,8 +24,8 @@ Rectangle{
         width:parent.width
         height:parent.height
         gradient: Gradient {
-            GradientStop{ position: 0.0; color: hovered?"#9B1E5569":"#1E5569";}
-            GradientStop{ position: 1.0; color: hovered?"#9B106475":"#106475";}
+            GradientStop{ position: 0.0; color: hovered?(walletModel.isTestNet()?"#9B202020":"#9B1E5569"):(walletModel.isTestNet()?"#202020":"#1E5569");}
+            GradientStop{ position: 1.0; color: hovered?(walletModel.isTestNet()?"#9B202020":"#9B1E5569"):(walletModel.isTestNet()?"#202020":"#1E5569");}
         }
         start: Qt.point(parent.width/2,0);
         end: Qt.point(parent.width/2, parent.height);

@@ -102,7 +102,7 @@ Item {
         anchors.rightMargin: 20
         anchors.left: amountLabel.left
         anchors.leftMargin: 120
-        defaultAmount:"0"
+        defaultAmount:0
     }
 
 
