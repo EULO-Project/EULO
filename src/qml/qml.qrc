@@ -135,5 +135,6 @@
         <file>images/icons/splash_testnet.png</file>
         <file>BCK_ABI.txt</file>
         <file>qml/app_items/CommonTextArea2.qml</file>
+        <file>qml/app_items/CommonSelectableLabel.qml</file>
     </qresource>
 </RCC>

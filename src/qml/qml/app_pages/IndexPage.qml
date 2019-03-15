@@ -76,7 +76,7 @@ Controls_1_4.Tab {
 
 
 
-        Label {
+        CommonSelectableLabel {
             id:balance_label
             font.weight: Font.Normal
             font.pixelSize:20
@@ -84,7 +84,6 @@ Controls_1_4.Tab {
             anchors.left: parent.left
             anchors.topMargin: 25
             anchors.leftMargin: 22
-            color: "#333333"
             text:balance_label_str
         }
 
@@ -283,14 +282,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:ulo_blance_can_get_amount_label
             anchors.verticalCenter: ulo_blance_can_get_label.verticalCenter
             anchors.left: ulo_blance_can_get_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:ulo_blance_can_get_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -310,14 +309,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:ulo_blance_pending_amount_label
             anchors.verticalCenter: ulo_blance_pending_label.verticalCenter
             anchors.left: ulo_blance_pending_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:ulo_blance_pending_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -336,14 +335,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:ulo_blance_immature_amount_label
             anchors.verticalCenter: ulo_blance_immature_label.verticalCenter
             anchors.left: ulo_blance_immature_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:ulo_blance_immature_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -363,14 +362,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:ulo_blance_total_amount_label
             anchors.verticalCenter: ulo_blance_total_label.verticalCenter
             anchors.left: ulo_blance_total_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:ulo_blance_total_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -403,14 +402,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:zero_blance_total_amount_label
             anchors.verticalCenter: zero_blance_total_label.verticalCenter
             anchors.left: zero_blance_total_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:zero_blance_total_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -429,14 +428,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:zero_blance_unconfirmed_amount_label
             anchors.verticalCenter: zero_blance_unconfirmed_label.verticalCenter
             anchors.left: zero_blance_unconfirmed_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:zero_blance_unconfirmed_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -456,14 +455,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:zero_blance_immature_amount_label
             anchors.verticalCenter: zero_blance_immature_label.verticalCenter
             anchors.left: zero_blance_immature_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:zero_blance_immature_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -484,14 +483,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:zero_blance_mature_amount_label
             anchors.verticalCenter: zero_blance_mature_label.verticalCenter
             anchors.left: zero_blance_mature_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:zero_blance_mature_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -526,14 +525,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:combined_ulo_label_amount_label
             anchors.verticalCenter: combined_ulo_label.verticalCenter
             anchors.left: combined_ulo_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:combined_blance_ULO_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -553,14 +552,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:combined_locked_amount_label
             anchors.verticalCenter: combined_locked_label.verticalCenter
             anchors.left: combined_locked_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:combined_blance_locked_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -580,14 +579,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:combined_unlocked_amount_label
             anchors.verticalCenter: combined_unlocked_label.verticalCenter
             anchors.left: combined_unlocked_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:"0.00 ULO"
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -607,14 +606,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:combined_zulo_amount_label
             anchors.verticalCenter: combined_zulo_label.verticalCenter
             anchors.left: combined_zulo_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:combined_blance_zULO_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
@@ -633,14 +632,14 @@ Controls_1_4.Tab {
 
         }
 
-        Label {
+        CommonSelectableLabel {
             id:combined_total_amount_label
             anchors.verticalCenter: combined_total_label.verticalCenter
             anchors.left: combined_total_label.left
             anchors.leftMargin: 110
             font.pixelSize: 11
             text:combined_blance_total_amount_label_str
-            color:"#5B5B5B"
+            textColor:"#5B5B5B"
             font.weight: Font.Normal
             font.letterSpacing: 0.5
 
