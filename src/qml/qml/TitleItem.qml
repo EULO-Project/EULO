@@ -65,7 +65,7 @@ Rectangle{
         anchors.left: logo_img.right
         anchors.leftMargin: 10
         font.pixelSize:22
-        text:"TestNet"
+        text:qsTr("TestNet")
         color:"#F0F0F0"
         font.weight:Font.Bold
         visible:walletModel.isTestNet()
@@ -85,6 +85,8 @@ Rectangle{
             ListElement { modelData: qsTr("Command-line options"); }
             ListElement { modelData: qsTr("About EULO Core"); }
             ListElement { modelData: qsTr("About Qt"); }
+            ListElement { modelData: qsTr("Release log"); }
+
         }
 
 
@@ -107,6 +109,7 @@ Rectangle{
             case 0:helpDialog.show();helpDialog.raise();break;
             case 1:aboutDialog.show();aboutDialog.raise();break;
             case 2:utility.aboutQt();break;//TODO: find a way to get aboutQt info as QString, and make a shadowed dialog to display this message
+            case 3:msgDialog.show();msgDialog.raise();break;
 
 
             default:break;

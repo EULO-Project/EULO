@@ -7,7 +7,8 @@
 <li>1、BCK Module in TestNet.</li>
 <li>2、Integration of TestNet parameters.</li>
 <li>3、One click change between MainNet and TestNet.</li>
-<li>4、Some other functions.</li>
+<li>4、Add release log in help menu.</li>
+<li>5、Some other functions.</li>
 </ul>
 
 <h4>Bug fix:</h4>

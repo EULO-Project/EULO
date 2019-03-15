@@ -299,7 +299,8 @@ Controls_1_4.Tab{
             anchors.leftMargin: 30
             anchors.right: parent.right
             anchors.rightMargin: 30
-            height:150
+            anchors.bottom: gasLimitSpin.top
+            anchors.bottomMargin: 10
             text:root.pageType == root.balance?qsTr("Balance: "):qsTr("TotalBonus: ")
             visible: root.pageType == root.balance || root.pageType == root.totalBonus
             readOnly: true
@@ -319,7 +320,7 @@ Controls_1_4.Tab{
             anchors.left: parent.left
             anchors.leftMargin: 30
             color: "#333333"
-            text:qsTr("Amount_")
+            text:qsTr("Amount")
             visible: root.pageType == root.sell || root.pageType == root.transfer || root.pageType == root.transferFrom
         }
 

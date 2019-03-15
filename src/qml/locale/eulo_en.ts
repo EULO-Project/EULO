@@ -166,10 +166,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Buy Future</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Balance</source>
         <translation type="unfinished"></translation>
     </message>
@@ -276,6 +272,35 @@
     </message>
     <message>
         <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TotalBonus: 
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Empty Amount</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TotalBonus: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished">Clear</translation>
+    </message>
+    <message>
+        <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1158,6 +1183,10 @@ Address: %4
     <name>CreateContractPage</name>
     <message>
         <source>The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error, not reaching height of contract or no such contract yet!</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2481,6 +2510,14 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Change to TestNet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TestNet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release log</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -166,10 +166,6 @@
         <translation>转账 (带地址)</translation>
     </message>
     <message>
-        <source>Buy Future</source>
-        <translation>延迟买入</translation>
-    </message>
-    <message>
         <source>Balance</source>
         <translation>余额</translation>
     </message>
@@ -277,6 +273,36 @@
     <message>
         <source>Cancel</source>
         <translation>取消</translation>
+    </message>
+    <message>
+        <source>TotalBonus: 
+</source>
+        <translation>总奖励(合约): 
+</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>成功</translation>
+    </message>
+    <message>
+        <source>Error!</source>
+        <translation>错误!</translation>
+    </message>
+    <message>
+        <source>Empty Amount</source>
+        <translation>没有输入金额</translation>
+    </message>
+    <message>
+        <source>TotalBonus: </source>
+        <translation>总奖励(合约): </translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation>清除</translation>
+    </message>
+    <message>
+        <source>Confirm</source>
+        <translation>确认</translation>
     </message>
 </context>
 <context>
@@ -1154,6 +1180,10 @@ Address: %4
         <source>The Gas Price is too high, are you sure you want to possibly spend a max of %1 for this transaction?</source>
         <translation>Gas价格太高,你确认为此交易发送最高可能 %1 吗？</translation>
     </message>
+    <message>
+        <source>Error, not reaching height of contract or no such contract yet!</source>
+        <translation>错误, 没有到达合约高度或者没有这个合约!</translation>
+    </message>
 </context>
 <context>
     <name>ExecRPCCommand</name>
@@ -1817,7 +1847,7 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Denom. with value &lt;b&gt;50&lt;/b&gt;:</source>
-        <translation>用 &lt;b&gt;5000&lt;/b&gt; 分: {50&lt;?}</translation>
+        <translation>用 &lt;b&gt;50&lt;/b&gt; 分:</translation>
     </message>
 </context>
 <context>
@@ -2477,6 +2507,14 @@ Duration: 0 sec.</source>
     <message>
         <source>Change to TestNet</source>
         <translation>切换到测试网</translation>
+    </message>
+    <message>
+        <source>TestNet</source>
+        <translation>测试网</translation>
+    </message>
+    <message>
+        <source>Release log</source>
+        <translation>发行日志</translation>
     </message>
 </context>
 <context>
