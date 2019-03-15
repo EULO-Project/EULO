@@ -8,6 +8,7 @@
 #ifdef WIN32
 #include <QByteArray>
 #include <QString>
+#include <QDebug>
 
 #if QT_VERSION >= 0x050000
 #include <windef.h> // for HWND
