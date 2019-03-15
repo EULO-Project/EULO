@@ -61,7 +61,7 @@ Rectangle{
     {
         id:testnetLabel
         anchors.bottom: parent.bottom
-        anchors.bottomMargin:5
+        anchors.bottomMargin:10
         anchors.left: logo_img.right
         anchors.leftMargin: 10
         font.pixelSize:22
