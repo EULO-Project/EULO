@@ -17,7 +17,7 @@ import "../base_items"
 CommonDialog
 {
     id:root
-    title: qsTr("Testing MEssgae")
+    title: qsTr("Release Log")
 
     confrim_btn_visible:true
     confrim_btn_text: qsTr("Confirm")

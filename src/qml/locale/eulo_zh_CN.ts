@@ -2324,12 +2324,12 @@ Duration: 0 sec.</source>
 <context>
     <name>StartUpDialog</name>
     <message>
-        <source>Testing MEssgae</source>
-        <translation>测试消息</translation>
-    </message>
-    <message>
         <source>Confirm</source>
         <translation>确认</translation>
+    </message>
+    <message>
+        <source>Release Log</source>
+        <translation type="unfinished">发行日志</translation>
     </message>
 </context>
 <context>

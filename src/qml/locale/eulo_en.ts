@@ -2328,11 +2328,11 @@ Duration: 0 sec.</source>
 <context>
     <name>StartUpDialog</name>
     <message>
-        <source>Testing MEssgae</source>
+        <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Confirm</source>
+        <source>Release Log</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
