@@ -32,6 +32,7 @@ ApplicationWindow {
     property int radius_all
     property string unitName:"  ULO"
     property alias warningDialog: warningDialog
+    property alias footer_: footer
 
     PropertyAnimation
     {
@@ -39,7 +40,7 @@ ApplicationWindow {
 
         onStopped:
         {
-            if(!walletModel.alreadyShowed("2.0.1"))
+            if(!walletModel.alreadyShowed("2.0.2"))
                 msgDialog.show()
         }
     }
@@ -120,7 +121,6 @@ ApplicationWindow {
 
     Component.onCompleted:
     {
-        console.log("testNet:"+walletModel.isTestNet())
         pretend_timer.start()
     }
 
@@ -214,6 +214,8 @@ ApplicationWindow {
     }
 
 
+
+
     function changeCoincontrol(show)
     {
         sendingPage.item.showCoincontrol = show
@@ -246,7 +248,7 @@ ApplicationWindow {
     {
         id:exit_dialog
         title: qsTr("Quit EULO")
-        confrim_btn_text: qsTr("Ok")
+        confirm_btn_text: qsTr("Ok")
         cancel_btn_text: qsTr("Cancel")
         content_text: qsTr("Confirm quitting EULO Core")
         modality: Qt.ApplicationModal
@@ -266,7 +268,7 @@ ApplicationWindow {
     {
         id:warningDialog
         title: qsTr("Attention")
-        confrim_btn_text: qsTr("Ok")
+        confirm_btn_text: qsTr("Ok")
         cancel_btn_visible: false
         modality: Qt.ApplicationModal
         width:300
@@ -278,6 +280,59 @@ ApplicationWindow {
         }
 
     }
+
+    CommonDialog
+      {
+          id:questionDialog
+          width:300
+          height: 180
+          confirm_btn_text: qsTr("Ok")
+          cancel_btn_text: qsTr("Cancel")
+          cancel_btn_visible: false
+          modality: Qt.ApplicationModal
+          property var callBackFunc
+
+
+
+          onCanceled:
+          {
+              if(callBackFunc !== undefined)
+                  callBackFunc = undefined
+          }
+
+          onClosed:
+          {
+              if(callBackFunc !== undefined)
+                  callBackFunc = undefined
+          }
+
+          onConfirmed:
+          {
+              questionDialog.close()
+              if(callBackFunc !== undefined)
+              {
+                  callBackFunc()
+                  callBackFunc = undefined
+              }
+
+          }
+      }
+
+
+      function question(title,msg,func)
+      {
+          questionDialog.title = title
+          questionDialog.content_text = msg
+          questionDialog.show()
+          if(func !== undefined)
+              questionDialog.callBackFunc = func
+
+      }
+
+      function requestUnlock()
+      {
+        return title_item.requestUnlock()
+      }
 
 
 

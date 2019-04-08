@@ -236,6 +236,9 @@ Item {
                 return
             }
 
+            if(requestUnlock())
+                return
+
 
             var res = walletModel.tokenItemModel.sendToken(payToAddressField.text,
                                                    gasLimitSpin.amountField.text,
@@ -258,7 +261,7 @@ Item {
             waitDialog.content_text = res[1]
             waitDialog.confrim_btn_enabled = false
             waitDialog.timeLeft = 3
-            waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
+            waitDialog.confirm_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
             waitDialog.countDownTimer.start()
             waitDialog.show()
 
@@ -283,12 +286,12 @@ Item {
                 if(waitDialog.timeLeft > 1)
                 {
                     waitDialog.timeLeft--
-                    waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
+                    waitDialog.confirm_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                     countDownTimer.start()
                 }
                 else
                 {
-                    waitDialog.confrim_btn_text = qsTr("Ok")
+                    waitDialog.confirm_btn_text = qsTr("Ok")
                     waitDialog.confrim_btn_enabled = true
                 }
 

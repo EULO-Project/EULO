@@ -864,7 +864,7 @@ void CoinControlModel::sendButtonClicked(QVariantList recipientsArray,
     // this way we let users unlock by walletpassphrase or by menu
     // and make many transactions while unlocking through this dialog
     // will call relock
-    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
+    WalletModel::EncryptionStatus encStatus = (WalletModel::EncryptionStatus)(model->getEncryptionStatus());
     if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
         WalletModel::UnlockContext ctx(model->requestUnlock(true));
         if (!ctx.isValid()) {

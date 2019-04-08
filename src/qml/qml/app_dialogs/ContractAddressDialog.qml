@@ -21,19 +21,19 @@ CommonDialog
     property var model
     property bool editing: false
     cancel_btn_text: qsTr("Cancel")
-    confrim_btn_text: qsTr("Ok")
+    confirm_btn_text: qsTr("Ok")
     property int currentRow: -1
 
-    property alias tagTextFiled: tag_textFiled
-    property alias addressTextFiled: addressTextFiled
+    property alias tagTextField: tag_textField
+    property alias addressTextField: addressTextField
     property alias abiTextArea: abiTextArea
 
     title: editing?qsTr("Modify Contract Address"):qsTr("New Contract Address")
 
     onClosing:
     {
-        tag_textFiled.text = ""
-        addressTextFiled.text = ""
+        tag_textField.text = ""
+        addressTextField.text = ""
         close_dialog()
     }
 
@@ -59,7 +59,7 @@ CommonDialog
 
         CommonTextField
         {
-            id:tag_textFiled
+            id:tag_textField
             font.weight: Font.Light
             font.pixelSize:16
             anchors.right: parent.right
@@ -84,7 +84,7 @@ CommonDialog
 
         CommonTextField
         {
-            id:addressTextFiled
+            id:addressTextField
             font.weight: Font.Light
             font.pixelSize:16
             anchors.rightMargin: 30
@@ -132,16 +132,16 @@ CommonDialog
 
     onConfirmed:
     {
-        if(addressTextFiled.text.length != 40)
+        if(addressTextField.text.length != 40)
         {
-            addressTextFiled.critical = true
+            addressTextField.critical = true
             return
         }
 
 
         var res = walletModel.contractfilterproxy.saveContract(editing?1:0,
-                                                              tag_textFiled.text,
-                                                              addressTextFiled.text,
+                                                              tag_textField.text,
+                                                              addressTextField.text,
                                                               abiTextArea.text,
                                                               currentRow)
         if(res !== "ok")

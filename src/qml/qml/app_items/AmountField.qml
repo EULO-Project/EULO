@@ -26,9 +26,9 @@ Item
         root_window.unitNameChanged.connect(coinTypeChange)
     }
 
-    function getFiledAmount()
+    function getFieldAmount()
     {
-        return walletModel.getFiledAmount(coinTypeBtn.index,amountField.text)
+        return walletModel.getFieldAmount(coinTypeBtn.index,amountField.text)
     }
 
     Timer{

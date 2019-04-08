@@ -89,7 +89,7 @@ Item
             width:inputListview.width
             hoverEnabled: false
             // property alias inputRec: inputLayout
-            property alias paramFiled: paramFiled
+            property alias paramField: paramField
 
 
             Rectangle{
@@ -239,7 +239,7 @@ Item
 
             CommonTextField
             {
-                id:paramFiled
+                id:paramField
                 font.weight: Font.Light
                 font.pixelSize:16
                 anchors.left: root.expanding?inputRec.right:parent.left
@@ -294,11 +294,11 @@ Item
     {
         for(var i = 0 ;i<inputListview.contentItem.children.length;i++)
         {
-            if(inputListview.contentItem.children[i].paramFiled instanceof CommonTextField &&
-                    inputListview.contentItem.children[i].paramFiled.enabled &&
-                    inputListview.contentItem.children[i].paramFiled.text === "")
+            if(inputListview.contentItem.children[i].paramField instanceof CommonTextField &&
+                    inputListview.contentItem.children[i].paramField.enabled &&
+                    inputListview.contentItem.children[i].paramField.text === "")
             {
-                inputListview.contentItem.children[i].paramFiled.critical = true
+                inputListview.contentItem.children[i].paramField.critical = true
                 return false
             }
         }
@@ -312,11 +312,11 @@ Item
         var array = new Array
         for(var i = 0 ;i<inputListview.contentItem.children.length;i++)
         {
-            if(inputListview.contentItem.children[i].paramFiled instanceof CommonTextField &&
-                    inputListview.contentItem.children[i].paramFiled.enabled &&
-                    inputListview.contentItem.children[i].paramFiled.text !== "")
+            if(inputListview.contentItem.children[i].paramField instanceof CommonTextField &&
+                    inputListview.contentItem.children[i].paramField.enabled &&
+                    inputListview.contentItem.children[i].paramField.text !== "")
             {
-                array.push(inputListview.contentItem.children[i].paramFiled.text)
+                array.push(inputListview.contentItem.children[i].paramField.text)
             }
         }
 

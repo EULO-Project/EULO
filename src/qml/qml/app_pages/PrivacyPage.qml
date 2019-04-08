@@ -50,7 +50,7 @@ Controls_1_4.Tab {
 
         CommonTextField
         {
-            id:mint_zero_textFiled
+            id:mint_zero_textField
             font.weight: Font.Light
             font.pixelSize: 16
             anchors.left: mint_zero_btn.right
@@ -67,7 +67,7 @@ Controls_1_4.Tab {
             font.weight: Font.Normal
             font.pixelSize:13
             font.letterSpacing: 0.20
-            anchors.left: mint_zero_textFiled.right
+            anchors.left: mint_zero_textField.right
             anchors.leftMargin: 8
             anchors.verticalCenter: mint_zero_btn.verticalCenter
             color: "#333333"
@@ -152,7 +152,7 @@ Controls_1_4.Tab {
         //Third Line
         Label
         {
-            id:zero_action_textFiled
+            id:zero_action_textField
             font.weight: Font.Normal
             font.pixelSize:13
             font.letterSpacing: 0.355
@@ -178,7 +178,7 @@ Controls_1_4.Tab {
             color: "#469AAC"
             anchors.left: parent.left
             anchors.leftMargin: 30
-            anchors.top: zero_action_textFiled.bottom
+            anchors.top: zero_action_textField.bottom
             anchors.topMargin: 10
             width: 110
             height: 32

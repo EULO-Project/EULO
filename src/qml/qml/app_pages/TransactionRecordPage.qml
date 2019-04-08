@@ -106,12 +106,12 @@ Controls_1_4.Tab {
 
         CommonTextField
         {
-            id:query_textFiled
+            id:query_textField
             font.weight: Font.Light
             font.pixelSize:13
             anchors.left: type_label.right
             anchors.leftMargin: 3
-            anchors.right: min_amount_textFiled.left
+            anchors.right: min_amount_textField.left
             anchors.rightMargin: 3
             anchors.verticalCenter: header_label.verticalCenter
             placeholderText: qsTr("Enter address or label to search")
@@ -122,7 +122,7 @@ Controls_1_4.Tab {
 
         CommonTextField
         {
-            id:min_amount_textFiled
+            id:min_amount_textField
             width:160
             font.weight: Font.Light
             font.pixelSize:13

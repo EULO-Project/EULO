@@ -24,11 +24,15 @@ Rectangle{
         width:parent.width
         height:parent.height
         gradient: Gradient {
-            GradientStop{ position: 0.0; color: hovered?(walletModel.isTestNet()?"#9B202020":"#9B1E5569"):(walletModel.isTestNet()?"#202020":"#1E5569");}
-            GradientStop{ position: 1.0; color: hovered?(walletModel.isTestNet()?"#9B202020":"#9B1E5569"):(walletModel.isTestNet()?"#202020":"#1E5569");}
+           GradientStop{ position: 0.0; color: hovered?(walletModel.isTestNet()?"#9B202020":"#9B1E5569"):(walletModel.isTestNet()?"#202020":"#1E5569");}
+            GradientStop{ position: 1.0; color: hovered?(walletModel.isTestNet()?"#9B3e2020":"#9B106475"):(walletModel.isTestNet()?"#3e2020":"#106475");}
+
+
         }
         start: Qt.point(parent.width/2,0);
         end: Qt.point(parent.width/2, parent.height);
+
+
     }
 
 

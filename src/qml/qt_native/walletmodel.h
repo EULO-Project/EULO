@@ -163,7 +163,7 @@ public:
     Q_INVOKABLE bool alreadyShowed(const QString &version);
 
 
-    Q_INVOKABLE qint64 getFiledAmount(int uint,QString amountText);
+    Q_INVOKABLE qint64 getFieldAmount(int uint,QString amountText);
 
     // Check address for validity
     Q_INVOKABLE bool validateAddress(const QString& address);
@@ -175,7 +175,13 @@ public:
     Q_INVOKABLE QString getReadMe();
 
     Q_INVOKABLE bool isTestNet(){return GetBoolArg("-testnet", false);}
+    Q_INVOKABLE int getEncryptionStatus() const;
 
+    // Wallet encryption
+    Q_INVOKABLE bool setWalletEncrypted(const QString& passStr);
+    Q_INVOKABLE bool changePassphrase(const QString &oldPassStr, const QString &newPassStr);
+    // Passphrase only needed when unlocking
+    Q_INVOKABLE bool setWalletLocked(bool locked, const QString &passStr = QString(), bool anonymizeOnly = false);
 
 
     enum StatusCode // Returned by sendCoins
@@ -203,10 +209,10 @@ public:
     };
 
     enum EncryptionStatus {
-        Unencrypted,                 // !wallet->IsCrypted()
-        Locked,                      // wallet->IsCrypted() && wallet->IsLocked()
-        Unlocked,                    // wallet->IsCrypted() && !wallet->IsLocked()
-        UnlockedForAnonymizationOnly // wallet->IsCrypted() && !wallet->IsLocked() && wallet->fWalletUnlockAnonymizeOnly
+        Unencrypted = 0,                 // !wallet->IsCrypted()
+        Locked = 1,                      // wallet->IsCrypted() && wallet->IsLocked()
+        Unlocked = 2,                    // wallet->IsCrypted() && !wallet->IsLocked()
+        UnlockedForAnonymizationOnly = 3 // wallet->IsCrypted() && !wallet->IsLocked() && wallet->fWalletUnlockAnonymizeOnly
     };
 
     OptionsModel* getOptionsModel();
@@ -238,7 +244,6 @@ public:
     CAmount getWatchBalance() const;
     CAmount getWatchUnconfirmedBalance() const;
     CAmount getWatchImmatureBalance() const;
-    EncryptionStatus getEncryptionStatus() const;
     CKey generateNewKey() const; //for temporary paper wallet key generation
     bool setAddressBook(const CTxDestination& address, const string& strName, const string& strPurpose);
     void encryptKey(const CKey key, const std::string& pwd, const std::string& slt, std::vector<unsigned char>& crypted);
@@ -258,11 +263,6 @@ public:
     // Send coins to a list of recipients
     SendCoinsReturn sendCoins(WalletModelTransaction& transaction);
 
-    // Wallet encryption
-    bool setWalletEncrypted(bool encrypted, const SecureString& passphrase);
-    // Passphrase only needed when unlocking
-    bool setWalletLocked(bool locked, const SecureString& passPhrase = SecureString(), bool anonymizeOnly = false);
-    bool changePassphrase(const SecureString& oldPass, const SecureString& newPass);
     // Is wallet unlocked for anonymization only?
     bool isAnonymizeOnlyUnlocked();
     // Wallet backup

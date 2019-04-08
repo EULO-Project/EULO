@@ -44,6 +44,16 @@ Rectangle{
 
     }
 
+    function requestUnlock()
+    {
+        if(walletModel.getEncryptionStatus() === 1)
+        {
+            root_window.question(qsTr("Unlock Requested"),qsTr("You must unlock your wallet and try again!"),function(){askPassphraseDialog.show();})
+            return true
+        }
+        return false
+    }
+
 
 
 
@@ -194,7 +204,7 @@ Rectangle{
         {
             id:firstrun_dialog
             title: qsTr("Notice")
-            confrim_btn_text: qsTr("Ok")
+            confirm_btn_text: qsTr("Ok")
             cancel_btn_visible: false
             close_btnRect_visible: false
             content_text: qsTr("Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (eulo.conf).")
@@ -213,6 +223,50 @@ Rectangle{
 
     }
 
+
+    function rebuildSettingMenu()
+    {
+        set_menu.model.clear()
+        if(walletModel.getEncryptionStatus() === 0)
+        {
+            set_menu.model.append({"modelData":qsTr("Encrypt Wallet")})
+        }
+        else
+        {
+            if(walletModel.getEncryptionStatus() === 1)
+            {
+                set_menu.model.append({"modelData":qsTr("UnLock Wallet")})
+            }
+            else if(walletModel.getEncryptionStatus() === 2)
+            {
+                set_menu.model.append({"modelData":qsTr("Lock Wallet")})
+            }
+
+            set_menu.model.append({"modelData":qsTr("Modify Password")})
+
+        }
+
+        set_menu.model.append({"modelData":qsTr("Options")})
+
+
+
+        switch (walletModel.getEncryptionStatus())
+        {
+        case 0:
+            footer_.walletStatusSource = ""
+            break;
+        case 1:
+            footer_.walletStatusSource = "qrc:/images/icons/locked.png"
+            break;
+        case 2:
+            footer_.walletStatusSource = "qrc:/images/icons/unlocked.png"
+            break;
+        default:break;
+        }
+
+
+    }
+
     CommonMenuButton
     {
         id:set_menu
@@ -221,16 +275,12 @@ Rectangle{
         anchors.rightMargin:    3
         anchors.verticalCenter: minimum_btnRect.verticalCenter
         contentWidth:160
-        model: ListModel
+        model: ListModel{}
+
+        Component.onCompleted:
         {
-           // ListElement { modelData: qsTr("Encrypt Wallet"); }
-           // ListElement { modelData: qsTr("Modify Password"); }
-           // ListElement { modelData: qsTr("BIP38 Tools"); }
-           // ListElement { modelData: qsTr("Multi-Sending"); }
-            ListElement { modelData: qsTr("Options"); }
-
+            rebuildSettingMenu()
         }
-
 
 
 
@@ -239,7 +289,54 @@ Rectangle{
         {
             switch (index)
             {
-            case 0:optionsDialog.show();optionsDialog.raise();break;
+            case 0:
+                if(walletModel.getEncryptionStatus() === 0)
+                {
+                    askPassphraseDialog.setting = true
+                    askPassphraseDialog.show()
+                }
+                else if(walletModel.getEncryptionStatus() === 1)
+                {
+                    askPassphraseDialog.show()
+                }
+                else
+                {
+                    if(walletModel.setWalletLocked(true))
+                    {
+                        rebuildSettingMenu()
+                        root_window.warningDialog.title = qsTr("succeed")
+                        root_window.warningDialog.content_text = qsTr("wallet locked successfully")
+                        root_window.warningDialog.show()
+                    }
+                    else
+                    {
+                        root_window.warningDialog.title = qsTr("failed")
+                        root_window.warningDialog.content_text = qsTr("something wrong")
+                        root_window.warningDialog.show()
+                    }
+
+
+                }
+
+
+                break;
+            case 1:
+                if(walletModel.getEncryptionStatus() === 0)
+                {
+                    optionsDialog.show();optionsDialog.raise()
+                }
+                else
+                {
+                    askPassphraseDialog.modify = true
+                    askPassphraseDialog.show()
+                }
+                break;
+            case 2:
+                if(walletModel.getEncryptionStatus() !== 0)
+                {
+                    optionsDialog.show();optionsDialog.raise()
+                }
+                break;
             default:break;
 
             }
@@ -330,7 +427,7 @@ Rectangle{
     {
         id:open_url_dialog
         title: qsTr("Open  URI")
-        confrim_btn_text: qsTr("Ok")
+        confirm_btn_text: qsTr("Ok")
         cancel_btn_text: qsTr("Cancel")
 
         Item{
@@ -353,7 +450,7 @@ Rectangle{
 
             CommonTextField
             {
-                id:url_textFiled
+                id:url_textField
                 font.weight: Font.Medium
                 font.pixelSize:13
                 anchors.left: url_label.right
@@ -383,8 +480,8 @@ Rectangle{
 
                 onAccepted:
                 {
-                    url_textFiled.text = fileUrl.toString().replace("file:///","")
-                    url_textFiled.cursorPosition = 0
+                    url_textField.text = fileUrl.toString().replace("file:///","")
+                    url_textField.cursorPosition = 0
                 }
             }
         }
@@ -441,6 +538,14 @@ Rectangle{
     {
         id:optionsDialog
     }
+
+
+    AskPassphraseDialog
+    {
+        id:askPassphraseDialog
+    }
+
+
 
     BlockExplorerDialog
     {

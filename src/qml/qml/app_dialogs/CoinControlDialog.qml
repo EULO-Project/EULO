@@ -19,7 +19,7 @@ CommonDialog
     width:900
     height: 600
 
-    confrim_btn_text: qsTr("Ok")
+    confirm_btn_text: qsTr("Ok")
     cancel_btn_visible:false
 
     title: qsTr("Coin Selection")

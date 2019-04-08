@@ -15,7 +15,7 @@ Item
         id:title_label
         font.weight: Font.Medium
         font.pixelSize:11
-        anchors.verticalCenter: textFiled.verticalCenter
+        anchors.verticalCenter: textField.verticalCenter
         anchors.left: root.left
         color: "#333333"
         text:input_title
@@ -25,7 +25,7 @@ Item
 
     CommonTextField
     {
-        id:textFiled
+        id:textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: vout_label.left
@@ -40,8 +40,8 @@ Item
         id:vout_label
         font.weight: Font.Medium
         font.pixelSize:11
-        anchors.verticalCenter: textFiled.verticalCenter
-        anchors.right: vout_filed.left
+        anchors.verticalCenter: textField.verticalCenter
+        anchors.right: vout_field.left
         anchors.rightMargin: 2
         color: "#333333"
         text:qsTr("Vout Position:")
@@ -50,7 +50,7 @@ Item
 
     CommonTextField
     {
-        id:vout_filed
+        id:vout_field
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: images_rec.left
@@ -65,7 +65,7 @@ Item
         height: 33
         width: 30
         anchors.right: root.right
-        anchors.verticalCenter: textFiled.verticalCenter
+        anchors.verticalCenter: textField.verticalCenter
 
         RowLayout{
             anchors.centerIn: parent

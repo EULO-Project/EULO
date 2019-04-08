@@ -288,16 +288,16 @@ Rectangle
                         {
                             contractBookDialog.contractAddressDialog.currentRow = row
                             contractBookDialog.contractAddressDialog.editing = true
-                            contractBookDialog.contractAddressDialog.tagTextFiled.text = walletModel.contractfilterproxy.getData("label",row)
-                            contractBookDialog.contractAddressDialog.addressTextFiled.text = walletModel.contractfilterproxy.getData("address",row)
+                            contractBookDialog.contractAddressDialog.tagTextField.text = walletModel.contractfilterproxy.getData("label",row)
+                            contractBookDialog.contractAddressDialog.addressTextField.text = walletModel.contractfilterproxy.getData("address",row)
                             contractBookDialog.contractAddressDialog.abiTextArea.text = walletModel.contractfilterproxy.getData("abi",row)
                             contractBookDialog.contractAddressDialog.show()
                         }
                         else
                         {
                             contractBookDialog.contractAddressDialog.editing = false
-                            contractBookDialog.contractAddressDialog.tagTextFiled.text = ""
-                            contractBookDialog.contractAddressDialog.addressTextFiled.text = contractAddressField.text.trim()
+                            contractBookDialog.contractAddressDialog.tagTextField.text = ""
+                            contractBookDialog.contractAddressDialog.addressTextField.text = contractAddressField.text.trim()
                             contractBookDialog.contractAddressDialog.abiTextArea.text = abiCodeText.text.trim()
                             contractBookDialog.contractAddressDialog.show()
                         }
@@ -499,7 +499,7 @@ Rectangle
         anchors.left: parent.left
         anchors.leftMargin: 145
         width:250
-        visible: pageType !== call
+        visible: root.pageType !== call
     }
 
 
@@ -577,22 +577,27 @@ Rectangle
         anchors.bottomMargin: 0
         anchors.right: parent.right
         anchors.rightMargin: 20
-        width:pageType === sendTo?95:83
+        width:pageType === sendTo?110:100
         text:pageType === create?qsTr("Create Contract"):(pageType === sendTo?qsTr("SendTo Contract"):qsTr("Call Contract"))
 
         onClicked:
         {
-            if(pageType === create)
+
+            if(!requestUnlock())
             {
-                root.createContract()
-            }
-            else if(pageType === sendTo)
-            {
-                root.sendtoContract()
-            }
-            else if(pageType === call)
-            {
-                root.callContract()
+
+                if(pageType === create)
+                {
+                    root.createContract()
+                }
+                else if(pageType === sendTo)
+                {
+                    root.sendtoContract()
+                }
+                else if(pageType === call)
+                {
+                    root.callContract()
+                }
             }
         }
 
@@ -649,12 +654,12 @@ Rectangle
                 if(waitDialog.timeLeft > 1)
                 {
                     waitDialog.timeLeft--
-                    waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
+                    waitDialog.confirm_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                     countDownTimer.start()
                 }
                 else
                 {
-                    waitDialog.confrim_btn_text = qsTr("Ok")
+                    waitDialog.confirm_btn_text = qsTr("Ok")
                     waitDialog.confrim_btn_enabled = true
                 }
 
@@ -728,7 +733,7 @@ Rectangle
         waitDialog.content_text = qsTr("Are you sure you want to create contract?")
         waitDialog.confrim_btn_enabled = false
         waitDialog.timeLeft = 3
-        waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
+        waitDialog.confirm_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
         waitDialog.countDownTimer.start()
         waitDialog.show()
 
@@ -764,7 +769,7 @@ Rectangle
         waitDialog.content_text = qsTr("Are you sure you want to send to the contract contract:\n") + contractAddressField.text
         waitDialog.confrim_btn_enabled = false
         waitDialog.timeLeft = 3
-        waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
+        waitDialog.confirm_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
         waitDialog.countDownTimer.start()
         waitDialog.show()
 

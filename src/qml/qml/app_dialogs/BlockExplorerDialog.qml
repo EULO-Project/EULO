@@ -106,7 +106,7 @@ CommonDialog
 
         CommonTextField
         {
-            id:input_filed
+            id:input_field
             font.weight: Font.Light
             font.pixelSize:16
             anchors.left: forward_btn.right
@@ -129,7 +129,7 @@ CommonDialog
 
                 onNewSearch:
                 {
-                    input_filed.text = query
+                    input_field.text = query
                 }
 
             }
@@ -149,7 +149,7 @@ CommonDialog
             textSize:11
             onClicked:
             {
-                blockExplorer.onSearch(input_filed.text)
+                blockExplorer.onSearch(input_field.text)
             }
         }
 
@@ -162,7 +162,7 @@ CommonDialog
         {
             id:explorer
             anchors.left: parent.left
-            anchors.top:input_filed.bottom
+            anchors.top:input_field.bottom
             anchors.bottom: parent.bottom
             anchors.right: parent.right
             anchors.margins: 10

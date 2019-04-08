@@ -180,7 +180,7 @@ void MasterNodeTableModel::startMissing()
         return;
     }
 
-    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
+    WalletModel::EncryptionStatus encStatus = (WalletModel::EncryptionStatus)(model->getEncryptionStatus());
 
     if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
         WalletModel::UnlockContext ctx(model->requestUnlock());
@@ -244,7 +244,7 @@ void MasterNodeTableModel::startAll(QString strCommand)
 void MasterNodeTableModel::startButtonClicked(int row)
 {
     std::string strAlias = nodes.at(row).aliasItem.toStdString();
-    WalletModel::EncryptionStatus encStatus = model->getEncryptionStatus();
+    WalletModel::EncryptionStatus encStatus = (WalletModel::EncryptionStatus)(model->getEncryptionStatus());
 
     if (encStatus == model->Locked || encStatus == model->UnlockedForAnonymizationOnly) {
         WalletModel::UnlockContext ctx(model->requestUnlock());

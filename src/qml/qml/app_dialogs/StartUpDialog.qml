@@ -20,7 +20,7 @@ CommonDialog
     title: qsTr("Release Log")
 
     confrim_btn_visible:true
-    confrim_btn_text: qsTr("Confirm")
+    confirm_btn_text: qsTr("Confirm")
     cancel_btn_visible:false
     width:700
     height:800

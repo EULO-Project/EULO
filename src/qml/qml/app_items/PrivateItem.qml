@@ -15,7 +15,7 @@ Item
         id:title_label
         font.weight: Font.Medium
         font.pixelSize:11
-        anchors.verticalCenter: textFiled.verticalCenter
+        anchors.verticalCenter: textField.verticalCenter
         anchors.left: root.left
         color: "#333333"
         text:private_keys_title
@@ -25,7 +25,7 @@ Item
 
     CommonTextField
     {
-        id:textFiled
+        id:textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: images_rec.left
@@ -41,7 +41,7 @@ Item
         height: 33
         width: 35
         anchors.right: root.right
-        anchors.verticalCenter: textFiled.verticalCenter
+        anchors.verticalCenter: textField.verticalCenter
 
         RowLayout{
             anchors.centerIn: parent

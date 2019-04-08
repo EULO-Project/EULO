@@ -12,7 +12,7 @@ Item {
         id:sending_label
         font.weight: Font.Medium
         font.pixelSize:15
-        anchors.verticalCenter: sending_textFiled.verticalCenter
+        anchors.verticalCenter: sending_textField.verticalCenter
         anchors.left: root.left
         color: "#333333"
         text:qsTr("Sending")
@@ -21,7 +21,7 @@ Item {
 
     CommonTextField
     {
-        id:sending_textFiled
+        id:sending_textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: images_rec.left
@@ -37,7 +37,7 @@ Item {
         height: 33
         width:  65
         anchors.right: root.right
-        anchors.verticalCenter: sending_textFiled.verticalCenter
+        anchors.verticalCenter: sending_textField.verticalCenter
 
         RowLayout{
             anchors.centerIn: parent
@@ -159,7 +159,7 @@ Item {
 
     CommonTextField
     {
-        id:tag_textFiled
+        id:tag_textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: root.right
@@ -183,7 +183,7 @@ Item {
 
     CommonTextField
     {
-        id:total_textFiled
+        id:total_textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: total_zerocoin_label.left
@@ -197,10 +197,10 @@ Item {
         id:total_zerocoin_label
         font.weight: Font.Medium
         font.pixelSize:13
-        anchors.verticalCenter: total_textFiled.verticalCenter
+        anchors.verticalCenter: total_textField.verticalCenter
         verticalAlignment: Label.AlignVCenter
         anchors.right: root.right
-        height:total_textFiled.height
+        height:total_textField.height
         color: "#333333"
         text:"zULO"
         background: Rectangle

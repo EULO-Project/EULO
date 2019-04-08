@@ -768,7 +768,7 @@ CommonDialog
                             {
                                 id:confirm_dialog
                                 title: qsTr("resync wallet")
-                                confrim_btn_text: qsTr("Yes")
+                                confirm_btn_text: qsTr("Yes")
                                 cancel_btn_text: qsTr("No")
                                 content_text: qsTr("This will delete your local blockchain folders and the wallet will synchronize the complete Blockchain from scratch.\nConfirm?")
                                 width:400

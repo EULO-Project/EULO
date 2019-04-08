@@ -64,7 +64,7 @@ Controls_1_4.Tab {
 
         CommonTextField
         {
-            id:tag_textFiled
+            id:tag_textField
             font.weight: Font.Light
             font.pixelSize:16
             anchors.right: parent.right
@@ -114,7 +114,7 @@ Controls_1_4.Tab {
 
         CommonTextField
         {
-            id:info_textFiled
+            id:info_textField
             font.weight: Font.Light
             font.pixelSize:16
             anchors.right: parent.right
@@ -131,7 +131,7 @@ Controls_1_4.Tab {
             font.weight: Font.Light
             font.pixelSize: 11
             font.letterSpacing: 0.5
-            anchors.left: info_textFiled.left
+            anchors.left: info_textField.left
             anchors.top:info_label.bottom
             anchors.topMargin: 1
 
@@ -147,7 +147,7 @@ Controls_1_4.Tab {
             anchors.leftMargin: 2
             anchors.top: reuseAddress.bottom
             anchors.topMargin: 4
-            width: 83
+            width: 110
             height: 32
             radius: 3
             text:qsTr("Request payment")
@@ -160,7 +160,8 @@ Controls_1_4.Tab {
                     receiveAddressDialog.show()
                 else
                 {
-                    walletModel.recentRequestsFilterProxy.newRequest(tag_textFiled.text,"",info_textFiled.text,amountField.amountField.text)
+                    if(!requestUnlock())
+                        walletModel.recentRequestsFilterProxy.newRequest(tag_textField.text,"",info_textField.text,amountField.amountField.text)
                 }
 
             }
@@ -183,14 +184,14 @@ Controls_1_4.Tab {
             onPickAddress:
             {
                 var tag
-                if(tag_textFiled.text === "")
+                if(tag_textField.text === "")
                     tag = walletModel.sendingAddressProxyModel.updateLabel(address)
                 else
-                    tag = tag_textFiled.text
+                    tag = tag_textField.text
 
                 receiveAddressDialog.close()
 
-                walletModel.recentRequestsFilterProxy.newRequest(tag,address,info_textFiled.text,amountField.amountField.text)
+                walletModel.recentRequestsFilterProxy.newRequest(tag,address,info_textField.text,amountField.amountField.text)
             }
 
         }
@@ -211,9 +212,9 @@ Controls_1_4.Tab {
 
             onClicked:
             {
-                tag_textFiled.text = ""
+                tag_textField.text = ""
                 amountField.amountField.text = ""
-                info_textFiled.text = ""
+                info_textField.text = ""
             }
         }
 

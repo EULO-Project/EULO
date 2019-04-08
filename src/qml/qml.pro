@@ -16,7 +16,7 @@ TARGET = eulo-qml
 
 
 #--------------ENV  start------------------------------
-#depends_prefix=/home/eulo/EULO/EULO_UBUNTU/EULO/depends/x86_64-pc-linux-gnu
+depends_prefix=/home/eulo/EULO/EULO_UBUNTU/EULO/depends/x86_64-pc-linux-gnu
 SYSROOT_PREFIX = $$depends_prefix
 QT_INCLUDEPATH_PREFIX = $$SYSROOT_PREFIX/qml/include
 QT_LIBPATH_PREFIX = $$SYSROOT_PREFIX/qml/lib

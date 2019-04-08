@@ -26,7 +26,7 @@ Controls_1_4.Tab{
         {
             id:warningDialog
             title: qsTr("Attention")
-            confrim_btn_text: qsTr("Ok")
+            confirm_btn_text: qsTr("Ok")
             cancel_btn_visible: false
             modality: Qt.ApplicationModal
             width:300
@@ -487,7 +487,7 @@ Controls_1_4.Tab{
 
             CommonTextField
             {
-                id:query_textFiled
+                id:query_textField
                 font.weight: Font.Light
                 font.pixelSize:13
                 anchors.left: type_label.right
@@ -507,7 +507,7 @@ Controls_1_4.Tab{
                 id:symbolbox
                 width: 180
                 anchors.verticalCenter: header_label.verticalCenter
-                anchors.right: min_amount_textFiled.left
+                anchors.right: min_amount_textField.left
                 anchors.rightMargin: 3
                 //color: "#333333"
                 //text:"Use this from to request payments ALL fields are optional"
@@ -521,7 +521,7 @@ Controls_1_4.Tab{
 
             CommonTextField
             {
-                id:min_amount_textFiled
+                id:min_amount_textField
                 width:160
                 font.weight: Font.Light
                 font.pixelSize:13

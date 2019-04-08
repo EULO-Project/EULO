@@ -22,7 +22,7 @@ Window{
     property string content_text
 
     property string dialogType:"question"
-    property alias confrim_btn_text: confrim_btn.text
+    property alias confirm_btn_text: confrim_btn.text
     property alias cancel_btn_text: cancel_btn.text
     property alias background_rec: background
     property bool confrim_btn_visible: true

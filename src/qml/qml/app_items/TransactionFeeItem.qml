@@ -332,7 +332,7 @@ Item {
 
         onValueAmountChanged:
         {
-            walletModel.coinControlProxy.setValue(4,walletModel.getFiledAmount(amountField.coinTypeBtn.index,valueAmount))
+            walletModel.coinControlProxy.setValue(4,walletModel.getFieldAmount(amountField.coinTypeBtn.index,valueAmount))
         }
 
         Component.onCompleted:

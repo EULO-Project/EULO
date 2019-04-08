@@ -12,6 +12,7 @@ Rectangle
     property string progressbar_context
     property var progressbar_value
     property string progressbar_tip_str
+    property string walletStatusSource
 
     id:root
     Row{
@@ -103,43 +104,24 @@ Rectangle
 
         }
 
-//                Controls_1_4.ProgressBar
-//                {
-//                    id:progressbar
-//                    maximumValue:100
-//                    value:1
-
-//                    style: Controls_1_4_style.ProgressBarStyle {
-//                        background: Rectangle {
-//                            radius: 7.5
-//                            color: "#FAFAFA"
-//                            border.color: "#7BB6C3"
-//                            border.width: 1
-//                            implicitWidth: 615
-//                            implicitHeight: 16
-//                        }
-//                        progress: Rectangle {
-//                            color: "#32788B"
-//                            border.color: "#32788B"
-//                            radius: 7.5
-//                            //z:background.z-1
-//                            Rectangle {
-//                                color: "#32788B"
-//                                border.color: "#32788B"
-//                                width:7.5
-//                                anchors.right: parent.right
-//                                anchors.rightMargin: 0
-//                                height: parent.height
-//                                visible: parent.width>7.5?true:false
-
-//                            }
-//                        }
-//                    }
 
 
-
-//                }
     }
-    //}
+
+
+
+    Image{
+        id:walletStatusImg
+        source: root.walletStatusSource
+        width:30
+        height:30
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: 15
+        anchors.right: parent.right
+        anchors.rightMargin: 20
+        fillMode: Image.PreserveAspectFit
+
+
+    }
 
 }

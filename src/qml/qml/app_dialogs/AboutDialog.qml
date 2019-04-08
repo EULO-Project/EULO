@@ -20,7 +20,7 @@ CommonDialog
     title: qsTr("About EULO Core")
 
     confrim_btn_visible:true
-    confrim_btn_text: qsTr("Ok")
+    confirm_btn_text: qsTr("Ok")
     cancel_btn_visible:false
     width:700
     height:800

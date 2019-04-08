@@ -14,27 +14,27 @@ Item {
 
     function clearFirst()
     {
-        sending_textFiled.text = ""
-        tag_textFiled.text = ""
+        sending_textField.text = ""
+        tag_textField.text = ""
         amountField.amountField.text = ""
     }
 
     function setAddress(address)
     {
-        sending_textFiled.text = address
+        sending_textField.text = address
     }
 
     function getPayMent()
     {
-        return amountField.getFiledAmount()
+        return amountField.getFieldAmount()
     }
 
 
     function infoIsReady()
     {
-       if(!walletModel.validateAddress(sending_textFiled.text))
+       if(!walletModel.validateAddress(sending_textField.text))
        {
-           sending_textFiled.critical = true
+           sending_textField.critical = true
            return false
        }
 
@@ -52,9 +52,9 @@ Item {
     {
         var array = new Array
 
-        array.push(sending_textFiled.text)
-        array.push(tag_textFiled.text)
-        array.push(walletModel.getFiledAmount(amountField.coinTypeBtn.index, amountField.valueAmount))
+        array.push(sending_textField.text)
+        array.push(tag_textField.text)
+        array.push(walletModel.getFieldAmount(amountField.coinTypeBtn.index, amountField.valueAmount))
         array.push("")
 
         return array
@@ -67,7 +67,7 @@ Item {
         id:sending_label
         font.weight: Font.Medium
         font.pixelSize:13
-        anchors.verticalCenter: sending_textFiled.verticalCenter
+        anchors.verticalCenter: sending_textField.verticalCenter
         anchors.left: root.left
         anchors.leftMargin: 10
         color: "#333333"
@@ -77,7 +77,7 @@ Item {
 
     CommonTextField
     {
-        id:sending_textFiled
+        id:sending_textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: images_rec.left
@@ -87,7 +87,7 @@ Item {
 
         onTextChanged:
         {
-          tag_textFiled.text = walletModel.sendingAddressProxyModel.updateLabel(sending_textFiled.text)
+          tag_textField.text = walletModel.sendingAddressProxyModel.updateLabel(sending_textField.text)
           updateSeveral()
         }
 
@@ -100,7 +100,7 @@ Item {
         height: 33
         width: 100
         anchors.right: root.right
-        anchors.verticalCenter: sending_textFiled.verticalCenter
+        anchors.verticalCenter: sending_textField.verticalCenter
 
         RowLayout{
             anchors.centerIn: parent
@@ -203,7 +203,7 @@ Item {
                         edit_img.pressed = true
                     }
 
-                    onClicked:sending_textFiled.text = walletModel.getClipBoard("string")
+                    onClicked:sending_textField.text = walletModel.getClipBoard("string")
 
                 }
 
@@ -282,7 +282,7 @@ Item {
 
     CommonTextField
     {
-        id:tag_textFiled
+        id:tag_textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: root.right

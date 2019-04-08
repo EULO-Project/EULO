@@ -413,7 +413,7 @@ qint64 WalletModel::getFeePerkilo()
 }
 
 
-qint64 WalletModel::getFiledAmount(int uint,QString amountText)
+qint64 WalletModel::getFieldAmount(int uint,QString amountText)
 {
     CAmount amount = 0;
     BitcoinUnits::parse(uint, amountText, &amount);
@@ -700,7 +700,7 @@ CAmount WalletModel::getWatchImmatureBalance() const
 
 void WalletModel::updateStatus()
 {
-    EncryptionStatus newEncryptionStatus = getEncryptionStatus();
+    EncryptionStatus newEncryptionStatus = (EncryptionStatus)(getEncryptionStatus());
 
     if (cachedEncryptionStatus != newEncryptionStatus)
         emit encryptionStatusChanged(newEncryptionStatus);
@@ -1182,7 +1182,7 @@ RecentRequestsTableModel* WalletModel::getRecentRequestsTableModel()
     return recentRequestsTableModel;
 }
 
-WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
+int WalletModel::getEncryptionStatus() const
 {
     if (!wallet->IsCrypted()) {
         return Unencrypted;
@@ -1196,36 +1196,26 @@ WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
 
 }
 
-bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString& passphrase)
+bool WalletModel::setWalletEncrypted(const QString& passStr)
 {
-    if (encrypted) {
-        // Encrypt
-        return wallet->EncryptWallet(passphrase);
-    } else {
-        // Decrypt -- TODO; not supported yet
-        return false;
-    }
+    SecureString newPass;
+
+    newPass.reserve(MAX_PASSPHRASE_SIZE);
+    newPass.assign(passStr.toStdString().c_str());
+
+    return wallet->EncryptWallet(newPass);
 }
 
-bool WalletModel::setWalletLocked(bool locked, const SecureString& passPhrase, bool anonymizeOnly)
-{
-    if (locked) {
-        // Lock
-        wallet->fWalletUnlockAnonymizeOnly = false;
-        return wallet->Lock();
-    } else {
-        // Unlock
-        return wallet->Unlock(passPhrase, anonymizeOnly);
-    }
-}
 
-bool WalletModel::isAnonymizeOnlyUnlocked()
+bool WalletModel::changePassphrase(const QString& oldPassStr, const QString& newPassStr)
 {
-    return wallet->fWalletUnlockAnonymizeOnly;
-}
+    SecureString oldPass, newPass;
 
-bool WalletModel::changePassphrase(const SecureString& oldPass, const SecureString& newPass)
-{
+    newPass.reserve(MAX_PASSPHRASE_SIZE);
+    newPass.assign(newPassStr.toStdString().c_str());
+    oldPass.reserve(MAX_PASSPHRASE_SIZE);
+    oldPass.assign(oldPassStr.toStdString().c_str());
+
     bool retval;
     {
         LOCK(wallet->cs_wallet);
@@ -1233,6 +1223,28 @@ bool WalletModel::changePassphrase(const SecureString& oldPass, const SecureStri
         retval = wallet->ChangeWalletPassphrase(oldPass, newPass);
     }
     return retval;
+}
+
+
+bool WalletModel::setWalletLocked(bool locked, const QString& passStr, bool anonymizeOnly)
+{
+    SecureString pass;
+
+    if (locked) {
+        // Lock
+        wallet->fWalletUnlockAnonymizeOnly = false;
+        return wallet->Lock();
+    } else {
+        // Unlock
+        pass.reserve(MAX_PASSPHRASE_SIZE);
+        pass.assign(passStr.toStdString().c_str());
+        return wallet->Unlock(pass, anonymizeOnly);
+    }
+}
+
+bool WalletModel::isAnonymizeOnlyUnlocked()
+{
+    return wallet->fWalletUnlockAnonymizeOnly;
 }
 
 bool WalletModel::backupWallet(const QString& filename)

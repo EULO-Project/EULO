@@ -1,25 +1,29 @@
-<h1>EULO Test Version 2.0.1</h1>
+<h1>EULO Release Version 2.0.2</h1>
 
 <h4>You are now using release version of EULO. There are several missing functions and bugs already known. If you found any new bugs，or you have any advice, feel free to contact us. Please DO NOT discuss in public. Thanks！</h4>
 
 <h4>New:</h4>
 <ul>
-<li>1、BCK Module in TestNet.</li>
-<li>2、Integration of TestNet parameters.</li>
-<li>3、One click change between MainNet and TestNet.</li>
-<li>4、Add release log in help menu.</li>
-<li>5、Some other functions.</li>
+<li>1、Add Wallet encryption，lock and unlock functions</li>
 </ul>
 
 <h4>Bug fix:</h4>
 <ul>
-<li>1、Removed lots of debug messages.</li>
-<li>2、Some bug fix.</li>
+<li>1、Fix for texts on some buttons are not properly displayed.</li>
 </ul>
 
 <h4>Earlier Updates:</h4>
 <ul>
-<li>Test Version 2.0.0</li>
+<li>Release Version 2.0.1</li>
+<li>1、BCK Module in TestNet.</li>
+<li>2、Integration of TestNet parameters.</li>
+<li>3、One click change between MainNet and TestNet.</li>
+<li>4、Add release log in help menu.</li>
+<li>5、Amounts on index page can be selected by mouse now.</li>
+<li>6、Some other functions.</li>
+<li>7、Removed lots of debug messages.</li>
+<li>8、Some bug fix.</li>
+<li>Release Version 2.0.0</li>
 <li>1、Some menus' width not enough.</li>
 <li>2、Some menus are not responding under certain circumstance</li>
 <li>3、English version of ReadMe file.</li>
@@ -64,7 +68,6 @@
 <ul>
 <li>1、multiSignature，</li>
 <li>2、BIP encryption，</li>
-<li>3、Wallet encryption，</li>
 <li>4、Options，</li>
 <li>5、ZeroCoin related。</li>
 </ul>

@@ -140,7 +140,8 @@ Controls_1_4.Tab {
             onClicked:
             {
                 if(masterodeTable.currentRow < 0) return
-                walletModel.masternodetableproxy.startButtonClicked(masterodeTable.currentRow)
+                if(!requestUnlock())
+                    walletModel.masternodetableproxy.startButtonClicked(masterodeTable.currentRow)
             }
         }
 
@@ -160,7 +161,8 @@ Controls_1_4.Tab {
 
             onClicked:
             {
-                walletModel.masternodetableproxy.startAll()
+                if(!requestUnlock())
+                    walletModel.masternodetableproxy.startAll()
             }
         }
 
@@ -180,7 +182,8 @@ Controls_1_4.Tab {
 
             onClicked:
             {
-                walletModel.masternodetableproxy.startMissing()
+                if(!requestUnlock())
+                    walletModel.masternodetableproxy.startMissing()
             }
 
         }

@@ -140,6 +140,73 @@
     </message>
 </context>
 <context>
+    <name>AskPassphraseDialog</name>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Setting Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modify Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please Enter Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please Enter Old Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please Enter Password Again:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please Enter New Password:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>at least 6 words</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>password not match</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>succeed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>password changed successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>check your password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>wallet unlocked successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>BCKPage</name>
     <message>
         <source>Attention</source>
@@ -2518,6 +2585,46 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Release log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlock Requested</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You must unlock your wallet and try again!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Encrypt Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UnLock Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock Wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Modify Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>succeed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>wallet locked successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>something wrong</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

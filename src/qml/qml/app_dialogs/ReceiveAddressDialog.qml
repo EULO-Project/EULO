@@ -98,8 +98,8 @@ CommonDialog
                     return
                 }
 
-                addressDialog.tagTextFiled.text = address_table.model.getData("label",address_table.currentRow)
-                addressDialog.addressTextFiled.text = address_table.model.getData("address",address_table.currentRow)
+                addressDialog.tagTextField.text = address_table.model.getData("label",address_table.currentRow)
+                addressDialog.addressTextField.text = address_table.model.getData("address",address_table.currentRow)
                 addressDialog.currentRow = address_table.currentRow
                 addressDialog.editing = true
                 addressDialog.show()
@@ -127,8 +127,11 @@ CommonDialog
 
             onClicked:
             {
-                addressDialog.editing = false
-                addressDialog.show()
+                if(!requestUnlock())
+                {
+                    addressDialog.editing = false
+                    addressDialog.show()
+                }
             }
 
         }

@@ -1239,7 +1239,6 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
     else
     {
         env.setNumber(dev::u256(nHeight));
-       // LogPrintf("*****2   nHeight:d%\n",nHeight);
     }
 
 
@@ -1251,6 +1250,7 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
 //    LogPrintf("*****BuildEVMEnvironment  block.nTime:%d\n", block.nTime);
 //    LogPrintf("*****BuildEVMEnvironment  block.nBits:%d\n", block.nBits);
 
+//    LogPrintf("*****BuildEVMEnvironment   nHeight:d%\n",nHeight);
 //    LogPrintf("*****BuildEVMEnvironment  tip.nHeight:%ld\n", tip->nHeight);
 //    LogPrintf("*****BuildEVMEnvironment  blockGasLimit:%ld\n", blockGasLimit);
 

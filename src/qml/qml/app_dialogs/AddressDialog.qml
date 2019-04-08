@@ -22,22 +22,20 @@ CommonDialog
     property bool forSending: true
     property bool editing: false
     cancel_btn_text: qsTr("Cancel")
-    confrim_btn_text: qsTr("Ok")
+    confirm_btn_text: qsTr("Ok")
     property int currentRow: -1
 
-    property alias tagTextFiled: tag_textFiled
-    property alias addressTextFiled: addressTextFiled
+    property alias tagTextField: tag_textField
+    property alias addressTextField: addressTextField
 
     title: editing?(forSending?qsTr("Modify Sending Address"):qsTr("Modify Receiving Address")):(forSending?qsTr("New Sending Address"):qsTr("New Receiving Address"))
 
     onClosing:
     {
-        tag_textFiled.text = ""
-        addressTextFiled.text = ""
+        tag_textField.text = ""
+        addressTextField.text = ""
         close_dialog()
     }
-
-
 
 
     Item{
@@ -59,7 +57,7 @@ CommonDialog
 
         CommonTextField
         {
-            id:tag_textFiled
+            id:tag_textField
             font.weight: Font.Light
             font.pixelSize:16
             anchors.right: parent.right
@@ -84,7 +82,7 @@ CommonDialog
 
         CommonTextField
         {
-            id:addressTextFiled
+            id:addressTextField
             font.weight: Font.Light
             font.pixelSize:16
             anchors.rightMargin: 30
@@ -98,18 +96,14 @@ CommonDialog
             enabled: forSending
         }
 
-
-
     }
-
-
 
 
     onConfirmed:
     {
         if(forSending)
         {
-            if(!walletModel.validateAddress(addressTextFiled.text))
+            if(!walletModel.validateAddress(addressTextField.text))
             {
                 root_window.warningDialog.title = qsTr("Attention")
                 root_window.warningDialog.content_text = qsTr("Please input validate EULO address")
@@ -119,7 +113,7 @@ CommonDialog
             }
         }
 
-        var res = model.saveAddress(forSending?(editing?3:1):(editing?2:0),tag_textFiled.text,addressTextFiled.text,currentRow)
+        var res = model.saveAddress(forSending?(editing?3:1):(editing?2:0),tag_textField.text,addressTextField.text,currentRow)
 
         if(res !== "ok")
         {

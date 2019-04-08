@@ -140,6 +140,73 @@
     </message>
 </context>
 <context>
+    <name>AskPassphraseDialog</name>
+    <message>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <source>Ok</source>
+        <translation>确认</translation>
+    </message>
+    <message>
+        <source>Setting Password</source>
+        <translation>设置钱包密码</translation>
+    </message>
+    <message>
+        <source>Modify Password</source>
+        <translation>修改钱包密码</translation>
+    </message>
+    <message>
+        <source>Enter Password</source>
+        <translation>输入钱包密码</translation>
+    </message>
+    <message>
+        <source>Please Enter Password:</source>
+        <translation>请出入密码:</translation>
+    </message>
+    <message>
+        <source>Please Enter Old Password:</source>
+        <translation>请出入旧密码:</translation>
+    </message>
+    <message>
+        <source>Please Enter Password Again:</source>
+        <translation>请再次输入:</translation>
+    </message>
+    <message>
+        <source>Please Enter New Password:</source>
+        <translation>请出入新密码:</translation>
+    </message>
+    <message>
+        <source>at least 6 words</source>
+        <translation>至少需要6个字符</translation>
+    </message>
+    <message>
+        <source>password not match</source>
+        <translation>两次输入密码不匹配</translation>
+    </message>
+    <message>
+        <source>succeed</source>
+        <translation>成功</translation>
+    </message>
+    <message>
+        <source>password changed successfully</source>
+        <translation>修改密码成功</translation>
+    </message>
+    <message>
+        <source>failed</source>
+        <translation>失败</translation>
+    </message>
+    <message>
+        <source>check your password</source>
+        <translation>请检查您输入的密码</translation>
+    </message>
+    <message>
+        <source>wallet unlocked successfully</source>
+        <translation>钱包解锁成功</translation>
+    </message>
+</context>
+<context>
     <name>BCKPage</name>
     <message>
         <source>Attention</source>
@@ -2329,7 +2396,7 @@ Duration: 0 sec.</source>
     </message>
     <message>
         <source>Release Log</source>
-        <translation type="unfinished">发行日志</translation>
+        <translation>发行日志</translation>
     </message>
 </context>
 <context>
@@ -2515,6 +2582,46 @@ Duration: 0 sec.</source>
     <message>
         <source>Release log</source>
         <translation>发行日志</translation>
+    </message>
+    <message>
+        <source>Unlock Requested</source>
+        <translation>需要先解锁钱包</translation>
+    </message>
+    <message>
+        <source>You must unlock your wallet and try again!</source>
+        <translation>您必须先解锁钱包，然后再试!</translation>
+    </message>
+    <message>
+        <source>Encrypt Wallet</source>
+        <translation>加密钱包</translation>
+    </message>
+    <message>
+        <source>UnLock Wallet</source>
+        <translation>解锁钱包</translation>
+    </message>
+    <message>
+        <source>Lock Wallet</source>
+        <translation>锁定钱包</translation>
+    </message>
+    <message>
+        <source>Modify Password</source>
+        <translation>修改密码</translation>
+    </message>
+    <message>
+        <source>succeed</source>
+        <translation>成功</translation>
+    </message>
+    <message>
+        <source>wallet locked successfully</source>
+        <translation>钱包锁定成功</translation>
+    </message>
+    <message>
+        <source>failed</source>
+        <translation>失败</translation>
+    </message>
+    <message>
+        <source>something wrong</source>
+        <translation>发生了一些错误</translation>
     </message>
 </context>
 <context>

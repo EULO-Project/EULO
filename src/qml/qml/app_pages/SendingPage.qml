@@ -152,11 +152,14 @@ Controls_1_4.Tab {
                 if(!checkTargetItemsAreReady())
                     return
 
-                walletModel.coinControlProxy.sendButtonClicked(getRecipient(),
-                                                               coinControlItem.splitBlockCheckBoxChecked,
-                                                               coinControlItem.splitUtxoSize,
-                                                               transaction_fee.swiftTxChecked)
+                if(!requestUnlock())
+                {
+                    walletModel.coinControlProxy.sendButtonClicked(getRecipient(),
+                                                                   coinControlItem.splitBlockCheckBoxChecked,
+                                                                   coinControlItem.splitUtxoSize,
+                                                                   transaction_fee.swiftTxChecked)
 
+                }
 
             }
 
@@ -231,7 +234,7 @@ Controls_1_4.Tab {
             anchors.right: parent.right
             anchors.rightMargin: 30
             anchors.bottom: parent.bottom
-            width: 83
+            width: 100
             height: 32
             radius: 3
             text:qsTr("Add Recipient")
@@ -296,7 +299,7 @@ Controls_1_4.Tab {
                     waitDialog.content_text = msg
                     waitDialog.timeLeft = 3
                     waitDialog.confrim_btn_enabled = false
-                    waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
+                    waitDialog.confirm_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                     waitDialog.countDownTimer.start()
                     waitDialog.show()
 
@@ -330,12 +333,12 @@ Controls_1_4.Tab {
                     if(waitDialog.timeLeft > 1)
                     {
                         waitDialog.timeLeft--
-                        waitDialog.confrim_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
+                        waitDialog.confirm_btn_text = qsTr("Ok") + "  (" + waitDialog.timeLeft + ")"
                         countDownTimer.start()
                     }
                     else
                     {
-                        waitDialog.confrim_btn_text = qsTr("Ok")
+                        waitDialog.confirm_btn_text = qsTr("Ok")
                         waitDialog.confrim_btn_enabled = true
                     }
 

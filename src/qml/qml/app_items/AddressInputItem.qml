@@ -15,7 +15,7 @@ Item
         id:title_label
         font.weight: Font.Medium
         font.pixelSize:11
-        anchors.verticalCenter: textFiled.verticalCenter
+        anchors.verticalCenter: textField.verticalCenter
         anchors.left: root.left
         color: "#333333"
         text:address_title
@@ -25,7 +25,7 @@ Item
 
     CommonTextField
     {
-        id:textFiled
+        id:textField
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: amount_label.left
@@ -40,8 +40,8 @@ Item
         id:amount_label
         font.weight: Font.Medium
         font.pixelSize:11
-        anchors.verticalCenter: textFiled.verticalCenter
-        anchors.right: amount_filed.left
+        anchors.verticalCenter: textField.verticalCenter
+        anchors.right: amount_field.left
         anchors.rightMargin: 2
         color: "#333333"
         text:"Amount:"
@@ -50,7 +50,7 @@ Item
 
     CommonTextField
     {
-        id:amount_filed
+        id:amount_field
         font.weight: Font.Light
         font.pixelSize:16
         anchors.right: coin_type_btn.left
@@ -77,7 +77,7 @@ Item
         height: 33
         width: 30
         anchors.right: root.right
-        anchors.verticalCenter: textFiled.verticalCenter
+        anchors.verticalCenter: textField.verticalCenter
 
         RowLayout{
             anchors.centerIn: parent

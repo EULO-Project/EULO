@@ -135,8 +135,8 @@ CommonDialog
                 {
                     contractAddressDialog.currentRow = tableRow
                     contractAddressDialog.editing = true
-                    contractAddressDialog.tagTextFiled.text = contractTable.model.getData("label",contractTable.currentRow)
-                    contractAddressDialog.addressTextFiled.text = contractTable.model.getData("address",contractTable.currentRow)
+                    contractAddressDialog.tagTextField.text = contractTable.model.getData("label",contractTable.currentRow)
+                    contractAddressDialog.addressTextField.text = contractTable.model.getData("address",contractTable.currentRow)
                     contractAddressDialog.abiTextArea.text = contractTable.model.getData("abi",contractTable.currentRow)
                     contractAddressDialog.show()
                 }
@@ -171,8 +171,8 @@ CommonDialog
             onClicked:
             {
                 contractAddressDialog.editing = false
-                contractAddressDialog.tagTextFiled.text = ""
-                contractAddressDialog.addressTextFiled.text = ""
+                contractAddressDialog.tagTextField.text = ""
+                contractAddressDialog.addressTextField.text = ""
                 contractAddressDialog.abiTextArea.text = ""
                 contractAddressDialog.show()
             }
