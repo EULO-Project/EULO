@@ -10,6 +10,7 @@
 <h4>Bug fix:</h4>
 <ul>
 <li>1、Fix for texts on some buttons are not properly displayed.</li>
+<li>2、Fix a macro definition for windows cross-compile。</li>
 </ul>
 
 <h4>Earlier Updates:</h4>

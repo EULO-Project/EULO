@@ -5,6 +5,8 @@
 #ifndef BITCOIN_CLIENTVERSION_H
 #define BITCOIN_CLIENTVERSION_H
 
+
+#define HAVE_CONFIG_H       //Make this constant
 #if defined(HAVE_CONFIG_H)
 #include "config/eulo-config.h"
 #endif //HAVE_CONFIG_H
