@@ -1283,12 +1283,15 @@ dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
 bool ByteCodeExec::performByteCode(dev::eth::Permanence type, int nHeight)
 {
     for (EuloTransaction &tx : txs)
-    {LogPrintf("performByteCode() : validate VM version\n");
+    {
+        //LogPrintf("performByteCode() : validate VM version\n");
         //validate VM version
         if (tx.getVersion().toRaw() != VersionVM::GetEVMDefault().toRaw())
-        {LogPrintf("performByteCode() : validate VM version failed\n");
+        {
+            //LogPrintf("performByteCode() : validate VM version failed\n");
             return false;
-        }LogPrintf("performByteCode() : validate VM version ok\n");
+        }
+        //LogPrintf("performByteCode() : validate VM version ok\n");
 
         dev::eth::EnvInfo envInfo(BuildEVMEnvironment(nHeight));
 
@@ -1297,7 +1300,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type, int nHeight)
 
         if (!tx.isCreation() && !globalState->addressInUse(tx.receiveAddress()))
         {
-            LogPrintStr("performByteCode execption=====\n"); //eulo debug
+           // LogPrintStr("performByteCode execption=====\n"); //eulo debug
             dev::eth::ExecutionResult execRes;
             execRes.excepted = dev::eth::TransactionException::Unknown;
             result.push_back(ResultExecute{execRes, dev::eth::TransactionReceipt(dev::h256(), dev::u256(),
@@ -1305,14 +1308,14 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type, int nHeight)
                                            CTransaction()});
             continue;
         }
-        LogPrintStr("performByteCode start exec=====\n"); //eulo debug
+        //LogPrintStr("performByteCode start exec=====\n"); //eulo debug
 
-        LogPrintf("*****performByteCode stateRoot: %s, utxoRoot: %s\n", h256Touint(globalState->rootHashUTXO()).GetHex().c_str(), h256Touint(globalState->rootHash()).GetHex().c_str());
+        //LogPrintf("*****performByteCode stateRoot: %s, utxoRoot: %s\n", h256Touint(globalState->rootHashUTXO()).GetHex().c_str(), h256Touint(globalState->rootHash()).GetHex().c_str());
 
         ResultExecute res_ = globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc());
 
 
-        LogPrintf("*****ResultExecute tx:%s\n",res_.tx.ToString()); //eulo debug
+        //LogPrintf("*****ResultExecute tx:%s\n",res_.tx.ToString()); //eulo debug
 
         result.push_back(res_);
     }
@@ -1329,7 +1332,7 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult &resultBCE)
         uint64_t gasUsed = (uint64_t)result[i].execRes.gasUsed;
         if (result[i].execRes.excepted != dev::eth::TransactionException::None)
         {
-            LogPrintStr("TransactionException != None"); //eulo debug
+            //LogPrintStr("TransactionException != None"); //eulo debug
             if (txs[i].value() > 0)
             { //refund the value to sender
                 CMutableTransaction tx;
@@ -1339,7 +1342,7 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult &resultBCE)
                 tx.vout.push_back(CTxOut(CAmount(txs[i].value()), script));
                 resultBCE.valueTransfers.push_back(CTransaction(tx));
 
-                LogPrintf("*****222:: gas[%d]:%ld\n",i,CAmount(txs[i].value())); //eulo debug
+               // LogPrintf("*****222:: gas[%d]:%ld\n",i,CAmount(txs[i].value())); //eulo debug
 
             }
             resultBCE.usedGas += gasUsed;
@@ -1363,11 +1366,11 @@ bool ByteCodeExec::processingResults(ByteCodeExecResult &resultBCE)
             resultBCE.usedGas += gasUsed;
             int64_t amount = (gas - gasUsed) * gasPrice;
 
-            LogPrintf("*****:: gasUsed[%d]:%ld\n",i,gasUsed); //eulo debug
+//            LogPrintf("*****:: gasUsed[%d]:%ld\n",i,gasUsed); //eulo debug
 
-            LogPrintf("*****:: gas[%d]:%ld\n",i,gas); //eulo debug
-            LogPrintf("*****:: gasPrice[%d]:%ld\n",i,gasPrice); //eulo debug
-            LogPrintf("*****:: amount[%d]:%ld\n",i,amount); //eulo debug
+//            LogPrintf("*****:: gas[%d]:%ld\n",i,gas); //eulo debug
+//            LogPrintf("*****:: gasPrice[%d]:%ld\n",i,gasPrice); //eulo debug
+//            LogPrintf("*****:: amount[%d]:%ld\n",i,amount); //eulo debug
 
 
             if (amount < 0)

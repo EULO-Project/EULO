@@ -1381,10 +1381,9 @@ bool WalletModel::isAnonymizeOnlyUnlocked()
 
 bool WalletModel::backupWallet(const QString& filename)
 {
-    QString filename_ = filename;
-    filename_.remove("file://");
+    QUrl  url = QUrl(filename);
 
-    bool res = BackupWallet(*wallet, filename_.toLocal8Bit().data());
+    bool res = BackupWallet(*wallet, url.toLocalFile().toLocal8Bit().data());
     if(res)
     {
         QSettings settings;

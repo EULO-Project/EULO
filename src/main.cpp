@@ -3781,16 +3781,16 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nMoneySupply = nMoneySupplyPrev + nValueOut - nValueIn;
     pindex->nMint = pindex->nMoneySupply - nMoneySupplyPrev + nFees;
 
-    LogPrintf("ConnectBlock(): prev supply %s, nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s zUloSpent: %s\n", FormatMoney(nMoneySupplyPrev),
-              FormatMoney(nValueOut), FormatMoney(nValueIn),
-              FormatMoney(nFees), FormatMoney(pindex->nMint), FormatMoney(nAmountZerocoinSpent));
+    //LogPrintf("ConnectBlock(): prev supply %s, nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s zUloSpent: %s\n", FormatMoney(nMoneySupplyPrev),
+     //         FormatMoney(nValueOut), FormatMoney(nValueIn),
+     //         FormatMoney(nFees), FormatMoney(pindex->nMint), FormatMoney(nAmountZerocoinSpent));
 
     if (!pblocktree->WriteBlockIndex(CDiskBlockIndex(pindex)))
         return error("Connect() : WriteBlockIndex for pindex failed");
 
     int64_t nTime1 = GetTimeMicros();
     nTimeConnect += nTime1 - nTimeStart;
-    LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs - 1), nTimeConnect * 0.000001);
+   // LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs - 1), nTimeConnect * 0.000001);
 
 
 
@@ -3829,7 +3829,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         return state.DoS(100, false);
     int64_t nTime2 = GetTimeMicros();
     nTimeVerify += nTime2 - nTimeStart;
-    LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime2 - nTimeStart), nInputs <= 1 ? 0 : 0.001 * (nTime2 - nTimeStart) / (nInputs - 1), nTimeVerify * 0.000001);
+    //LogPrint("bench", "    - Verify %u txins: %.2fms (%.3fms/txin) [%.2fs]\n", nInputs - 1, 0.001 * (nTime2 - nTimeStart), nInputs <= 1 ? 0 : 0.001 * (nTime2 - nTimeStart) / (nInputs - 1), nTimeVerify * 0.000001);
 
 
     ////////////////////////////////////////////////////////////////// // eulo-vm
@@ -3837,20 +3837,20 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         //check coinbase2 vout must contain all gas refund vouts.
         std::vector<CTxOut> vTempVouts = block.vtx[1].vout;
         std::vector<CTxOut>::iterator it;
-        LogPrintf("*****:: block.hash:%s\n",block.GetHash().GetHex().c_str()); //eulo debug
+       // LogPrintf("*****:: block.hash:%s\n",block.GetHash().GetHex().c_str()); //eulo debug
 
 
-          for (size_t j = 0; j < vTempVouts.size(); j++) {
-              LogPrintf("*****:: vTempVouts[%d].scriptPubKey:%s\n",j,vTempVouts[j].scriptPubKey.ToString()); //eulo debug
-              LogPrintf("*****:: vTempVouts[%d].nValue:%ld\n",j,vTempVouts[j].nValue); //eulo debug
+//          for (size_t j = 0; j < vTempVouts.size(); j++) {
+//              LogPrintf("*****:: vTempVouts[%d].scriptPubKey:%s\n",j,vTempVouts[j].scriptPubKey.ToString()); //eulo debug
+//              LogPrintf("*****:: vTempVouts[%d].nValue:%ld\n",j,vTempVouts[j].nValue); //eulo debug
 
-            }
+//            }
 
         for (size_t i = 0; i < checkVouts.size(); i++) {
             it = std::find(vTempVouts.begin(), vTempVouts.end(), checkVouts[i]);
 
-            LogPrintf("*****:: checkVouts[%d].scriptPubKey:%s\n",i,checkVouts[i].scriptPubKey.ToString()); //eulo debug
-            LogPrintf("*****:: checkVouts[%d].nValue:%ld\n",i,checkVouts[i].nValue); //eulo debug
+            //LogPrintf("*****:: checkVouts[%d].scriptPubKey:%s\n",i,checkVouts[i].scriptPubKey.ToString()); //eulo debug
+           // LogPrintf("*****:: checkVouts[%d].nValue:%ld\n",i,checkVouts[i].nValue); //eulo debug
 
 
 
@@ -4239,7 +4239,7 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
 
         uint256 newHashStateRoot, newHashUTXORoot;
         GetState(newHashStateRoot, newHashUTXORoot);
-        LogPrintf("ConnectTip State and utxo After connectblock:\n state: %s\n utxo:%s\n",newHashStateRoot.GetHex().c_str(),newHashUTXORoot.GetHex().c_str());
+        //LogPrintf("ConnectTip State and utxo After connectblock:\n state: %s\n utxo:%s\n",newHashStateRoot.GetHex().c_str(),newHashUTXORoot.GetHex().c_str());
 
         mapBlockSource.erase(inv.hash);
         nTime3 = GetTimeMicros();
@@ -5537,7 +5537,7 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
         return false;
 
     GetState(hashStateRoot, hashUTXORoot);
-    LogPrintf("TestBlockValidity call ConnectBlock\n");
+    //LogPrintf("TestBlockValidity call ConnectBlock\n");
     if (!ConnectBlock(block, state, &indexDummy, viewNew, true))
     {
         UpdateState(hashStateRoot, hashUTXORoot);
@@ -5553,7 +5553,7 @@ bool TestBlockValidity(CValidationState& state, const CBlock& block, CBlockIndex
 bool AbortNode(const std::string& strMessage, const std::string& userMessage)
 {
     strMiscWarning = strMessage;
-    LogPrintf("*** %s\n", strMessage);
+    //LogPrintf("*** %s\n", strMessage);
     uiInterface.ThreadSafeMessageBox(
                 userMessage.empty() ? _("Error: A fatal internal error occured, see debug.log for details") : userMessage,
                 "", CClientUIInterface::MSG_ERROR);
@@ -5898,7 +5898,7 @@ bool CVerifyDB::VerifyDB(CCoinsView* coinsview, int nCheckLevel, int nCheckDepth
                 return error("VerifyDB() : *** ReadBlockFromDisk failed at %d, hash=%s", pindex->nHeight, pindex->GetBlockHash().ToString());
             uint256 oldHashStateRoot, oldHashUTXORoot;
             GetState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
-            LogPrintf("VerifyDB call ConnectBlock\n");
+            //LogPrintf("VerifyDB call ConnectBlock\n");
             if (!ConnectBlock(block, state, pindex, coins, false))
             {
                 UpdateState(oldHashStateRoot, oldHashUTXORoot); //eulo-vm
