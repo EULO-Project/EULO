@@ -35,6 +35,7 @@ INCLUDEPATH += $$QT_INCLUDEPATH_PREFIX/QtANGLE
 INCLUDEPATH += $$PWD/../
 INCLUDEPATH += $$PWD/../leveldb/include
 INCLUDEPATH += $$PWD/../univalue/include
+
 INCLUDEPATH += $$PWD/../contract_api
 INCLUDEPATH += $$PWD/../contract
 INCLUDEPATH += $$PWD/../contract/utils
@@ -114,7 +115,9 @@ SOURCES += main.cpp \
     qt_native/coincontrolmodel.cpp \
     qt_native/coincontrolproxy.cpp \
     qt_native/masternodetablemodel.cpp \
-    qt_native/masternodetableproxy.cpp
+    qt_native/masternodetableproxy.cpp \
+    qt_native/bip39.c \
+    bip39words.cpp
 
 RESOURCES += qml.qrc
 
@@ -198,7 +201,9 @@ HEADERS += \
     qt_native/coincontrolmodel.h \
     qt_native/coincontrolproxy.h \
     qt_native/masternodetablemodel.h \
-    qt_native/masternodetableproxy.h
+    qt_native/masternodetableproxy.h \
+    qt_native/bip39.h \
+    bip39words.h
 
 
 win32{
@@ -330,4 +335,7 @@ TRANSLATIONS +=  locale/eulo_en.ts \
 #                locale/eulo_sv.ts \
 #                locale/eulo_vi.ts \
 #                locale/eulo_zh_TW.ts
+
+DISTFILES += \
+    qt_native/BIP39/secp256k1/src/stamp-h1
 

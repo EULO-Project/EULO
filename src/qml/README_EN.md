@@ -4,13 +4,15 @@
 
 <h4>New:</h4>
 <ul>
-<li>1、Add Wallet encryption，lock and unlock functions</li>
+<li>1、Add Wallet encryption，lock and unlock functions.</li>
+<li>2、Add Wallet manual backup and notify function.</li>
+<li>3、Add Wallet address recovery from BIP39 words function.</li>
 </ul>
 
 <h4>Bug fix:</h4>
 <ul>
 <li>1、Fix for texts on some buttons are not properly displayed.</li>
-<li>2、Fix a macro definition for windows cross-compile。</li>
+<li>2、Fix a macro definition for windows cross-compile.</li>
 </ul>
 
 <h4>Earlier Updates:</h4>

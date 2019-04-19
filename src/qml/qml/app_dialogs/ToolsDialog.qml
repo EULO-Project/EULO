@@ -57,7 +57,7 @@ CommonDialog
 
         CommonTabView{
             id:tabview
-            tab_width:90
+            tab_width:100
             currentIndex: -1
 
 
@@ -389,8 +389,8 @@ CommonDialog
                             Component.onCompleted:
                             {
                                 console.log("client_model setting by QML")
-//                              client_model = rpcConsole.getClientModel()
-//                              setGraphRangeMins(30)
+                                //                              client_model = rpcConsole.getClientModel()
+                                //                              setGraphRangeMins(30)
                             }
                         }
 
@@ -537,12 +537,12 @@ CommonDialog
                         selectionMode:Controls_1_4.SelectionMode.SingleSelection
                         //dontPerformSortInner:true
 
-//                        onSortIndicatorColumnChanged: {
-//                            rpcConsole.peerTableModel_sorted.sortPeerTable(getColumnbyRole(),sortIndicatorOrder)
-//                        }
-//                        onSortIndicatorOrderChanged: {
-//                            rpcConsole.peerTableModel_sorted.sortPeerTable(getColumnbyRole(),sortIndicatorOrder)
-//                        }
+                        //                        onSortIndicatorColumnChanged: {
+                        //                            rpcConsole.peerTableModel_sorted.sortPeerTable(getColumnbyRole(),sortIndicatorOrder)
+                        //                        }
+                        //                        onSortIndicatorOrderChanged: {
+                        //                            rpcConsole.peerTableModel_sorted.sortPeerTable(getColumnbyRole(),sortIndicatorOrder)
+                        //                        }
 
                         function getColumnbyRole()
                         {
@@ -644,156 +644,156 @@ CommonDialog
 
                     }
 
-                        CommonButton
+                    CommonButton
+                    {
+                        id:salvage_btn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.top: wallet_repair_label.bottom
+                        anchors.topMargin: 80
+                        text:qsTr("Salvage wallet")
+                        width: 220
+                        height: 28
+                        textSize:13
+                        onClicked:
                         {
-                            id:salvage_btn
-                            color: "#469AAC"
-                            anchors.left: parent.left
-                            anchors.top: wallet_repair_label.bottom
-                            anchors.topMargin: 80
-                            text:qsTr("Salvage wallet")
-                            width: 220
-                            height: 28
-                            textSize:13
-                            onClicked:
-                            {
-                                rpcConsole.walletSalvage();
-                            }
+                            rpcConsole.walletSalvage();
+                        }
+                    }
+
+                    CommonButton
+                    {
+                        id:rescan_block_btn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.top: salvage_btn.bottom
+                        anchors.topMargin: 15
+                        text:qsTr("Rescan blockchain files")
+                        width: 220
+                        height: 28
+                        textSize:13
+                        onClicked:
+                        {
+                            rpcConsole.walletRescan();
+                        }
+                    }
+
+                    CommonButton
+                    {
+                        id:recover_tx_1_btn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.top: rescan_block_btn.bottom
+                        anchors.topMargin: 15
+                        text:qsTr("Recover transactions 1")
+                        width: 220
+                        height: 28
+                        textSize:13
+                        onClicked:
+                        {
+                            rpcConsole.walletZaptxes1();
+                        }
+                    }
+
+                    CommonButton
+                    {
+                        id:recover_tx_2_btn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.top: recover_tx_1_btn.bottom
+                        anchors.topMargin: 15
+                        text:qsTr("Recover transactions 2")
+                        width: 220
+                        height: 28
+                        textSize:13
+                        onClicked:
+                        {
+                            rpcConsole.walletZaptxes2()
+                        }
+                    }
+
+                    CommonButton
+                    {
+                        id:upgrade_format_btn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.top: recover_tx_2_btn.bottom
+                        anchors.topMargin: 15
+                        text:qsTr("Upgrade wallet format")
+                        width: 220
+                        height: 28
+                        textSize:13
+                        onClicked:
+                        {
+                            rpcConsole.walletUpgrade()
+                        }
+                    }
+
+                    CommonButton
+                    {
+                        id:rebuild_index_btn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.top: upgrade_format_btn.bottom
+                        anchors.topMargin: 15
+                        text:qsTr("Rebuild index")
+                        width: 220
+                        height: 28
+                        textSize:13
+                        onClicked:
+                        {
+                            rpcConsole.walletReindex()
+                        }
+                    }
+
+
+                    CommonButton
+                    {
+                        id:delete_local_blockchain_btn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.top: rebuild_index_btn.bottom
+                        anchors.topMargin: 15
+                        text:qsTr("Delete local blockchain Folders")
+                        width: 220
+                        height: 28
+                        textSize:13
+                        onClicked:
+                        {
+                            confirm_dialog.show()
                         }
 
-                        CommonButton
+
+                        CommonDialog
                         {
-                            id:rescan_block_btn
-                            color: "#469AAC"
-                            anchors.left: parent.left
-                            anchors.top: salvage_btn.bottom
-                            anchors.topMargin: 15
-                            text:qsTr("Rescan blockchain files")
-                            width: 220
-                            height: 28
-                            textSize:13
-                            onClicked:
+                            id:confirm_dialog
+                            title: qsTr("resync wallet")
+                            confirm_btn_text: qsTr("Yes")
+                            cancel_btn_text: qsTr("No")
+                            content_text: qsTr("This will delete your local blockchain folders and the wallet will synchronize the complete Blockchain from scratch.\nConfirm?")
+                            width:400
+                            height: 300
+                            modality: Qt.WindowModal
+                            onConfirmed:
                             {
-                                rpcConsole.walletRescan();
+                                rpcConsole.walletResync();
                             }
+
                         }
+                    }
 
-                        CommonButton
-                        {
-                            id:recover_tx_1_btn
-                            color: "#469AAC"
-                            anchors.left: parent.left
-                            anchors.top: rescan_block_btn.bottom
-                            anchors.topMargin: 15
-                            text:qsTr("Recover transactions 1")
-                            width: 220
-                            height: 28
-                            textSize:13
-                            onClicked:
-                            {
-                                rpcConsole.walletZaptxes1();
-                            }
-                        }
-
-                        CommonButton
-                        {
-                            id:recover_tx_2_btn
-                            color: "#469AAC"
-                            anchors.left: parent.left
-                            anchors.top: recover_tx_1_btn.bottom
-                            anchors.topMargin: 15
-                            text:qsTr("Recover transactions 2")
-                            width: 220
-                            height: 28
-                            textSize:13
-                            onClicked:
-                            {
-                                rpcConsole.walletZaptxes2()
-                            }
-                        }
-
-                        CommonButton
-                        {
-                            id:upgrade_format_btn
-                            color: "#469AAC"
-                            anchors.left: parent.left
-                            anchors.top: recover_tx_2_btn.bottom
-                            anchors.topMargin: 15
-                            text:qsTr("Upgrade wallet format")
-                            width: 220
-                            height: 28
-                            textSize:13
-                            onClicked:
-                            {
-                                rpcConsole.walletUpgrade()
-                            }
-                        }
-
-                        CommonButton
-                        {
-                            id:rebuild_index_btn
-                            color: "#469AAC"
-                            anchors.left: parent.left
-                            anchors.top: upgrade_format_btn.bottom
-                            anchors.topMargin: 15
-                            text:qsTr("Rebuild index")
-                            width: 220
-                            height: 28
-                            textSize:13
-                            onClicked:
-                            {
-                                rpcConsole.walletReindex()
-                            }
-                        }
-
-
-                        CommonButton
-                        {
-                            id:delete_local_blockchain_btn
-                            color: "#469AAC"
-                            anchors.left: parent.left
-                            anchors.top: rebuild_index_btn.bottom
-                            anchors.topMargin: 15
-                            text:qsTr("Delete local blockchain Folders")
-                            width: 220
-                            height: 28
-                            textSize:13
-                            onClicked:
-                            {
-                                confirm_dialog.show()
-                            }
-
-
-                            CommonDialog
-                            {
-                                id:confirm_dialog
-                                title: qsTr("resync wallet")
-                                confirm_btn_text: qsTr("Yes")
-                                cancel_btn_text: qsTr("No")
-                                content_text: qsTr("This will delete your local blockchain folders and the wallet will synchronize the complete Blockchain from scratch.\nConfirm?")
-                                width:400
-                                height: 300
-                                modality: Qt.WindowModal
-                                onConfirmed:
-                                {
-                                    rpcConsole.walletResync();
-                                }
-
-                            }
-                        }
-
-                        Label
-                        {
-                            id:options_label
-                            anchors.left: salvage_btn.right
-                            anchors.leftMargin: 20
-                            anchors.top: wallet_repair_label.bottom
-                            anchors.topMargin: 80
-                            font.weight: Font.Light
-                            font.pixelSize:14
-                            font.letterSpacing:0.3
-                            lineHeight: 2.18
-                            text:qsTr("-salvagewallet:
+                    Label
+                    {
+                        id:options_label
+                        anchors.left: salvage_btn.right
+                        anchors.leftMargin: 20
+                        anchors.top: wallet_repair_label.bottom
+                        anchors.topMargin: 80
+                        font.weight: Font.Light
+                        font.pixelSize:14
+                        font.letterSpacing:0.3
+                        lineHeight: 2.18
+                        text:qsTr("-salvagewallet:
 -rescan:
 -zapwallettxes=1:
 -zapwallettxes=2:
@@ -801,22 +801,22 @@ CommonDialog
 -reindex:
 -resync:")
 
-                        }
+                    }
 
-                        Label
-                        {
-                            id:description_label
-                            anchors.right: parent.right
-                            anchors.rightMargin: 20
-                            width:250
-                            anchors.top: wallet_repair_label.bottom
-                            anchors.topMargin: 80
-                            font.weight: Font.Light
-                            font.pixelSize:13
-                            font.letterSpacing:0.3
-                            lineHeight: 0.97
-                            wrapMode: Label.WordWrap
-                            text:qsTr("Attempt to recover private keys from a corrupt wallet.dat.
+                    Label
+                    {
+                        id:description_label
+                        anchors.right: parent.right
+                        anchors.rightMargin: 20
+                        width:250
+                        anchors.top: wallet_repair_label.bottom
+                        anchors.topMargin: 80
+                        font.weight: Font.Light
+                        font.pixelSize:13
+                        font.letterSpacing:0.3
+                        lineHeight: 0.97
+                        wrapMode: Label.WordWrap
+                        text:qsTr("Attempt to recover private keys from a corrupt wallet.dat.
 Rescan the block chain for missing wallet transactions.
 Recover transactions from blockchain(keep meta-data e.g. account owner)
 Recover transactions from blockchain(drop meta-data)
@@ -824,16 +824,142 @@ Upgrade wallet to latest format on startup.(Note:this is NOT an update of the wa
 Rebuild block chain index from current blk001??.dat files.
 Deletes all local blockchain folders so the wallet synchronizes from scratch.")
 
+                    }
+
+
+                }
+
+            }
+
+
+            Controls_1_4.Tab {
+                title: qsTr("Add Address")
+
+
+                Rectangle
+                {
+                    id:tab6_rec
+                    anchors.fill: parent
+                    color: "#FAFAFA"
+                    Label
+                    {
+                        id:show_BIP39Words_label
+                        anchors.top:parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.margins: 20
+                        font.weight: Font.Light
+                        font.pixelSize:14
+                        font.letterSpacing:0.3
+                        wrapMode: Label.WordWrap
+                        text:qsTr("<b>Add address from bip39 words:</b>")
+                    }
+
+
+                    CommonButton
+                    {
+                        id:showWordsbtn
+                        color: "#469AAC"
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        anchors.right: parent.right
+                        anchors.rightMargin: 20
+                        anchors.top: show_BIP39Words_label.bottom
+                        anchors.topMargin: 20
+                        text:qsTr("Add")
+                        width: 100
+                        height: 28
+                        textSize:11
+                        onClicked:
+                        {
+                            if(!requestUnlock())
+                            {
+                                walletModel.addAddressByWords(wordsArea.text.trim())
+                            }
                         }
+                    }
+
+
+                    Label
+                    {
+                        id:wordsLabel
+                        font.weight: Font.Normal
+                        font.pixelSize:13
+                        anchors.top:showWordsbtn.bottom
+                        anchors.left: parent.left
+                        anchors.topMargin: 20
+                        anchors.leftMargin: 20
+                        color: "#333333"
+                        text:qsTr("BIP39 Words:")
+                    }
+
+                    CommonTextArea
+                    {
+                        id:wordsArea
+                        font.weight: Font.Light
+                        font.pixelSize:14
+                        anchors.top: wordsLabel.top
+                        anchors.left: wordsLabel.right
+                        anchors.leftMargin: 15
+                        anchors.right: parent.right
+                        anchors.rightMargin: 20
+                        height:100
+                        wrapMode: TextEdit.Wrap
+
+                        ToolTip.text: qsTr("Please input 12 words, split by comma.")
+
+                        onTextChanged:
+                        {
+                            if(text.length == 0)
+                            ToolTip.visible = true
+
+
+                        }
+
+                        Connections
+                        {
+                            target:walletModel
+
+                            onBadWords:
+                            {
+
+                                root_window.warningDialog.title = qsTr("Error")
+                                root_window.warningDialog.content_text = qsTr("invalid input, Please check your words!")
+                                root_window.warningDialog.show()
+
+                            }
+
+                            onExistingAddress:
+                            {
+                                root_window.warningDialog.title = qsTr("Error")
+                                root_window.warningDialog.content_text = qsTr("You have this address in your wallet already!")
+                                root_window.warningDialog.show()
+                            }
+
+                            onAddAddressSuccessful:
+                            {
+                              //  root_window.question(qsTr("Success"),qsTr("You have successfully add address:\n\t") + address + qsTr("\nto your wallet!\n Please wait for transaction rescan!"),function(){walletModel.rescanWallet();})
+                                root_window.warningDialog.title = qsTr("Success")
+                                root_window.warningDialog.content_text = qsTr("You have successfully add address:\n\t") + address + qsTr("\nto your wallet!\n Plaese rescan blockchain files to get transactions for this address.")
+                                root_window.warningDialog.show()
+                            }
+
+                        }
+
+
 
 
                     }
 
+
+
                 }
 
-
             }
+
 
         }
 
     }
+
+}

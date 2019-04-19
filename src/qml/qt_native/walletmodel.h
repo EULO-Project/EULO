@@ -165,6 +165,11 @@ public:
 
     Q_INVOKABLE qint64 getFieldAmount(int uint,QString amountText);
 
+
+    Q_INVOKABLE void addAddressByWords(const QString &addressStr);
+
+    Q_INVOKABLE void rescanWallet();
+
     // Check address for validity
     Q_INVOKABLE bool validateAddress(const QString& address);
     Q_INVOKABLE qint64 validateAmount(int currentUnit, const QString& text);
@@ -183,6 +188,9 @@ public:
     // Passphrase only needed when unlocking
     Q_INVOKABLE bool setWalletLocked(bool locked, const QString &passStr = QString(), bool anonymizeOnly = false);
 
+    // Wallet backup
+    Q_INVOKABLE bool backupWallet(const QString& filename);
+    Q_INVOKABLE bool checkBackupStatus();
 
     enum StatusCode // Returned by sendCoins
     {
@@ -265,8 +273,6 @@ public:
 
     // Is wallet unlocked for anonymization only?
     bool isAnonymizeOnlyUnlocked();
-    // Wallet backup
-    bool backupWallet(const QString& filename);
 
     // RAI object for unlocking wallet, returned by requestUnlock()
     class UnlockContext
@@ -381,6 +387,7 @@ private:
     QList<quint32> dateList;
 
     QTimer* pollTimer;
+    QTimer* backupTimer;
 
     QString m_syncStatus;
 
@@ -406,6 +413,9 @@ signals:
 
     void syncStatusChanged();
 
+    void notifyBackup();
+
+
     void hideWindow();
 
     // Fired when a message should be reported to the user
@@ -429,6 +439,9 @@ signals:
 
 
     void traySignal(int index);
+    void badWords();
+    void existingAddress();
+    void addAddressSuccessful(QString address);
 
 public slots:
     /* Wallet status might have changed */
@@ -453,6 +466,7 @@ public slots:
 
 private slots:
     void checkForInvalidTokens();
+    void backupCheck();
 
 };
 

@@ -57,6 +57,7 @@ public:
     Q_INVOKABLE QString getStartUpTraffic();
     Q_INVOKABLE ClientModel *getClientModel();
 
+
     Q_INVOKABLE QString getWalletPath();
     Q_INVOKABLE void changeNetWork();
 

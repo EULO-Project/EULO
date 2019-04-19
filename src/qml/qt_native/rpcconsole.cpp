@@ -324,6 +324,7 @@ ClientModel *RPCConsole::getClientModel()
 
 
 
+
 void RPCConsole::setClientModel(ClientModel* model)
 {
     clientModel = model;

@@ -1274,6 +1274,43 @@ Address: %4
     </message>
 </context>
 <context>
+    <name>Footer</name>
+    <message>
+        <source>You have backed up wallet file less than 1 day.</source>
+        <translation>您在一天以内已备份过钱包.</translation>
+    </message>
+    <message>
+        <source>It&apos;s been more than 1 day since last time you backup your wallet.
+Click icon below to backup your wallet!</source>
+        <translation>您的钱包已超过一天没有被备份了.
+点击下面的图标立即备份!</translation>
+    </message>
+    <message>
+        <source>Click icon below to unlock your wallet</source>
+        <translation>点击下面的图标解锁钱包</translation>
+    </message>
+    <message>
+        <source>Click icon below to lock your wallet</source>
+        <translation>点击下面的图标锁定钱包</translation>
+    </message>
+    <message>
+        <source>succeed</source>
+        <translation>成功</translation>
+    </message>
+    <message>
+        <source>wallet locked successfully</source>
+        <translation>钱包锁定成功</translation>
+    </message>
+    <message>
+        <source>failed</source>
+        <translation>失败</translation>
+    </message>
+    <message>
+        <source>something wrong</source>
+        <translation>发生了一些错误</translation>
+    </message>
+</context>
+<context>
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
@@ -2623,6 +2660,18 @@ Duration: 0 sec.</source>
         <source>something wrong</source>
         <translation>发生了一些错误</translation>
     </message>
+    <message>
+        <source>Add Address</source>
+        <translation>添加地址</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>成功</translation>
+    </message>
+    <message>
+        <source>Your wallet backup file has been saved!</source>
+        <translation>您的钱包备份文件已保存!</translation>
+    </message>
 </context>
 <context>
     <name>TokenContractField</name>
@@ -3135,6 +3184,64 @@ Upgrade wallet to latest format on startup.(Note:this is NOT an update of the wa
 Rebuild block chain index from current blk001??.dat files.
 Deletes all local blockchain folders so the wallet synchronizes from scratch.</source>
         <translation></translation>
+    </message>
+    <message>
+        <source>Add Address</source>
+        <translation>添加地址</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add address from bip39 words:&lt;/b&gt;</source>
+        <translation>&lt;b&gt;通过 BIP39 单词添加地址:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>添加</translation>
+    </message>
+    <message>
+        <source>BIP39 Words:</source>
+        <translation>BIP39 单词:</translation>
+    </message>
+    <message>
+        <source>Please input 12 words, split by comma.</source>
+        <translation>请输入12个单词, 以逗号分隔.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>错误</translation>
+    </message>
+    <message>
+        <source>invalid input, Please check your words!</source>
+        <translation>无效输入, 请检查您的单词是否有误!</translation>
+    </message>
+    <message>
+        <source>You have this address in your wallet already!</source>
+        <translation>您钱包中已经有这个地址了!</translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation>成功</translation>
+    </message>
+    <message>
+        <source>You have successfully add address:
+	</source>
+        <translation>您成功添加了地址:
+	</translation>
+    </message>
+    <message>
+        <source>
+to your wallet!
+ Please wait for transaction rescan!</source>
+        <translation type="vanished">
+到您的钱包!
+ 请等待重新扫描交易!</translation>
+    </message>
+    <message>
+        <source>
+to your wallet!
+ Plaese rescan blockchain files to get transactions for this address.</source>
+        <translation>
+到您的钱包!
+ 请重新扫描区块来获得和此地址有关的交易.</translation>
     </message>
 </context>
 <context>

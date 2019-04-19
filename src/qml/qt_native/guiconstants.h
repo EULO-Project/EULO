@@ -9,6 +9,7 @@
 
 /* Milliseconds between model updates */
 static const int MODEL_UPDATE_DELAY = 1000;
+static const int WALLET_BACKUP_DELAY = 10000;
 
 /* AskPassphraseDialog -- Maximum passphrase length */
 static const int MAX_PASSPHRASE_SIZE = 1024;

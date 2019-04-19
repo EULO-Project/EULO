@@ -137,5 +137,8 @@
         <file>qml/app_items/CommonTextArea2.qml</file>
         <file>qml/app_items/CommonSelectableLabel.qml</file>
         <file>qml/app_dialogs/AskPassphraseDialog.qml</file>
+        <file>images/icons/backup.png</file>
+        <file>images/icons/walletLocked.png</file>
+        <file>images/icons/walletUnlocked.png</file>
     </qresource>
 </RCC>

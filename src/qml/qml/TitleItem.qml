@@ -23,6 +23,10 @@ Rectangle{
     property alias coinTypeBtn: coin_type_btn
     property alias naviPanel: naviPanel
     property alias optionsDialog: optionsDialog
+    property alias backup_dialog: backup_dialog
+    property alias askPassphraseDialog: askPassphraseDialog
+
+
     property bool fisrt_run: true
 
     objectName: "title"
@@ -147,6 +151,7 @@ Rectangle{
             ListElement { modelData: qsTr("Net Monitor"); }
             ListElement { modelData: qsTr("Peers Info"); }
             ListElement { modelData: qsTr("Wallet Repair"); }
+            ListElement { modelData: qsTr("Add Address"); }
             ListElement { modelData: qsTr("Open Wallet Conf"); }
             ListElement { modelData: qsTr("Open Masternode Conf"); }
             ListElement { modelData: qsTr("Open Auto Save"); }
@@ -176,10 +181,11 @@ Rectangle{
             case 2:toolsDialog.show();toolsDialog.current_index=2;toolsDialog.raise();break;
             case 3:toolsDialog.show();toolsDialog.current_index=3;toolsDialog.raise();break;
             case 4:toolsDialog.show();toolsDialog.current_index=4;toolsDialog.raise();break;
-            case 5:rpcConsole.showConfEditor(); break;
-            case 6:rpcConsole.showMNConfEditor();break;
-            case 7:rpcConsole.showBackups();break;
-            case 8:
+            case 5:toolsDialog.show();toolsDialog.current_index=5;toolsDialog.raise();break;
+            case 6:rpcConsole.showConfEditor(); break;
+            case 7:rpcConsole.showMNConfEditor();break;
+            case 8:rpcConsole.showBackups();break;
+            case 9:
             {
 
                 if(fisrt_run && !blockExplorer.isTxindexSet())
@@ -254,12 +260,13 @@ Rectangle{
         {
         case 0:
             footer_.walletStatusSource = ""
+
             break;
         case 1:
-            footer_.walletStatusSource = "qrc:/images/icons/locked.png"
+            footer_.walletStatusSource = "qrc:/images/icons/walletLocked.png"
             break;
         case 2:
-            footer_.walletStatusSource = "qrc:/images/icons/unlocked.png"
+            footer_.walletStatusSource = "qrc:/images/icons/walletUnlocked.png"
             break;
         default:break;
         }
@@ -491,10 +498,19 @@ Rectangle{
     FileDialog
     {
         id:backup_dialog
+        selectExisting:false
+        folder: shortcuts.documents
+        title:qsTr("Backup Wallet")
 
         onAccepted:
         {
-
+            var res = walletModel.backupWallet(fileUrl)
+            if(res)
+            {
+                root_window.warningDialog.title = qsTr("Success")
+                root_window.warningDialog.content_text = qsTr("Your wallet backup file has been saved!")
+                root_window.warningDialog.show()
+            }
         }
     }
 

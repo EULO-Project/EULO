@@ -227,6 +227,11 @@ WalletModel::WalletModel(CWallet* wallet, OptionsModel* optionsModel, QObject* p
     connect(pollTimer, SIGNAL(timeout()), this, SLOT(pollBalanceChanged()));
     pollTimer->start(MODEL_UPDATE_DELAY);
 
+    // This timer will be fired repeatedly to notify wallet backup
+    backupTimer = new QTimer(this);
+    connect(backupTimer, SIGNAL(timeout()), this, SLOT(backupCheck()));
+    backupTimer->start(WALLET_BACKUP_DELAY);
+
     connect(optionsModel,SIGNAL(displayUnitChanged(int)),this,SLOT(emitBalanceChanged()));
 
 
@@ -241,6 +246,23 @@ WalletModel::~WalletModel()
     unsubscribeFromCoreSignals();
 }
 
+
+void WalletModel::backupCheck()
+{
+    QSettings settings;
+    uint lastBackupTime = settings.value("lastBackupTime").toUInt();
+
+    uint now = QDateTime::currentDateTime().toTime_t();
+
+    if(now - lastBackupTime > 86400)
+    {
+        emit notifyBackup();
+    }
+
+
+
+
+}
 
 
 
@@ -419,6 +441,105 @@ qint64 WalletModel::getFieldAmount(int uint,QString amountText)
     BitcoinUnits::parse(uint, amountText, &amount);
 
     return (qint64)amount;
+}
+
+
+#include "bip39.h"
+#include "bip39words.h"
+
+void WalletModel::addAddressByWords(const QString &addressStr)
+{
+    if(addressStr.split(',').length()!=12)
+    {
+        emit badWords();
+        return;
+    }
+
+    QStringList wordList  = addressStr.split(',');
+    BIP39Words words222;
+
+    for(int i = 0;i<wordList.length();i++)
+    {
+
+        if(words222.BIP39WordsEn.indexOf(wordList.at(i)) == -1)
+        {
+            emit badWords();
+            return;
+        }
+    }
+
+
+    QString words = wordList.join(' ');
+    char *passphrase = "ulosalt";
+    char key64[64] = {0};
+    char salt[strlen("mnemonic") + (passphrase ? strlen(passphrase) : 0) + 1];
+    strcpy(salt, "mnemonic");
+    if (passphrase) strcpy(salt + strlen("mnemonic"), passphrase);
+    PBKDF2(key64, 64, BIP39SHA512, 512/8, words.toStdString().data(), strlen(words.toStdString().data()), salt, strlen(salt), 2048);
+    mem_clean(salt, sizeof(salt));
+
+    uint8_t I[64] = {0};
+    uint8_t secret[32] = {0};
+    uint8_t chainCode[32] = {0};
+    uint8_t s[32] = {0};
+    uint8_t c[32] = {0};
+
+    BIP39HMAC(I, BIP39SHA512, 64, BIP32_SEED_KEY, strlen(BIP32_SEED_KEY), key64, 64);
+    memcpy(secret, I,32);
+    memcpy(chainCode, I + 32 ,32);
+    CKDpriv(secret, chainCode, 0 | BIP32_HARD); // path m/0H
+    CKDpriv(secret, chainCode, 0); // path m/0H/chain
+    memcpy(s, secret,32);
+    memcpy(c, chainCode,32);
+    CKDpriv(s, c, 0); // index'th key in chain
+
+    CKey key;
+    key.Set((const unsigned char *)s,(const unsigned char *)(s+32),true);
+
+    CPubKey pubkey = key.GetPubKey();
+    assert(key.VerifyPubKey(pubkey));
+
+    CKeyID vchAddress;
+    vchAddress = pubkey.GetID();
+
+    CBitcoinAddress address;
+    address.Set(vchAddress);
+
+    //-------------
+
+    {
+        wallet->MarkDirty();
+        wallet->SetAddressBook(vchAddress, "", "receive");
+
+        // Don't throw error in case a key is already there
+        if (wallet->HaveKey(vchAddress))
+        {
+            emit existingAddress();
+            return;
+        }
+
+        wallet->mapKeyMetadata[vchAddress].nCreateTime = 1;
+
+        if (!wallet->AddKeyPubKey(key, pubkey))
+            return;
+
+        // whenever a key is imported, we need to scan the whole chain
+        wallet->nTimeFirstKey = 1; // 0 would be considered 'no value'
+
+
+
+    }
+
+    emit addAddressSuccessful(QString::fromStdString(address.ToString()));
+
+
+}
+
+void WalletModel::rescanWallet()
+{
+
+    wallet->ScanForWalletTransactions(chainActive.Genesis(), true);
+
 }
 
 
@@ -1196,6 +1317,17 @@ int WalletModel::getEncryptionStatus() const
 
 }
 
+bool WalletModel::checkBackupStatus()
+{
+    QSettings settings;
+    uint lastBackupTime = settings.value("lastBackupTime").toUInt();
+
+    uint now = QDateTime::currentDateTime().toTime_t();
+
+    return (now-lastBackupTime) < 86400;
+
+}
+
 bool WalletModel::setWalletEncrypted(const QString& passStr)
 {
     SecureString newPass;
@@ -1249,7 +1381,18 @@ bool WalletModel::isAnonymizeOnlyUnlocked()
 
 bool WalletModel::backupWallet(const QString& filename)
 {
-    return BackupWallet(*wallet, filename.toLocal8Bit().data());
+    QString filename_ = filename;
+    filename_.remove("file://");
+
+    bool res = BackupWallet(*wallet, filename_.toLocal8Bit().data());
+    if(res)
+    {
+        QSettings settings;
+         settings.setValue("lastBackupTime",QDateTime::currentDateTime().toTime_t());
+         settings.sync();
+    }
+
+    return res;
 }
 
 // Handlers for core signals
@@ -1285,8 +1428,8 @@ static void NotifyTransactionChanged(WalletModel* walletmodel, CWallet* wallet, 
     QString strHash = QString::fromStdString(hash.GetHex());
 
     QMetaObject::invokeMethod(walletmodel, "updateTransaction", Qt::QueuedConnection /*,
-                                                        Q_ARG(QString, strHash),
-                                                        Q_ARG(int, status)*/);
+                                                                                                            Q_ARG(QString, strHash),
+                                                                                                            Q_ARG(int, status)*/);
 }
 
 static void ShowProgress(WalletModel* walletmodel, const std::string& title, int nProgress)

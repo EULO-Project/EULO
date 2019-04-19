@@ -1279,6 +1279,42 @@ Address: %4
     </message>
 </context>
 <context>
+    <name>Footer</name>
+    <message>
+        <source>You have backed up wallet file less than 1 day.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>It&apos;s been more than 1 day since last time you backup your wallet.
+Click icon below to backup your wallet!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click icon below to unlock your wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click icon below to lock your wallet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>succeed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>wallet locked successfully</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>something wrong</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FreespaceChecker</name>
     <message>
         <source>A new data directory will be created.</source>
@@ -2627,6 +2663,18 @@ Duration: 0 sec.</source>
         <source>something wrong</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Add Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Your wallet backup file has been saved!</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>TokenContractField</name>
@@ -3138,6 +3186,53 @@ Recover transactions from blockchain(drop meta-data)
 Upgrade wallet to latest format on startup.(Note:this is NOT an update of the wallet itself!)
 Rebuild block chain index from current blk001??.dat files.
 Deletes all local blockchain folders so the wallet synchronizes from scratch.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add address from bip39 words:&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BIP39 Words:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please input 12 words, split by comma.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Error</translation>
+    </message>
+    <message>
+        <source>invalid input, Please check your words!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You have this address in your wallet already!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Success</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You have successfully add address:
+	</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>
+to your wallet!
+ Plaese rescan blockchain files to get transactions for this address.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

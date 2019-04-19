@@ -33,6 +33,7 @@ ApplicationWindow {
     property string unitName:"  ULO"
     property alias warningDialog: warningDialog
     property alias footer_: footer
+    property alias  title_item: title_item
 
     PropertyAnimation
     {
@@ -271,8 +272,8 @@ ApplicationWindow {
         confirm_btn_text: qsTr("Ok")
         cancel_btn_visible: false
         modality: Qt.ApplicationModal
-        width:300
-        height: 180
+        width:400
+        height: 220
         dim_back:true
         onConfirmed:
         {
