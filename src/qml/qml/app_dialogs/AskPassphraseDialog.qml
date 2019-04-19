@@ -17,23 +17,14 @@ CommonDialog
     id:root
     modality: Qt.ApplicationModal
     width:700
-    //height: setting?200:(modify?300:100)
 
     property bool modify: false
     property bool setting: false
-   // height:setting?250:(modify?300:200)
+    height:300
 
     cancel_btn_text: qsTr("Cancel")
     confirm_btn_text: qsTr("Ok")
 
-    onVisibleChanged:
-    {
-        if(visible)
-        {
-            root.setHeight(setting?250:(modify?300:200))
-        }
-
-    }
 
 
     title: setting?qsTr("Setting Password"):(modify?qsTr("Modify Password"):qsTr("Enter Password"))
