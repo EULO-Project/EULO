@@ -16,7 +16,7 @@ CommonDialog
 {
     id:root
     modality: Qt.ApplicationModal
-    width:600
+    width:700
     //height: setting?200:(modify?300:100)
 
     property bool modify: false
@@ -29,7 +29,7 @@ CommonDialog
     {
         if(visible)
         {
-            height = setting?200:(modify?250:160)
+            height = setting?250:(modify?300:200)
 
         }
 
