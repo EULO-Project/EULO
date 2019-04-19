@@ -21,17 +21,17 @@ CommonDialog
 
     property bool modify: false
     property bool setting: false
-    height:setting?250:(modify?300:200)
+   // height:setting?250:(modify?300:200)
 
     cancel_btn_text: qsTr("Cancel")
     confirm_btn_text: qsTr("Ok")
 
     onVisibleChanged:
     {
-//        if(visible)
-//        {
-//            height = setting?250:(modify?300:200)
-//        }
+        if(visible)
+        {
+            root.setHeight(setting?250:(modify?300:200))
+        }
 
     }
 
