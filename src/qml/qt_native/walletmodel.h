@@ -396,6 +396,7 @@ private:
     void checkBalanceChanged();
     QString GetAddressStatus();
     void checkTokenBalanceChanged();
+    QString getBIPAddressFromSeeds(const char *key64, int chainType);
 
 signals:
     // Signal that balance in wallet changed

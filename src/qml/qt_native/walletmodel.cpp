@@ -447,6 +447,69 @@ qint64 WalletModel::getFieldAmount(int uint,QString amountText)
 #include "bip39.h"
 #include "bip39words.h"
 
+
+
+
+QString WalletModel::getBIPAddressFromSeeds(const char *key64, int chainType)
+{
+    uint8_t I[64] = {0};
+    uint8_t secret[32] = {0};
+    uint8_t chainCode[32] = {0};
+    uint8_t s[32] = {0};
+    uint8_t c[32] = {0};
+
+    QByteArray seedsArray;
+    seedsArray = QByteArray::fromRawData(key64,64);
+
+    BIP39HMAC(I, BIP39SHA512, 64, BIP32_SEED_KEY, strlen(BIP32_SEED_KEY), key64, 64);
+    memcpy(secret, I, 32);
+    memcpy(chainCode, I + 32 , 32);
+    CKDpriv(secret, chainCode, 0 | BIP32_HARD); // path m/0H
+    CKDpriv(secret, chainCode, chainType); // path m/0H/chain
+    memcpy(s, secret,32);
+    memcpy(c, chainCode,32);
+    CKDpriv(s, c, 0); // index'th key in chain
+
+    CKey key;
+    key.Set((const unsigned char *)s,(const unsigned char *)(s+32),true);
+
+    CPubKey pubkey = key.GetPubKey();
+    assert(key.VerifyPubKey(pubkey));
+
+    CKeyID vchAddress;
+    vchAddress = pubkey.GetID();
+
+    CBitcoinAddress address;
+    address.Set(vchAddress);
+    CTxDestination dest = address.Get();
+
+    //-------------
+    {
+        wallet->MarkDirty();
+        wallet->SetAddressBook(dest, "BIP39", "receive",seedsArray.toHex().toUpper().toStdString(),chainType);
+
+        // Don't throw error in case a key is already there
+        if (wallet->HaveKey(vchAddress))
+        {
+            emit existingAddress();
+            return "";
+        }
+
+        wallet->mapKeyMetadata[vchAddress].nCreateTime = 1;
+
+        if (!wallet->AddKeyPubKey(key, pubkey))
+            return "";
+
+        // whenever a key is imported, we need to scan the whole chain
+        wallet->nTimeFirstKey = 1; // 0 would be considered 'no value'
+    }
+
+
+    return QString::fromStdString(address.ToString());
+
+
+}
+
 void WalletModel::addAddressByWords(const QString &addressStr)
 {
     if(addressStr.split(',').length()!=12)
@@ -468,7 +531,6 @@ void WalletModel::addAddressByWords(const QString &addressStr)
         }
     }
 
-
     QString words = wordList.join(' ');
     char *passphrase = "ulosalt";
     char key64[64] = {0};
@@ -478,62 +540,17 @@ void WalletModel::addAddressByWords(const QString &addressStr)
     PBKDF2(key64, 64, BIP39SHA512, 512/8, words.toStdString().data(), strlen(words.toStdString().data()), salt, strlen(salt), 2048);
     mem_clean(salt, sizeof(salt));
 
-    uint8_t I[64] = {0};
-    uint8_t secret[32] = {0};
-    uint8_t chainCode[32] = {0};
-    uint8_t s[32] = {0};
-    uint8_t c[32] = {0};
-
-    BIP39HMAC(I, BIP39SHA512, 64, BIP32_SEED_KEY, strlen(BIP32_SEED_KEY), key64, 64);
-    memcpy(secret, I,32);
-    memcpy(chainCode, I + 32 ,32);
-    CKDpriv(secret, chainCode, 0 | BIP32_HARD); // path m/0H
-    CKDpriv(secret, chainCode, 0); // path m/0H/chain
-    memcpy(s, secret,32);
-    memcpy(c, chainCode,32);
-    CKDpriv(s, c, 0); // index'th key in chain
-
-    CKey key;
-    key.Set((const unsigned char *)s,(const unsigned char *)(s+32),true);
-
-    CPubKey pubkey = key.GetPubKey();
-    assert(key.VerifyPubKey(pubkey));
-
-    CKeyID vchAddress;
-    vchAddress = pubkey.GetID();
-
-    CBitcoinAddress address;
-    address.Set(vchAddress);
-
-    //-------------
-
-    {
-        wallet->MarkDirty();
-        wallet->SetAddressBook(vchAddress, "", "receive");
-
-        // Don't throw error in case a key is already there
-        if (wallet->HaveKey(vchAddress))
-        {
-            emit existingAddress();
-            return;
-        }
-
-        wallet->mapKeyMetadata[vchAddress].nCreateTime = 1;
-
-        if (!wallet->AddKeyPubKey(key, pubkey))
-            return;
-
-        // whenever a key is imported, we need to scan the whole chain
-        wallet->nTimeFirstKey = 1; // 0 would be considered 'no value'
+    QString externalAddress = getBIPAddressFromSeeds(key64,0);
+    if(externalAddress == "") return;
+    QString internalAddress = getBIPAddressFromSeeds(key64,1);
+    if(internalAddress == "") return;
 
 
-
-    }
-
-    emit addAddressSuccessful(QString::fromStdString(address.ToString()));
-
-
+    emit addAddressSuccessful( externalAddress + "\n" + internalAddress);
 }
+
+
+
 
 void WalletModel::rescanWallet()
 {
@@ -1573,7 +1590,6 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
 {
     std::vector<COutput> vCoins;
     wallet->AvailableCoins(vCoins);
-
     LOCK2(cs_main, wallet->cs_wallet); // ListLockedCoins, mapWallet
     std::vector<COutPoint> vLockedCoins;
     wallet->ListLockedCoins(vLockedCoins);

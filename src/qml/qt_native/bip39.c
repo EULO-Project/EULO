@@ -105,6 +105,20 @@ void BIP39HMAC(void *mac, void (*hash)(void *, const void *, size_t), size_t has
     mem_clean(kopad, blockLen);
 }
 
+int hex2byte(char *dst, const char *src)
+{
+    while(*src) {
+        if(' ' == *src) {
+            src++;
+            continue;
+        }
+        sscanf(src, "%02X", dst);
+        src += 2;
+        dst++;
+    }
+    return 0;
+}
+
 
 void PBKDF2(void *dk, size_t dkLen, void (*hash)(void *, const void *, size_t), size_t hashLen,
               const void *pw, size_t pwLen, const void *salt, size_t saltLen, unsigned rounds)

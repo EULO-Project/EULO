@@ -4223,7 +4223,7 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
 
 
         CInv inv(MSG_BLOCK, pindexNew->GetBlockHash());
-        LogPrintf("ConnectTip State and utxo before connectblock:\n state: %s\n utxo:%s\n",oldHashStateRoot.GetHex().c_str(),oldHashUTXORoot.GetHex().c_str());
+        //LogPrintf("ConnectTip State and utxo before connectblock:\n state: %s\n utxo:%s\n",oldHashStateRoot.GetHex().c_str(),oldHashUTXORoot.GetHex().c_str());
 
         bool rv = ConnectBlock(*pblock, state, pindexNew, view, false, fAlreadyChecked);
         g_signals.BlockChecked(*pblock, state);

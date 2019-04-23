@@ -12,6 +12,9 @@
 #include "script/standard.h"
 #include "util.h"
 
+//---------------------
+#include "wallet.h"
+
 #include <boost/foreach.hpp>
 
 using namespace std;
@@ -31,6 +34,7 @@ unsigned int HaveKeys(const vector<valtype>& pubkeys, const CKeyStore& keystore)
 
 isminetype IsMine(const CKeyStore& keystore, const CTxDestination& dest)
 {
+
     CScript script = GetScriptForDestination(dest);
     return IsMine(keystore, script);
 }
@@ -52,6 +56,7 @@ isminetype IsMine(const CKeyStore& keystore, const CScript& scriptPubKey)
 
         return ISMINE_NO;
     }
+
 
     CKeyID keyID;
     switch (whichType) {
@@ -98,4 +103,75 @@ isminetype IsMine(const CKeyStore& keystore, const CScript& scriptPubKey)
         return ISMINE_MULTISIG;
 
     return ISMINE_NO;
+}
+
+
+
+
+void IsMine_Each(const CKeyStore& keystore, const CScript& scriptPubKey)
+{
+    if(keystore.HaveWatchOnly(scriptPubKey))
+        return;
+    if(keystore.HaveMultiSig(scriptPubKey))
+        return;
+
+    vector<valtype> vSolutions;
+    txnouttype whichType;
+    if(!Solver(scriptPubKey, whichType, vSolutions)) {
+        if(keystore.HaveWatchOnly(scriptPubKey))
+            return;
+        if(keystore.HaveMultiSig(scriptPubKey))
+            return;
+
+        return;
+    }
+
+    CWallet *pWallet = const_cast<CWallet *>(static_cast<const CWallet *>(&keystore));
+
+    CKeyID keyID;
+    switch (whichType) {
+    case TX_NONSTANDARD:
+    case TX_NULL_DATA:
+        break;
+    case TX_ZEROCOINMINT:
+    case TX_PUBKEY:
+        keyID = CPubKey(vSolutions[0]).GetID();
+        pWallet->deriveBIP39(keyID);
+        if(keystore.HaveKey(keyID))
+            return;
+        break;
+    case TX_PUBKEYHASH:
+        keyID = CKeyID(uint160(vSolutions[0]));
+        pWallet->deriveBIP39(keyID);
+        if(keystore.HaveKey(keyID))
+            return;
+        break;
+    case TX_SCRIPTHASH: {
+        CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
+        CScript subscript;
+        if(keystore.GetCScript(scriptID, subscript)) {
+            IsMine_Each(keystore, subscript);//keyID is no use
+                return;
+        }
+        break;
+    }
+    case TX_MULTISIG: {
+        // Only consider transactions "mine" if we own ALL the
+        // keys involved. multi-signature transactions that are
+        // partially owned (somebody else has a key that can spend
+        // them) enable spend-out-from-under-you attacks, especially
+        // in shared-wallet situations.
+        vector<valtype> keys(vSolutions.begin() + 1, vSolutions.begin() + vSolutions.size() - 1);
+        if(HaveKeys(keys, keystore) == keys.size())
+            return;
+        break;
+    }
+    }
+
+    if(keystore.HaveWatchOnly(scriptPubKey))
+        return;
+    if(keystore.HaveMultiSig(scriptPubKey))
+        return;
+
+    return;
 }

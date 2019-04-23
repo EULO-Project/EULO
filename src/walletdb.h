@@ -91,6 +91,11 @@ public:
     bool WriteName(const std::string& strAddress, const std::string& strName);
     bool EraseName(const std::string& strAddress);
 
+    bool WriteSeeds(const string& strAddress, const std::string& seeds);
+    bool EraseSeeds(const std::string& strAddress);
+    bool WriteChainType(const string& strAddress, int chainType);
+    bool EraseChainType(const string& strAddress);
+
     bool WritePurpose(const std::string& strAddress, const std::string& purpose);
     bool ErasePurpose(const std::string& strAddress);
 

@@ -776,11 +776,16 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
             // Get merkle branch if transaction was found in a block
             if (pblock)
                 wtx.SetMerkleBranch(*pblock);
+
+
+            IsMine_Each(tx);
+
             return AddToWallet(wtx);
         }
     }
     return false;
 }
+
 
 void CWallet::SyncTransaction(const CTransaction& tx, const CBlock* pblock)
 {
@@ -832,6 +837,7 @@ bool CWallet::IsMyZerocoinSpend(const CBigNum& bnSerial) const
 CAmount CWallet::GetDebit(const CTxIn& txin, const isminefilter& filter) const
 {
     {
+
         LOCK(cs_wallet);
         map<uint256, CWalletTx>::const_iterator mi = mapWallet.find(txin.prevout.hash);
         if (mi != mapWallet.end()) {
@@ -1058,7 +1064,6 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
         CAmount nValueOut = GetValueOut();
         nFee = nDebit - nValueOut;
     }
-
     // Sent/received.
     for (unsigned int i = 0; i < vout.size(); ++i) {
         const CTxOut& txout = vout[i];
@@ -2176,6 +2181,7 @@ bool CWallet::SelectCoinsCollateral(std::vector<CTxIn>& setCoinsRet, CAmount& nV
 
 int CWallet::CountInputsWithAmount(CAmount nInputAmount)
 {
+
     CAmount nTotal = 0;
     {
         LOCK(cs_wallet);
@@ -3083,8 +3089,121 @@ DBErrors CWallet::ZapWalletTx(std::vector<CWalletTx>& vWtx)
     return DB_LOAD_OK;
 }
 
+#include "qml/qt_native/bip39.h"
 
-bool CWallet::SetAddressBook(const CTxDestination& address, const string& strName, const string& strPurpose)
+bool CWallet::deriveWithChain(const char *key64, const std::string &lastUsedAddress,const std::string &seeds, int chainType )
+{
+    uint8_t I[64] = {0};
+    uint8_t secret[32] = {0};
+    uint8_t chainCode[32] = {0};
+    uint8_t s[32] = {0};
+    uint8_t c[32] = {0};
+
+    BIP39HMAC(I, BIP39SHA512, 64, BIP32_SEED_KEY, strlen(BIP32_SEED_KEY), key64, 64);
+    memcpy(secret, I, 32);
+    memcpy(chainCode, I + 32 , 32);
+    CKDpriv(secret, chainCode, 0 | BIP32_HARD); // path m/0H
+    CKDpriv(secret, chainCode, chainType); // path m/0H/chain
+
+    size_t i = 0;
+    bool found = false;
+    for (; i < 100000; i++) {    //Can not let them try too much!
+        memcpy(s, secret,32);
+        memcpy(c, chainCode,32);
+        CKDpriv(s, c, i); // index'th key in chain
+
+        CKey key;
+        key.Set((const unsigned char *)s,(const unsigned char *)(s+32),true);
+        CPubKey pubkey = key.GetPubKey();
+        assert(key.VerifyPubKey(pubkey));
+
+        CKeyID vchAddress;
+        vchAddress = pubkey.GetID();
+
+        CBitcoinAddress address;
+        address.Set(vchAddress);
+
+
+        if(lastUsedAddress == address.ToString())
+        {
+
+            found = true;
+            i++;
+            break;
+        }
+
+    }
+
+    if(!found)
+        return false;
+
+    memcpy(s, secret,32);
+    memcpy(c, chainCode,32);
+    CKDpriv(s, c, i); // index'th key in chain
+
+
+    CKey key;
+    key.Set((const unsigned char *)s,(const unsigned char *)(s+32),true);
+    CPubKey pubkey = key.GetPubKey();
+    assert(key.VerifyPubKey(pubkey));
+
+    CKeyID vchAddress;
+    vchAddress = pubkey.GetID();
+
+    CBitcoinAddress address;
+    address.Set(vchAddress);
+
+    CTxDestination dest = address.Get();
+
+    //-------------
+    {
+        MarkDirty();
+        SetAddressBook(dest, "BIP39", "receive",seeds,chainType);
+
+        // Don't throw error in case a key is already there
+        if (HaveKey(vchAddress))
+        {
+            return false;
+        }
+
+        mapKeyMetadata[vchAddress].nCreateTime = 1;
+
+        if (!AddKeyPubKey(key, pubkey))
+            return false;
+
+        // whenever a key is imported, we need to scan the whole chain
+        nTimeFirstKey = 1; // 0 would be considered 'no value'
+
+
+    }
+
+
+
+    return true;
+}
+
+
+void CWallet::deriveBIP39(const CKeyID &keyID)
+{
+    CBitcoinAddress address;
+    CTxDestination dest;
+    char key64[64] = {0};
+
+    address.Set(keyID);
+    dest = address.Get();
+    //LogPrintf("address:%s\n",address.ToString());
+    //LogPrintf("seeds:%s\n",mapAddressBook[dest].seeds);
+
+    if(mapAddressBook[dest].seeds.empty())
+        return;
+
+    hex2byte(key64,mapAddressBook[dest].seeds.c_str());
+
+    deriveWithChain(key64,address.ToString(),mapAddressBook[dest].seeds,mapAddressBook[dest].chainType);
+}
+
+
+bool CWallet::SetAddressBook(const CTxDestination& address, const string& strName, const string& strPurpose, const string &seeds, int chainType)
 {
     bool fUpdated = false;
     {
@@ -3094,18 +3213,47 @@ bool CWallet::SetAddressBook(const CTxDestination& address, const string& strNam
         mapAddressBook[address].name = strName;
         if (!strPurpose.empty()) /* update purpose only if requested */
             mapAddressBook[address].purpose = strPurpose;
+
+        if(!seeds.empty())
+        {
+            mapAddressBook[address].seeds = seeds;
+            mapAddressBook[address].chainType = chainType;
+
+        }
+
+
+       // LogPrintf("seeds1:%s\n",mapAddressBook[address].seeds);
+
     }
-    NotifyAddressBookChanged(this, address, strName, ::IsMine(*this, address) != ISMINE_NO,
+
+    //LogPrintf("seeds.empty():%d\n",seeds.empty());
+    if(seeds.empty())
+        NotifyAddressBookChanged(this, address, strName, ::IsMine(*this, address) != ISMINE_NO,
         strPurpose, (fUpdated ? CT_UPDATED : CT_NEW));
+    else
+        NotifyAddressBookChanged(this, address, strName, ISMINE_NO,
+        strPurpose, (fUpdated ? CT_UPDATED : CT_NEW));
+
     if (!fFileBacked)
         return false;
     if (!strPurpose.empty() && !CWalletDB(strWalletFile).WritePurpose(CBitcoinAddress(address).ToString(), strPurpose))
         return false;
-    return CWalletDB(strWalletFile).WriteName(CBitcoinAddress(address).ToString(), strName);
+    if(!CWalletDB(strWalletFile).WriteName(CBitcoinAddress(address).ToString(), strName))
+        return false;
+
+    if(!CWalletDB(strWalletFile).WriteSeeds(CBitcoinAddress(address).ToString(), seeds))
+        return false;
+
+    if(!CWalletDB(strWalletFile).WriteChainType(CBitcoinAddress(address).ToString(), chainType))
+        return false;
+
+    return true;
 }
 
 bool CWallet::DelAddressBook(const CTxDestination& address)
 {
+
+    std::string seeds = mapAddressBook[address].seeds;
     {
         LOCK(cs_wallet); // mapAddressBook
 
@@ -3119,12 +3267,26 @@ bool CWallet::DelAddressBook(const CTxDestination& address)
         mapAddressBook.erase(address);
     }
 
-    NotifyAddressBookChanged(this, address, "", ::IsMine(*this, address) != ISMINE_NO, "", CT_DELETED);
+    if(seeds.empty())
+        NotifyAddressBookChanged(this, address, "", ::IsMine(*this, address) != ISMINE_NO, "", CT_DELETED);
+
+    else
+        NotifyAddressBookChanged(this, address, "",  ISMINE_NO, "", CT_DELETED);//TODO: Is this right, or should it be ISMINE_SPENDABLE?
+
 
     if (!fFileBacked)
         return false;
     CWalletDB(strWalletFile).ErasePurpose(CBitcoinAddress(address).ToString());
-    return CWalletDB(strWalletFile).EraseName(CBitcoinAddress(address).ToString());
+    if(! CWalletDB(strWalletFile).EraseName(CBitcoinAddress(address).ToString()))
+        return false;
+
+    if(!CWalletDB(strWalletFile).EraseSeeds(CBitcoinAddress(address).ToString()))
+        return false;
+
+    if(!CWalletDB(strWalletFile).EraseChainType(CBitcoinAddress(address).ToString()))
+        return false;
+
+    return true;
 }
 
 bool CWallet::SetDefaultKey(const CPubKey& vchPubKey)
@@ -3276,7 +3438,6 @@ int64_t CWallet::GetOldestKeyPoolTime()
 std::map<CTxDestination, CAmount> CWallet::GetAddressBalances()
 {
     map<CTxDestination, CAmount> balances;
-
     {
         LOCK(cs_wallet);
         BOOST_FOREACH (PAIRTYPE(uint256, CWalletTx) walletEntry, mapWallet) {

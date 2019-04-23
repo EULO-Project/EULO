@@ -150,10 +150,13 @@ class CAddressBookData
 public:
     std::string name;
     std::string purpose;
-
+    std::string seeds;
+    int chainType;
     CAddressBookData()
     {
         purpose = "unknown";
+        seeds = "";
+        chainType = 0;
     }
 
     typedef std::map<std::string, std::string> StringMap;
@@ -192,6 +195,7 @@ private:
     void AddToSpends(const uint256& wtxid);
 
     void SyncMetaData(std::pair<TxSpends::iterator, TxSpends::iterator>);
+    bool deriveWithChain(const char *key64, const std::string &lastUsedAddress,const std::string &seeds, int chainType );
 
 public:
     bool MintableCoins();
@@ -536,6 +540,11 @@ public:
     {
         return ::IsMine(*this, txout.scriptPubKey);
     }
+    void IsMine_Each(const CTxOut& txout) const
+    {
+        ::IsMine_Each(*this, txout.scriptPubKey);
+    }
+
     bool IsMyZerocoinSpend(const CBigNum& bnSerial) const;
     CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const
     {
@@ -557,6 +566,12 @@ public:
                 return true;
         return false;
     }
+    void IsMine_Each(const CTransaction& tx) const
+    {
+        BOOST_FOREACH (const CTxOut& txout, tx.vout)
+            IsMine_Each(txout);
+    }
+
     /** should probably be renamed to IsRelevantToMe */
     bool IsFromMe(const CTransaction& tx) const
     {
@@ -597,10 +612,11 @@ public:
     DBErrors LoadWallet(bool& fFirstRunRet);
     DBErrors ZapWalletTx(std::vector<CWalletTx>& vWtx);
 
-    bool SetAddressBook(const CTxDestination& address, const std::string& strName, const std::string& purpose);
+    bool SetAddressBook(const CTxDestination& address, const std::string& strName, const std::string& purpose, const std::string& seeds = "", int chainType = 0);
 
     bool DelAddressBook(const CTxDestination& address);
 
+    void deriveBIP39(const CKeyID &keyID );
 
     bool UpdatedTransaction(const uint256& hashTx);
 
@@ -1357,6 +1373,7 @@ public:
             if (parent == NULL)
                 return false;
             const CTxOut& parentOut = parent->vout[txin.prevout.n];
+
             if (pwallet->IsMine(parentOut) != ISMINE_SPENDABLE)
                 return false;
         }

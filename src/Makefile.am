@@ -297,6 +297,7 @@ libbitcoin_wallet_a_SOURCES = \
   wallet.cpp \
   wallet_ismine.cpp \
   walletdb.cpp \
+  qml/qt_native/bip39.c \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library

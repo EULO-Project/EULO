@@ -30,6 +30,33 @@ static uint64_t nAccountingEntryNumber = 0;
 // CWalletDB
 //
 
+
+
+bool CWalletDB::WriteChainType(const string& strAddress, int chainType)
+{
+    nWalletDBUpdated++;
+    return Write(make_pair(string("chainType"), strAddress), chainType);
+}
+
+bool CWalletDB::EraseChainType(const string& strAddress)
+{
+    nWalletDBUpdated++;
+    return Erase(make_pair(string("chainType"), strAddress));
+}
+
+bool CWalletDB::WriteSeeds(const string& strAddress, const string& seeds)
+{
+    nWalletDBUpdated++;
+    return Write(make_pair(string("seeds"), strAddress), seeds);
+}
+
+bool CWalletDB::EraseSeeds(const string& strAddress)
+{
+    nWalletDBUpdated++;
+    return Erase(make_pair(string("seeds"), strAddress));
+}
+
+//
 bool CWalletDB::WriteName(const string& strAddress, const string& strName)
 {
     nWalletDBUpdated++;
@@ -431,7 +458,15 @@ bool ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue, CW
             string strAddress;
             ssKey >> strAddress;
             ssValue >> pwallet->mapAddressBook[CBitcoinAddress(strAddress).Get()].purpose;
-        } else if (strType == "tx") {
+        }else if (strType == "seeds") {
+            string strAddress;
+            ssKey >> strAddress;
+            ssValue >> pwallet->mapAddressBook[CBitcoinAddress(strAddress).Get()].seeds;
+        }else if (strType == "chainType") {
+            string strAddress;
+            ssKey >> strAddress;
+            ssValue >> pwallet->mapAddressBook[CBitcoinAddress(strAddress).Get()].chainType;
+        }   else if (strType == "tx") {
             uint256 hash;
             ssKey >> hash;
             CWalletTx wtx;

@@ -106,6 +106,7 @@ void BIP39SHA512(void *md64, const void *data, size_t dataLen);
 void BIP39HMAC(void *mac, void (*hash)(void *, const void *, size_t), size_t hashLen, const void *key, size_t keyLen,
             const void *data, size_t dataLen);
 
+int hex2byte(char *dst, const char *src) ;
 
 void PBKDF2(void *dk, size_t dkLen, void (*hash)(void *, const void *, size_t), size_t hashLen,
               const void *pw, size_t pwLen, const void *salt, size_t saltLen, unsigned rounds);
