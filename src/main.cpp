@@ -2270,13 +2270,13 @@ int64_t GetTmpBlockValue(int nHeight)
         nSubsidy = 0 * COIN;
     } else if (nHeight <= Params().POW_Start_BLOCK_In_POS() - 2 && nHeight > Params().LAST_POW_BLOCK()) {
         nSubsidy = 0 * COIN;
-    } else if (nHeight <= 4665599 && nHeight >= Params().POW_Start_BLOCK_In_POS() - 1) {
+    } else if (nHeight <= 5183999 && nHeight >= Params().POW_Start_BLOCK_In_POS() - 1) {
         nSubsidy *= 0.2;
-    } else if (nHeight <= 8812799 && nHeight >= 4665600) {
+    } else if (nHeight <= 9331199 && nHeight >= 5184000) {
         nSubsidy *= 0.3;
-    } else if (nHeight <= 15033599 && nHeight >= 8812800) {
+    } else if (nHeight <= 15551999 && nHeight >= 9331200) {
         nSubsidy *= 0.4;
-    } else if (nHeight >= 15033600) {
+    } else if (nHeight >= 15552000) {
         nSubsidy *= 0.5;
     } else {
         nSubsidy = 0;
@@ -2293,29 +2293,29 @@ int64_t GetBlockValue(int nHeight)
         nSubsidy = 10000000000 * COIN;
     } else if (nHeight <= Params().LAST_POW_BLOCK() && nHeight > 0) {
         nSubsidy = 10 * 1 * COIN;
-    } else if (nHeight <= 518399 && nHeight > Params().LAST_POW_BLOCK()) {
+    } else if (nHeight <= 1036799 && nHeight > Params().LAST_POW_BLOCK()) {
         nSubsidy = 10 * 1 * COIN;
-    } else if (nHeight <= 4665599 && nHeight >= 518400) {
+    } else if (nHeight <= 5183999 && nHeight >= 1036800) {
         nSubsidy = 325 * 0.95 * COIN;
-    } else if (nHeight <= 6739199 && nHeight >= 4665600) {
+    } else if (nHeight <= 7257599 && nHeight >= 5184000) {
         nSubsidy = 625 * 0.95 * COIN;
-    } else if (nHeight <= 8812799 && nHeight >= 6739200) {
+    } else if (nHeight <= 9331199 && nHeight >= 7257600) {
         nSubsidy = 600 * 0.95 * COIN;
-    } else if (nHeight <= 10886399 && nHeight >= 8812800) {
+    } else if (nHeight <= 11404799 && nHeight >= 9331200) {
         nSubsidy = 575 * 0.95 * COIN;
-    } else if (nHeight <= 12959999 && nHeight >= 10886400) {
+    } else if (nHeight <= 13478399 && nHeight >= 11404800) {
         nSubsidy = 550 * 0.95 * COIN;
-    } else if (6479999 <= 15033599 && nHeight >= 12960000) {
+    } else if (6479999 <= 15551999 && nHeight >= 13478400) {
         nSubsidy = 525 * 0.95 * COIN;
-    } else if (nHeight <= 17107199 && nHeight >= 15033600) {
+    } else if (nHeight <= 17625599 && nHeight >= 15552000) {
         nSubsidy = 500 * 0.95 * COIN;
-    } else if (nHeight <= 19180799 && nHeight >= 17107200) {
+    } else if (nHeight <= 19699199 && nHeight >= 17625600) {
         nSubsidy = 475 * 0.95 * COIN;
-    } else if (nHeight <= 21254399 && nHeight >= 19180800) {
+    } else if (nHeight <= 21772799 && nHeight >= 19699200) {
         nSubsidy = 450 * 0.95 * COIN;
-    } else if (nHeight <= 23327999 && nHeight >= 21254400) {
+    } else if (nHeight <= 23846399 && nHeight >= 21772800) {
         nSubsidy = 425 * 0.95 * COIN;
-    } else if (nHeight >= 23328000) {
+    } else if (nHeight >= 23846400) {
         nSubsidy = 250 * 0.95 * COIN;
     } else {
         nSubsidy = 0 * COIN;

@@ -122,7 +122,7 @@ public:
         /** Height or Time Based Activations **/
         nLastPOWBlock = 1439;
         nContractStartHeight = 234720;
-        nPOWStartBlockInPOS = 518400;
+        nPOWStartBlockInPOS = 1036800;
         nModifierUpdateBlock = 0;
         nZerocoinStartHeight = 129600;
         nZerocoinStartTime = 1533859200;    // August 10, 2018 08:00:00 AM
