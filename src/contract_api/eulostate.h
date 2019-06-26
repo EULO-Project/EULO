@@ -10,14 +10,10 @@
 #include <primitives/transaction.h>
 #include "eulotransaction.h"
 
+#include <libevm/ExtVMFace.h>
 #include <libdevcore/Common.h>
 #include <libethereum/Executive.h>
 #include <libethcore/SealEngine.h>
-
-
-using OnOpFunc = std::function<void(uint64_t, uint64_t, dev::eth::Instruction, dev::bigint, dev::bigint,
-                                    dev::bigint, dev::eth::VM*, dev::eth::ExtVMFace const *)>;
-
 
 
 using plusAndMinus = std::pair<dev::u256, dev::u256>;  //eulo commmetn the first: the plus value;the second:the minus value
@@ -72,27 +68,6 @@ namespace eulo
 
 class CondensingTX;
 
-enum eExtendDataType {
-    EXT_DATA_STRING     = 0x00,     //  0
-    EXT_DATA_DOUBLE     = 0x01,     //  1
-    EXT_DATA_BOOL       = 0x02,     //  2
-    EXT_DATA_INT8       = 0x03,     //  3
-    EXT_DATA_UINT8      = 0x04,     //  4
-    EXT_DATA_INT16      = 0x05,     //  5
-    EXT_DATA_UINT16     = 0x06,     //  6
-    EXT_DATA_INT32      = 0x07,     //  7
-    EXT_DATA_UINT32     = 0x08,     //  8
-    EXT_DATA_INT64      = 0x09,     //  9
-    EXT_DATA_UINT64     = 0x0a,     //  10
-    EXT_DATA_INT128     = 0x0b,     //  11
-    EXT_DATA_UINT128    = 0x0c,     //  12
-    EXT_DATA_INT256     = 0x0d,     //  13
-    EXT_DATA_UINT256    = 0x0e,     //  14
-    EXT_DATA_RESERVED   = 0x0f,     //  15
-};
-
-bool getData(uint32_t _height, const std::string & _key, eExtendDataType & _type, std::vector<uint8_t>& _value, dev::Address const& _owner = dev::Address());
-
 class EuloState : public dev::eth::State
 {
 
@@ -105,7 +80,7 @@ public:
 
     ResultExecute
     execute(dev::eth::EnvInfo const &_envInfo, dev::eth::SealEngineFace const &_sealEngine, EuloTransaction const &_t,
-            dev::eth::Permanence _p = dev::eth::Permanence::Committed, dev::eth::OnOpFunc const &_onOp = OnOpFunc());
+            dev::eth::Permanence _p = dev::eth::Permanence::Committed, dev::eth::OnOpFunc const &_onOp = dev::eth::OnOpFunc());
 
     void setRootUTXO(dev::h256 const &_r)
     {

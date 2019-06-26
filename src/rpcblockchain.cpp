@@ -1510,7 +1510,7 @@ UniValue getaccountinfo(const UniValue& params, bool fHelp)
     for (auto j: storage)
     {
         UniValue e(UniValue::VOBJ);
-        e.push_back(Pair(j.second.first.str(0, std::ios_base::hex).c_str(), j.second.second.str(0, std::ios_base::hex).c_str()));
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
         storageUV.push_back(Pair(j.first.hex(), e));
     }
 
@@ -1617,7 +1617,7 @@ UniValue getstorage(const UniValue& params, bool fHelp)
     for (const auto &j: storage)
     {
         UniValue e(UniValue::VOBJ);
-        e.push_back(Pair(j.second.first.str(0, std::ios_base::hex).c_str(), j.second.second.str(0, std::ios_base::hex).c_str()));
+        e.pushKV(dev::toHex(dev::h256(j.second.first)), dev::toHex(dev::h256(j.second.second)));
         result.push_back(Pair(j.first.hex(), e));
     }
 

@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include "util.h"
 
+#include "chain.h"
 #include "txmempool.h"
-
 /////////////////////////////////////////// //eulo-vm
 #include "eulostate.h"
 #include "euloDGP.h"
@@ -18,7 +18,7 @@
 #include <script/standard.h>
 #include <serialize.h>
 #include <libethereum/Transaction.h>
-
+#include <libethereum/LastBlockHashesFace.h>
 
 #include "contractbase.h"
 #include "storageresults.h"
@@ -76,6 +76,21 @@ private:
 
 };
 
+class LastHashes: public dev::eth::LastBlockHashesFace
+{
+public:
+    explicit LastHashes();
+
+    void set(CBlockIndex const* tip);
+
+    dev::h256s precedingHashes(dev::h256 const&) const;
+
+    void clear();
+
+private:
+    dev::h256s m_lastHashes;
+};
+
 
 class ByteCodeExec
 {
@@ -112,6 +127,7 @@ private:
     const CBlock &block;
     const uint64_t blockGasLimit;
 
+    LastHashes lastHashes;
 };
 
 bool ComponentInitialize();

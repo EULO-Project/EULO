@@ -212,11 +212,8 @@ fi
 build_version="_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION"
 CPPFLAGS="$CPPFLAGS -DBUILD_DESC=\"\\\"v$build_version\\\"\""
 
-build_version="_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION"
-CPPFLAGS="$CPPFLAGS -DBUILD_DESC=\"\\\"v$build_version\\\"\""
-
-CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1" 
-CXXFLAGS="$CXXFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1"
+CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1 " 
+CXXFLAGS="$CXXFLAGS -DHAVE_BUILD_INFO -DEULO_BUILD -DETH_FATDB=1 "
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],
@@ -237,6 +234,43 @@ AC_ARG_WITH([daemon],
   [build_bitcoind=yes])
 
 AC_LANG_PUSH([C++])
+
+# gmp
+AC_CHECK_HEADER([gmp.h],, AC_MSG_ERROR(libgmp headers missing),)
+AC_CHECK_LIB([gmp],[main],GMP_LIBS=-lgmp,AC_MSG_ERROR(libgmp missing))
+
+# ethash
+AC_CHECK_HEADER([ethash/ethash.h],, AC_MSG_ERROR(libethash headers missing),)
+AC_CHECK_LIB([ethash],[main],ETHASH_LIBS=-lethash,AC_MSG_ERROR(libethash missing))
+
+# evmc
+AC_CHECK_HEADER([evmc/evmc.h],, AC_MSG_ERROR(libevmc headers missing),)
+AC_CHECK_HEADER([evmc/loader.h],, AC_MSG_ERROR(libevmc loader headers missing),)
+AC_CHECK_HEADER([evmc/instructions.h],, AC_MSG_ERROR(libevmc instructions headers missing),)
+AC_CHECK_LIB([evmc-loader],[main],EVMC_LOADER_LIBS=-levmc-loader,AC_MSG_ERROR(libevmc-loader missing))
+AC_CHECK_LIB([evmc-instructions],[main],EVMC_INSTRUCTIONS_LIBS=-levmc-instructions,AC_MSG_ERROR(libevmc-instructions missing))
+
+# libscrypt
+AC_CHECK_HEADER([libscrypt.h],, AC_MSG_ERROR(libscrypt headers missing),)
+AC_CHECK_LIB([scrypt],[main],SCRYPT_LIBS=-lscrypt,AC_MSG_ERROR(libscrypt missing))
+
+# jsoncpp
+AC_CHECK_HEADER([json/json.h],, AC_MSG_ERROR(jsoncpp headers missing),)
+AC_CHECK_LIB([jsoncpp],[main],JSONCPP_LIBS=-ljsoncpp,AC_MSG_ERROR(libjsoncpp missing))
+
+# libff
+AC_CHECK_HEADERS([libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp libff/algebra/curves/alt_bn128/alt_bn128_g2.hpp],, AC_MSG_ERROR(libff headers missing),)
+AC_CHECK_LIB([ff],[main],LIBFF_LIBS=-lff,AC_MSG_ERROR(libff missing))
+
+CXXFLAGS="$CXXFLAGS -I$prefix/include/libff "
+
+# cryptopp
+AC_CHECK_HEADER([cryptopp/cryptlib.h],, AC_MSG_ERROR(cryptopp headers missing),)
+AC_CHECK_LIB([cryptopp],[main],CRYPTOPP_LIBS=-lcryptopp,AC_MSG_ERROR(cryptopp missing))
+
+# rocksdb
+AC_CHECK_HEADER([rocksdb/db.h],, AC_MSG_ERROR(rocksdb headers missing),)
+AC_CHECK_LIB([rocksdb],[main],ROCKSDB_LIBS=-lrocksdb,AC_MSG_ERROR(rocksdb missing))
 
 use_pkgconfig=yes
 case $host in
@@ -1135,6 +1169,15 @@ AC_SUBST(EVENT_PTHREADS_LIBS)
 AC_SUBST(ZMQ_LIBS)
 AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
+AC_SUBST(GMP_LIBS)
+AC_SUBST(ETHASH_LIBS)
+AC_SUBST(EVMC_LOADER_LIBS)
+AC_SUBST(EVMC_INSTRUCTIONS_LIBS)
+AC_SUBST(JSONCPP_LIBS)
+AC_SUBST(SCRYPT_LIBS)
+AC_SUBST(CRYPTOPP_LIBS)
+AC_SUBST(ROCKSDB_LIBS)
+AC_SUBST(LIBFF_LIBS)
 AC_CONFIG_FILES([Makefile src/Makefile share/setup.nsi share/qt/Info.plist src/test/buildenv.py])
 AC_CONFIG_FILES([qa/pull-tester/run-bitcoind-for-test.sh],[chmod +x qa/pull-tester/run-bitcoind-for-test.sh])
 AC_CONFIG_FILES([qa/pull-tester/tests-config.sh],[chmod +x qa/pull-tester/tests-config.sh])

@@ -298,8 +298,16 @@ LIBS += -L$$PWD/../cryptopp \
         -lcryptopp
 
 LIBS += -L$$TOOLCHAIN_LIB_PATH \
+        -lzmq \
+        -lethash \
+        -levmc-loader \
+        -levmc-instructions \
+        -lscrypt \
+        -ljsoncpp \
+        -lff \
         -lgmp \
-        -lzmq
+        -lcryptopp \
+        -lrocksdb
 
 win32{
     LIBS += -lshlwapi -lcomctl32 -lole32 -lws2_32 -lmswsock  -lgdi32 -liphlpapi -luuid -lmingwthrd -ldwmapi

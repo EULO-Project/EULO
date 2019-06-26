@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #include "libzerocoin/Coin.h"
+#include "extendeddata.h"
 #include "spork.h"
 #include <boost/assign/list_of.hpp>
 
@@ -3187,7 +3188,7 @@ UniValue getextenddata(const UniValue& params, bool fHelp)
     strKey = params[1].get_str();
 
     std::vector<uint8_t> value;
-    if (getData(height, strKey, eType, value, Sender)) {
+    if (getExtendedData(height, strKey, eType, value, Sender)) {
         strValue = std::string((const char *)value.data(), value.size());
     }
 

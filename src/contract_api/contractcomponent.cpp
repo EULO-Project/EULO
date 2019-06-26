@@ -230,8 +230,8 @@ bool ContractInit()
     //FixME: Comment this is not right?
 
     ////////////////////////////////////////////////////////////////////// // eulo
-    dev::g_logPost = [&](std::string const& s, char const* c){ LogPrintStr(s + '\n', true); };
-    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
+//    dev::g_logPost = [&](std::string const& s, char const* c){ LogPrintStr(s + '\n', true); };
+//    dev::g_logPost(std::string("\n\n\n\n\n\n\n\n\n\n"), NULL);
     //LogPrintStr("\n\n\n\n\n\n\nnnnnnnnnnnnnnnnnnnnnn",true);
     //////////////////////////////////////////////////////////////////////
 
@@ -950,8 +950,7 @@ bool ContractTxConnectBlock(CTransaction tx, uint32_t transactionIndex, CCoinsVi
     for (ResultExecute &re: resultExec)
     {
         if (re.execRes.newAddress != dev::Address() && !fJustCheck){
-            LogPrint("Address : ","%s :", std::string(re.execRes.newAddress.hex()));
-            dev::g_logPost(std::string("Address : " + re.execRes.newAddress.hex()), NULL);
+            LogPrintf("Address : %s :", std::string(re.execRes.newAddress.hex()));
         }
     }
     return true;
@@ -1177,7 +1176,7 @@ UniValue transactionReceiptToJSON(const dev::eth::TransactionReceipt &txRec)
 {
     UniValue result(UniValue::VOBJ);
     result.push_back(Pair("stateRoot", txRec.stateRoot().hex()));
-    result.push_back(Pair("gasUsed", CAmount(txRec.gasUsed())));
+    result.push_back(Pair("gasUsed", CAmount(txRec.cumulativeGasUsed())));
     result.push_back(Pair("bloom", txRec.bloom().hex()));
     UniValue logEntries(UniValue::VARR);
     dev::eth::LogEntries logs = txRec.log();
@@ -1223,58 +1222,64 @@ void RPCCallContract(UniValue &result, const string addrContract, std::vector<un
     result.push_back(Pair("transactionReceipt", transactionReceiptToJSON(execResults[0].txRec)));
 }
 
+LastHashes::LastHashes()
+{}
 
-dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
-    dev::eth::EnvInfo env;
-    CBlockIndex* tip = chainActive.Tip();
-    //env.setNumber(dev::u256(tip->nHeight + 1));
+void LastHashes::set(const CBlockIndex *tip)
+{
+    clear();
 
-    //  CBlockIndex *pblockindex = mapBlockIndex[block.GetHash()];
-
-    if(nHeight == 0)
-    {
-        env.setNumber(dev::u256(tip->nHeight + 1));
-       // LogPrintf("*****1\n");
-    }
-    else
-    {
-        env.setNumber(dev::u256(nHeight));
-    }
-
-
-
-
-    env.setTimestamp(dev::u256(block.nTime));
-    env.setDifficulty(dev::u256(block.nBits));
-
-//    LogPrintf("*****BuildEVMEnvironment  block.nTime:%d\n", block.nTime);
-//    LogPrintf("*****BuildEVMEnvironment  block.nBits:%d\n", block.nBits);
-
-//    LogPrintf("*****BuildEVMEnvironment   nHeight:d%\n",nHeight);
-//    LogPrintf("*****BuildEVMEnvironment  tip.nHeight:%ld\n", tip->nHeight);
-//    LogPrintf("*****BuildEVMEnvironment  blockGasLimit:%ld\n", blockGasLimit);
-
-
-    dev::eth::LastHashes lh;
-    lh.resize(256);
+    m_lastHashes.resize(256);
     for(int i=0;i<256;i++){
         if(!tip)
             break;
-        lh[i]= uintToh256(*tip->phashBlock);
+        m_lastHashes[i]= uintToh256(*tip->phashBlock);
         tip = tip->pprev;
     }
-    env.setLastHashes(std::move(lh));
-    env.setGasLimit(blockGasLimit);
+}
+
+dev::h256s LastHashes::precedingHashes(const dev::h256 &) const
+{
+    return m_lastHashes;
+}
+
+void LastHashes::clear()
+{
+    m_lastHashes.clear();
+}
+
+
+dev::eth::EnvInfo ByteCodeExec::BuildEVMEnvironment(int nHeight){
+    dev::u256 gasUsed;
+    dev::eth::BlockHeader header;
+    
+    CBlockIndex* tip = chainActive.Tip();
+    
+    if (0 == nHeight || NULL == chainActive[nHeight]) {
+        header.setNumber(tip->nHeight + 1);
+        LogPrintf("*****1\n");
+    } else {
+        tip = chainActive[nHeight];
+        header.setNumber(nHeight);
+        LogPrintf("*****2   nHeight:d%\n",nHeight);
+    }
+    header.setTimestamp(block.nTime);
+    header.setDifficulty(dev::u256(block.nBits));
+    header.setGasLimit(blockGasLimit);
+
+    lastHashes.set(tip);
 
     if(block.IsProofOfStake()){
-        if(block.GetBlockHeader().nVersion < SMART_CONTRACT_VERSION)
-            env.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
+        if (block.GetBlockHeader().nVersion < SMART_CONTRACT_VERSION)
+            header.setAuthor(EthAddrFromScript(block.vtx[1].vout[1].scriptPubKey));
         else
-            env.setAuthor(EthAddrFromScript(block.vtx[1].vout[2].scriptPubKey));
+            header.setAuthor(EthAddrFromScript(block.vtx[1].vout[2].scriptPubKey));
     }else {
-        env.setAuthor(EthAddrFromScript(block.vtx[0].vout[0].scriptPubKey));
+        header.setAuthor(EthAddrFromScript(block.vtx[0].vout[0].scriptPubKey));
     }
 
+    dev::eth::EnvInfo env(header, lastHashes, gasUsed);
+    
     return env;
 }
 
@@ -1312,7 +1317,7 @@ bool ByteCodeExec::performByteCode(dev::eth::Permanence type, int nHeight)
 
         //LogPrintf("*****performByteCode stateRoot: %s, utxoRoot: %s\n", h256Touint(globalState->rootHashUTXO()).GetHex().c_str(), h256Touint(globalState->rootHash()).GetHex().c_str());
 
-        ResultExecute res_ = globalState->execute(envInfo, *se.get(), tx, type, OnOpFunc());
+        ResultExecute res_ = globalState->execute(envInfo, *se.get(), tx, type, dev::eth::OnOpFunc());
 
 
         //LogPrintf("*****ResultExecute tx:%s\n",res_.tx.ToString()); //eulo debug

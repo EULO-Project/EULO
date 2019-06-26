@@ -1,6 +1,6 @@
 #include <uint256.h>
 #include <primitives/transaction.h>
-
+#include <leveldb/db.h>
 #include <libethereum/State.h>
 
 using logEntriesSerializ = std::vector<std::pair<dev::Address, std::pair<dev::h256s, dev::bytes>>>;

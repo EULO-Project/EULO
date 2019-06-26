@@ -108,8 +108,8 @@ $(qml_package)_config_opts_mingw32 += OPENSSL_LIBS="-lssl -lcrypto -lgdi32"
 
 $(qml_package)_config_opts_mingw32 += -skip qtactiveqt
 $(qml_package)_config_opts_mingw32 += -debug-and-release
-$(qml_package)_config_opts_mingw32 += -opengl dynamic
-$(qml_package)_config_opts_mingw32 += -angle
+$(qml_package)_config_opts_mingw32 += -opengl desktop
+#$(qml_package)_config_opts_mingw32 += -angle
 
 
 
