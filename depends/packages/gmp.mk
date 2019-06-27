@@ -9,7 +9,7 @@ define $(package)_set_vars
 endef
 
 define $(package)_config_cmds
-  $($(package)_autoconf)
+  $($(package)_autoconf) --host=$(host) --build=$(build)
 endef
 
 define $(package)_build_cmds

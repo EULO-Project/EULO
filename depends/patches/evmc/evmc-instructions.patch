@@ -96,3 +96,15 @@ diff old/lib/instructions/instruction_names.c new/lib/instructions/instruction_n
      /* 0x22 */ NULL,
      /* 0x23 */ NULL,
      /* 0x24 */ NULL,
+diff -aurN old/lib/loader/loader.c new/lib/loader/loader.c
+--- old/lib/loader/loader.c	2018-10-25 05:20:07.000000000 +0800
++++ new/lib/loader/loader.c	2019-06-03 09:16:36.027350621 +0800
+@@ -12,7 +12,7 @@
+ #include <string.h>
+ 
+ #if _WIN32
+-#include <Windows.h>
++#include <windows.h>
+ #define DLL_HANDLE HMODULE
+ #define DLL_OPEN(filename) LoadLibrary(filename)
+ #define DLL_CLOSE(handle) FreeLibrary(handle)
